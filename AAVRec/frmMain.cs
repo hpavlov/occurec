@@ -432,7 +432,7 @@ namespace AAVRec
                     File.Exists(recordingfileName))
 				{
 					var fi = new FileInfo(recordingfileName);
-					tssRecordingFile.Text = string.Format("{0} ({1} Mb)", fi.Name, fi.Length / (1024 * 1024));
+					tssRecordingFile.Text = string.Format("{0} ({1:0.0} Mb)", fi.Name, 1.0 * fi.Length / (1024 * 1024));
 
 					tssRecordingFile.Visible = true;
 					btnStopRecording.Enabled = true;
