@@ -1,0 +1,198 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using AAVRec.Helpers;
+using AAVRec.Properties;
+using DirectShowLib;
+
+namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
+{
+	internal class VideoCapture
+	{
+		private DsDevice videoInputDevice;
+
+		private DirectShowCapture dsCapture = new DirectShowCapture();
+
+		private float frameRate;
+		private int imageWidth;
+		private int imageHeight;
+
+		private ICameraImage cameraImageHelper = new CameraImage();
+
+		private VideoCameraState cameraState = VideoCameraState.videoCameraIdle;
+
+		public bool IsConnected
+		{
+			get { return dsCapture.IsRunning; }
+		}
+
+		public string DeviceName
+		{
+			get
+			{
+				if (videoInputDevice != null)
+					return videoInputDevice.Name;
+				else
+					return string.Empty;
+			}
+		}
+
+		public int ImageWidth
+		{
+			get { return imageWidth; }
+		}
+
+		public int ImageHeight
+		{
+			get { return imageHeight; }
+		}
+
+		public float FrameRate
+		{
+			get { return frameRate; }
+		}
+
+		public int BitDepth
+		{
+			get { return 8; }
+		}
+
+		public bool LocateCaptureDevice()
+		{
+			videoInputDevice = FindInputAndCompressorToUse();
+
+			return videoInputDevice != null;
+		}
+
+		public void EnsureConnected()
+		{
+			if (!IsConnected)
+			{
+				dsCapture.CloseResources();
+
+				// TODO: Set a preferred frameRate and image size stored in the configuration
+
+				dsCapture.SetupGraph(videoInputDevice, ref frameRate, ref imageWidth, ref imageHeight);
+
+				dsCapture.Start();
+
+				cameraState = dsCapture.IsRunning ? VideoCameraState.videoCameraRunning : VideoCameraState.videoCameraIdle;
+			}
+		}
+
+		public void EnsureDisconnected()
+		{
+			dsCapture.Pause();
+
+			dsCapture.CloseResources();
+
+			cameraState = VideoCameraState.videoCameraIdle;
+		}
+
+		public void ReloadSettings()
+		{
+			if (IsConnected && videoInputDevice != null)
+			{
+				DsDevice inputDevice = FindInputAndCompressorToUse();
+
+				if (inputDevice != null && 
+					videoInputDevice != null && 
+					videoInputDevice.DevicePath != inputDevice.DevicePath)
+				{
+					EnsureDisconnected();
+
+					videoInputDevice = inputDevice;
+
+					EnsureConnected();
+				}
+			}
+		}
+
+		private DsDevice FindInputAndCompressorToUse()
+		{
+			DsDevice inputDevice = null;
+
+			List<DsDevice> allInputDevices = new List<DsDevice>(DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice));
+
+			if (!string.IsNullOrEmpty(Settings.Default.PreferredCaptureDevice))
+				inputDevice = allInputDevices.FirstOrDefault(x => x.Name == Settings.Default.PreferredCaptureDevice);
+			else if (allInputDevices.Count > 0)
+				inputDevice = allInputDevices[0];
+
+			return inputDevice;
+		}
+
+		public static SensorType SimulatedSensorType
+		{
+			get
+			{
+                return SensorType.Monochrome;
+			}
+		}
+
+		public bool GetCurrentFrame(out VideoCameraFrame cameraFrame)
+		{
+			long frameId;
+			Bitmap bmp = dsCapture.GetNextFrame(out frameId);
+
+			if (bmp != null)
+			{
+				using (bmp)
+				{
+					object pixels = cameraImageHelper.GetImageArray(bmp, SimulatedSensorType, Settings.Default.MonochromePixelsType);
+
+					cameraFrame = new VideoCameraFrame()
+					{
+						FrameNumber = frameId,
+						Pixels = pixels,
+						ImageLayout = VideoFrameLayout.Monochrome
+					};					
+				}
+
+				return true;
+			}
+
+			cameraFrame = null;
+			return false;
+		}
+
+		public VideoCameraState GetCurrentCameraState()
+		{
+			return cameraState;
+		}
+
+		public string StartRecordingVideoFile(string preferredFileName)
+		{
+			if (dsCapture.IsRunning)
+			{
+				NativeHelpers.StartRecordingVideoFile(preferredFileName);
+
+				cameraState = VideoCameraState.videoCameraRecording;
+
+				return preferredFileName;
+			}
+
+			throw new InvalidOperationException();
+		}
+
+		public void StopRecordingVideoFile()
+		{
+			NativeHelpers.StopRecordingVideoFile();
+
+			EnsureDisconnected();
+			EnsureConnected();
+		}
+
+        public void ShowDeviceProperties()
+        {
+            if (IsConnected && videoInputDevice != null)
+            {
+                dsCapture.ShowDeviceProperties();
+            }
+        }
+	}
+}

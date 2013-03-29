@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AAVRec", "AAVRec\AAVRec.csproj", "{B501E13A-44D3-4B3C-9B65-3A326FE49767}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AAVRec.Core", "AAVRec.Core\AAVRec.Core.vcxproj", "{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
+		Debug|x86 = Debug|x86
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B501E13A-44D3-4B3C-9B65-3A326FE49767}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{B501E13A-44D3-4B3C-9B65-3A326FE49767}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{B501E13A-44D3-4B3C-9B65-3A326FE49767}.Debug|Win32.ActiveCfg = Debug|x86
+		{B501E13A-44D3-4B3C-9B65-3A326FE49767}.Debug|x86.ActiveCfg = Debug|x86
+		{B501E13A-44D3-4B3C-9B65-3A326FE49767}.Debug|x86.Build.0 = Debug|x86
+		{B501E13A-44D3-4B3C-9B65-3A326FE49767}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{B501E13A-44D3-4B3C-9B65-3A326FE49767}.Release|Mixed Platforms.Build.0 = Release|x86
+		{B501E13A-44D3-4B3C-9B65-3A326FE49767}.Release|Win32.ActiveCfg = Release|x86
+		{B501E13A-44D3-4B3C-9B65-3A326FE49767}.Release|x86.ActiveCfg = Release|x86
+		{B501E13A-44D3-4B3C-9B65-3A326FE49767}.Release|x86.Build.0 = Release|x86
+		{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}.Debug|Win32.Build.0 = Debug|Win32
+		{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}.Debug|x86.ActiveCfg = Debug|Win32
+		{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}.Release|Win32.ActiveCfg = Release|Win32
+		{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}.Release|Win32.Build.0 = Release|Win32
+		{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}.Release|x86.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
