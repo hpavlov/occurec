@@ -1,11 +1,11 @@
 #include "StdAfx.h"
 #include "i_adv_data_section.h"
 
-IAdvDataSection::IAdvDataSection()
+IAavDataSection::IAavDataSection()
 {
 }
 
-IAdvDataSection::~IAdvDataSection()
+IAavDataSection::~IAavDataSection()
 {
 }
 

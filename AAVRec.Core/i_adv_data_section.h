@@ -1,12 +1,12 @@
-#ifndef AdvLib
-#define AdvLib
+#ifndef AavLib
+#define AavLib
 
-class IAdvDataSection {
+class IAavDataSection {
 
 public:
-	IAdvDataSection();
-	~IAdvDataSection();
+	IAavDataSection();
+	~IAavDataSection();
 
 };
 
-#endif // AdvLib
+#endif // AavLib

@@ -11,9 +11,9 @@
 using namespace std;
 using std::string;
 
-namespace AdvLib
+namespace AavLib
 {
-	class AdvImageLayout 
+	class AavImageLayout 
 	{
 
 	private:
@@ -58,8 +58,8 @@ namespace AdvLib
 		void ResetBuffers();
 		
 	public:
-		AdvImageLayout(unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame);
-		~AdvImageLayout();
+		AavImageLayout(unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame);
+		~AavImageLayout();
 		
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);
 		unsigned char* GetDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp);

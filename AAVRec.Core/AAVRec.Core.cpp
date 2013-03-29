@@ -319,20 +319,20 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 timestamp, FrameProcessingStat
 
 HRESULT StartRecording(LPCTSTR szFileName, LPCTSTR szCameraModel)
 {
-	AdvNewFile((const char*)szFileName);		
+	AavNewFile((const char*)szFileName);		
 	
-	AdvAddFileTag("AAVR-SOFTWARE-VERSION", "1.0");
-	AdvAddFileTag("RECORDER", "ASTRO ANALOGUE VIDEO");
-	AdvAddFileTag("FSTF-TYPE", "AAV");
-	AdvAddFileTag("AAV-VERSION", "1");
+	AavAddFileTag("AAVR-SOFTWARE-VERSION", "1.0");
+	AavAddFileTag("RECORDER", "ASTRO ANALOGUE VIDEO");
+	AavAddFileTag("FSTF-TYPE", "AAV");
+	AavAddFileTag("AAV-VERSION", "1");
 
-	AdvAddFileTag("CAMERA-MODEL", (const char*)szCameraModel);
+	AavAddFileTag("CAMERA-MODEL", (const char*)szCameraModel);
 
-	AdvDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT, 8);
+	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT, 8);
 	
-	AdvDefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", 8, 0, NULL);
-	AdvDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 8, 32, "PREV-FRAME");
-	AdvDefineImageLayout(3, "FULL-IMAGE-RAW", "QUICKLZ", 8, 0, NULL);
+	AavDefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", 8, 0, NULL);
+	AavDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 8, 32, "PREV-FRAME");
+	AavDefineImageLayout(3, "FULL-IMAGE-RAW", "QUICKLZ", 8, 0, NULL);
 
 	// TODO: Create a new thread
 	// TODO: Set a flag so ProcessVideoFrame() will not put processed (or incoming) frames in a buffer, ready for recording
@@ -348,15 +348,15 @@ void ProcessCurrentFrame()
 	unsigned int exposureIn10thMilliseconds = 0;
 	unsigned int elapsedTimeMilliseconds = 0; // since the first recorded frame was taken
 
-	bool frameStartedOk = AdvBeginFrame(timeStamp, elapsedTimeMilliseconds, exposureIn10thMilliseconds);
+	bool frameStartedOk = AavBeginFrame(timeStamp, elapsedTimeMilliseconds, exposureIn10thMilliseconds);
 
 	// NOTE: If we don't copy the data into a separate buffer there are some racing conditions when running 15fps and above
 	//unsigned short* dataToSave[IMAGE_WIDTH * IMAGE_HEIGHT * sizeof(unsigned char)];
 	//memcpy(&dataToSave[0], &image->ImageData[0], IMAGE_STRIDE * sizeof(short));
 
-	//AdvFrameAddImage(1, (unsigned short*)&dataToSave[0], 8);	
+	//AavFrameAddImage(1, (unsigned short*)&dataToSave[0], 8);	
 	
-	AdvEndFrame();
+	AavEndFrame();
 }
 
 HRESULT StopRecording(long* pixels)

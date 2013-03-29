@@ -6,7 +6,7 @@
 
 using namespace std;
 
-namespace AdvLib
+namespace AavLib
 {
 		
 class IndexEntry
@@ -17,14 +17,14 @@ class IndexEntry
 		unsigned int  BytesCount;
 };
 
-class AdvFramesIndex {
+class AavFramesIndex {
 
 	private:
 		vector<IndexEntry*>* m_IndexEntries;
 	
 	public:
-		AdvFramesIndex();
-		~AdvFramesIndex();
+		AavFramesIndex();
+		~AavFramesIndex();
 
 		void AddFrame(unsigned int frameNo, unsigned int elapedTime, __int64 frameOffset, unsigned int  bytesCount);
 		void WriteIndex(FILE *file);

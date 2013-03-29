@@ -11,14 +11,14 @@
 using namespace std;
 using std::string;
 
-namespace AdvLib
+namespace AavLib
 {
 
-class AdvImageSection {
+class AavImageSection {
 
 	private:
 		map<string, string> m_ImageTags;
-		map<unsigned char, AdvImageLayout*> m_ImageLayouts;
+		map<unsigned char, AavImageLayout*> m_ImageLayouts;
 		
 	private:
 		unsigned int ComputePixelsCRC32(unsigned short* pixels);
@@ -30,15 +30,15 @@ class AdvImageSection {
 		
 	public:
 
-		AdvImageSection(unsigned int width, unsigned int height, unsigned char dataBpp);
-		~AdvImageSection();
-		AdvImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame);
+		AavImageSection(unsigned int width, unsigned int height, unsigned char dataBpp);
+		~AavImageSection();
+		AavImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame);
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);
 		void WriteHeader(FILE* pfile);
 		unsigned char* GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp);		
 		void BeginFrame();
 		int MaxFrameBufferSize();
-		AdvImageLayout* GetImageLayoutById(unsigned char layoutId);
+		AavImageLayout* GetImageLayoutById(unsigned char layoutId);
 };
 
 }

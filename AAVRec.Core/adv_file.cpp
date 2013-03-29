@@ -10,21 +10,21 @@
 
 using namespace std;
 
-namespace AdvLib
+namespace AavLib
 {
 
 FILE* m_File;
 	
-AdvFile::AdvFile()
+AavFile::AavFile()
 {
-	StatusSection = new AdvLib::AdvStatusSection();
+	StatusSection = new AavLib::AavStatusSection();
 	
 	crc32_init();	
 	
 	m_FrameBytes = NULL;
 }
 
-AdvFile::~AdvFile()
+AavFile::~AavFile()
 {
 	if (NULL != m_File)
 	{
@@ -59,7 +59,7 @@ AdvFile::~AdvFile()
 
 unsigned char CURRENT_DATAFORMAT_VERSION = 1;
 
-bool AdvFile::BeginFile(const char* fileName)
+bool AavFile::BeginFile(const char* fileName)
 {
 	m_File = advfopen(fileName, "wb");
 	if (m_File == 0) return false;
@@ -134,7 +134,7 @@ bool AdvFile::BeginFile(const char* fileName)
 	
 	advfseek(m_File, 0, SEEK_END);
 	
-    m_Index = new AdvLib::AdvFramesIndex();	
+    m_Index = new AavLib::AavFramesIndex();	
 	
 	advfflush(m_File);
 		
@@ -143,7 +143,7 @@ bool AdvFile::BeginFile(const char* fileName)
 	return true;
 }
 
-void AdvFile::EndFile()
+void AavFile::EndFile()
 {
 	__int64 indexTableOffset;
 	advfgetpos64(m_File, &indexTableOffset);
@@ -171,7 +171,7 @@ void AdvFile::EndFile()
 	m_File = NULL;
 }
 
-void AdvFile::AddImageSection(AdvLib::AdvImageSection* section)
+void AavFile::AddImageSection(AavLib::AavImageSection* section)
 {
 	ImageSection = section;	
 
@@ -186,14 +186,14 @@ void AdvFile::AddImageSection(AdvLib::AdvImageSection* section)
 	m_FileTags.insert(make_pair("BITPIX", string(convStr)));
 }
 
-int AdvFile::AddFileTag(const char* tagName, const char* tagValue)
+int AavFile::AddFileTag(const char* tagName, const char* tagValue)
 {	
 	m_FileTags.insert((make_pair(tagName, string(tagValue == NULL ? "" : tagValue))));
 	
 	return m_FileTags.size();	
 }
 
-void AdvFile::BeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
+void AavFile::BeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
 {
 	advfgetpos64(m_File, &m_NewFrameOffset);
 
@@ -237,37 +237,37 @@ void AdvFile::BeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned
 	ImageSection->BeginFrame();	
 }
 
-void AdvFile::AddFrameStatusTag(unsigned int tagIndex, const char* tagValue)
+void AavFile::AddFrameStatusTag(unsigned int tagIndex, const char* tagValue)
 {
 	StatusSection->AddFrameStatusTag(tagIndex, tagValue);
 }
 
-void AdvFile::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
+void AavFile::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
 {
 	StatusSection->AddFrameStatusTagMessage(tagIndex, tagValue);
 }
 
-void AdvFile::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
+void AavFile::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
 {
 	StatusSection->AddFrameStatusTagUInt16(tagIndex, tagValue);
 }
 
-void AdvFile::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
+void AavFile::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
 {
 	StatusSection->AddFrameStatusTagReal(tagIndex, tagValue);
 }
 
-void AdvFile::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
+void AavFile::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
 {
 	StatusSection->AddFrameStatusTagUInt8(tagIndex, tagValue);
 }
 
-void AdvFile::AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue)
+void AavFile::AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue)
 {
 	StatusSection->AddFrameStatusTagUInt64(tagIndex, tagValue);
 }
 
-void AdvFile::AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
+void AavFile::AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
 {
 	unsigned int imageBytesCount = 0;	
 	char byteMode = 0;
@@ -308,7 +308,7 @@ void AdvFile::AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsi
 	}
 }
 			
-void AdvFile::EndFrame()
+void AavFile::EndFrame()
 {	
 	__int64 frameOffset;
 	advfgetpos64(m_File, &frameOffset);

@@ -6,19 +6,19 @@
 using namespace std;
 using std::string;
 
-namespace AdvLib
+namespace AavLib
 {
 
-AdvStatusSection::AdvStatusSection()
+AavStatusSection::AavStatusSection()
 {
 	MaxFrameBufferSize = 0;
 }
 
-AdvStatusSection::~AdvStatusSection()
+AavStatusSection::~AavStatusSection()
 {
 }
 
-unsigned int AdvStatusSection::DefineTag(const char* tagName, AdvTagType tagType)
+unsigned int AavStatusSection::DefineTag(const char* tagName, AavTagType tagType)
 {
 	m_TagDefinitionNames.push_back(string(tagName));
 	m_TagDefinitionTypes.push_back(tagType);
@@ -57,7 +57,7 @@ unsigned int AdvStatusSection::DefineTag(const char* tagName, AdvTagType tagType
 	return m_TagDefinitionNames.size() - 1;
 }
 
-void AdvStatusSection::BeginFrame()
+void AavStatusSection::BeginFrame()
 {
 	m_FrameStatusTags.clear();
 	m_FrameStatusTagsUInt8.clear();
@@ -68,13 +68,13 @@ void AdvStatusSection::BeginFrame()
 	m_FrameStatusTagsMessages.clear();
 }
 
-void AdvStatusSection::AddFrameStatusTag(unsigned int tagIndex, const char* tagValue)
+void AavStatusSection::AddFrameStatusTag(unsigned int tagIndex, const char* tagValue)
 {
 	// TODO: Do a check of the max length of a string (255) and copy only the first 255 chars	
 	m_FrameStatusTags.insert(make_pair(tagIndex, string(tagValue == NULL ? "" : tagValue)));
 }
 
-void AdvStatusSection::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
+void AavStatusSection::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
 {
 	list<string> messageList = m_FrameStatusTagsMessages[tagIndex];
 	
@@ -86,22 +86,22 @@ void AdvStatusSection::AddFrameStatusTagMessage(unsigned int tagIndex, const cha
 	m_FrameStatusTagsMessages[tagIndex] = messageList;
 }
 
-void AdvStatusSection::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
+void AavStatusSection::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
 {
 	m_FrameStatusTagsUInt8.insert(make_pair(tagIndex, tagValue));
 }
 
-void AdvStatusSection::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
+void AavStatusSection::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
 {
 	m_FrameStatusTagsUInt16.insert(make_pair(tagIndex, tagValue));
 }
 
-void AdvStatusSection::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
+void AavStatusSection::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
 {
 	m_FrameStatusTagsReal.insert(make_pair(tagIndex, tagValue));
 }
 
-void AdvStatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue)
+void AavStatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue)
 {
 	m_FrameStatusTagsUInt64.insert(make_pair(tagIndex, tagValue));
 }
@@ -117,7 +117,7 @@ unsigned int FloatToIntBits(const float x)
     return u.i;
 }
 
-unsigned char* AdvStatusSection::GetDataBytes(unsigned int *bytesCount)
+unsigned char* AavStatusSection::GetDataBytes(unsigned int *bytesCount)
 {
 	int size = 0;
 	int arrayLength = 0;
@@ -285,7 +285,7 @@ unsigned char* AdvStatusSection::GetDataBytes(unsigned int *bytesCount)
 	return statusData;
 }
 
-void AdvStatusSection::WriteHeader(FILE* pFile)
+void AavStatusSection::WriteHeader(FILE* pFile)
 {
 	unsigned int buffInt;
 	unsigned long buffLong;

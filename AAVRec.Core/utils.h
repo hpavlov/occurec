@@ -9,7 +9,7 @@ void WriteString(FILE* pFile, const char* str);
 
 void DbgPrintBytes(unsigned char *bytes, int maxLen);
 
-enum AdvTagType
+enum AavTagType
 {
 	UInt8 = 0,
 	UInt16 = 1,
@@ -46,10 +46,10 @@ extern time_t TIME_ADV_ZERO;
 extern tm* s_timeinfo;
 extern time_t s_initTime;
 
-void InitAdvTicksConversion();
-long long DateTimeToAdvTicks(int year, int month, int day, int hour, int minute, int sec, int tenthMs);
-long long UnixHiResTimeToAdvTicks(struct timeval unixHiResTime);
-void AdvTicksToDateTime(long long ticks, int *year, int *month, int *day, int *hour, int *minute, int *sec, int *ms);
+void InitAavTicksConversion();
+long long DateTimeToAavTicks(int year, int month, int day, int hour, int minute, int sec, int tenthMs);
+long long UnixHiResTimeToAavTicks(struct timeval unixHiResTime);
+void AavTicksToDateTime(long long ticks, int *year, int *month, int *day, int *hour, int *minute, int *sec, int *ms);
 
 void AvdTicksConversionTest();
 

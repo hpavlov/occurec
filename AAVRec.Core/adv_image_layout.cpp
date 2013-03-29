@@ -9,12 +9,12 @@
 
 #include "adv_profiling.h"
 
-namespace AdvLib
+namespace AavLib
 {
 
 bool m_UsesCompression;
 	
-AdvImageLayout::AdvImageLayout(unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame)
+AavImageLayout::AavImageLayout(unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame)
 {	
 	LayoutId = layoutId;
 	Width = width;
@@ -87,12 +87,12 @@ AdvImageLayout::AdvImageLayout(unsigned int width, unsigned int height, unsigned
 	m_StateCompress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
 }
 
-AdvImageLayout::~AdvImageLayout()
+AavImageLayout::~AavImageLayout()
 {
 	ResetBuffers();	
 }
 
-void AdvImageLayout::ResetBuffers()
+void AavImageLayout::ResetBuffers()
 {
 	if (NULL != m_PrevFramePixels)
 		delete m_PrevFramePixels;		
@@ -117,12 +117,12 @@ void AdvImageLayout::ResetBuffers()
 }
 
 
-void AdvImageLayout::StartNewDiffCorrSequence()
+void AavImageLayout::StartNewDiffCorrSequence()
 {
    //TODO: Reset the prev frame buffer (do we need to do anything??)
 }
 
-void AdvImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
+void AavImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 {
 	map<string, string>::iterator curr = m_LayoutTags.begin();
 	while (curr != m_LayoutTags.end()) 
@@ -161,7 +161,7 @@ void AdvImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 }
 
 
-void AdvImageLayout::WriteHeader(FILE* pFile)
+void AavImageLayout::WriteHeader(FILE* pFile)
 {
 	unsigned char buffChar;
 	
@@ -295,7 +295,7 @@ unsigned int WordSignMask(int bit)
 }
 
 
-unsigned char* AdvImageLayout::GetDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+unsigned char* AavImageLayout::GetDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {
 	unsigned char* bytesToCompress;
 	
@@ -324,7 +324,7 @@ unsigned char* AdvImageLayout::GetDataBytes(unsigned short* currFramePixels, enu
 	return NULL;
 }
 
-unsigned char* AdvImageLayout::GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+unsigned char* AavImageLayout::GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {
 	int buffLen = Width * Height * 2;
 	if (dataPixelsBpp == 16)
@@ -336,7 +336,7 @@ unsigned char* AdvImageLayout::GetFullImageRawDataBytes(unsigned short* currFram
 	return m_PixelArrayBuffer;
 }
 
-unsigned char* AdvImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+unsigned char* AavImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {
 	bool isKeyFrame = mode == KeyFrameBytes;
 	bool diffCorrFromPrevFramePixels = isKeyFrame || this->BaseFrameType == DiffCorrPrevFrame;
@@ -417,7 +417,7 @@ unsigned char* AdvImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned s
 	}
 }
 
-void AdvImageLayout::GetDataBytes12BppIndex12BppWords(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+void AavImageLayout::GetDataBytes12BppIndex12BppWords(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {	
 	// NOTE: This code has never been tested or used !!!
 
@@ -475,7 +475,7 @@ void AdvImageLayout::GetDataBytes12BppIndex12BppWords(unsigned short* pixels, en
 	//	memcpy(&m_PixelArrayBuffer[1], &m_SignsBuffer[0], signsBytesCnt);
 }
 
-void AdvImageLayout::GetDataBytes12BppIndex16BppWords(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+void AavImageLayout::GetDataBytes12BppIndex16BppWords(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {	
 	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows
 	bool isKeyFrame = mode == KeyFrameBytes;
@@ -533,7 +533,7 @@ void AdvImageLayout::GetDataBytes12BppIndex16BppWords(unsigned short* pixels, en
 	//	memcpy(&m_PixelArrayBuffer[1], &m_SignsBuffer[0], signsBytesCnt);
 }
 
-void AdvImageLayout::GetDataBytes12BppIndexBytes(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+void AavImageLayout::GetDataBytes12BppIndexBytes(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {	
 	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows
 	bool isKeyFrame = mode == KeyFrameBytes;
@@ -585,12 +585,12 @@ void AdvImageLayout::GetDataBytes12BppIndexBytes(unsigned short* pixels, enum Ge
 	(*bytesCount) = bytesCounter;
 }
 
-void AdvImageLayout::GetDataBytes12Bpp(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+void AavImageLayout::GetDataBytes12Bpp(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {
 	GetDataBytes12BppIndexBytes(pixels, mode, pixelsCRC32, bytesCount, dataPixelsBpp);
 }
 
-void AdvImageLayout::GetDataBytes16Bpp(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+void AavImageLayout::GetDataBytes16Bpp(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {
 	/*
 	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows

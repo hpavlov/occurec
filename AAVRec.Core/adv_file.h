@@ -14,20 +14,20 @@
 using namespace std;
 using std::string;
 
-namespace AdvLib
+namespace AavLib
 {
 
-	class AdvFile {
+	class AavFile {
 		public:
-			AdvLib::AdvImageSection* ImageSection;
-			AdvLib::AdvStatusSection* StatusSection;
+			AavLib::AavImageSection* ImageSection;
+			AavLib::AavStatusSection* StatusSection;
 			
 		protected:
-			AdvLib::AdvFramesIndex* m_Index;
+			AavLib::AavFramesIndex* m_Index;
 			map<const char*, string> m_FileTags;			
 			
 		private:
-			AdvLib::AdvImageLayout* m_CurrentImageLayout;
+			AavLib::AavImageLayout* m_CurrentImageLayout;
 			__int64 m_NewFrameOffset;
 			unsigned int m_FrameNo;
 
@@ -37,13 +37,13 @@ namespace AdvLib
 						
 			void InitFileState();
 		public:
-			AdvFile();
-			~AdvFile();
+			AavFile();
+			~AavFile();
 			
 			bool BeginFile(const char* fileName);
 			void EndFile();
 			
-			void AddImageSection(AdvLib::AdvImageSection* section);
+			void AddImageSection(AavLib::AavImageSection* section);
 			
 			int AddFileTag(const char* tagName, const char* tagValue);
 			

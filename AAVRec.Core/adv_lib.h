@@ -3,28 +3,28 @@
 
 #include "adv_file.h"
 
-extern char* g_CurrentAdvFile;
-extern AdvLib::AdvFile* g_AdvFile;
+extern char* g_CurrentAavFile;
+extern AavLib::AavFile* g_AavFile;
 extern bool g_FileStarted;
 
 		
-char* AdvGetCurrentFilePath(void);
-void AdvNewFile(const char* fileName);
-void AdvDefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp);
-void AdvDefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame, const char* diffCorrFromBaseFrame);
-unsigned int AdvDefineStatusSectionTag(const char* tagName, int tagType);
-unsigned int AdvAddFileTag(const char* tagName, const char* tagValue);
-void AdvAddOrUpdateImageSectionTag(const char* tagName, const char* tagValue);
-void AdvEndFile();
-bool AdvBeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure);
-void AdvFrameAddImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
-void AdvFrameAddStatusTag(unsigned int tagIndex, const char* tagValue);
+char* AavGetCurrentFilePath(void);
+void AavNewFile(const char* fileName);
+void AavDefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp);
+void AavDefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame, const char* diffCorrFromBaseFrame);
+unsigned int AavDefineStatusSectionTag(const char* tagName, int tagType);
+unsigned int AavAddFileTag(const char* tagName, const char* tagValue);
+void AavAddOrUpdateImageSectionTag(const char* tagName, const char* tagValue);
+void AavEndFile();
+bool AavBeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure);
+void AavFrameAddImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
+void AavFrameAddStatusTag(unsigned int tagIndex, const char* tagValue);
 void AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue);
-void AdvFrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
-void AdvFrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue);
+void AavFrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
+void AavFrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue);
 void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
-void AdvFrameAddStatusTag64(unsigned int tagIndex, long long tagValue);
-void AdvEndFrame();
+void AavFrameAddStatusTag64(unsigned int tagIndex, long long tagValue);
+void AavEndFrame();
 
 #endif
 

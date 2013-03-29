@@ -10,14 +10,14 @@
 using namespace std;
 using std::string;
 
-namespace AdvLib
+namespace AavLib
 {
 	
-class AdvStatusSection {
+class AavStatusSection {
 
 	private:		
 		list<string> m_TagDefinitionNames;
-		list<AdvTagType> m_TagDefinitionTypes;
+		list<AavTagType> m_TagDefinitionTypes;
 		
 		map<unsigned int, string> m_FrameStatusTags;
 		map<unsigned int, unsigned char> m_FrameStatusTagsUInt8;
@@ -30,10 +30,10 @@ class AdvStatusSection {
 		int MaxFrameBufferSize;
 		
 	public:
-		AdvStatusSection();
-		~AdvStatusSection();
+		AavStatusSection();
+		~AavStatusSection();
 
-		unsigned int DefineTag(const char* tagName, enum AdvTagType tagType);
+		unsigned int DefineTag(const char* tagName, enum AavTagType tagType);
 		void WriteHeader(FILE* pfile);
 		void AddFrameStatusTag(unsigned int tagIndex, const char* tagValue);
 		void AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue);

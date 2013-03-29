@@ -69,16 +69,16 @@ unsigned int compute_crc32(unsigned char *data, int len)
 
 time_t TIME_ADV_ZERO;
 
-void InitAdvTicksConversion()
+void InitAavTicksConversion()
 {
 	TIME_ADV_ZERO = static_cast<time_t>(ADV_EPOCH_ZERO);
 }
 
-long long DateTimeToAdvTicks(int year, int month, int day, int hour, int minute, int sec, int tenthMs)
+long long DateTimeToAavTicks(int year, int month, int day, int hour, int minute, int sec, int tenthMs)
 {
 	// NOTE: Sometimes we may get a blank date as 0/0/2000 00:00:00 and the attempt to convert it will crash
 	
-	//printf("DateTimeToAdvTicks: %d-%d-%d %d:%d:%d\n", year, month, day, hour, minute, sec);
+	//printf("DateTimeToAavTicks: %d-%d-%d %d:%d:%d\n", year, month, day, hour, minute, sec);
 	if (year > 0 && month  > 0 && day > 0)
 	{
 		//ptime t(boost::gregorian::date(year,month,day));
@@ -99,7 +99,7 @@ long long DateTimeToAdvTicks(int year, int month, int day, int hour, int minute,
 void AvdTicksConversionTest()
 {
     /*
-	long long advTicks = DateTimeToAdvTicks(2013, 1, 23, 12, 23, 56, 8716);
+	long long advTicks = DateTimeToAavTicks(2013, 1, 23, 12, 23, 56, 8716);
 	
 	int year;
 	int month;
@@ -109,14 +109,14 @@ void AvdTicksConversionTest()
 	int sec;
 	int ms;
 	
-	AdvTicksToDateTime(advTicks, &year, &month, &day, &hour, &minute, &sec, &ms);
+	AavTicksToDateTime(advTicks, &year, &month, &day, &hour, &minute, &sec, &ms);
 	
 	printf("2013-1-23 12:23:56.8716\n");
 	printf("%d-%d-%d %d:%d:%d.%d\n", year, month, day, hour, minute, sec, ms);
 	*/
 }
 
-//long long UnixHiResTimeToAdvTicks(struct timeval unixHiResTime)
+//long long UnixHiResTimeToAavTicks(struct timeval unixHiResTime)
 //{
 //	double seconds = unixHiResTime.tv_sec - ADV_EPOCH_ZERO;
 //	double fraction = unixHiResTime.tv_usec;
@@ -136,7 +136,7 @@ void AvdTicksConversionTest()
 //   return x;
 //}
 
-void AdvTicksToDateTime(long long ticks, int *year, int *month, int *day, int *hour, int *minute, int *sec, int *ms)
+void AavTicksToDateTime(long long ticks, int *year, int *month, int *day, int *hour, int *minute, int *sec, int *ms)
 {
 	// the miliseconds since 1 Jan 2000, 00:00:00.000 (negative vaslues are before 2000)
 	

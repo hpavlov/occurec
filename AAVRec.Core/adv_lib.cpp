@@ -10,29 +10,29 @@
 #include "adv_profiling.h"
 
 
-char* g_CurrentAdvFile;
-AdvLib::AdvFile* g_AdvFile;
+char* g_CurrentAavFile;
+AavLib::AavFile* g_AavFile;
 bool g_FileStarted = false;
 
 using namespace std;
 
-char* AdvGetCurrentFilePath(void)
+char* AavGetCurrentFilePath(void)
 {
-	return g_CurrentAdvFile;
+	return g_CurrentAavFile;
 }
 
-void AdvNewFile(const char* fileName)
+void AavNewFile(const char* fileName)
 {
-    if (NULL != g_AdvFile)
+    if (NULL != g_AavFile)
 	{
-		delete g_AdvFile;
-		g_AdvFile = NULL;		
+		delete g_AavFile;
+		g_AavFile = NULL;		
 	}
 	
-	if (NULL != g_CurrentAdvFile)
+	if (NULL != g_CurrentAavFile)
 	{
-		delete g_CurrentAdvFile;
-		g_CurrentAdvFile = NULL;
+		delete g_CurrentAavFile;
+		g_CurrentAavFile = NULL;
 	}
 	
 	g_FileStarted = false;
@@ -40,67 +40,67 @@ void AdvNewFile(const char* fileName)
 	int len = strlen(fileName);	
 	if (len > 0)
 	{
-		g_CurrentAdvFile = new char[len + 1];
-		strncpy(g_CurrentAdvFile, fileName, len + 1);
+		g_CurrentAavFile = new char[len + 1];
+		strncpy(g_CurrentAavFile, fileName, len + 1);
 	
-		g_AdvFile = new AdvLib::AdvFile();	
+		g_AavFile = new AavLib::AavFile();	
 	}
 }
 
-void AdvEndFile()
+void AavEndFile()
 {
-	if (NULL != g_AdvFile)
+	if (NULL != g_AavFile)
 	{
-		g_AdvFile->EndFile();
+		g_AavFile->EndFile();
 		
-		delete g_AdvFile;
-		g_AdvFile = NULL;		
+		delete g_AavFile;
+		g_AavFile = NULL;		
 	}
 	
-	if (NULL != g_CurrentAdvFile)
+	if (NULL != g_CurrentAavFile)
 	{
-		delete g_CurrentAdvFile;
-		g_CurrentAdvFile = NULL;
+		delete g_CurrentAavFile;
+		g_CurrentAavFile = NULL;
 	}
 	
 	g_FileStarted = false;
 }
 
-void AdvDefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp)
+void AavDefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp)
 {
-	AdvLib::AdvImageSection* imageSection = new AdvLib::AdvImageSection(width, height, dataBpp);
-	g_AdvFile->AddImageSection(imageSection);
+	AavLib::AavImageSection* imageSection = new AavLib::AavImageSection(width, height, dataBpp);
+	g_AavFile->AddImageSection(imageSection);
 }
 
-void AdvDefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame, const char* diffCorrFromBaseFrame)
+void AavDefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame, const char* diffCorrFromBaseFrame)
 {	
-	AdvLib::AdvImageLayout* imageLayout = g_AdvFile->ImageSection->AddImageLayout(layoutId, layoutType, compression, bpp, keyFrame);
+	AavLib::AavImageLayout* imageLayout = g_AavFile->ImageSection->AddImageLayout(layoutId, layoutType, compression, bpp, keyFrame);
 	if (diffCorrFromBaseFrame != NULL)
 		imageLayout->AddOrUpdateTag("DIFFCODE-BASE-FRAME", diffCorrFromBaseFrame);
 }
 
-unsigned int AdvDefineStatusSectionTag(const char* tagName, int tagType)
+unsigned int AavDefineStatusSectionTag(const char* tagName, int tagType)
 {
-	unsigned int statusTagId = g_AdvFile->StatusSection->DefineTag(tagName, (AdvTagType)tagType);
+	unsigned int statusTagId = g_AavFile->StatusSection->DefineTag(tagName, (AavTagType)tagType);
 	return statusTagId;
 }
 
-unsigned int AdvAddFileTag(const char* tagName, const char* tagValue)
+unsigned int AavAddFileTag(const char* tagName, const char* tagValue)
 {
-	unsigned int fileTagId = g_AdvFile->AddFileTag(tagName, tagValue);
+	unsigned int fileTagId = g_AavFile->AddFileTag(tagName, tagValue);
 	return fileTagId;
 }
 
-void AdvAddOrUpdateImageSectionTag(const char* tagName, const char* tagValue)
+void AavAddOrUpdateImageSectionTag(const char* tagName, const char* tagValue)
 {
-	return g_AdvFile->ImageSection->AddOrUpdateTag(tagName, tagValue);
+	return g_AavFile->ImageSection->AddOrUpdateTag(tagName, tagValue);
 }
 
-bool AdvBeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
+bool AavBeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
 {
 	if (!g_FileStarted)
 	{
-		bool success = g_AdvFile->BeginFile(g_CurrentAdvFile);
+		bool success = g_AavFile->BeginFile(g_CurrentAavFile);
 		if (success)
 		{
 			g_FileStarted = true;	
@@ -112,46 +112,46 @@ bool AdvBeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int e
 		}		
 	}
 	
-	g_AdvFile->BeginFrame(timeStamp, elapsedTime, exposure);
+	g_AavFile->BeginFrame(timeStamp, elapsedTime, exposure);
 	return true;
 }
 
-void AdvFrameAddImage(unsigned char layoutId,  unsigned short* pixels, unsigned char pixelsBpp)
+void AavFrameAddImage(unsigned char layoutId,  unsigned short* pixels, unsigned char pixelsBpp)
 {
-	g_AdvFile->AddFrameImage(layoutId, pixels, pixelsBpp);
+	g_AavFile->AddFrameImage(layoutId, pixels, pixelsBpp);
 }
 
-void AdvFrameAddStatusTag(unsigned int tagIndex, const char* tagValue)
+void AavFrameAddStatusTag(unsigned int tagIndex, const char* tagValue)
 {
-	g_AdvFile->AddFrameStatusTag(tagIndex, tagValue);
+	g_AavFile->AddFrameStatusTag(tagIndex, tagValue);
 }
 
 void AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
 {	
-	g_AdvFile->AddFrameStatusTagMessage(tagIndex, tagValue);
+	g_AavFile->AddFrameStatusTagMessage(tagIndex, tagValue);
 }
 
-void AdvFrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
+void AavFrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
 {
-	g_AdvFile->AddFrameStatusTagUInt8(tagIndex, tagValue);
+	g_AavFile->AddFrameStatusTagUInt8(tagIndex, tagValue);
 }
 
-void AdvFrameAddStatusTag64(unsigned int tagIndex, long long tagValue)
+void AavFrameAddStatusTag64(unsigned int tagIndex, long long tagValue)
 {
-	g_AdvFile->AddFrameStatusTagUInt64(tagIndex, tagValue);
+	g_AavFile->AddFrameStatusTagUInt64(tagIndex, tagValue);
 }
 
-void AdvFrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue)
+void AavFrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue)
 {
-	g_AdvFile->AddFrameStatusTagUInt16(tagIndex, tagValue);	
+	g_AavFile->AddFrameStatusTagUInt16(tagIndex, tagValue);	
 }
 
 void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
 {
-	g_AdvFile->AddFrameStatusTagReal(tagIndex, tagValue);
+	g_AavFile->AddFrameStatusTagReal(tagIndex, tagValue);
 }
 
-void AdvEndFrame()
+void AavEndFrame()
 {
-	g_AdvFile->EndFrame();
+	g_AavFile->EndFrame();
 }

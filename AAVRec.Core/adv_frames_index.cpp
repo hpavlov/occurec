@@ -3,20 +3,20 @@
 #include "adv_frames_index.h"
 #include "stdio.h"
 
-namespace AdvLib
+namespace AavLib
 {
 	
-AdvFramesIndex::AdvFramesIndex()
+AavFramesIndex::AavFramesIndex()
 {
 	m_IndexEntries = new vector<IndexEntry*>();
 }
 
-AdvFramesIndex::~AdvFramesIndex()
+AavFramesIndex::~AavFramesIndex()
 {
 	// TODO: Need to delete the vector?
 }
 
-void AdvFramesIndex::AddFrame(unsigned int frameNo, unsigned int elapedTime, __int64 frameOffset, unsigned int  bytesCount)
+void AavFramesIndex::AddFrame(unsigned int frameNo, unsigned int elapedTime, __int64 frameOffset, unsigned int  bytesCount)
 {
 	IndexEntry *entry = new IndexEntry();
 	entry->BytesCount = bytesCount;
@@ -26,7 +26,7 @@ void AdvFramesIndex::AddFrame(unsigned int frameNo, unsigned int elapedTime, __i
 	m_IndexEntries->push_back(entry);
 }
 
-void AdvFramesIndex::WriteIndex(FILE *pFile)
+void AavFramesIndex::WriteIndex(FILE *pFile)
 {
 	unsigned int framesCount = m_IndexEntries->size();
 	fwrite(&framesCount, 4, 1, pFile);
