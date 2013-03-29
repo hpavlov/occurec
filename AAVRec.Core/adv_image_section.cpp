@@ -109,7 +109,7 @@ AavImageLayout* AavImageSection::GetImageLayoutById(unsigned char layoutId)
 	return NULL;
 }
 
-unsigned char* AavImageSection::GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp)
+unsigned char* AavImageSection::GetDataBytes(unsigned char layoutId, unsigned char* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp)
 {
 	AavImageLayout* currentLayout = GetImageLayoutById(layoutId);
 	

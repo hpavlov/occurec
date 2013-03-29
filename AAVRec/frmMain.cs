@@ -428,7 +428,8 @@ namespace AAVRec
 				else
 					tssDisplayRate.Text = "Display Rate: N/A";
 
-				if (videoObject.State == VideoCameraState.videoCameraRecording)
+				if (videoObject.State == VideoCameraState.videoCameraRecording &&
+                    File.Exists(recordingfileName))
 				{
 					var fi = new FileInfo(recordingfileName);
 					tssRecordingFile.Text = string.Format("{0} ({1} Mb)", fi.Name, fi.Length / (1024 * 1024));

@@ -2,12 +2,17 @@
 //
 
 #include "stdafx.h"
+
+#include "recording_buffer.h"
+
 #include "AAVRec.Core.h"
 #include "stdlib.h"
 #include <vector>
 #include <stdio.h>
 #include "IntegratedFrame.h";
 #include "adv_lib.h"
+#include <windows.h>
+#include <process.h>
 
 long IMAGE_WIDTH;
 long IMAGE_HEIGHT;
@@ -32,6 +37,9 @@ __int64 idxIntegratedFrameNumber = 0;
 
 unsigned char* latestIntegratedFrame = NULL;
 
+HANDLE hRecordingThread = NULL;
+bool recording = false;
+char cameraModel[128];
 
 void ClearResourses()
 {
@@ -81,6 +89,12 @@ HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochr
 	numberOfDiffSignaturesCalculated = 0;
 	numberOfIntegratedFrames = 0;
 	idxIntegratedFrameNumber = 0;
+
+	strcpy(&cameraModel[0], (char *)szCameraModel);
+
+	recording = false;
+
+	ghMutex = CreateMutex( NULL, FALSE, NULL); 
 
 	return S_OK;
 }
@@ -232,18 +246,25 @@ void BufferNewIntegratedFrame()
 			}
 
 			ptr8BitPixels++;
+			ptrFramePixels++;
 			ptrPixels++;
 		}
 
-		frame->NumberOfIntegratedFrames = numberOfIntegratedFrames;
-		frame->StartFrameId = idxFirstFrameNumber;
-		frame->EndFrameId = idxLastFrameNumber;
-		frame->StartTimeStamp = idxFirstFrameTimestamp;
-		frame->EndTimeStamp = idxLastFrameTimestamp;
-		frame->FrameNumber = idxIntegratedFrameNumber;
+		if (recording)
+		{
+			frame->NumberOfIntegratedFrames = numberOfIntegratedFrames;
+			frame->StartFrameId = idxFirstFrameNumber;
+			frame->EndFrameId = idxLastFrameNumber;
+			frame->StartTimeStamp = idxFirstFrameTimestamp;
+			frame->EndTimeStamp = idxLastFrameTimestamp;
+			frame->FrameNumber = idxIntegratedFrameNumber;
 
-		// TODO: If we are recording then add this to the list of buffered frames
-		delete frame;
+			AddFrameToRecordingBuffer(frame);
+		}
+		else
+		{
+			delete frame;
+		}
 	}
 }
 
@@ -316,8 +337,40 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 timestamp, FrameProcessingStat
 	return S_OK;
 }
 
+void ProcessCurrentFrame(IntegratedFrame* nextFrame)
+{
+	long long timeStamp = (nextFrame->StartTimeStamp + nextFrame->EndTimeStamp) / 2;
+	unsigned int exposureIn10thMilliseconds = (nextFrame->EndTimeStamp - nextFrame->StartTimeStamp);
 
-HRESULT StartRecording(LPCTSTR szFileName, LPCTSTR szCameraModel)
+	unsigned int elapsedTimeMilliseconds = 0; // since the first recorded frame was taken
+
+	bool frameStartedOk = AavBeginFrame(timeStamp, elapsedTimeMilliseconds, exposureIn10thMilliseconds);
+
+	AavFrameAddImage(1, nextFrame->Pixels);
+	
+	AavEndFrame();
+}
+
+void RecorderThreadProc( void* pContext )
+{
+	while(recording)
+	{
+		IntegratedFrame* nextFrame = FetchFrameFromRecordingBuffer();
+
+		if (nextFrame != NULL)
+		{
+			unsigned char* dataToSave;
+
+			ProcessCurrentFrame(nextFrame);
+
+			delete nextFrame;
+		}
+	};
+
+    _endthread();
+}
+
+HRESULT StartRecording(LPCTSTR szFileName)
 {
 	AavNewFile((const char*)szFileName);		
 	
@@ -326,44 +379,32 @@ HRESULT StartRecording(LPCTSTR szFileName, LPCTSTR szCameraModel)
 	AavAddFileTag("FSTF-TYPE", "AAV");
 	AavAddFileTag("AAV-VERSION", "1");
 
-	AavAddFileTag("CAMERA-MODEL", (const char*)szCameraModel);
+	AavAddFileTag("CAMERA-MODEL", cameraModel);
 
-	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT, 8);
+	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
 	
 	AavDefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", 8, 0, NULL);
 	AavDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 8, 32, "PREV-FRAME");
 	AavDefineImageLayout(3, "FULL-IMAGE-RAW", "QUICKLZ", 8, 0, NULL);
 
-	// TODO: Create a new thread
-	// TODO: Set a flag so ProcessVideoFrame() will not put processed (or incoming) frames in a buffer, ready for recording
+
+	ClearRecordingBuffer();
+
+	recording = true;
+
+	// Create a new thread
+	hRecordingThread = (HANDLE)_beginthread(RecorderThreadProc, 0, NULL);
 
 	return S_OK;
 }
 
-void ProcessCurrentFrame()
-{
-	// TODO: Grab the latest frame from the queue
-
-	long long timeStamp;
-	unsigned int exposureIn10thMilliseconds = 0;
-	unsigned int elapsedTimeMilliseconds = 0; // since the first recorded frame was taken
-
-	bool frameStartedOk = AavBeginFrame(timeStamp, elapsedTimeMilliseconds, exposureIn10thMilliseconds);
-
-	// NOTE: If we don't copy the data into a separate buffer there are some racing conditions when running 15fps and above
-	//unsigned short* dataToSave[IMAGE_WIDTH * IMAGE_HEIGHT * sizeof(unsigned char)];
-	//memcpy(&dataToSave[0], &image->ImageData[0], IMAGE_STRIDE * sizeof(short));
-
-	//AavFrameAddImage(1, (unsigned short*)&dataToSave[0], 8);	
-	
-	AavEndFrame();
-}
-
 HRESULT StopRecording(long* pixels)
 {
-	// TODO: Flick the flag to stop recording
-	// TODO: Wait for the new thread to complete recording all frames in the buffer and then wait for it to exit
-	// TODO: Write the ADV index and close the file
+	recording = false;
 
-	return E_NOTIMPL;
+	WaitForSingleObject(hRecordingThread, INFINITE); // wait for thread to exit
+
+	AavEndFile();
+
+	return S_OK;
 }

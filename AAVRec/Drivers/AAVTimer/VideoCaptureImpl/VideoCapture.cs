@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -169,6 +170,9 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 		{
 			if (dsCapture.IsRunning)
 			{
+                if (Path.GetExtension(preferredFileName) != ".aav")
+                    preferredFileName = Path.ChangeExtension(preferredFileName, ".aav");
+
 				NativeHelpers.StartRecordingVideoFile(preferredFileName);
 
 				cameraState = VideoCameraState.videoCameraRecording;

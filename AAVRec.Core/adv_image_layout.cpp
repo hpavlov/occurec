@@ -295,12 +295,14 @@ unsigned int WordSignMask(int bit)
 }
 
 
-unsigned char* AavImageLayout::GetDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+unsigned char* AavImageLayout::GetDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {
 	unsigned char* bytesToCompress;
 	
 	if (m_BytesLayout == FullImageDiffCorrWithSigns)
-		bytesToCompress = GetFullImageDiffCorrWithSignsDataBytes(currFramePixels, mode, bytesCount, dataPixelsBpp);
+	{
+		//bytesToCompress = GetFullImageDiffCorrWithSignsDataBytes(currFramePixels, mode, bytesCount, dataPixelsBpp);
+	}
 	else if (m_BytesLayout == FullImageRaw)
 		bytesToCompress = GetFullImageRawDataBytes(currFramePixels, bytesCount, dataPixelsBpp);
 
@@ -324,13 +326,13 @@ unsigned char* AavImageLayout::GetDataBytes(unsigned short* currFramePixels, enu
 	return NULL;
 }
 
-unsigned char* AavImageLayout::GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+unsigned char* AavImageLayout::GetFullImageRawDataBytes(unsigned char* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {
-	int buffLen = Width * Height * 2;
-	if (dataPixelsBpp == 16)
+	int buffLen = Width * Height;
+	if (dataPixelsBpp == 8)
 		memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
 	else 
-		throw "12Bpp not supported in Raw layout";
+		throw "Only 8Bpp is supported in Raw layout";
 	
 	*bytesCount = buffLen;
 	return m_PixelArrayBuffer;

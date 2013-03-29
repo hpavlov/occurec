@@ -54,7 +54,7 @@ namespace AavLib
 			void AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue);			
 			void AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue);
 			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
-			void AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
+			void AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
 			void EndFrame();
 		};
 

@@ -90,6 +90,7 @@
     <ClInclude Include="IntegratedFrame.h" />
     <ClInclude Include="i_adv_data_section.h" />
     <ClInclude Include="quicklz.h" />
+    <ClInclude Include="recording_buffer.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="utils.h" />

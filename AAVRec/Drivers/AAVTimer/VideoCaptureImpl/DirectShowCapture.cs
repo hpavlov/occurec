@@ -403,26 +403,24 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 			//       that the image being returned by GetNextFrame() is never the same as the one being copied here
 			//       if the GetNextFrame() requires more time to work, then this code here should continue to copy the new
 			//       frames into the second image
-			if (Profiler.IsTimerRunning(22))
-			{
-				Profiler.StopTimer(22);
-				Trace.WriteLine(string.Format("Between Frames Time: {0} ms", Profiler.GetElapsedMillisecondsForTimer(22)));
-			}
+            //if (Profiler.IsTimerRunning(22))
+            //{
+            //    Profiler.StopTimer(22);
+            //    Trace.WriteLine(string.Format("Between Frames Time: {0} ms", Profiler.GetElapsedMillisecondsForTimer(22)));
+            //}
 
-			Profiler.ResetAndStartTimer(33);
+            //Profiler.ResetAndStartTimer(33);
 			lock (syncRoot)
 			{
-				//CopyBitmap(pBuffer);
-			
 				NativeHelpers.ProcessVideoFrame(pBuffer);
 								
 				frameCounter++;
 			}
 
-			Profiler.StopTimer(33);
-			Trace.WriteLine(string.Format("Process Frames Time: {0} ms", Profiler.GetElapsedMillisecondsForTimer(33)));
+            //Profiler.StopTimer(33);
+            //Trace.WriteLine(string.Format("Process Frames Time: {0} ms", Profiler.GetElapsedMillisecondsForTimer(33)));
 
-			Profiler.ResetAndStartTimer(22);
+            //Profiler.ResetAndStartTimer(22);
 
 			return 0;
 		}

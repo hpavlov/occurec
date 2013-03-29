@@ -267,7 +267,7 @@ void AavFile::AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue)
 	StatusSection->AddFrameStatusTagUInt64(tagIndex, tagValue);
 }
 
-void AavFile::AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
+void AavFile::AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
 {
 	unsigned int imageBytesCount = 0;	
 	char byteMode = 0;

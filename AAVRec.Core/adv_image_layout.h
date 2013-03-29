@@ -52,7 +52,7 @@ namespace AavLib
 		void GetDataBytes12BppIndexBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
 		
 		unsigned char* GetFullImageDiffCorrWithSignsDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp);
-		unsigned char* GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		unsigned char* GetFullImageRawDataBytes(unsigned char* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp);
 		
 		
 		void ResetBuffers();
@@ -62,7 +62,7 @@ namespace AavLib
 		~AavImageLayout();
 		
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);
-		unsigned char* GetDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		unsigned char* GetDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp);
 		void WriteHeader(FILE* pfile);
 		void StartNewDiffCorrSequence();
 	};
