@@ -36,30 +36,6 @@
     <ClInclude Include="IntegratedFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="adv_status_section.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="adv_file.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="adv_frames_index.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="adv_image_layout.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="adv_image_section.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="adv_lib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="adv_profiling.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="i_adv_data_section.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="quicklz.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -67,6 +43,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="recording_buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aav_file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aav_frames_index.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aav_image_layout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aav_image_section.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aav_lib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aav_profiling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="aav_status_section.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -86,34 +83,31 @@
     <ClCompile Include="IntegratedFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="adv_file.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="adv_frames_index.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="adv_image_layout.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="adv_image_section.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="adv_lib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="adv_profiling.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="adv_status_section.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="i_adv_data_section.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="quicklz.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="aav_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="aav_frames_index.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="aav_image_layout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="aav_image_section.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="aav_lib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="aav_profiling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="aav_status_section.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

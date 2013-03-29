@@ -79,16 +79,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AAVRec.Core.h" />
-    <ClInclude Include="adv_file.h" />
-    <ClInclude Include="adv_frames_index.h" />
-    <ClInclude Include="adv_image_layout.h" />
-    <ClInclude Include="adv_image_section.h" />
-    <ClInclude Include="adv_lib.h" />
-    <ClInclude Include="adv_profiling.h" />
-    <ClInclude Include="adv_status_section.h" />
+    <ClInclude Include="aav_file.h" />
+    <ClInclude Include="aav_frames_index.h" />
+    <ClInclude Include="aav_image_layout.h" />
+    <ClInclude Include="aav_image_section.h" />
+    <ClInclude Include="aav_lib.h" />
+    <ClInclude Include="aav_profiling.h" />
+    <ClInclude Include="aav_status_section.h" />
     <ClInclude Include="BitmapUtils.h" />
     <ClInclude Include="IntegratedFrame.h" />
-    <ClInclude Include="i_adv_data_section.h" />
     <ClInclude Include="quicklz.h" />
     <ClInclude Include="recording_buffer.h" />
     <ClInclude Include="stdafx.h" />
@@ -97,13 +96,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AAVRec.Core.cpp" />
-    <ClCompile Include="adv_file.cpp" />
-    <ClCompile Include="adv_frames_index.cpp" />
-    <ClCompile Include="adv_image_layout.cpp" />
-    <ClCompile Include="adv_image_section.cpp" />
-    <ClCompile Include="adv_lib.cpp" />
-    <ClCompile Include="adv_profiling.cpp" />
-    <ClCompile Include="adv_status_section.cpp" />
+    <ClCompile Include="aav_file.cpp" />
+    <ClCompile Include="aav_frames_index.cpp" />
+    <ClCompile Include="aav_image_layout.cpp" />
+    <ClCompile Include="aav_image_section.cpp" />
+    <ClCompile Include="aav_lib.cpp" />
+    <ClCompile Include="aav_profiling.cpp" />
+    <ClCompile Include="aav_status_section.cpp" />
     <ClCompile Include="BitmapUtils.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -114,7 +113,6 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="IntegratedFrame.cpp" />
-    <ClCompile Include="i_adv_data_section.cpp" />
     <ClCompile Include="quicklz.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

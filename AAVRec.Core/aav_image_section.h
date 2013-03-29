@@ -1,7 +1,7 @@
 #ifndef ADVIMAGESECTION_H
 #define ADVIMAGESECTION_H
 
-#include "adv_image_layout.h"
+#include "aav_image_layout.h"
 #include <stdio.h>
 #include "utils.h"
 

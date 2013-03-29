@@ -1,13 +1,13 @@
 #include "StdAfx.h"
 
-#include "adv_image_layout.h"
+#include "aav_image_layout.h"
 #include "utils.h"
 #include "stdlib.h"
 #include "math.h"
 #include <stdio.h>
 #include <assert.h>
 
-#include "adv_profiling.h"
+#include "aav_profiling.h"
 
 namespace AavLib
 {
