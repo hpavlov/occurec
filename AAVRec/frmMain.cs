@@ -143,27 +143,6 @@ namespace AAVRec
 			}
 		}
 
-		void tsi_Click(object sender, EventArgs e)
-		{
-			ToolStripItem tsi = sender as ToolStripItem;
-			if (tsi != null)
-			{
-				var frm = new frmRunAction();
-				string actionName = (string) tsi.Tag;
-
-				frm.SetActionName(actionName);
-
-				if (frm.ShowDialog(this) == DialogResult.OK)
-				{
-					string paramValue = frm.GetParameterValue();
-
-					string actionResult = videoObject.ExecuteAction(actionName, paramValue);
-
-					// TODO: Output the result in the log pane
-				}
-			}
-		}
-
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			DisconnectFromCamera();
