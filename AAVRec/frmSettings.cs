@@ -19,44 +19,35 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using AAVRec.OCR;
 using AAVRec.Properties;
 
 namespace AAVRec
 {
 	public partial class frmSettings : Form
 	{
+	    private OCRSettings m_OCRSettings;
+
 		public frmSettings()
 		{
 			InitializeComponent();
 
-			tbxOutputLocation.Text = Settings.Default.OutputLocation;
+		    m_OCRSettings = OCRSettings.Instance;
+
 		}
 
-		private void btnOK_Click(object sender, EventArgs e)
-		{
-			if (!Directory.Exists(tbxOutputLocation.Text))
-			{
-				MessageBox.Show(
-					string.Format("Directory '{0}' could not be found.", tbxOutputLocation.Text),
-					"Error", 
-					MessageBoxButtons.OK, 
-					MessageBoxIcon.Error);
+        private void frmSettings_Load(object sender, EventArgs e)
+        {
+            lblArea1Config.Text = string.Format("T:{0}; L:{1}; W:{2}; H:{3}", m_OCRSettings.TimeStampArea1.Top, m_OCRSettings.TimeStampArea1.Left, m_OCRSettings.TimeStampArea1.Width, m_OCRSettings.TimeStampArea1.Height);
+            lblArea2Config.Text = string.Format("T:{0}; L:{1}; W:{2}; H:{3}", m_OCRSettings.TimeStampArea2.Top, m_OCRSettings.TimeStampArea2.Left, m_OCRSettings.TimeStampArea2.Width, m_OCRSettings.TimeStampArea2.Height);
+        }
 
-				tbxOutputLocation.Focus();
-				return;
-			}
-			Settings.Default.OutputLocation = tbxOutputLocation.Text;
+        private void btnOK_Click(object sender, EventArgs e)
+        {
 
-			Settings.Default.Save();
+            DialogResult = DialogResult.OK;
+            Close();
+        }
 
-			DialogResult = DialogResult.OK;
-			Close();
-		}
-
-		private void btnBrowseOutputFolder_Click(object sender, EventArgs e)
-		{
-			if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
-				tbxOutputLocation.Text = folderBrowserDialog.SelectedPath;
-		}
 	}
 }

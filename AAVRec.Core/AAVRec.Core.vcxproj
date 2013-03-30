@@ -88,6 +88,7 @@
     <ClInclude Include="aav_status_section.h" />
     <ClInclude Include="BitmapUtils.h" />
     <ClInclude Include="IntegratedFrame.h" />
+    <ClInclude Include="IotaVtiOcr.h" />
     <ClInclude Include="quicklz.h" />
     <ClInclude Include="recording_buffer.h" />
     <ClInclude Include="stdafx.h" />
@@ -113,6 +114,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="IntegratedFrame.cpp" />
+    <ClCompile Include="IotaVtiOcr.cpp" />
     <ClCompile Include="quicklz.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

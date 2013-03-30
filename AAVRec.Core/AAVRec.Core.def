@@ -16,3 +16,7 @@ EXPORTS
 	ProcessVideoFrame
 	StartRecording
 	StopRecording
+
+
+	SetTimeStampArea1
+	SetTimeStampArea2

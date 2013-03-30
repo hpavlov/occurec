@@ -82,7 +82,12 @@ namespace AAVRec
 
         private void btnBrowseOutputFolder_Click(object sender, EventArgs e)
         {
+            folderBrowserDialog.SelectedPath = tbxOutputLocation.Text;
 
+            if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                tbxOutputLocation.Text = folderBrowserDialog.SelectedPath;
+            }
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -130,12 +135,30 @@ namespace AAVRec
 
         private void rbFileAAV_CheckedChanged(object sender, EventArgs e)
         {
-            gbxCodecs.Enabled = rbFileAVI.Checked;
+            SetSettingsVisibility();
         }
 
         private void rbFileAVI_CheckedChanged(object sender, EventArgs e)
         {
-            gbxCodecs.Enabled = rbFileAVI.Checked;
+            SetSettingsVisibility();
+        }
+
+        private void SetSettingsVisibility()
+        {
+            if (rbFileAVI.Checked)
+            {
+                gbxAAVSettings.Visible = false;
+                gbxAAVSettings.SendToBack();
+                gbxCodecs.Visible = true;
+                gbxCodecs.BringToFront();
+            }
+            else
+            {
+                gbxCodecs.Visible = false;
+                gbxCodecs.SendToBack();
+                gbxAAVSettings.Visible = true;
+                gbxAAVSettings.BringToFront();                
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ using System.Text;
 using System.Windows.Forms;
 using AAVRec.Drivers;
 using AAVRec.Drivers.AAVTimer.VideoCaptureImpl;
+using AAVRec.Helpers;
 
 namespace AAVRec.Drivers.AAVTimer
 {
@@ -25,6 +26,8 @@ namespace AAVRec.Drivers.AAVTimer
 		public Video()
 		{
 			Properties.Settings.Default.Reload();
+
+		    NativeHelpers.SetupOcrConfig();
 
 			camera = new VideoCaptureImpl.VideoCapture();
 		}

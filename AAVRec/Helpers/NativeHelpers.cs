@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using AAVRec.OCR;
 
 namespace AAVRec.Helpers
 {
@@ -78,7 +79,7 @@ namespace AAVRec.Helpers
         private static extern int SetupCamera(int width, int height, string cameraModel, int monochromeConversionMode);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long timestamp, [In, Out] ref FrameProcessingStatus frameInfo);
+        private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetCurrentImage([In, Out] byte[] bitmapPixels, [In, Out] ref ImageStatus status);
@@ -88,6 +89,12 @@ namespace AAVRec.Helpers
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int StopRecording();
+
+        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SetTimeStampArea1(int top, int left, int width, int height);
+
+        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SetTimeStampArea2(int top, int left, int width, int height);
 
 
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory")]
@@ -223,10 +230,11 @@ namespace AAVRec.Helpers
         {
             var frameInfo = new FrameProcessingStatus();
 
-            // TODO: This should be from the internal NTP sync-ed clock
-            long timestamp = 0;
+            long currentUtcDayAsTicks = DateTime.UtcNow.Ticks;
 
-            ProcessVideoFrame(bitmapData, timestamp, ref frameInfo);
+            
+
+            ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, ref frameInfo);
 
             Trace.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo));
 
@@ -272,6 +280,14 @@ namespace AAVRec.Helpers
             }
 
             return videoFrame;
+        }
+
+        public static void SetupOcrConfig()
+        {
+            OCRSettings config = OCRSettings.Instance;
+
+            SetTimeStampArea1(config.TimeStampArea1.Top, config.TimeStampArea1.Left, config.TimeStampArea1.Width, config.TimeStampArea1. Height);
+            SetTimeStampArea2(config.TimeStampArea2.Top, config.TimeStampArea2.Left, config.TimeStampArea2.Width, config.TimeStampArea2.Height);
         }
 	}
 }

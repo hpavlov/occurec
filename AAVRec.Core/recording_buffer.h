@@ -32,13 +32,16 @@ void ClearRecordingBuffer()
 	ReleaseMutex(ghMutex);
 }
 
-void AddFrameToRecordingBuffer(IntegratedFrame* frameToAdd)
+long AddFrameToRecordingBuffer(IntegratedFrame* frameToAdd)
 {
 	WaitForSingleObject(ghMutex, INFINITE);
 
 	recordingBuffer.push_back(frameToAdd);
+	long numItems = recordingBuffer.size();
 
 	ReleaseMutex(ghMutex);
+
+	return numItems;
 }
 
 IntegratedFrame* FetchFrameFromRecordingBuffer()
@@ -57,3 +60,4 @@ IntegratedFrame* FetchFrameFromRecordingBuffer()
 
 	return rv;
 }
+

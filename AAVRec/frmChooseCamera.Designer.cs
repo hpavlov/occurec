@@ -49,13 +49,16 @@
             this.rbCodecHuffyuv = new System.Windows.Forms.RadioButton();
             this.rbCodecLagarith = new System.Windows.Forms.RadioButton();
             this.cbxIsIntegrating = new System.Windows.Forms.CheckBox();
+            this.gbxAAVSettings = new System.Windows.Forms.GroupBox();
+            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.gbxCodecs.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.gbxAAVSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnBrowseOutputFolder
             // 
-            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(363, 263);
+            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(363, 208);
             this.btnBrowseOutputFolder.Name = "btnBrowseOutputFolder";
             this.btnBrowseOutputFolder.Size = new System.Drawing.Size(30, 23);
             this.btnBrowseOutputFolder.TabIndex = 10;
@@ -66,7 +69,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 247);
+            this.label1.Location = new System.Drawing.Point(12, 195);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(113, 13);
             this.label1.TabIndex = 9;
@@ -74,14 +77,14 @@
             // 
             // tbxOutputLocation
             // 
-            this.tbxOutputLocation.Location = new System.Drawing.Point(12, 266);
+            this.tbxOutputLocation.Location = new System.Drawing.Point(12, 211);
             this.tbxOutputLocation.Name = "tbxOutputLocation";
             this.tbxOutputLocation.Size = new System.Drawing.Size(345, 20);
             this.tbxOutputLocation.TabIndex = 8;
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(237, 301);
+            this.btnOK.Location = new System.Drawing.Point(237, 246);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 7;
@@ -92,7 +95,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(318, 301);
+            this.btnCancel.Location = new System.Drawing.Point(318, 246);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 6;
@@ -114,7 +117,7 @@
             this.cbxCaptureDevices.FormattingEnabled = true;
             this.cbxCaptureDevices.Location = new System.Drawing.Point(12, 27);
             this.cbxCaptureDevices.Name = "cbxCaptureDevices";
-            this.cbxCaptureDevices.Size = new System.Drawing.Size(219, 21);
+            this.cbxCaptureDevices.Size = new System.Drawing.Size(225, 21);
             this.cbxCaptureDevices.TabIndex = 14;
             // 
             // cbxMonochromeConversion
@@ -126,15 +129,15 @@
             "Use G value",
             "Use B value",
             "Compute GrayScale value"});
-            this.cbxMonochromeConversion.Location = new System.Drawing.Point(12, 85);
+            this.cbxMonochromeConversion.Location = new System.Drawing.Point(16, 84);
             this.cbxMonochromeConversion.Name = "cbxMonochromeConversion";
-            this.cbxMonochromeConversion.Size = new System.Drawing.Size(219, 21);
+            this.cbxMonochromeConversion.Size = new System.Drawing.Size(168, 21);
             this.cbxMonochromeConversion.TabIndex = 17;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 67);
+            this.label3.Location = new System.Drawing.Point(16, 65);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(150, 13);
             this.label3.TabIndex = 15;
@@ -143,7 +146,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(241, 9);
+            this.label4.Location = new System.Drawing.Point(16, 16);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(75, 13);
             this.label4.TabIndex = 19;
@@ -155,7 +158,7 @@
             this.cbxCameraModel.Items.AddRange(new object[] {
             "WAT-910HX",
             "WAT-120N"});
-            this.cbxCameraModel.Location = new System.Drawing.Point(241, 27);
+            this.cbxCameraModel.Location = new System.Drawing.Point(16, 34);
             this.cbxCameraModel.Name = "cbxCameraModel";
             this.cbxCameraModel.Size = new System.Drawing.Size(150, 21);
             this.cbxCameraModel.TabIndex = 20;
@@ -166,10 +169,9 @@
             this.gbxCodecs.Controls.Add(this.rbCodecHuffyuv);
             this.gbxCodecs.Controls.Add(this.rbCodecXviD);
             this.gbxCodecs.Controls.Add(this.rbCodecUncompressed);
-            this.gbxCodecs.Enabled = false;
-            this.gbxCodecs.Location = new System.Drawing.Point(146, 123);
+            this.gbxCodecs.Location = new System.Drawing.Point(131, 63);
             this.gbxCodecs.Name = "gbxCodecs";
-            this.gbxCodecs.Size = new System.Drawing.Size(247, 115);
+            this.gbxCodecs.Size = new System.Drawing.Size(262, 115);
             this.gbxCodecs.TabIndex = 21;
             this.gbxCodecs.TabStop = false;
             this.gbxCodecs.Text = "Video codec";
@@ -178,18 +180,18 @@
             // 
             this.groupBox2.Controls.Add(this.rbFileAVI);
             this.groupBox2.Controls.Add(this.rbFileAAV);
-            this.groupBox2.Location = new System.Drawing.Point(15, 123);
+            this.groupBox2.Location = new System.Drawing.Point(15, 63);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(125, 115);
+            this.groupBox2.Size = new System.Drawing.Size(110, 115);
             this.groupBox2.TabIndex = 22;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "File Format";
+            this.groupBox2.Text = "Format";
             // 
             // rbFileAAV
             // 
             this.rbFileAAV.AutoSize = true;
             this.rbFileAAV.Checked = true;
-            this.rbFileAAV.Location = new System.Drawing.Point(23, 20);
+            this.rbFileAAV.Location = new System.Drawing.Point(23, 36);
             this.rbFileAAV.Name = "rbFileAAV";
             this.rbFileAAV.Size = new System.Drawing.Size(46, 17);
             this.rbFileAAV.TabIndex = 0;
@@ -201,7 +203,7 @@
             // rbFileAVI
             // 
             this.rbFileAVI.AutoSize = true;
-            this.rbFileAVI.Location = new System.Drawing.Point(23, 43);
+            this.rbFileAVI.Location = new System.Drawing.Point(23, 66);
             this.rbFileAVI.Name = "rbFileAVI";
             this.rbFileAVI.Size = new System.Drawing.Size(42, 17);
             this.rbFileAVI.TabIndex = 1;
@@ -255,25 +257,34 @@
             this.cbxIsIntegrating.AutoSize = true;
             this.cbxIsIntegrating.Checked = true;
             this.cbxIsIntegrating.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbxIsIntegrating.Location = new System.Drawing.Point(241, 54);
+            this.cbxIsIntegrating.Location = new System.Drawing.Point(176, 40);
             this.cbxIsIntegrating.Name = "cbxIsIntegrating";
-            this.cbxIsIntegrating.Size = new System.Drawing.Size(126, 17);
+            this.cbxIsIntegrating.Size = new System.Drawing.Size(76, 17);
             this.cbxIsIntegrating.TabIndex = 23;
-            this.cbxIsIntegrating.Text = "Is Integrating Camera";
+            this.cbxIsIntegrating.Text = "Integrating";
             this.cbxIsIntegrating.UseVisualStyleBackColor = true;
+            // 
+            // gbxAAVSettings
+            // 
+            this.gbxAAVSettings.Controls.Add(this.label4);
+            this.gbxAAVSettings.Controls.Add(this.cbxIsIntegrating);
+            this.gbxAAVSettings.Controls.Add(this.cbxCameraModel);
+            this.gbxAAVSettings.Controls.Add(this.label3);
+            this.gbxAAVSettings.Controls.Add(this.cbxMonochromeConversion);
+            this.gbxAAVSettings.Location = new System.Drawing.Point(131, 64);
+            this.gbxAAVSettings.Name = "gbxAAVSettings";
+            this.gbxAAVSettings.Size = new System.Drawing.Size(262, 115);
+            this.gbxAAVSettings.TabIndex = 22;
+            this.gbxAAVSettings.TabStop = false;
+            this.gbxAAVSettings.Text = "AAV settings";
             // 
             // frmChooseCamera
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(420, 338);
-            this.Controls.Add(this.cbxIsIntegrating);
+            this.ClientSize = new System.Drawing.Size(410, 286);
+            this.Controls.Add(this.gbxAAVSettings);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.gbxCodecs);
-            this.Controls.Add(this.cbxCameraModel);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.cbxMonochromeConversion);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.cbxCaptureDevices);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.btnBrowseOutputFolder);
@@ -281,6 +292,7 @@
             this.Controls.Add(this.tbxOutputLocation);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.gbxCodecs);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -291,6 +303,8 @@
             this.gbxCodecs.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.gbxAAVSettings.ResumeLayout(false);
+            this.gbxAAVSettings.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -318,5 +332,7 @@
         private System.Windows.Forms.RadioButton rbFileAVI;
         private System.Windows.Forms.RadioButton rbFileAAV;
         private System.Windows.Forms.CheckBox cbxIsIntegrating;
+        private System.Windows.Forms.GroupBox gbxAAVSettings;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
     }
 }

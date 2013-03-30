@@ -42,15 +42,6 @@ enum ImageBytesLayout
 void crc32_init(void);
 unsigned int compute_crc32(unsigned char *data, int len);
 
-extern time_t TIME_ADV_ZERO;
-extern tm* s_timeinfo;
-extern time_t s_initTime;
-
-void InitAavTicksConversion();
-long long DateTimeToAavTicks(int year, int month, int day, int hour, int minute, int sec, int tenthMs);
-long long UnixHiResTimeToAavTicks(struct timeval unixHiResTime);
-void AavTicksToDateTime(long long ticks, int *year, int *month, int *day, int *hour, int *minute, int *sec, int *ms);
-
-void AvdTicksConversionTest();
+long long DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs);
 
 #endif // UTILS_H

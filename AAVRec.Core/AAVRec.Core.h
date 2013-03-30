@@ -29,6 +29,6 @@ struct FrameProcessingStatus
 
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode);
 HRESULT GetCurrentImage(BYTE* bitmapPixels, ImageStatus* imageStatus);
-HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 timestamp, FrameProcessingStatus* frameInfo);
+HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo);
 HRESULT StartRecording(LPCTSTR szFileName);
 HRESULT StopRecording(long* pixels);

@@ -27,7 +27,6 @@
             this.miDisconnect = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.miActions = new System.Windows.Forms.ToolStripMenuItem();
             this.miSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlClient = new System.Windows.Forms.Panel();
             this.pnlVideoFrames = new System.Windows.Forms.Panel();
@@ -103,7 +102,6 @@
             // 
             this.msMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.miActions,
             this.miSettings});
             this.msMain.Location = new System.Drawing.Point(0, 0);
             this.msMain.Name = "msMain";
@@ -148,13 +146,6 @@
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
-            // 
-            // miActions
-            // 
-            this.miActions.Enabled = false;
-            this.miActions.Name = "miActions";
-            this.miActions.Size = new System.Drawing.Size(59, 20);
-            this.miActions.Text = "&Actions";
             // 
             // miSettings
             // 
@@ -305,8 +296,7 @@
 		private System.Windows.Forms.ToolStripStatusLabel tssDisplayRate;
         private System.Windows.Forms.ToolStripStatusLabel tssFrameNo;
 		private System.Windows.Forms.Button btnStopRecording;
-		private System.Windows.Forms.Button btnRecord;
-		private System.Windows.Forms.ToolStripMenuItem miActions;
+        private System.Windows.Forms.Button btnRecord;
         private System.Windows.Forms.ToolStripStatusLabel tssCameraState;
 		private System.Windows.Forms.Label lblVideoFormat;
 		private System.Windows.Forms.Label label5;

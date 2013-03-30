@@ -14,6 +14,8 @@
 #include <windows.h>
 #include <process.h>
 
+#include "IotaVtiOcr.h"
+
 long IMAGE_WIDTH;
 long IMAGE_HEIGHT;
 long IMAGE_STRIDE;
@@ -205,10 +207,11 @@ float CalculateDiffSignature(unsigned char* bmpBits)
 	return signature / (IMAGE_WIDTH * 2);
 }
 
-void BufferNewIntegratedFrame()
+long BufferNewIntegratedFrame()
 {
 	// TODO: Prepare a new IntegratedFrame object, copy the averaged integratedPixels, set the start/end frame and timestamp, put in the buffer for recording.
 	// TODO: Have a second copy for display??
+	long numItems = 0;
 
 	idxIntegratedFrameNumber++;
 
@@ -250,6 +253,8 @@ void BufferNewIntegratedFrame()
 			ptrPixels++;
 		}
 
+		MarkTimeStampAreas(latestIntegratedFrame);
+
 		if (recording)
 		{
 			frame->NumberOfIntegratedFrames = numberOfIntegratedFrames;
@@ -259,16 +264,18 @@ void BufferNewIntegratedFrame()
 			frame->EndTimeStamp = idxLastFrameTimestamp;
 			frame->FrameNumber = idxIntegratedFrameNumber;
 
-			AddFrameToRecordingBuffer(frame);
+			numItems = AddFrameToRecordingBuffer(frame);
 		}
 		else
 		{
 			delete frame;
 		}
+
+		return numItems;
 	}
 }
 
-HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 timestamp, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -285,7 +292,7 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 timestamp, FrameProcessingStat
 		numberOfIntegratedFrames = 0;
 
 		idxFirstFrameNumber = idxFrameNumber;
-		idxFirstFrameTimestamp = timestamp;
+		idxFirstFrameTimestamp = currentUtcDayAsTicks;
 		idxLastFrameNumber = 0;
 		idxLastFrameTimestamp = 0;
 	}
@@ -330,6 +337,9 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 timestamp, FrameProcessingStat
 
 	numberOfIntegratedFrames++;
 
+	idxLastFrameNumber = idxFrameNumber;
+	idxLastFrameTimestamp = currentUtcDayAsTicks;
+
 	frameInfo->CameraFrameNo = idxFrameNumber;
 	frameInfo->IntegratedFrameNo = idxIntegratedFrameNumber;
 	frameInfo->IntegratedFramesSoFar = numberOfIntegratedFrames;
@@ -339,8 +349,14 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 timestamp, FrameProcessingStat
 
 void ProcessCurrentFrame(IntegratedFrame* nextFrame)
 {
-	long long timeStamp = (nextFrame->StartTimeStamp + nextFrame->EndTimeStamp) / 2;
-	unsigned int exposureIn10thMilliseconds = (nextFrame->EndTimeStamp - nextFrame->StartTimeStamp);
+	// TODO: Use OCR to read the HH:MM:SS.FFF
+	long hour = 0;
+	long minute = 0;
+	long sec = 0;
+	long millisec = 0;
+
+	long long timeStamp = DateTimeToAavTicks((nextFrame->StartTimeStamp + nextFrame->EndTimeStamp) / 2, hour, minute, sec, millisec * 10);
+	unsigned int exposureIn10thMilliseconds = (nextFrame->EndTimeStamp - nextFrame->StartTimeStamp) / 1000;
 
 	unsigned int elapsedTimeMilliseconds = 0; // since the first recorded frame was taken
 

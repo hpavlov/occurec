@@ -119,30 +119,6 @@ namespace AAVRec
 			miConnect.Enabled = !connected;
 			miDisconnect.Enabled = connected;
 
-			miSettings.Enabled = !connected;
-			
-			miActions.DropDownItems.Clear();
-
-			if (connected)
-			{
-				if (videoObject != null &&
-					videoObject.HasSupportedActions)
-				{
-
-					foreach (string action in videoObject.SupportedActions)
-					{
-						ToolStripItem tsi = miActions.DropDownItems.Add(action);
-						tsi.Tag = action;
-						tsi.Click += new EventHandler(tsi_Click);
-					}
-				}
-			}
-
-			miActions.Enabled = 
-				connected && 
-				videoObject != null &&
-				videoObject.HasSupportedActions;
-
 			UpdateState();
 
 			pnlVideoControls.Enabled = connected;
@@ -423,7 +399,7 @@ namespace AAVRec
 				if (!double.IsNaN(renderFps))
 				{
 					if (!tssDisplayRate.Visible) tssDisplayRate.Visible = true;
-					tssDisplayRate.Text = renderFps.ToString("Display Rate: 0.00 fps");
+					tssDisplayRate.Text = renderFps.ToString("Display Rate: 0 fps");
 				}
 				else
 					tssDisplayRate.Text = "Display Rate: N/A";
