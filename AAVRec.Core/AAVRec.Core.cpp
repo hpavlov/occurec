@@ -171,40 +171,30 @@ float CalculateDiffSignature(unsigned char* bmpBits)
 {
 	numberOfDiffSignaturesCalculated++;
 
-	// The DiffSignature is the average difference between pixels of same position pixels
-	// between two consequtive frames. We use the last two rows for this calculation
-
-	long stride = IMAGE_WIDTH * 3;
-
-	unsigned char* ptrBuf = bmpBits + stride * (IMAGE_HEIGHT - 2);
+	unsigned char* ptrBuf = bmpBits + IMAGE_STRIDE * (IMAGE_HEIGHT / 2 - 1) + (3 * (IMAGE_WIDTH / 2));
 
 	unsigned char* ptrPrevPixels = prtPreviousDiffArea + (numberOfDiffSignaturesCalculated % 2 == 0 ? IMAGE_WIDTH * 3 : 0);
 	unsigned char* ptrThisPixels = prtPreviousDiffArea + (numberOfDiffSignaturesCalculated % 2 == 1 ? IMAGE_WIDTH * 3 : 0);
 
-	// NOTE: Tangra computes the average background in a 32x32 area and the sigmas
-
 	float signature = 0;
 
-	//for(int x = 0; x < 32; x++)
-	//{
-	//	for(int y = 0; y < 32; y++)
-	//	{
+	for(int y = 0; y < 32; y++)
+	{
+		for(int x = 0; x < 32; x++)
+		{
+			*ptrThisPixels = *ptrBuf;
 
-	//	}
-	//}
+			signature += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
 
-    for (int i=0; i < IMAGE_WIDTH * 2; i++)
-    {
-		*ptrThisPixels = *ptrBuf;
-		
-		signature += abs((float)*ptrThisPixels - (float)*ptrPrevPixels);
+			ptrThisPixels++;
+			ptrPrevPixels++;
+			ptrBuf+=3;
+		}
 
-		ptrThisPixels++;
-		ptrPrevPixels++;
-		ptrBuf++;	
+		ptrBuf+= IMAGE_STRIDE - (32 * 3);
 	}
 
-	return signature / (IMAGE_WIDTH * 2);
+	return signature / 1024.0;
 }
 
 long BufferNewIntegratedFrame()

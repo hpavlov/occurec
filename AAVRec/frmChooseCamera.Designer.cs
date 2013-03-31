@@ -41,19 +41,23 @@
             this.label4 = new System.Windows.Forms.Label();
             this.cbxCameraModel = new System.Windows.Forms.ComboBox();
             this.gbxCodecs = new System.Windows.Forms.GroupBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.rbFileAAV = new System.Windows.Forms.RadioButton();
-            this.rbFileAVI = new System.Windows.Forms.RadioButton();
-            this.rbCodecUncompressed = new System.Windows.Forms.RadioButton();
-            this.rbCodecXviD = new System.Windows.Forms.RadioButton();
-            this.rbCodecHuffyuv = new System.Windows.Forms.RadioButton();
             this.rbCodecLagarith = new System.Windows.Forms.RadioButton();
+            this.rbCodecHuffyuv = new System.Windows.Forms.RadioButton();
+            this.rbCodecXviD = new System.Windows.Forms.RadioButton();
+            this.rbCodecUncompressed = new System.Windows.Forms.RadioButton();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.rbFileAVI = new System.Windows.Forms.RadioButton();
+            this.rbFileAAV = new System.Windows.Forms.RadioButton();
             this.cbxIsIntegrating = new System.Windows.Forms.CheckBox();
             this.gbxAAVSettings = new System.Windows.Forms.GroupBox();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.pnlCrossbar = new System.Windows.Forms.Panel();
+            this.label5 = new System.Windows.Forms.Label();
+            this.cbxCrossbarInput = new System.Windows.Forms.ComboBox();
             this.gbxCodecs.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gbxAAVSettings.SuspendLayout();
+            this.pnlCrossbar.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnBrowseOutputFolder
@@ -117,8 +121,9 @@
             this.cbxCaptureDevices.FormattingEnabled = true;
             this.cbxCaptureDevices.Location = new System.Drawing.Point(12, 27);
             this.cbxCaptureDevices.Name = "cbxCaptureDevices";
-            this.cbxCaptureDevices.Size = new System.Drawing.Size(225, 21);
+            this.cbxCaptureDevices.Size = new System.Drawing.Size(210, 21);
             this.cbxCaptureDevices.TabIndex = 14;
+            this.cbxCaptureDevices.SelectedIndexChanged += new System.EventHandler(this.cbxCaptureDevices_SelectedIndexChanged);
             // 
             // cbxMonochromeConversion
             // 
@@ -157,7 +162,8 @@
             this.cbxCameraModel.FormattingEnabled = true;
             this.cbxCameraModel.Items.AddRange(new object[] {
             "WAT-910HX",
-            "WAT-120N"});
+            "WAT-120N",
+            "MINTRON 12V1C-EX"});
             this.cbxCameraModel.Location = new System.Drawing.Point(16, 34);
             this.cbxCameraModel.Name = "cbxCameraModel";
             this.cbxCameraModel.Size = new System.Drawing.Size(150, 21);
@@ -176,6 +182,48 @@
             this.gbxCodecs.TabStop = false;
             this.gbxCodecs.Text = "Video codec";
             // 
+            // rbCodecLagarith
+            // 
+            this.rbCodecLagarith.AutoSize = true;
+            this.rbCodecLagarith.Location = new System.Drawing.Point(23, 42);
+            this.rbCodecLagarith.Name = "rbCodecLagarith";
+            this.rbCodecLagarith.Size = new System.Drawing.Size(140, 17);
+            this.rbCodecLagarith.TabIndex = 4;
+            this.rbCodecLagarith.Text = "Lagarith Lossless Codec";
+            this.rbCodecLagarith.UseVisualStyleBackColor = true;
+            // 
+            // rbCodecHuffyuv
+            // 
+            this.rbCodecHuffyuv.AutoSize = true;
+            this.rbCodecHuffyuv.Checked = true;
+            this.rbCodecHuffyuv.Location = new System.Drawing.Point(23, 19);
+            this.rbCodecHuffyuv.Name = "rbCodecHuffyuv";
+            this.rbCodecHuffyuv.Size = new System.Drawing.Size(95, 17);
+            this.rbCodecHuffyuv.TabIndex = 3;
+            this.rbCodecHuffyuv.TabStop = true;
+            this.rbCodecHuffyuv.Text = "Huffyuv v2.1.1";
+            this.rbCodecHuffyuv.UseVisualStyleBackColor = true;
+            // 
+            // rbCodecXviD
+            // 
+            this.rbCodecXviD.AutoSize = true;
+            this.rbCodecXviD.Location = new System.Drawing.Point(23, 65);
+            this.rbCodecXviD.Name = "rbCodecXviD";
+            this.rbCodecXviD.Size = new System.Drawing.Size(123, 17);
+            this.rbCodecXviD.TabIndex = 2;
+            this.rbCodecXviD.Text = "Xvid MPEG-4 Codec";
+            this.rbCodecXviD.UseVisualStyleBackColor = true;
+            // 
+            // rbCodecUncompressed
+            // 
+            this.rbCodecUncompressed.AutoSize = true;
+            this.rbCodecUncompressed.Location = new System.Drawing.Point(22, 88);
+            this.rbCodecUncompressed.Name = "rbCodecUncompressed";
+            this.rbCodecUncompressed.Size = new System.Drawing.Size(96, 17);
+            this.rbCodecUncompressed.TabIndex = 1;
+            this.rbCodecUncompressed.Text = "Uncompressed";
+            this.rbCodecUncompressed.UseVisualStyleBackColor = true;
+            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.rbFileAVI);
@@ -186,6 +234,17 @@
             this.groupBox2.TabIndex = 22;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Format";
+            // 
+            // rbFileAVI
+            // 
+            this.rbFileAVI.AutoSize = true;
+            this.rbFileAVI.Location = new System.Drawing.Point(23, 66);
+            this.rbFileAVI.Name = "rbFileAVI";
+            this.rbFileAVI.Size = new System.Drawing.Size(42, 17);
+            this.rbFileAVI.TabIndex = 1;
+            this.rbFileAVI.Text = "AVI";
+            this.rbFileAVI.UseVisualStyleBackColor = true;
+            this.rbFileAVI.CheckedChanged += new System.EventHandler(this.rbFileAVI_CheckedChanged);
             // 
             // rbFileAAV
             // 
@@ -199,58 +258,6 @@
             this.rbFileAAV.Text = "AAV";
             this.rbFileAAV.UseVisualStyleBackColor = true;
             this.rbFileAAV.CheckedChanged += new System.EventHandler(this.rbFileAAV_CheckedChanged);
-            // 
-            // rbFileAVI
-            // 
-            this.rbFileAVI.AutoSize = true;
-            this.rbFileAVI.Location = new System.Drawing.Point(23, 66);
-            this.rbFileAVI.Name = "rbFileAVI";
-            this.rbFileAVI.Size = new System.Drawing.Size(42, 17);
-            this.rbFileAVI.TabIndex = 1;
-            this.rbFileAVI.Text = "AVI";
-            this.rbFileAVI.UseVisualStyleBackColor = true;
-            this.rbFileAVI.CheckedChanged += new System.EventHandler(this.rbFileAVI_CheckedChanged);
-            // 
-            // rbCodecUncompressed
-            // 
-            this.rbCodecUncompressed.AutoSize = true;
-            this.rbCodecUncompressed.Location = new System.Drawing.Point(22, 88);
-            this.rbCodecUncompressed.Name = "rbCodecUncompressed";
-            this.rbCodecUncompressed.Size = new System.Drawing.Size(96, 17);
-            this.rbCodecUncompressed.TabIndex = 1;
-            this.rbCodecUncompressed.Text = "Uncompressed";
-            this.rbCodecUncompressed.UseVisualStyleBackColor = true;
-            // 
-            // rbCodecXviD
-            // 
-            this.rbCodecXviD.AutoSize = true;
-            this.rbCodecXviD.Location = new System.Drawing.Point(23, 65);
-            this.rbCodecXviD.Name = "rbCodecXviD";
-            this.rbCodecXviD.Size = new System.Drawing.Size(123, 17);
-            this.rbCodecXviD.TabIndex = 2;
-            this.rbCodecXviD.Text = "Xvid MPEG-4 Codec";
-            this.rbCodecXviD.UseVisualStyleBackColor = true;
-            // 
-            // rbCodecHuffyuv
-            // 
-            this.rbCodecHuffyuv.AutoSize = true;
-            this.rbCodecHuffyuv.Checked = true;
-            this.rbCodecHuffyuv.Location = new System.Drawing.Point(23, 19);
-            this.rbCodecHuffyuv.Name = "rbCodecHuffyuv";
-            this.rbCodecHuffyuv.Size = new System.Drawing.Size(95, 17);
-            this.rbCodecHuffyuv.TabIndex = 3;
-            this.rbCodecHuffyuv.Text = "Huffyuv v2.1.1";
-            this.rbCodecHuffyuv.UseVisualStyleBackColor = true;
-            // 
-            // rbCodecLagarith
-            // 
-            this.rbCodecLagarith.AutoSize = true;
-            this.rbCodecLagarith.Location = new System.Drawing.Point(23, 42);
-            this.rbCodecLagarith.Name = "rbCodecLagarith";
-            this.rbCodecLagarith.Size = new System.Drawing.Size(140, 17);
-            this.rbCodecLagarith.TabIndex = 4;
-            this.rbCodecLagarith.Text = "Lagarith Lossless Codec";
-            this.rbCodecLagarith.UseVisualStyleBackColor = true;
             // 
             // cbxIsIntegrating
             // 
@@ -278,11 +285,39 @@
             this.gbxAAVSettings.TabStop = false;
             this.gbxAAVSettings.Text = "AAV settings";
             // 
+            // pnlCrossbar
+            // 
+            this.pnlCrossbar.Controls.Add(this.cbxCrossbarInput);
+            this.pnlCrossbar.Controls.Add(this.label5);
+            this.pnlCrossbar.Location = new System.Drawing.Point(228, 2);
+            this.pnlCrossbar.Name = "pnlCrossbar";
+            this.pnlCrossbar.Size = new System.Drawing.Size(178, 56);
+            this.pnlCrossbar.TabIndex = 23;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 7);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(85, 13);
+            this.label5.TabIndex = 13;
+            this.label5.Text = "Crossbar Source";
+            // 
+            // cbxCrossbarInput
+            // 
+            this.cbxCrossbarInput.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxCrossbarInput.FormattingEnabled = true;
+            this.cbxCrossbarInput.Location = new System.Drawing.Point(7, 25);
+            this.cbxCrossbarInput.Name = "cbxCrossbarInput";
+            this.cbxCrossbarInput.Size = new System.Drawing.Size(158, 21);
+            this.cbxCrossbarInput.TabIndex = 18;
+            // 
             // frmChooseCamera
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(410, 286);
+            this.Controls.Add(this.pnlCrossbar);
             this.Controls.Add(this.gbxAAVSettings);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.cbxCaptureDevices);
@@ -305,6 +340,8 @@
             this.groupBox2.PerformLayout();
             this.gbxAAVSettings.ResumeLayout(false);
             this.gbxAAVSettings.PerformLayout();
+            this.pnlCrossbar.ResumeLayout(false);
+            this.pnlCrossbar.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -334,5 +371,8 @@
         private System.Windows.Forms.CheckBox cbxIsIntegrating;
         private System.Windows.Forms.GroupBox gbxAAVSettings;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
+        private System.Windows.Forms.Panel pnlCrossbar;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ComboBox cbxCrossbarInput;
     }
 }

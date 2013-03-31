@@ -266,7 +266,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmMain";
-            this.Text = "AAVRec v1.0";
+            this.Text = "AAVRec v1.1";
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.msMain.ResumeLayout(false);

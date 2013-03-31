@@ -45,6 +45,14 @@ namespace AAVRec
         private void btnOK_Click(object sender, EventArgs e)
         {
 
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            // TODO: Save the changes
+
+
             DialogResult = DialogResult.OK;
             Close();
         }

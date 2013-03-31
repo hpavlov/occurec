@@ -72,6 +72,12 @@
     <Compile Include="frmChooseCamera.Designer.cs">
       <DependentUpon>frmChooseCamera.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmDetectIntegrationConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDetectIntegrationConfig.Designer.cs">
+      <DependentUpon>frmDetectIntegrationConfig.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -98,6 +104,9 @@
     <Compile Include="VideoWrapper.cs" />
     <EmbeddedResource Include="frmChooseCamera.resx">
       <DependentUpon>frmChooseCamera.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmDetectIntegrationConfig.resx">
+      <DependentUpon>frmDetectIntegrationConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>

@@ -130,7 +130,7 @@ namespace AAVRec
 			{
 				lblVideoFormat.Text = videoObject.CameraVideoFormat;
 
-                Text = string.Format("AAVRec v1.0 - {0}{1}", 
+                Text = string.Format("AAVRec v1.1 - {0}{1}", 
 						videoObject.DeviceName, 
 						videoObject.VideoCaptureDeviceName != null
 							? string.Format(" ({0})", videoObject.VideoCaptureDeviceName) 
@@ -139,7 +139,7 @@ namespace AAVRec
 			else
 			{
 				lblVideoFormat.Text = "N/A";
-				Text = "AAVRec v1.0";
+				Text = "AAVRec v1.1";
 			}
 		}
 
@@ -424,42 +424,6 @@ namespace AAVRec
 
 				UpdateState();
 			}
-		}
-
-		private void btnGammaUp_Click(object sender, EventArgs e)
-		{
-			if (videoObject != null)
-				videoObject.IncreaseGamma();
-		}
-
-		private void btnGammaDown_Click(object sender, EventArgs e)
-		{
-			if (videoObject != null)
-				videoObject.DecreaseGamma();
-		}
-
-		private void btnGainDown_Click(object sender, EventArgs e)
-		{
-			if (videoObject != null)
-				videoObject.DecreaseGain();
-		}
-
-		private void btnGainUp_Click(object sender, EventArgs e)
-		{
-			if (videoObject != null)
-				videoObject.IncreaseGain();
-		}
-
-		private void btnIntegrationDown_Click(object sender, EventArgs e)
-		{
-			if (videoObject != null)
-				videoObject.DecreaseIntegration();
-		}
-
-		private void btnIntegrationUp_Click(object sender, EventArgs e)
-		{
-			if (videoObject != null)
-				videoObject.IncreaseIntegration();
 		}
 
 		private void ResizeVideoFrameTo(int imageWidth, int imageHeight)

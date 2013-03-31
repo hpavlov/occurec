@@ -236,7 +236,7 @@ namespace AAVRec.Helpers
 
             ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, ref frameInfo);
 
-            Trace.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo));
+            Trace.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1}; IntegratedFrameNo: {2})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo, frameInfo.IntegratedFrameNo));
 
             return frameInfo;
         }

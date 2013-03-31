@@ -284,6 +284,15 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 						hr = videoControl.SetMode(pPin, pCapsFlags & ~VideoControlFlags.FlipVertical);
 						DsError.ThrowExceptionForHR(hr);
 					}
+
+                    if ((pCapsFlags & VideoControlFlags.FlipHorizontal) == 0)
+                    {
+                        hr = videoControl.GetMode(pPin, out pCapsFlags);
+                        DsError.ThrowExceptionForHR(hr);
+
+                        hr = videoControl.SetMode(pPin, pCapsFlags | VideoControlFlags.FlipHorizontal);
+                        DsError.ThrowExceptionForHR(hr);
+                    }
 				}
 			}
 			finally
