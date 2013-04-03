@@ -34,6 +34,8 @@ namespace AAVRec
 
 		    m_OCRSettings = OCRSettings.Instance;
 
+		    nudSignDiffFactor.Value = Math.Min(10, Math.Max(1, (decimal)Settings.Default.SignatureDiffFactorEx2));
+		    cbxGraphDebugMode.Checked = Settings.Default.VideoGraphDebugMode;
 		}
 
         private void frmSettings_Load(object sender, EventArgs e)
@@ -44,18 +46,12 @@ namespace AAVRec
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-
-
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            // TODO: Save the changes
-
+            Settings.Default.VideoGraphDebugMode = cbxGraphDebugMode.Checked;
+            Settings.Default.SignatureDiffFactorEx2 = Math.Min(10, Math.Max(1, (double)nudSignDiffFactor.Value));
+            Settings.Default.Save();
 
             DialogResult = DialogResult.OK;
             Close();
         }
-
 	}
 }

@@ -103,9 +103,9 @@ namespace AAVRec.Drivers.AAVTimer
 				throw new NotSupportedException();
 
 			rv.frameNumber = cameraFrame.FrameNumber;
-			rv.exposureStartTime = null;
+            rv.exposureStartTime = cameraFrame.ImageStatus.StartExposureTicks.ToString();
 			rv.exposureDuration = null;
-			rv.imageInfo = null;
+            rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3}", cameraFrame.ImageStatus.CountedFrames, cameraFrame.ImageStatus.StartExposureFrameNo, cameraFrame.ImageStatus.EndExposureFrameNo, cameraFrame.ImageStatus.CutOffRatio);
 
 			return rv;
 		}

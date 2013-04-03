@@ -8,6 +8,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -30,6 +31,7 @@ namespace AAVRec
 		private int framesBeforeUpdatingCameraVideoFormat = -1;
 
 	    private ICameraImage cameraImage;
+	    private string appVersion;
 
 		public frmMain()
 		{
@@ -41,6 +43,11 @@ namespace AAVRec
 		    cameraImage = new CameraImage();
 
 			ThreadPool.QueueUserWorkItem(new WaitCallback(DisplayVideoFrames));
+
+            var att = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
+		    appVersion = att.Version;
+
+            Text = string.Format("AAVRec v{0}", appVersion);
 		}
 
 		/// <summary>
@@ -86,6 +93,7 @@ namespace AAVRec
                             pictureBox.Image = new Bitmap(imageWidth, imageHeight);
 
                             ResizeVideoFrameTo(imageWidth, imageHeight);
+                            tssIntegrationRate.Visible = Settings.Default.IsIntegrating && Settings.Default.FileFormat == "AAV";
                         }
                     }
                     finally
@@ -111,6 +119,7 @@ namespace AAVRec
 			}
 
 			UpdateCameraState(false);
+		    tssIntegrationRate.Visible = false;
 		}
 
 		private void UpdateCameraState(bool connected)
@@ -126,11 +135,13 @@ namespace AAVRec
 			btnStopRecording.Enabled = connected && videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording;
 			btnImageSettings.Enabled = connected && videoObject != null && videoObject.CanConfigureImage;
 
+		    
 			if (videoObject != null)
 			{
 				lblVideoFormat.Text = videoObject.CameraVideoFormat;
 
-                Text = string.Format("AAVRec v1.1 - {0}{1}", 
+                Text = string.Format("AAVRec v{0} - {1}{2}",
+                        appVersion,
 						videoObject.DeviceName, 
 						videoObject.VideoCaptureDeviceName != null
 							? string.Format(" ({0})", videoObject.VideoCaptureDeviceName) 
@@ -139,7 +150,7 @@ namespace AAVRec
 			else
 			{
 				lblVideoFormat.Text = "N/A";
-				Text = "AAVRec v1.1";
+                Text = string.Format("AAVRec v{0}", appVersion);
 			}
 		}
 
@@ -236,6 +247,32 @@ namespace AAVRec
 			{
 				lblVideoFormat.Text = videoObject.CameraVideoFormat;
 			}
+
+            if (!string.IsNullOrEmpty(frame.ImageInfo))
+            {
+                string[] tokens = frame.ImageInfo.Split(';');
+                string ctOff = null;
+                string frmCnt = null;
+                foreach(string token in tokens)
+                {
+                    string[] nvpair = token.Split(':');
+                    if (nvpair.Length == 2)
+                    {
+                        if (nvpair[0] == "INT")
+                            frmCnt = nvpair[1];
+
+                        if (nvpair[0] == "CTOF")
+                            ctOff = nvpair[1];
+
+                        
+                    }
+                }
+
+                if (frmCnt != null)
+                    tssIntegrationRate.Text = string.Format("Integration Rate: x{0} ({1})", frmCnt, ctOff);
+                else
+                    tssIntegrationRate.Text = "Integration Rate: ...";
+            }
 		}
 		
 		internal class FakeFrame : IVideoFrame

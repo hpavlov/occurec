@@ -16,11 +16,19 @@
 
 #include "IotaVtiOcr.h"
 
+#define MAX_INTEGRATION 256
+
 long IMAGE_WIDTH;
 long IMAGE_HEIGHT;
 long IMAGE_STRIDE;
 long IMAGE_TOTAL_PIXELS;
 long MONOCHROME_CONVERSION_MODE;
+
+bool FLIP_VERTICALLY;
+bool FLIP_HORIZONTALLY;
+
+bool IS_INTEGRATING_CAMERA;
+float SIGNATURE_DIFFERENCE_FACTOR;
 
 unsigned char* prtPreviousDiffArea = NULL;
 __int64 numberOfDiffSignaturesCalculated; 
@@ -35,13 +43,21 @@ __int64 idxFirstFrameTimestamp = 0;
 __int64 idxLastFrameTimestamp = 0;
 __int64 idxIntegratedFrameNumber = 0;
 
-//vector<IntegratedFrame> integratedFrames;
-
 unsigned char* latestIntegratedFrame = NULL;
+ImageStatus latestImageStatus;
 
 HANDLE hRecordingThread = NULL;
 bool recording = false;
 char cameraModel[128];
+
+float pastSignaturesAverage = 0;
+float pastSignaturesSum = 0;
+float pastSignaturesResidualSquareSum = 0;
+float pastSignaturesSigma = 0;
+int pastSignaturesCount = 0;
+float pastSignatures[MAX_INTEGRATION];
+float newIntegrationPeriodCutOffRatio;
+float currentSignatureRatio;
 
 void ClearResourses()
 {
@@ -60,12 +76,53 @@ void ClearResourses()
 
 bool IsNewIntegrationPeriod(float diffSignature)
 {
-	// TEST MODE! Always pretend to integrate 4 frames
-	return numberOfIntegratedFrames >= 4;
+	if (!IS_INTEGRATING_CAMERA)
+		return true;
+
+	float diff = abs(pastSignaturesAverage - diffSignature);
+
+	bool isNewIntegrationPeriod = 
+		pastSignaturesCount >= MAX_INTEGRATION || 
+		(pastSignaturesCount > 1 && diff > SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
+
+	if (pastSignaturesCount < MAX_INTEGRATION && pastSignaturesCount > 1)
+		currentSignatureRatio = diff / (SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
+	else
+		currentSignatureRatio = 0;
+
+	if (isNewIntegrationPeriod)
+	{
+		pastSignaturesAverage = 0;
+		pastSignaturesCount = 0;
+		pastSignaturesSum = 0;
+		pastSignaturesResidualSquareSum = 0;
+
+		newIntegrationPeriodCutOffRatio = diff / (SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
+
+		return true;
+	}
+	else
+	{
+		pastSignaturesSum+=diffSignature;
+		pastSignaturesCount++;
+		pastSignatures[pastSignaturesCount - 1] = diffSignature;
+		pastSignaturesAverage = pastSignaturesSum / pastSignaturesCount;
+
+		pastSignaturesResidualSquareSum = 0;
+
+		for (int i=0; i<pastSignaturesCount; i++)
+		{
+			pastSignaturesResidualSquareSum += (pastSignaturesAverage - pastSignatures[i]) * (pastSignaturesAverage - pastSignatures[i]);
+		}
+		
+		pastSignaturesSigma = sqrt(pastSignaturesResidualSquareSum) / pastSignaturesCount;
+
+		return false;
+	}
 }
 
 
-HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode)
+HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor)
 {
 	// TODO: szCameraModel - should end up in the ADV  header
 
@@ -75,6 +132,12 @@ HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochr
 	IMAGE_STRIDE = width * 3;
 
 	MONOCHROME_CONVERSION_MODE = monochromeConversionMode;
+
+	FLIP_VERTICALLY = flipVertically;
+	FLIP_HORIZONTALLY = flipHorizontally;
+
+	IS_INTEGRATING_CAMERA = isIntegrating;
+	SIGNATURE_DIFFERENCE_FACTOR = signDiffFactor;
 
 	ClearResourses();
 
@@ -101,9 +164,20 @@ HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochr
 	return S_OK;
 }
 
+HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
+{
+	imageStatus->CountedFrames = latestImageStatus.CountedFrames;
+	imageStatus->StartExposureFrameNo = latestImageStatus.StartExposureFrameNo;
+	imageStatus->StartExposureTicks = latestImageStatus.StartExposureTicks;
+	imageStatus->EndExposureFrameNo = latestImageStatus.EndExposureFrameNo;
+	imageStatus->EndExposureTicks = latestImageStatus.EndExposureTicks;
+	imageStatus->IntegratedFrameNo = latestImageStatus.IntegratedFrameNo;
+	imageStatus->CutOffRatio = latestImageStatus.CutOffRatio;
 
+	return S_OK;
+}
 
-HRESULT GetCurrentImage(BYTE* bitmapPixels, ImageStatus* imageStatus)
+HRESULT GetCurrentImage(BYTE* bitmapPixels)
 {
 	unsigned char* prtPixels = latestIntegratedFrame;
 
@@ -119,7 +193,10 @@ HRESULT GetCurrentImage(BYTE* bitmapPixels, ImageStatus* imageStatus)
 	bih.biClrUsed = 0; 
 	bih.biClrImportant = 0; 
 	bih.biWidth = IMAGE_WIDTH;                          // bitmap width 
-	bih.biHeight = IMAGE_HEIGHT;                        // bitmap height 
+	if (FLIP_VERTICALLY)
+		bih.biHeight = -IMAGE_HEIGHT;                        // bitmap height 
+	else
+		bih.biHeight = IMAGE_HEIGHT;
 
 	// and BitmapInfo variable-length UDT
 	BYTE memBitmapInfo[40];
@@ -140,7 +217,11 @@ HRESULT GetCurrentImage(BYTE* bitmapPixels, ImageStatus* imageStatus)
 
 	long currLinePos = 0;
 	int length = IMAGE_WIDTH * IMAGE_HEIGHT;
-	bitmapPixels+=3 * (length + IMAGE_WIDTH);
+	
+	bitmapPixels += 3 * (length + IMAGE_WIDTH);
+
+	if (FLIP_HORIZONTALLY)
+		bitmapPixels -= 3 * IMAGE_WIDTH + 3;
 
 	int total = IMAGE_WIDTH * IMAGE_HEIGHT;
 	while(total--)
@@ -148,7 +229,9 @@ HRESULT GetCurrentImage(BYTE* bitmapPixels, ImageStatus* imageStatus)
 		if (currLinePos == 0) 
 		{
 			currLinePos = IMAGE_WIDTH;
-			bitmapPixels -= 6 * IMAGE_WIDTH;
+
+			if (!FLIP_HORIZONTALLY)
+				bitmapPixels -= 6 * IMAGE_WIDTH;
 		};
 
 		unsigned char val = *prtPixels;
@@ -159,7 +242,11 @@ HRESULT GetCurrentImage(BYTE* bitmapPixels, ImageStatus* imageStatus)
 		*bitmapPixels = btVal;
 		*(bitmapPixels + 1) = btVal;
 		*(bitmapPixels + 2) = btVal;
-		bitmapPixels+=3;
+
+		if (FLIP_HORIZONTALLY)
+			bitmapPixels-=3; 
+		else
+			bitmapPixels+=3;
 
 		currLinePos--;
 	}
@@ -245,6 +332,14 @@ long BufferNewIntegratedFrame()
 
 		MarkTimeStampAreas(latestIntegratedFrame);
 
+		latestImageStatus.CountedFrames = numberOfIntegratedFrames;
+		latestImageStatus.StartExposureFrameNo = idxFirstFrameNumber;
+		latestImageStatus.StartExposureTicks = idxFirstFrameTimestamp;
+		latestImageStatus.EndExposureFrameNo = idxLastFrameTimestamp;
+		latestImageStatus.EndExposureTicks = numberOfIntegratedFrames;
+		latestImageStatus.CutOffRatio = newIntegrationPeriodCutOffRatio;
+		latestImageStatus.IntegratedFrameNo = idxIntegratedFrameNumber;
+
 		if (recording)
 		{
 			frame->NumberOfIntegratedFrames = numberOfIntegratedFrames;
@@ -288,6 +383,7 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 	}
 
 	frameInfo->FrameDiffSignature  = diffSignature;
+	frameInfo->CurrentSignatureRatio  = currentSignatureRatio;
 
 	long stride = 3 * IMAGE_WIDTH;
 	unsigned char* ptrPixelItt = buf + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;

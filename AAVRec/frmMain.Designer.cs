@@ -37,6 +37,7 @@
             this.btnStopRecording = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.btnRecord = new System.Windows.Forms.Button();
+            this.tssIntegrationRate = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -51,6 +52,7 @@
             this.tssCameraState,
             this.tssFrameNo,
             this.tssDisplayRate,
+            this.tssIntegrationRate,
             this.tssRecordingFile});
             this.statusStrip.Location = new System.Drawing.Point(0, 502);
             this.statusStrip.Name = "statusStrip";
@@ -252,6 +254,16 @@
             this.btnRecord.UseVisualStyleBackColor = true;
             this.btnRecord.Click += new System.EventHandler(this.btnRecord_Click);
             // 
+            // tssIntegrationRate
+            // 
+            this.tssIntegrationRate.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tssIntegrationRate.Name = "tssIntegrationRate";
+            this.tssIntegrationRate.Size = new System.Drawing.Size(92, 19);
+            this.tssIntegrationRate.Text = "IntegrationRate";
+            this.tssIntegrationRate.Visible = false;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -266,7 +278,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "frmMain";
-            this.Text = "AAVRec v1.1";
+            this.Text = "AAVRec ";
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.msMain.ResumeLayout(false);
@@ -304,6 +316,7 @@
 		private System.Windows.Forms.Panel pnlVideoFrames;
 		private System.Windows.Forms.ToolStripStatusLabel tssRecordingFile;
         private System.Windows.Forms.Button btnImageSettings;
+        private System.Windows.Forms.ToolStripStatusLabel tssIntegrationRate;
 
 	}
 }

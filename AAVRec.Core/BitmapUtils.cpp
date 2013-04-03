@@ -1,22 +1,8 @@
-//tabs=4
-// --------------------------------------------------------------------------------
-//
-// Koyash.VideoUtilities - Unmanaged implementation
-//
-// Description:	Unmanaged methods to create bitmaps from various ImageArray data
-//
-// Author:		(HDP) Hristo Pavlov <hristo_dpavlov@yahoo.com>
-//
-// --------------------------------------------------------------------------------
-//
-
-// BitmapUtils.cpp : Defines the exported functions for the DLL application.
-//
-
 #include "stdafx.h"
 #include "BitmapUtils.h"
 #include <stdlib.h>
 #include <math.h>
+#include "AAVRec.Core.h"
 
 
 HRESULT GetBitmapPixels(long width, long height, long bpp, long* pixels, BYTE* bitmapPixels)
@@ -35,7 +21,10 @@ HRESULT GetBitmapPixels(long width, long height, long bpp, long* pixels, BYTE* b
 	bih.biClrUsed = 0; 
 	bih.biClrImportant = 0; 
 	bih.biWidth = width;                          // bitmap width 
-	bih.biHeight = height;                        // bitmap height 
+	if (FLIP_VERTICALLY)
+		bih.biHeight = -height;                        // bitmap height 
+	else
+		bih.biHeight = height;                      
 
 	// and BitmapInfo variable-length UDT
 	BYTE memBitmapInfo[40];
@@ -112,7 +101,10 @@ HRESULT GetColourBitmapPixels(long width, long height, long bpp, long* pixels, B
 	bih.biClrUsed = 0; 
 	bih.biClrImportant = 0; 
 	bih.biWidth = width;                          // bitmap width 
-	bih.biHeight = height;                        // bitmap height 
+	if (FLIP_VERTICALLY)
+		bih.biHeight = -height;                        // bitmap height 
+	else
+		bih.biHeight = height;
 
 	// and BitmapInfo variable-length UDT
 	BYTE memBitmapInfo[40];

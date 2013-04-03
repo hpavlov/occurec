@@ -49,10 +49,9 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
 		private object syncRoot = new object();
 		
-#if GRAPH_EDIT_DEBUG
 		// NOTE: If the graph doesn't show up in GraphEdit then see this: http://sourceforge.net/p/directshownet/discussion/460697/thread/67dbf387
 		private DsROTEntry rot = null;
-#endif
+
 		public void SetupGraph(DsDevice dev, ref float iFrameRate, ref int iWidth, ref int iHeight)
 		{
 			try
@@ -62,7 +61,13 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 				latestBitmap = new Bitmap(iWidth, iHeight, PixelFormat.Format24bppRgb);
 				fullRect = new Rectangle(0, 0, latestBitmap.Width, latestBitmap.Height);
 
-				NativeHelpers.SetupCamera(Settings.Default.CameraModel, iWidth, iHeight);
+                NativeHelpers.SetupCamera(
+                    Settings.Default.CameraModel, 
+                    iWidth, iHeight, 
+                    Settings.Default.FlipHorizontally, 
+                    Settings.Default.FlipVertically,
+                    Settings.Default.IsIntegrating,
+                    (float)Settings.Default.SignatureDiffFactorEx2);
 			}
 			catch
 			{
@@ -100,21 +105,19 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 			}
 		}
 
-		public Bitmap GetNextFrame(out long frameId)
+        public Bitmap GetNextFrame(out ImageStatus status)
 		{
+            status = null;
+
 			if (latestBitmap == null)
 			{
-				frameId = -1;
 				return null;
 			}
 
 			lock (syncRoot)
 			{
-				frameId = frameCounter;
-
 				try
 				{
-					ImageStatus status;
 					Bitmap bmp = NativeHelpers.GetCurrentImage(out status);
 					if (bmp != null)
 						return bmp;
@@ -143,15 +146,17 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 				int hr = capBuilder.SetFiltergraph(filterGraph);
 				DsError.ThrowExceptionForHR(hr);
 
-#if GRAPH_EDIT_DEBUG
-				if (rot != null)
-				{
-					rot.Dispose();
-					rot = null;
-				}
-				rot = new DsROTEntry(filterGraph);
-#endif
-				// Add the video device
+                if (Settings.Default.VideoGraphDebugMode)
+                {
+                    if (rot != null)
+                    {
+                        rot.Dispose();
+                        rot = null;
+                    }
+                    rot = new DsROTEntry(filterGraph);
+                }
+
+			    // Add the video device
 				hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
 				DsError.ThrowExceptionForHR(hr);
 
@@ -162,6 +167,7 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 				hr = filterGraph.AddFilter(baseGrabFlt, "ASCOM Video Grabber");
 				DsError.ThrowExceptionForHR(hr);
 
+                DirectShowHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
 
 				// Add the frame grabber to the graph
 				nullRendered = (IBaseFilter)new NullRenderer();
@@ -285,13 +291,16 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 						DsError.ThrowExceptionForHR(hr);
 					}
 
-                    if ((pCapsFlags & VideoControlFlags.FlipHorizontal) == 0)
+                    if (Settings.Default.FlipHorizontally)
                     {
-                        hr = videoControl.GetMode(pPin, out pCapsFlags);
-                        DsError.ThrowExceptionForHR(hr);
+                        if ((pCapsFlags & VideoControlFlags.FlipHorizontal) == 0)
+                        {
+                            hr = videoControl.GetMode(pPin, out pCapsFlags);
+                            DsError.ThrowExceptionForHR(hr);
 
-                        hr = videoControl.SetMode(pPin, pCapsFlags | VideoControlFlags.FlipHorizontal);
-                        DsError.ThrowExceptionForHR(hr);
+                            hr = videoControl.SetMode(pPin, pCapsFlags | VideoControlFlags.FlipHorizontal);
+                            DsError.ThrowExceptionForHR(hr);
+                        }                        
                     }
 				}
 			}
@@ -350,14 +359,15 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
                     capFilter = null;
                 }
 
-#if GRAPH_EDIT_DEBUG
-				if (rot != null)
-				{
-					rot.Dispose();
-					rot = null;
-				}
-#endif
-			}
+                if (Settings.Default.VideoGraphDebugMode)
+                {
+                    if (rot != null)
+                    {
+                        rot.Dispose();
+                        rot = null;
+                    }
+                }
+	        }
         }
 
 		public void Dispose()

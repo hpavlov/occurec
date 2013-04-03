@@ -137,8 +137,8 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
 		public bool GetCurrentFrame(out VideoCameraFrame cameraFrame)
 		{
-			long frameId;
-			Bitmap bmp = dsCapture.GetNextFrame(out frameId);
+		    ImageStatus status;
+			Bitmap bmp = dsCapture.GetNextFrame(out status);
 
 			if (bmp != null)
 			{
@@ -148,7 +148,8 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
 					cameraFrame = new VideoCameraFrame()
 					{
-						FrameNumber = frameId,
+                        FrameNumber = status.IntegratedFrameNo,
+                        ImageStatus = status,
 						Pixels = pixels,
 						ImageLayout = VideoFrameLayout.Monochrome
 					};					

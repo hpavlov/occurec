@@ -19,14 +19,31 @@ namespace AAVRec.Helpers
 		GrayScale = 3
 	}
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     internal class ImageStatus
     {
+        //[FieldOffset(0)]
         public long StartExposureTicks;
+        //[FieldOffset(8)]
         public long EndExposureTicks;
+        //[FieldOffset(16)]
         public long StartExposureFrameNo;
-        public long EndExposurerameNo;
+        //[FieldOffset(24)]
+        public long EndExposureFrameNo;
+        //[FieldOffset(32)]
         public int CountedFrames;
+        //[FieldOffset(36)]
+        public float CutOffRatio;
+        //[FieldOffset(40)]
+        public long IntegratedFrameNo;
+
+        public ImageStatus()
+        { }
+
+        public ImageStatus(ImageStatus clone)
+        {
+            
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -36,6 +53,7 @@ namespace AAVRec.Helpers
         public long IntegratedFrameNo;
         public int IntegratedFramesSoFar;
         public float FrameDiffSignature;
+        public float CurrentSignatureRatio;
     };
 
 	internal static class NativeHelpers
@@ -76,13 +94,16 @@ namespace AAVRec.Helpers
 			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,,] bitmapBytes);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetupCamera(int width, int height, string cameraModel, int monochromeConversionMode);
+        private static extern int SetupCamera(int width, int height, string cameraModel, int monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int GetCurrentImage([In, Out] byte[] bitmapPixels, [In, Out] ref ImageStatus status);
+        private static extern int GetCurrentImage([In, Out] byte[] bitmapPixels);
+
+        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int GetCurrentImageStatus([In, Out] ImageStatus status);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int StartRecording(string fileName);
@@ -236,20 +257,21 @@ namespace AAVRec.Helpers
 
             ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, ref frameInfo);
 
-            Trace.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1}; IntegratedFrameNo: {2})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo, frameInfo.IntegratedFrameNo));
+            Trace.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1}; IntegratedFrameNo: {2}; CurrentSignatureRatio: {3})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo, frameInfo.IntegratedFrameNo, frameInfo.CurrentSignatureRatio));
 
             return frameInfo;
         }
 
         private static int imageWidth;
         private static int imageHeight;
+	    private static Font s_ErrorFont = new Font(FontFamily.GenericMonospace, 9f, GraphicsUnit.Pixel);
 
-        public static void SetupCamera(string cameraModel, int width, int height)
+        public static void SetupCamera(string cameraModel, int width, int height, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor)
         {
             imageWidth = width;
             imageHeight = height;
 
-            SetupCamera(width, height, cameraModel, 0);
+            SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating, signDiffFactor);
         }
 
         public static Bitmap GetCurrentImage(out ImageStatus status)
@@ -259,7 +281,8 @@ namespace AAVRec.Helpers
 
             byte[] bitmapPixels = new byte[3 * imageWidth * imageHeight + 40 + 14 + 1];
 
-            GetCurrentImage(bitmapPixels, ref status);
+            GetCurrentImage(bitmapPixels);
+            GetCurrentImageStatus(status);
 
             using (MemoryStream memStr = new MemoryStream(bitmapPixels))
             {
@@ -273,7 +296,7 @@ namespace AAVRec.Helpers
                     using (Graphics g = Graphics.FromImage(videoFrame))
                     {
                         g.Clear(Color.White);
-                        //g.DrawString(ex.Message, s_ErrorFont, Brushes.Red, 10, 10);
+                        g.DrawString(ex.Message, s_ErrorFont, Brushes.Red, 10, 10);
                         g.Save();
                     }
                 }

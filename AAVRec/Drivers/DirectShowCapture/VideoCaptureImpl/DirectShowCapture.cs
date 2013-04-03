@@ -6,6 +6,8 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using AAVRec.Helpers;
+using AAVRec.Properties;
 using DirectShowLib;
 
 namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
@@ -50,10 +52,8 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
 		private object syncRoot = new object();
 		
-#if GRAPH_EDIT_DEBUG
 		// NOTE: If the graph doesn't show up in GraphEdit then see this: http://sourceforge.net/p/directshownet/discussion/460697/thread/67dbf387
 		private DsROTEntry rot = null;
-#endif
 
 		public void SetupFileRecorderGraph(DsDevice dev, SystemCodecEntry compressor, ref float iFrameRate, ref int iWidth, ref int iHeight, string fileName)
 		{
@@ -150,6 +150,14 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
 		private void SetupGraphInternal(DsDevice dev, SystemCodecEntry compressor, ref float iFrameRate, ref int iWidth, ref int iHeight, string fileName)
 		{
+            NativeHelpers.SetupCamera(
+                Settings.Default.CameraModel, 
+                iWidth, iHeight, 
+                Settings.Default.FlipHorizontally, 
+                Settings.Default.FlipVertically,
+                false,
+                0);
+
 			filterGraph = (IFilterGraph2)new FilterGraph();
 			mediaCtrl = filterGraph as IMediaControl;
 
@@ -160,14 +168,15 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 			int hr = capBuilder.SetFiltergraph(filterGraph);
 			DsError.ThrowExceptionForHR(hr);
 
-#if GRAPH_EDIT_DEBUG
+            if (Settings.Default.VideoGraphDebugMode)
+            {
 				if (rot != null)
 				{
 					rot.Dispose();
 					rot = null;
 				}
-				rot = new DsROTEntry(filterGraph);
-#endif
+				rot = new DsROTEntry(filterGraph);                
+            }
 
 			if (fileName != null)
 			{
@@ -212,6 +221,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				hr = filterGraph.AddFilter(baseGrabFlt, "ASCOM Video Grabber");
 				DsError.ThrowExceptionForHR(hr);
 
+                DirectShowHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
 
 				// Add the frame grabber to the graph
 				muxFilter = (IBaseFilter)new NullRenderer();
@@ -246,6 +256,8 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				// Add the Video input device to the graph
 				int hr = filterGraph.AddFilter(capFilter, "ASCOM Video Source");
 				DsError.ThrowExceptionForHR(hr);
+
+                DirectShowHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
 
 				if (compressor != null)
 				{
@@ -325,6 +337,8 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				// Add the video device
 				int hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
 				DsError.ThrowExceptionForHR(hr);
+
+                DirectShowHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
 
 				IBaseFilter baseGrabFlt = (IBaseFilter)samplGrabber;
 				ConfigureSampleGrabber(samplGrabber);
@@ -632,14 +646,15 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 					capBuilder = null;
 				}
 
-#if GRAPH_EDIT_DEBUG
-				if (rot != null)
-				{
-					rot.Dispose();
-					rot = null;
-				}
-#endif
-			}
+                if (Settings.Default.VideoGraphDebugMode)
+                {
+                    if (rot != null)
+                    {
+                        rot.Dispose();
+                        rot = null;
+                    }
+                }
+	        }
         }
 
 		public void Dispose()

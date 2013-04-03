@@ -88,8 +88,12 @@ namespace AAVRec
             rbFileAVI.Checked = Settings.Default.FileFormat == "AVI";
 
             cbxIsIntegrating.Checked = Settings.Default.IsIntegrating;
+            cbxFlipHorizontally.Checked = Settings.Default.FlipHorizontally;
+            cbxFlipVertically.Checked = Settings.Default.FlipVertically;
 
             tbxOutputLocation.Text = Settings.Default.OutputLocation;
+
+            SetSettingsVisibility();
         }
 
         private void btnBrowseOutputFolder_Click(object sender, EventArgs e)
@@ -103,14 +107,7 @@ namespace AAVRec
         }
 
         private void btnOK_Click(object sender, EventArgs e)
-        {
-            if (string.IsNullOrEmpty(cbxCameraModel.Text))
-            {
-                MessageBox.Show("Please specify a camera model.");
-                cbxCameraModel.Focus();
-                return;
-            }
-
+        {            
             if (pnlCrossbar.Visible && cbxCrossbarInput.Enabled)
             {
                 if (cbxCrossbarInput.SelectedIndex == -1)
@@ -125,7 +122,16 @@ namespace AAVRec
             Settings.Default.PreferredCaptureDevice = (string)cbxCaptureDevices.SelectedItem;
 
             if (rbFileAAV.Checked)
+            {
+                if (string.IsNullOrEmpty(cbxCameraModel.Text))
+                {
+                    MessageBox.Show("Please specify a camera model.");
+                    cbxCameraModel.Focus();
+                    return;
+                }
+
                 Settings.Default.FileFormat = "AAV";
+            }
             else
                 Settings.Default.FileFormat = "AVI";
 
@@ -149,6 +155,8 @@ namespace AAVRec
             Settings.Default.OutputLocation = tbxOutputLocation.Text;
             Settings.Default.IsIntegrating = cbxIsIntegrating.Checked;
             Settings.Default.MonochromePixelsType = (LumaConversionMode)cbxMonochromeConversion.SelectedIndex;
+            Settings.Default.FlipHorizontally = cbxFlipHorizontally.Checked;
+            Settings.Default.FlipVertically = cbxFlipVertically.Checked;
 
             Settings.Default.Save();
 
@@ -174,13 +182,17 @@ namespace AAVRec
                 gbxAAVSettings.SendToBack();
                 gbxCodecs.Visible = true;
                 gbxCodecs.BringToFront();
+
+                cbxFlipHorizontally.Visible = false;
             }
             else
             {
                 gbxCodecs.Visible = false;
                 gbxCodecs.SendToBack();
                 gbxAAVSettings.Visible = true;
-                gbxAAVSettings.BringToFront();                
+                gbxAAVSettings.BringToFront();
+
+                cbxFlipHorizontally.Visible = true;
             }
         }
 
@@ -258,7 +270,7 @@ namespace AAVRec
 
         private delegate void CrossbarCallback(IAMCrossbar crossbar);
 
-        private void DoCrossbarOperation(   string deviceName, CrossbarCallback callback)
+        private void DoCrossbarOperation(string deviceName, CrossbarCallback callback)
         {
             IGraphBuilder graphBuilder = null;
             ICaptureGraphBuilder2 captureGraphBuilder = null;
@@ -356,6 +368,9 @@ namespace AAVRec
                     {
                         Trace.WriteLine("Found Crossbar");
 
+                        Settings.Default.UsesTunerCrossbar = true;
+                        Settings.Default.Save();
+
                         cbxCrossbarInput.Items.Clear();
                         cbxCrossbarInput.SelectedIndexChanged -=new EventHandler(cbxCrossbarInput_SelectedIndexChanged);
 
@@ -402,6 +417,11 @@ namespace AAVRec
                             cbxCrossbarInput.SelectedIndexChanged +=new EventHandler(cbxCrossbarInput_SelectedIndexChanged);
                         }
                     }
+                    else
+                    {
+                        Settings.Default.UsesTunerCrossbar = false;
+                        Settings.Default.Save();
+                    }
                 }
             );
         }
@@ -415,7 +435,16 @@ namespace AAVRec
                 CrossbarPinEntry selectedItem = (CrossbarPinEntry) cbxCrossbarInput.SelectedItem;
                 if (selectedItem != null)
                 {
-                    ConnectToCrossbarSource(deviceName, selectedItem.PinIndex);
+                    Cursor = Cursors.WaitCursor;
+                    Update();
+                    try
+                    {
+                        ConnectToCrossbarSource(deviceName, selectedItem.PinIndex);
+                    }
+                    finally
+                    {
+                        Cursor = Cursors.Default;
+                    }   
                 }
             }
         }
@@ -426,8 +455,16 @@ namespace AAVRec
                 deviceName,
                 delegate(IAMCrossbar crossbar)
                 {
-                    int hr = crossbar.Route(0, inputPinIndex);
+                    int videoDecoderOutPinIndex = FindVideoDecoderOutputPin(crossbar);
+                    int hr = crossbar.Route(videoDecoderOutPinIndex, inputPinIndex);
                     DsError.ThrowExceptionForHR(hr);
+
+                    Trace.WriteLine(string.Format("Crossbar Input Pin {0} routed to Output Pin {1}.", inputPinIndex, videoDecoderOutPinIndex));
+
+                    Settings.Default.UsesTunerCrossbar = true;
+                    Settings.Default.CrossbarInputPin = inputPinIndex;
+                    Settings.Default.CrossbarOutputPin = videoDecoderOutPinIndex;
+                    Settings.Default.Save();
                 }
             );
         }
@@ -437,7 +474,18 @@ namespace AAVRec
             string deviceName = (string)cbxCaptureDevices.SelectedItem;
 
             if (!string.IsNullOrEmpty(deviceName))
-                LoadCrossbarSources(deviceName);
+            {
+                Cursor = Cursors.WaitCursor;
+                Update();
+                try
+                {
+                    LoadCrossbarSources(deviceName);
+                }
+                finally
+                {
+                    Cursor = Cursors.Default;
+                }                
+            }
         }
     }
 }

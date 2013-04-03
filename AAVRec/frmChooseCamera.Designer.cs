@@ -52,8 +52,10 @@
             this.gbxAAVSettings = new System.Windows.Forms.GroupBox();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.pnlCrossbar = new System.Windows.Forms.Panel();
-            this.label5 = new System.Windows.Forms.Label();
             this.cbxCrossbarInput = new System.Windows.Forms.ComboBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.cbxFlipHorizontally = new System.Windows.Forms.CheckBox();
+            this.cbxFlipVertically = new System.Windows.Forms.CheckBox();
             this.gbxCodecs.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gbxAAVSettings.SuspendLayout();
@@ -62,7 +64,7 @@
             // 
             // btnBrowseOutputFolder
             // 
-            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(363, 208);
+            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(363, 234);
             this.btnBrowseOutputFolder.Name = "btnBrowseOutputFolder";
             this.btnBrowseOutputFolder.Size = new System.Drawing.Size(30, 23);
             this.btnBrowseOutputFolder.TabIndex = 10;
@@ -73,7 +75,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 195);
+            this.label1.Location = new System.Drawing.Point(12, 221);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(113, 13);
             this.label1.TabIndex = 9;
@@ -81,14 +83,14 @@
             // 
             // tbxOutputLocation
             // 
-            this.tbxOutputLocation.Location = new System.Drawing.Point(12, 211);
+            this.tbxOutputLocation.Location = new System.Drawing.Point(12, 237);
             this.tbxOutputLocation.Name = "tbxOutputLocation";
             this.tbxOutputLocation.Size = new System.Drawing.Size(345, 20);
             this.tbxOutputLocation.TabIndex = 8;
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(237, 246);
+            this.btnOK.Location = new System.Drawing.Point(237, 272);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 7;
@@ -99,7 +101,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(318, 246);
+            this.btnCancel.Location = new System.Drawing.Point(318, 272);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 6;
@@ -175,7 +177,7 @@
             this.gbxCodecs.Controls.Add(this.rbCodecHuffyuv);
             this.gbxCodecs.Controls.Add(this.rbCodecXviD);
             this.gbxCodecs.Controls.Add(this.rbCodecUncompressed);
-            this.gbxCodecs.Location = new System.Drawing.Point(131, 63);
+            this.gbxCodecs.Location = new System.Drawing.Point(131, 89);
             this.gbxCodecs.Name = "gbxCodecs";
             this.gbxCodecs.Size = new System.Drawing.Size(262, 115);
             this.gbxCodecs.TabIndex = 21;
@@ -228,7 +230,7 @@
             // 
             this.groupBox2.Controls.Add(this.rbFileAVI);
             this.groupBox2.Controls.Add(this.rbFileAAV);
-            this.groupBox2.Location = new System.Drawing.Point(15, 63);
+            this.groupBox2.Location = new System.Drawing.Point(15, 89);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(110, 115);
             this.groupBox2.TabIndex = 22;
@@ -278,7 +280,7 @@
             this.gbxAAVSettings.Controls.Add(this.cbxCameraModel);
             this.gbxAAVSettings.Controls.Add(this.label3);
             this.gbxAAVSettings.Controls.Add(this.cbxMonochromeConversion);
-            this.gbxAAVSettings.Location = new System.Drawing.Point(131, 64);
+            this.gbxAAVSettings.Location = new System.Drawing.Point(131, 90);
             this.gbxAAVSettings.Name = "gbxAAVSettings";
             this.gbxAAVSettings.Size = new System.Drawing.Size(262, 115);
             this.gbxAAVSettings.TabIndex = 22;
@@ -294,15 +296,6 @@
             this.pnlCrossbar.Size = new System.Drawing.Size(178, 56);
             this.pnlCrossbar.TabIndex = 23;
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(6, 7);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(85, 13);
-            this.label5.TabIndex = 13;
-            this.label5.Text = "Crossbar Source";
-            // 
             // cbxCrossbarInput
             // 
             this.cbxCrossbarInput.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -312,11 +305,44 @@
             this.cbxCrossbarInput.Size = new System.Drawing.Size(158, 21);
             this.cbxCrossbarInput.TabIndex = 18;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(6, 7);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(85, 13);
+            this.label5.TabIndex = 13;
+            this.label5.Text = "Crossbar Source";
+            // 
+            // cbxFlipHorizontally
+            // 
+            this.cbxFlipHorizontally.AutoSize = true;
+            this.cbxFlipHorizontally.Location = new System.Drawing.Point(15, 60);
+            this.cbxFlipHorizontally.Name = "cbxFlipHorizontally";
+            this.cbxFlipHorizontally.Size = new System.Drawing.Size(99, 17);
+            this.cbxFlipHorizontally.TabIndex = 24;
+            this.cbxFlipHorizontally.Text = "Flip Horizontally";
+            this.cbxFlipHorizontally.UseVisualStyleBackColor = true;
+            this.cbxFlipHorizontally.Visible = false;
+            // 
+            // cbxFlipVertically
+            // 
+            this.cbxFlipVertically.AutoSize = true;
+            this.cbxFlipVertically.Location = new System.Drawing.Point(123, 60);
+            this.cbxFlipVertically.Name = "cbxFlipVertically";
+            this.cbxFlipVertically.Size = new System.Drawing.Size(87, 17);
+            this.cbxFlipVertically.TabIndex = 25;
+            this.cbxFlipVertically.Text = "Flip Vertically";
+            this.cbxFlipVertically.UseVisualStyleBackColor = true;
+            this.cbxFlipVertically.Visible = false;
+            // 
             // frmChooseCamera
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(410, 286);
+            this.ClientSize = new System.Drawing.Size(410, 306);
+            this.Controls.Add(this.cbxFlipVertically);
+            this.Controls.Add(this.cbxFlipHorizontally);
             this.Controls.Add(this.pnlCrossbar);
             this.Controls.Add(this.gbxAAVSettings);
             this.Controls.Add(this.groupBox2);
@@ -374,5 +400,7 @@
         private System.Windows.Forms.Panel pnlCrossbar;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox cbxCrossbarInput;
+        private System.Windows.Forms.CheckBox cbxFlipHorizontally;
+        private System.Windows.Forms.CheckBox cbxFlipVertically;
     }
 }

@@ -106,5 +106,89 @@ namespace AAVRec.Properties {
                 this["IsIntegrating"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool FlipVertically {
+            get {
+                return ((bool)(this["FlipVertically"]));
+            }
+            set {
+                this["FlipVertically"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool FlipHorizontally {
+            get {
+                return ((bool)(this["FlipHorizontally"]));
+            }
+            set {
+                this["FlipHorizontally"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public double SignatureDiffFactorEx2 {
+            get {
+                return ((double)(this["SignatureDiffFactorEx2"]));
+            }
+            set {
+                this["SignatureDiffFactorEx2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UsesTunerCrossbar {
+            get {
+                return ((bool)(this["UsesTunerCrossbar"]));
+            }
+            set {
+                this["UsesTunerCrossbar"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int CrossbarInputPin {
+            get {
+                return ((int)(this["CrossbarInputPin"]));
+            }
+            set {
+                this["CrossbarInputPin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int CrossbarOutputPin {
+            get {
+                return ((int)(this["CrossbarOutputPin"]));
+            }
+            set {
+                this["CrossbarOutputPin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool VideoGraphDebugMode {
+            get {
+                return ((bool)(this["VideoGraphDebugMode"]));
+            }
+            set {
+                this["VideoGraphDebugMode"] = value;
+            }
+        }
     }
 }

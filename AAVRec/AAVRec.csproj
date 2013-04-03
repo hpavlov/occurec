@@ -64,6 +64,7 @@
     <Compile Include="Drivers\DirectShowCapture\VideoCaptureImpl\VideoCapture.cs" />
     <Compile Include="Drivers\DirectShowCapture\VideoCaptureImpl\VideoCodecs.cs" />
     <Compile Include="Drivers\DirectShowCapture\VideoFrame.cs" />
+    <Compile Include="Drivers\DirectShowHelper.cs" />
     <Compile Include="Drivers\IVideo.cs" />
     <Compile Include="Drivers\Shared.cs" />
     <Compile Include="frmChooseCamera.cs">
