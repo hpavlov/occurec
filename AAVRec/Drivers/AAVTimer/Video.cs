@@ -17,7 +17,7 @@ using AAVRec.Helpers;
 
 namespace AAVRec.Drivers.AAVTimer
 {
-	public class Video : IVideo
+    public class Video : IVideo, ISupportsCrossbar
 	{
 		private static string DRIVER_DESCRIPTION = "AAV Capture";
 
@@ -93,29 +93,7 @@ namespace AAVRec.Drivers.AAVTimer
 		}
 
 		public void SetupDialog()
-		{
-            //using (frmSetupDialog setupDlg = new frmSetupDialog())
-            //{
-            //    Form ownerForm = Application.OpenForms
-            //        .Cast<Form>()
-            //        .FirstOrDefault(x => x != null && x.GetType().FullName == "ASCOM.Utilities.ChooserForm");
-
-            //    if (ownerForm == null)
-            //        ownerForm = Application.OpenForms.Cast<Form>().FirstOrDefault(x => x != null && x.Owner == null);
-
-            //    setupDlg.StartPosition = FormStartPosition.CenterParent;
-
-            //    if (setupDlg.ShowDialog(ownerForm) == DialogResult.OK)
-            //    {
-            //        Properties.Settings.Default.Save();
-
-            //        camera.ReloadSettings();
-
-            //        return;
-            //    }
-            //    Properties.Settings.Default.Reload();
-            //}
-		}
+		{ }
 
 		private void AssertConnected()
 		{
@@ -126,14 +104,25 @@ namespace AAVRec.Drivers.AAVTimer
 		[DebuggerStepThrough]
 		public string Action(string ActionName, string ActionParameters)
 		{
-            throw new MethodNotImplementedException("Action");
+            if (string.Compare(ActionName, "LockIntegration", StringComparison.InvariantCultureIgnoreCase) == 0)
+            {
+                AssertConnected();
+                return camera.LockIntegration().ToString(CultureInfo.InvariantCulture);
+            }
+            else if (string.Compare(ActionName, "UnlockIntegration", StringComparison.InvariantCultureIgnoreCase) == 0)
+            {
+                AssertConnected();
+                return camera.UnlockIntegration().ToString(CultureInfo.InvariantCulture);
+            }
+
+		    return null;
 		}
 
 		public System.Collections.ArrayList SupportedActions
 		{
 			get
 			{
-				return new ArrayList();
+                return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration" });
 			}
 		}
 
@@ -476,5 +465,19 @@ namespace AAVRec.Drivers.AAVTimer
 
             camera.ShowDeviceProperties();
         }
-	}
+
+        public void ConnectToCrossbarSource(int inputPinIndex)
+        {
+            AssertConnected();
+
+            camera.ConnectToCrossbarSource(inputPinIndex);
+        }
+
+        public void LoadCrossbarSources(ComboBox comboBox)
+        {
+            AssertConnected();
+
+            camera.LoadCrossbarSources(comboBox);
+        }
+    }
 }

@@ -19,6 +19,7 @@ struct ImageStatus
 	long CountedFrames;
 	float CutOffRatio;
 	__int64 IntegratedFrameNo;
+	__int64 UniqueFrameNo;
 };
 
 struct FrameProcessingStatus
@@ -43,9 +44,11 @@ extern bool IS_INTEGRATING_CAMERA;
 extern float SIGNATURE_DIFFERENCE_FACTOR;
 
 
-HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor);
+HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* imageStatus);
 HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo);
 HRESULT StartRecording(LPCTSTR szFileName);
 HRESULT StopRecording(long* pixels);
+bool IsNewIntegrationPeriod(float diffSignature);
+HRESULT LockIntegration(bool lock);

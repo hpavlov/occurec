@@ -11,6 +11,8 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 		public object Pixels;
 		public long FrameNumber;
 
+        public long UniqueFrameNumber;
+
 		public VideoFrameLayout ImageLayout;
 
 	    public ImageStatus ImageStatus;

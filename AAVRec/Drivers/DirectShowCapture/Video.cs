@@ -11,10 +11,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl;
+using AAVRec.Helpers;
 
 namespace AAVRec.Drivers.DirectShowCapture
 {
-	public class Video : IVideo
+    public class Video : IVideo, ISupportsCrossbar
 	{
 		private static string DRIVER_DESCRIPTION = "Video Capture";
 
@@ -89,29 +90,7 @@ namespace AAVRec.Drivers.DirectShowCapture
 		}
 
 		public void SetupDialog()
-		{
-            //using (frmSetupDialog setupDlg = new frmSetupDialog())
-            //{
-            //    Form ownerForm = Application.OpenForms
-            //        .Cast<Form>()
-            //        .FirstOrDefault(x => x != null && x.GetType().FullName == "ASCOM.Utilities.ChooserForm");
-
-            //    if (ownerForm == null)
-            //        ownerForm = Application.OpenForms.Cast<Form>().FirstOrDefault(x => x != null && x.Owner == null);
-
-            //    setupDlg.StartPosition = FormStartPosition.CenterParent;
-
-            //    if (setupDlg.ShowDialog(ownerForm) == DialogResult.OK)
-            //    {
-            //        Properties.Settings.Default.Save();
-
-            //        camera.ReloadSettings();
-
-            //        return;
-            //    }
-            //    Properties.Settings.Default.Reload();
-            //}
-		}
+		{ }
 
 		private void AssertConnected()
 		{
@@ -474,5 +453,19 @@ namespace AAVRec.Drivers.DirectShowCapture
 
 			camera.ShowDeviceProperties();
 		}
-	}
+
+        public void ConnectToCrossbarSource(int inputPinIndex)
+        {
+            AssertConnected();
+
+            camera.ConnectToCrossbarSource(inputPinIndex);
+        }
+
+        public void LoadCrossbarSources(ComboBox comboBox)
+        {
+            AssertConnected();
+
+            camera.LoadCrossbarSources(comboBox);
+        }
+    }
 }

@@ -15,11 +15,13 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.tssCameraState = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssFrameNo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssDisplayRate = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tssIntegrationRate = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssRecordingFile = new System.Windows.Forms.ToolStripStatusLabel();
             this.msMain = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -32,18 +34,35 @@
             this.pnlVideoFrames = new System.Windows.Forms.Panel();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.pnlVideoControls = new System.Windows.Forms.Panel();
+            this.gbxSchedules = new System.Windows.Forms.GroupBox();
+            this.pnlNextScheduledAction = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lblSecheduleWhatsNext = new System.Windows.Forms.Label();
+            this.btnClearSchedule = new System.Windows.Forms.Button();
+            this.btnAddSchedule = new System.Windows.Forms.Button();
+            this.lbSchedule = new System.Windows.Forms.ListBox();
+            this.pnlAAV = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.btnLockIntegration = new System.Windows.Forms.Button();
             this.btnImageSettings = new System.Windows.Forms.Button();
             this.lblVideoFormat = new System.Windows.Forms.Label();
             this.btnStopRecording = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.btnRecord = new System.Windows.Forms.Button();
-            this.tssIntegrationRate = new System.Windows.Forms.ToolStripStatusLabel();
+            this.timerScheduler = new System.Windows.Forms.Timer(this.components);
+            this.pnlCrossbar = new System.Windows.Forms.Panel();
+            this.cbxCrossbarInput = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
             this.pnlVideoFrames.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.pnlVideoControls.SuspendLayout();
+            this.gbxSchedules.SuspendLayout();
+            this.pnlNextScheduledAction.SuspendLayout();
+            this.pnlAAV.SuspendLayout();
+            this.pnlCrossbar.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip
@@ -89,6 +108,16 @@
             this.tssDisplayRate.Text = "Display Rate";
             this.tssDisplayRate.Visible = false;
             // 
+            // tssIntegrationRate
+            // 
+            this.tssIntegrationRate.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tssIntegrationRate.Name = "tssIntegrationRate";
+            this.tssIntegrationRate.Size = new System.Drawing.Size(92, 19);
+            this.tssIntegrationRate.Text = "IntegrationRate";
+            this.tssIntegrationRate.Visible = false;
+            // 
             // tssRecordingFile
             // 
             this.tssRecordingFile.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
@@ -125,7 +154,7 @@
             // miConnect
             // 
             this.miConnect.Name = "miConnect";
-            this.miConnect.Size = new System.Drawing.Size(133, 22);
+            this.miConnect.Size = new System.Drawing.Size(152, 22);
             this.miConnect.Text = "&Connect";
             this.miConnect.Click += new System.EventHandler(this.miConnect_Click);
             // 
@@ -133,19 +162,19 @@
             // 
             this.miDisconnect.Enabled = false;
             this.miDisconnect.Name = "miDisconnect";
-            this.miDisconnect.Size = new System.Drawing.Size(133, 22);
+            this.miDisconnect.Size = new System.Drawing.Size(152, 22);
             this.miDisconnect.Text = "&Disconnect";
             this.miDisconnect.Click += new System.EventHandler(this.miDisconnect_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(130, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -190,6 +219,9 @@
             // 
             this.pnlVideoControls.BackColor = System.Drawing.SystemColors.Control;
             this.pnlVideoControls.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pnlVideoControls.Controls.Add(this.pnlCrossbar);
+            this.pnlVideoControls.Controls.Add(this.gbxSchedules);
+            this.pnlVideoControls.Controls.Add(this.pnlAAV);
             this.pnlVideoControls.Controls.Add(this.btnImageSettings);
             this.pnlVideoControls.Controls.Add(this.lblVideoFormat);
             this.pnlVideoControls.Controls.Add(this.btnStopRecording);
@@ -201,6 +233,110 @@
             this.pnlVideoControls.Name = "pnlVideoControls";
             this.pnlVideoControls.Size = new System.Drawing.Size(200, 478);
             this.pnlVideoControls.TabIndex = 1;
+            // 
+            // gbxSchedules
+            // 
+            this.gbxSchedules.Controls.Add(this.pnlNextScheduledAction);
+            this.gbxSchedules.Controls.Add(this.btnClearSchedule);
+            this.gbxSchedules.Controls.Add(this.btnAddSchedule);
+            this.gbxSchedules.Controls.Add(this.lbSchedule);
+            this.gbxSchedules.Location = new System.Drawing.Point(6, 200);
+            this.gbxSchedules.Name = "gbxSchedules";
+            this.gbxSchedules.Size = new System.Drawing.Size(187, 221);
+            this.gbxSchedules.TabIndex = 12;
+            this.gbxSchedules.TabStop = false;
+            this.gbxSchedules.Text = "Schedule";
+            // 
+            // pnlNextScheduledAction
+            // 
+            this.pnlNextScheduledAction.Controls.Add(this.label1);
+            this.pnlNextScheduledAction.Controls.Add(this.lblSecheduleWhatsNext);
+            this.pnlNextScheduledAction.Location = new System.Drawing.Point(2, 186);
+            this.pnlNextScheduledAction.Name = "pnlNextScheduledAction";
+            this.pnlNextScheduledAction.Size = new System.Drawing.Size(176, 29);
+            this.pnlNextScheduledAction.TabIndex = 9;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(3, 8);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(44, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "NEXT:";
+            // 
+            // lblSecheduleWhatsNext
+            // 
+            this.lblSecheduleWhatsNext.AutoSize = true;
+            this.lblSecheduleWhatsNext.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSecheduleWhatsNext.ForeColor = System.Drawing.Color.Red;
+            this.lblSecheduleWhatsNext.Location = new System.Drawing.Point(44, 8);
+            this.lblSecheduleWhatsNext.Name = "lblSecheduleWhatsNext";
+            this.lblSecheduleWhatsNext.Size = new System.Drawing.Size(98, 13);
+            this.lblSecheduleWhatsNext.TabIndex = 8;
+            this.lblSecheduleWhatsNext.Text = "Rec in 00:02:34";
+            // 
+            // btnClearSchedule
+            // 
+            this.btnClearSchedule.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnClearSchedule.Location = new System.Drawing.Point(76, 19);
+            this.btnClearSchedule.Name = "btnClearSchedule";
+            this.btnClearSchedule.Size = new System.Drawing.Size(63, 23);
+            this.btnClearSchedule.TabIndex = 6;
+            this.btnClearSchedule.Text = "Clear All";
+            this.btnClearSchedule.UseVisualStyleBackColor = true;
+            this.btnClearSchedule.Click += new System.EventHandler(this.btnClearSchedule_Click);
+            // 
+            // btnAddSchedule
+            // 
+            this.btnAddSchedule.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnAddSchedule.Location = new System.Drawing.Point(7, 19);
+            this.btnAddSchedule.Name = "btnAddSchedule";
+            this.btnAddSchedule.Size = new System.Drawing.Size(63, 23);
+            this.btnAddSchedule.TabIndex = 5;
+            this.btnAddSchedule.Text = "Add";
+            this.btnAddSchedule.UseVisualStyleBackColor = true;
+            this.btnAddSchedule.Click += new System.EventHandler(this.btnAddSchedule_Click);
+            // 
+            // lbSchedule
+            // 
+            this.lbSchedule.FormattingEnabled = true;
+            this.lbSchedule.Location = new System.Drawing.Point(7, 48);
+            this.lbSchedule.Name = "lbSchedule";
+            this.lbSchedule.ScrollAlwaysVisible = true;
+            this.lbSchedule.Size = new System.Drawing.Size(167, 134);
+            this.lbSchedule.TabIndex = 0;
+            // 
+            // pnlAAV
+            // 
+            this.pnlAAV.Controls.Add(this.label3);
+            this.pnlAAV.Controls.Add(this.btnLockIntegration);
+            this.pnlAAV.Location = new System.Drawing.Point(3, 118);
+            this.pnlAAV.Name = "pnlAAV";
+            this.pnlAAV.Size = new System.Drawing.Size(189, 76);
+            this.pnlAAV.TabIndex = 11;
+            this.pnlAAV.Visible = false;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 6);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(112, 13);
+            this.label3.TabIndex = 14;
+            this.label3.Text = "Integration Processing";
+            // 
+            // btnLockIntegration
+            // 
+            this.btnLockIntegration.Enabled = false;
+            this.btnLockIntegration.Location = new System.Drawing.Point(12, 22);
+            this.btnLockIntegration.Name = "btnLockIntegration";
+            this.btnLockIntegration.Size = new System.Drawing.Size(162, 23);
+            this.btnLockIntegration.TabIndex = 0;
+            this.btnLockIntegration.Text = "Lock at x4";
+            this.btnLockIntegration.UseVisualStyleBackColor = true;
+            this.btnLockIntegration.Click += new System.EventHandler(this.btnLockIntegration_Click);
             // 
             // btnImageSettings
             // 
@@ -254,15 +390,40 @@
             this.btnRecord.UseVisualStyleBackColor = true;
             this.btnRecord.Click += new System.EventHandler(this.btnRecord_Click);
             // 
-            // tssIntegrationRate
+            // timerScheduler
             // 
-            this.tssIntegrationRate.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-            this.tssIntegrationRate.Name = "tssIntegrationRate";
-            this.tssIntegrationRate.Size = new System.Drawing.Size(92, 19);
-            this.tssIntegrationRate.Text = "IntegrationRate";
-            this.tssIntegrationRate.Visible = false;
+            this.timerScheduler.Enabled = true;
+            this.timerScheduler.Interval = 1000;
+            this.timerScheduler.Tick += new System.EventHandler(this.timerScheduler_Tick);
+            // 
+            // pnlCrossbar
+            // 
+            this.pnlCrossbar.Controls.Add(this.cbxCrossbarInput);
+            this.pnlCrossbar.Controls.Add(this.label2);
+            this.pnlCrossbar.Location = new System.Drawing.Point(8, 31);
+            this.pnlCrossbar.Name = "pnlCrossbar";
+            this.pnlCrossbar.Size = new System.Drawing.Size(178, 56);
+            this.pnlCrossbar.TabIndex = 24;
+            this.pnlCrossbar.Visible = false;
+            // 
+            // cbxCrossbarInput
+            // 
+            this.cbxCrossbarInput.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxCrossbarInput.FormattingEnabled = true;
+            this.cbxCrossbarInput.Location = new System.Drawing.Point(7, 21);
+            this.cbxCrossbarInput.Name = "cbxCrossbarInput";
+            this.cbxCrossbarInput.Size = new System.Drawing.Size(165, 21);
+            this.cbxCrossbarInput.TabIndex = 18;
+            this.cbxCrossbarInput.SelectedIndexChanged += new System.EventHandler(this.cbxCrossbarInput_SelectedIndexChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 3);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(75, 13);
+            this.label2.TabIndex = 13;
+            this.label2.Text = "Crossbar Input";
             // 
             // frmMain
             // 
@@ -288,6 +449,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.pnlVideoControls.ResumeLayout(false);
             this.pnlVideoControls.PerformLayout();
+            this.gbxSchedules.ResumeLayout(false);
+            this.pnlNextScheduledAction.ResumeLayout(false);
+            this.pnlNextScheduledAction.PerformLayout();
+            this.pnlAAV.ResumeLayout(false);
+            this.pnlAAV.PerformLayout();
+            this.pnlCrossbar.ResumeLayout(false);
+            this.pnlCrossbar.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -317,6 +485,20 @@
 		private System.Windows.Forms.ToolStripStatusLabel tssRecordingFile;
         private System.Windows.Forms.Button btnImageSettings;
         private System.Windows.Forms.ToolStripStatusLabel tssIntegrationRate;
+        private System.Windows.Forms.Panel pnlAAV;
+        private System.Windows.Forms.Button btnLockIntegration;
+        private System.Windows.Forms.GroupBox gbxSchedules;
+        private System.Windows.Forms.Button btnClearSchedule;
+        private System.Windows.Forms.Button btnAddSchedule;
+        private System.Windows.Forms.ListBox lbSchedule;
+        private System.Windows.Forms.Label lblSecheduleWhatsNext;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Panel pnlNextScheduledAction;
+        private System.Windows.Forms.Timer timerScheduler;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Panel pnlCrossbar;
+        private System.Windows.Forms.ComboBox cbxCrossbarInput;
+        private System.Windows.Forms.Label label2;
 
 	}
 }

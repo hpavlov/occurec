@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 using AAVRec.Helpers;
 using AAVRec.Properties;
 using DirectShowLib;
@@ -217,5 +218,15 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				dsCapture.ShowDeviceProperties();
 			}
 		}
+
+        public void ConnectToCrossbarSource(int inputPinIndex)
+        {
+            dsCapture.ConnectToCrossbarSource(inputPinIndex);
+        }
+
+        public void LoadCrossbarSources(ComboBox comboBox)
+        {
+            dsCapture.LoadCrossbarSources(comboBox);
+        }
 	}
 }

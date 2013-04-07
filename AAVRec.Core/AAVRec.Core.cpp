@@ -29,6 +29,9 @@ bool FLIP_HORIZONTALLY;
 
 bool IS_INTEGRATING_CAMERA;
 float SIGNATURE_DIFFERENCE_FACTOR;
+float MINIMUM_SIGNATURE_DIFFERENCE;
+
+bool INTEGRATION_LOCKED;
 
 unsigned char* prtPreviousDiffArea = NULL;
 __int64 numberOfDiffSignaturesCalculated; 
@@ -45,6 +48,7 @@ __int64 idxIntegratedFrameNumber = 0;
 
 unsigned char* latestIntegratedFrame = NULL;
 ImageStatus latestImageStatus;
+ImageStatus latestDetectedIntegrationFrameImageStatus;
 
 HANDLE hRecordingThread = NULL;
 bool recording = false;
@@ -58,6 +62,18 @@ int pastSignaturesCount = 0;
 float pastSignatures[MAX_INTEGRATION];
 float newIntegrationPeriodCutOffRatio;
 float currentSignatureRatio;
+
+
+void DebugViewPrint(const wchar_t* formatText, ...)
+{
+	wchar_t debug512CharBuffer[512];
+    va_list args;
+    va_start(args, formatText);
+	vswprintf(debug512CharBuffer, 512, formatText, args);
+    
+	OutputDebugString(debug512CharBuffer);
+	va_end(args);
+}
 
 void ClearResourses()
 {
@@ -74,6 +90,13 @@ void ClearResourses()
 	}
 }
 
+HRESULT LockIntegration(bool lock)
+{
+	INTEGRATION_LOCKED = lock;
+
+	return S_OK;
+}
+
 bool IsNewIntegrationPeriod(float diffSignature)
 {
 	if (!IS_INTEGRATING_CAMERA)
@@ -83,7 +106,9 @@ bool IsNewIntegrationPeriod(float diffSignature)
 
 	bool isNewIntegrationPeriod = 
 		pastSignaturesCount >= MAX_INTEGRATION || 
-		(pastSignaturesCount > 1 && diff > SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
+		(pastSignaturesCount > 1 && diff > MINIMUM_SIGNATURE_DIFFERENCE && diff > SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
+
+	DebugViewPrint(L"PSC:%d DF:%.5f D:%.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f\n", pastSignaturesCount, diffSignature, diff, SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma, pastSignaturesSum, pastSignaturesAverage, pastSignaturesResidualSquareSum, pastSignaturesSigma); 
 
 	if (pastSignaturesCount < MAX_INTEGRATION && pastSignaturesCount > 1)
 		currentSignatureRatio = diff / (SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
@@ -96,6 +121,7 @@ bool IsNewIntegrationPeriod(float diffSignature)
 		pastSignaturesCount = 0;
 		pastSignaturesSum = 0;
 		pastSignaturesResidualSquareSum = 0;
+		pastSignaturesSigma = 0;
 
 		newIntegrationPeriodCutOffRatio = diff / (SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
 
@@ -122,7 +148,7 @@ bool IsNewIntegrationPeriod(float diffSignature)
 }
 
 
-HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor)
+HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff)
 {
 	// TODO: szCameraModel - should end up in the ADV  header
 
@@ -138,6 +164,9 @@ HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochr
 
 	IS_INTEGRATING_CAMERA = isIntegrating;
 	SIGNATURE_DIFFERENCE_FACTOR = signDiffFactor;
+	MINIMUM_SIGNATURE_DIFFERENCE= minSignDiff;
+
+	INTEGRATION_LOCKED = false;
 
 	ClearResourses();
 
@@ -155,11 +184,15 @@ HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochr
 	numberOfIntegratedFrames = 0;
 	idxIntegratedFrameNumber = 0;
 
+	latestImageStatus.UniqueFrameNo = 0;
+
 	strcpy(&cameraModel[0], (char *)szCameraModel);
 
 	recording = false;
 
 	ghMutex = CreateMutex( NULL, FALSE, NULL); 
+	
+	DebugViewPrint(L"SetupCamera(SIGNATURE_DIFFERENCE_FACTOR = %.2f; INTEGRATION_LOCKED = %d)\n", SIGNATURE_DIFFERENCE_FACTOR, INTEGRATION_LOCKED); 
 
 	return S_OK;
 }
@@ -173,6 +206,7 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->EndExposureTicks = latestImageStatus.EndExposureTicks;
 	imageStatus->IntegratedFrameNo = latestImageStatus.IntegratedFrameNo;
 	imageStatus->CutOffRatio = latestImageStatus.CutOffRatio;
+	imageStatus->UniqueFrameNo = latestImageStatus.UniqueFrameNo;
 
 	return S_OK;
 }
@@ -284,7 +318,7 @@ float CalculateDiffSignature(unsigned char* bmpBits)
 	return signature / 1024.0;
 }
 
-long BufferNewIntegratedFrame()
+long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
 {
 	// TODO: Prepare a new IntegratedFrame object, copy the averaged integratedPixels, set the start/end frame and timestamp, put in the buffer for recording.
 	// TODO: Have a second copy for display??
@@ -307,7 +341,7 @@ long BufferNewIntegratedFrame()
 
 		for (int i=0; i < IMAGE_TOTAL_PIXELS; i++)
 		{
-			long averageValue = (long)(*ptrPixels / numberOfIntegratedFrames);
+			long averageValue = (long)(*ptrPixels / (INTEGRATION_LOCKED ? numberOfIntegratedFrames : 1));
 
 			if (averageValue <= 0)
 			{
@@ -332,13 +366,29 @@ long BufferNewIntegratedFrame()
 
 		MarkTimeStampAreas(latestIntegratedFrame);
 
-		latestImageStatus.CountedFrames = numberOfIntegratedFrames;
-		latestImageStatus.StartExposureFrameNo = idxFirstFrameNumber;
-		latestImageStatus.StartExposureTicks = idxFirstFrameTimestamp;
-		latestImageStatus.EndExposureFrameNo = idxLastFrameTimestamp;
-		latestImageStatus.EndExposureTicks = numberOfIntegratedFrames;
-		latestImageStatus.CutOffRatio = newIntegrationPeriodCutOffRatio;
-		latestImageStatus.IntegratedFrameNo = idxIntegratedFrameNumber;
+		if (INTEGRATION_LOCKED || isNewIntegrationPeriod)
+		{
+			latestImageStatus.CountedFrames = latestDetectedIntegrationFrameImageStatus.CountedFrames = numberOfIntegratedFrames;
+			latestImageStatus.StartExposureFrameNo = latestDetectedIntegrationFrameImageStatus.StartExposureFrameNo = idxFirstFrameNumber;
+			latestImageStatus.StartExposureTicks = latestDetectedIntegrationFrameImageStatus.StartExposureTicks = idxFirstFrameTimestamp;
+			latestImageStatus.EndExposureFrameNo = latestDetectedIntegrationFrameImageStatus.EndExposureFrameNo = idxLastFrameTimestamp;
+			latestImageStatus.EndExposureTicks = latestDetectedIntegrationFrameImageStatus.EndExposureTicks = numberOfIntegratedFrames;
+			latestImageStatus.CutOffRatio = latestDetectedIntegrationFrameImageStatus.CutOffRatio = newIntegrationPeriodCutOffRatio;
+			latestImageStatus.IntegratedFrameNo = latestDetectedIntegrationFrameImageStatus.IntegratedFrameNo = idxIntegratedFrameNumber;
+		}
+		else
+		{
+			// Copy the values from the previous 'REAL' detected integration frame			
+			latestImageStatus.CountedFrames = latestDetectedIntegrationFrameImageStatus.CountedFrames;
+			latestImageStatus.StartExposureFrameNo = latestDetectedIntegrationFrameImageStatus.StartExposureFrameNo;
+			latestImageStatus.StartExposureTicks = latestDetectedIntegrationFrameImageStatus.StartExposureTicks;
+			latestImageStatus.EndExposureFrameNo = latestDetectedIntegrationFrameImageStatus.EndExposureFrameNo;
+			latestImageStatus.EndExposureTicks = latestDetectedIntegrationFrameImageStatus.EndExposureTicks;
+			latestImageStatus.CutOffRatio = latestDetectedIntegrationFrameImageStatus.CutOffRatio;
+			latestImageStatus.IntegratedFrameNo = latestDetectedIntegrationFrameImageStatus.IntegratedFrameNo;
+		}
+
+		latestImageStatus.UniqueFrameNo++;
 
 		if (recording)
 		{
@@ -370,16 +420,22 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 
 	idxFrameNumber++;
 
-	if (IsNewIntegrationPeriod(diffSignature))
-	{
-		BufferNewIntegratedFrame();
-		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
-		numberOfIntegratedFrames = 0;
+	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
 
-		idxFirstFrameNumber = idxFrameNumber;
-		idxFirstFrameTimestamp = currentUtcDayAsTicks;
-		idxLastFrameNumber = 0;
-		idxLastFrameTimestamp = 0;
+	if (isNewIntegrationPeriod || !INTEGRATION_LOCKED)
+	{
+		BufferNewIntegratedFrame(isNewIntegrationPeriod);
+		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
+
+		if (isNewIntegrationPeriod)
+		{
+			numberOfIntegratedFrames = 0;
+
+			idxFirstFrameNumber = idxFrameNumber;
+			idxFirstFrameTimestamp = currentUtcDayAsTicks;
+			idxLastFrameNumber = 0;
+			idxLastFrameTimestamp = 0;
+		}
 	}
 
 	frameInfo->FrameDiffSignature  = diffSignature;

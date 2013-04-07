@@ -37,17 +37,27 @@
             this.lblArea2Config = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.cbxGraphDebugMode = new System.Windows.Forms.CheckBox();
             this.tabIntegration = new System.Windows.Forms.TabPage();
+            this.nudMinSignDiff = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
+            this.nudSignDiffFactor = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.tabIOTAVTI = new System.Windows.Forms.TabPage();
             this.btnSave = new System.Windows.Forms.Button();
-            this.nudSignDiffFactor = new System.Windows.Forms.NumericUpDown();
-            this.cbxGraphDebugMode = new System.Windows.Forms.CheckBox();
+            this.btnBrowseOutputFolder = new System.Windows.Forms.Button();
+            this.label6 = new System.Windows.Forms.Label();
+            this.tbxOutputLocation = new System.Windows.Forms.TextBox();
+            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.cbxTimeInUT = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.tabIntegration.SuspendLayout();
-            this.tabIOTAVTI.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSignDiffFactor)).BeginInit();
+            this.tabIOTAVTI.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnCancel
@@ -121,6 +131,12 @@
             // 
             // tabGeneral
             // 
+            this.tabGeneral.Controls.Add(this.cbxTimeInUT);
+            this.tabGeneral.Controls.Add(this.btnBrowseOutputFolder);
+            this.tabGeneral.Controls.Add(this.label6);
+            this.tabGeneral.Controls.Add(this.tbxOutputLocation);
+            this.tabGeneral.Controls.Add(this.label5);
+            this.tabGeneral.Controls.Add(this.textBox1);
             this.tabGeneral.Controls.Add(this.cbxGraphDebugMode);
             this.tabGeneral.Location = new System.Drawing.Point(4, 22);
             this.tabGeneral.Name = "tabGeneral";
@@ -130,8 +146,36 @@
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(17, 66);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(87, 13);
+            this.label5.TabIndex = 2;
+            this.label5.Text = "File name format:";
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(17, 85);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(212, 20);
+            this.textBox1.TabIndex = 1;
+            // 
+            // cbxGraphDebugMode
+            // 
+            this.cbxGraphDebugMode.AutoSize = true;
+            this.cbxGraphDebugMode.Location = new System.Drawing.Point(17, 170);
+            this.cbxGraphDebugMode.Name = "cbxGraphDebugMode";
+            this.cbxGraphDebugMode.Size = new System.Drawing.Size(150, 17);
+            this.cbxGraphDebugMode.TabIndex = 0;
+            this.cbxGraphDebugMode.Text = "Video Graph Debug Mode";
+            this.cbxGraphDebugMode.UseVisualStyleBackColor = true;
+            // 
             // tabIntegration
             // 
+            this.tabIntegration.Controls.Add(this.nudMinSignDiff);
+            this.tabIntegration.Controls.Add(this.label4);
             this.tabIntegration.Controls.Add(this.nudSignDiffFactor);
             this.tabIntegration.Controls.Add(this.label3);
             this.tabIntegration.Location = new System.Drawing.Point(4, 22);
@@ -140,6 +184,57 @@
             this.tabIntegration.TabIndex = 2;
             this.tabIntegration.Text = "Integration Detection";
             this.tabIntegration.UseVisualStyleBackColor = true;
+            // 
+            // nudMinSignDiff
+            // 
+            this.nudMinSignDiff.DecimalPlaces = 2;
+            this.nudMinSignDiff.Location = new System.Drawing.Point(195, 65);
+            this.nudMinSignDiff.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.nudMinSignDiff.Name = "nudMinSignDiff";
+            this.nudMinSignDiff.Size = new System.Drawing.Size(47, 20);
+            this.nudMinSignDiff.TabIndex = 7;
+            this.nudMinSignDiff.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            65536});
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(15, 67);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(174, 13);
+            this.label4.TabIndex = 6;
+            this.label4.Text = "Minimal Signature Difference:";
+            // 
+            // nudSignDiffFactor
+            // 
+            this.nudSignDiffFactor.DecimalPlaces = 1;
+            this.nudSignDiffFactor.Location = new System.Drawing.Point(195, 22);
+            this.nudSignDiffFactor.Maximum = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+            this.nudSignDiffFactor.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.nudSignDiffFactor.Name = "nudSignDiffFactor";
+            this.nudSignDiffFactor.Size = new System.Drawing.Size(47, 20);
+            this.nudSignDiffFactor.TabIndex = 5;
+            this.nudSignDiffFactor.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
             // 
             // label3
             // 
@@ -177,38 +272,40 @@
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnOK_Click);
             // 
-            // nudSignDiffFactor
+            // btnBrowseOutputFolder
             // 
-            this.nudSignDiffFactor.DecimalPlaces = 1;
-            this.nudSignDiffFactor.Location = new System.Drawing.Point(195, 22);
-            this.nudSignDiffFactor.Maximum = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.nudSignDiffFactor.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.nudSignDiffFactor.Name = "nudSignDiffFactor";
-            this.nudSignDiffFactor.Size = new System.Drawing.Size(47, 20);
-            this.nudSignDiffFactor.TabIndex = 5;
-            this.nudSignDiffFactor.Value = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
+            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(345, 31);
+            this.btnBrowseOutputFolder.Name = "btnBrowseOutputFolder";
+            this.btnBrowseOutputFolder.Size = new System.Drawing.Size(30, 23);
+            this.btnBrowseOutputFolder.TabIndex = 13;
+            this.btnBrowseOutputFolder.Text = "...";
+            this.btnBrowseOutputFolder.UseVisualStyleBackColor = true;
             // 
-            // cbxGraphDebugMode
+            // label6
             // 
-            this.cbxGraphDebugMode.AutoSize = true;
-            this.cbxGraphDebugMode.Location = new System.Drawing.Point(23, 33);
-            this.cbxGraphDebugMode.Name = "cbxGraphDebugMode";
-            this.cbxGraphDebugMode.Size = new System.Drawing.Size(150, 17);
-            this.cbxGraphDebugMode.TabIndex = 0;
-            this.cbxGraphDebugMode.Text = "Video Graph Debug Mode";
-            this.cbxGraphDebugMode.UseVisualStyleBackColor = true;
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(17, 18);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(113, 13);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "Output Video Location";
+            // 
+            // tbxOutputLocation
+            // 
+            this.tbxOutputLocation.Location = new System.Drawing.Point(17, 34);
+            this.tbxOutputLocation.Name = "tbxOutputLocation";
+            this.tbxOutputLocation.Size = new System.Drawing.Size(322, 20);
+            this.tbxOutputLocation.TabIndex = 11;
+            // 
+            // cbxTimeInUT
+            // 
+            this.cbxTimeInUT.AutoSize = true;
+            this.cbxTimeInUT.Location = new System.Drawing.Point(17, 122);
+            this.cbxTimeInUT.Name = "cbxTimeInUT";
+            this.cbxTimeInUT.Size = new System.Drawing.Size(115, 17);
+            this.cbxTimeInUT.TabIndex = 14;
+            this.cbxTimeInUT.Text = "Display Time in UT";
+            this.cbxTimeInUT.UseVisualStyleBackColor = true;
             // 
             // frmSettings
             // 
@@ -231,9 +328,10 @@
             this.tabGeneral.PerformLayout();
             this.tabIntegration.ResumeLayout(false);
             this.tabIntegration.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudSignDiffFactor)).EndInit();
             this.tabIOTAVTI.ResumeLayout(false);
             this.tabIOTAVTI.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudSignDiffFactor)).EndInit();
             this.ResumeLayout(false);
 
 		}
@@ -254,5 +352,14 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown nudSignDiffFactor;
         private System.Windows.Forms.CheckBox cbxGraphDebugMode;
+        private System.Windows.Forms.NumericUpDown nudMinSignDiff;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button btnBrowseOutputFolder;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox tbxOutputLocation;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
+        private System.Windows.Forms.CheckBox cbxTimeInUT;
 	}
 }

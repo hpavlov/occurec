@@ -18,6 +18,8 @@ EXPORTS
 	StartRecording
 	StopRecording
 
+	IsNewIntegrationPeriod
+	LockIntegration
 
 	SetTimeStampArea1
 	SetTimeStampArea2

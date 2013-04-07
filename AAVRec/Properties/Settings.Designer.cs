@@ -190,5 +190,29 @@ namespace AAVRec.Properties {
                 this["VideoGraphDebugMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.2")]
+        public float MinSignatureDiff {
+            get {
+                return ((float)(this["MinSignatureDiff"]));
+            }
+            set {
+                this["MinSignatureDiff"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DisplayTimeInUT {
+            get {
+                return ((bool)(this["DisplayTimeInUT"]));
+            }
+            set {
+                this["DisplayTimeInUT"] = value;
+            }
+        }
     }
 }

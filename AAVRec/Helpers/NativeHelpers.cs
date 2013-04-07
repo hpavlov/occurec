@@ -22,28 +22,14 @@ namespace AAVRec.Helpers
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     internal class ImageStatus
     {
-        //[FieldOffset(0)]
         public long StartExposureTicks;
-        //[FieldOffset(8)]
         public long EndExposureTicks;
-        //[FieldOffset(16)]
         public long StartExposureFrameNo;
-        //[FieldOffset(24)]
         public long EndExposureFrameNo;
-        //[FieldOffset(32)]
         public int CountedFrames;
-        //[FieldOffset(36)]
         public float CutOffRatio;
-        //[FieldOffset(40)]
         public long IntegratedFrameNo;
-
-        public ImageStatus()
-        { }
-
-        public ImageStatus(ImageStatus clone)
-        {
-            
-        }
+        public long UniqueFrameNo;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -94,7 +80,16 @@ namespace AAVRec.Helpers
 			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,,] bitmapBytes);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetupCamera(int width, int height, string cameraModel, int monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor);
+        private static extern int SetupCamera(
+            int width, 
+            int height, 
+            string cameraModel, 
+            int monochromeConversionMode,
+            bool flipHorizontally, 
+            bool flipVertically,
+            bool isIntegrating,
+            float signDiffFactor, 
+            float minSignDiff);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
@@ -112,10 +107,14 @@ namespace AAVRec.Helpers
         private static extern int StopRecording();
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int LockIntegration(bool doLock);
+
+        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetTimeStampArea1(int top, int left, int width, int height);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetTimeStampArea2(int top, int left, int width, int height);
+
 
 
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory")]
@@ -266,12 +265,12 @@ namespace AAVRec.Helpers
         private static int imageHeight;
 	    private static Font s_ErrorFont = new Font(FontFamily.GenericMonospace, 9f, GraphicsUnit.Pixel);
 
-        public static void SetupCamera(string cameraModel, int width, int height, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor)
+        public static void SetupCamera(string cameraModel, int width, int height, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff)
         {
             imageWidth = width;
             imageHeight = height;
 
-            SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating, signDiffFactor);
+            SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating, signDiffFactor, minSignDiff);
         }
 
         public static Bitmap GetCurrentImage(out ImageStatus status)
@@ -311,6 +310,18 @@ namespace AAVRec.Helpers
 
             SetTimeStampArea1(config.TimeStampArea1.Top, config.TimeStampArea1.Left, config.TimeStampArea1.Width, config.TimeStampArea1. Height);
             SetTimeStampArea2(config.TimeStampArea2.Top, config.TimeStampArea2.Left, config.TimeStampArea2.Width, config.TimeStampArea2.Height);
+        }
+
+        public static bool LockIntegration()
+        {
+            int hr = LockIntegration(true);
+            return hr >= 0;
+        }
+
+        public static bool UnlockIntegration()
+        {
+            int hr = LockIntegration(false);
+            return hr >= 0;
         }
 	}
 }

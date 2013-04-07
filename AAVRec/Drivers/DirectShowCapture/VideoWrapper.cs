@@ -4,9 +4,10 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 using AAVRec.Drivers;
 
-namespace AAVRec
+namespace AAVRec.Helpers
 {
 	internal class VideoWrapper
 	{
@@ -881,6 +882,18 @@ namespace AAVRec
 				return string.Empty;
 			}
 		}
+
+	    public bool SupportsCrossbar
+	    {
+	        get { return video is ISupportsCrossbar; }
+	    }
+
+        public void LoadCrossbarSources(ComboBox cbxCrossbarInput)
+        {
+            if (video is ISupportsCrossbar)
+                ((ISupportsCrossbar)video).LoadCrossbarSources(cbxCrossbarInput);    
+        }
+        
 
 		private T ShieldedCall<T>(Func<T> method, T errorValue)
 		{

@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 using AAVRec.Helpers;
 using AAVRec.Properties;
 using DirectShowLib;
@@ -39,6 +40,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 		private ISampleGrabber samplGrabber;
 		private ICaptureGraphBuilder2 capBuilder;
 		private IBaseFilter deviceFilter = null;
+	    private IAMCrossbar crossbar;
 
 		private bool isRunning = false;
 
@@ -156,7 +158,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                 Settings.Default.FlipHorizontally, 
                 Settings.Default.FlipVertically,
                 false,
-                0);
+                0, 0);
 
 			filterGraph = (IFilterGraph2)new FilterGraph();
 			mediaCtrl = filterGraph as IMediaControl;
@@ -200,6 +202,8 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
 			// Now that sizes are fixed/known, store the sizes
 			SaveSizeInfo(samplGrabber);
+
+            crossbar = CrossbarHelper.SetupTunerAndCrossbar(capBuilder, deviceFilter);
 		}
 
 		private IBaseFilter BuildPreviewOnlyCaptureGraph(DsDevice dev)
@@ -218,14 +222,12 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				ConfigureSampleGrabber(samplGrabber);
 
 				// Add the frame grabber to the graph
-				hr = filterGraph.AddFilter(baseGrabFlt, "ASCOM Video Grabber");
+				hr = filterGraph.AddFilter(baseGrabFlt, "AAVRec Video Grabber");
 				DsError.ThrowExceptionForHR(hr);
-
-                DirectShowHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
 
 				// Add the frame grabber to the graph
 				muxFilter = (IBaseFilter)new NullRenderer();
-				hr = filterGraph.AddFilter(muxFilter, "ASCOM Video Null Renderer");
+                hr = filterGraph.AddFilter(muxFilter, "AAVRec Video Null Renderer");
 				DsError.ThrowExceptionForHR(hr);
 
 				// Connect everything together
@@ -254,17 +256,15 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				IBaseFilter capFilter = CreateFilter(FilterCategory.VideoInputDevice, dev.Name);
 
 				// Add the Video input device to the graph
-				int hr = filterGraph.AddFilter(capFilter, "ASCOM Video Source");
+                int hr = filterGraph.AddFilter(capFilter, "AAVRec Video Source");
 				DsError.ThrowExceptionForHR(hr);
-
-                DirectShowHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
 
 				if (compressor != null)
 				{
 					compressorFilter = CreateFilter(FilterCategory.VideoCompressorCategory, compressor.Name);
 
 					// Add the Video compressor filter to the graph
-					hr = filterGraph.AddFilter(compressorFilter, "ASCOM Video Compressor");
+                    hr = filterGraph.AddFilter(compressorFilter, "AAVRec Video Compressor");
 					DsError.ThrowExceptionForHR(hr);
 				}
 
@@ -276,12 +276,12 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				ConfigureSampleGrabber(samplGrabber);
 
 				// Add the frame grabber to the graph
-				hr = filterGraph.AddFilter(baseGrabFlt, "ASCOM Video Grabber");
+                hr = filterGraph.AddFilter(baseGrabFlt, "AAVRec Video Grabber");
 				DsError.ThrowExceptionForHR(hr);
 
 				// Add the frame grabber to the graph
 				nullRenderer = (IBaseFilter)new NullRenderer();
-				hr = filterGraph.AddFilter(nullRenderer, "ASCOM Video Null Renderer");
+                hr = filterGraph.AddFilter(nullRenderer, "AAVRec Video Null Renderer");
 				DsError.ThrowExceptionForHR(hr);
 
 				// Render any preview pin of the device to the sample grabber
@@ -338,16 +338,14 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				int hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
 				DsError.ThrowExceptionForHR(hr);
 
-                DirectShowHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
-
 				IBaseFilter baseGrabFlt = (IBaseFilter)samplGrabber;
 				ConfigureSampleGrabber(samplGrabber);
 
-				hr = filterGraph.AddFilter(baseGrabFlt, "ASCOM Video Grabber");
+                hr = filterGraph.AddFilter(baseGrabFlt, "AAVRec Video Grabber");
 				DsError.ThrowExceptionForHR(hr);
 
 				smartTeeFilter = Marshal.BindToMoniker(SMART_TEE_MONKIER) as IBaseFilter;
-				hr = filterGraph.AddFilter(smartTeeFilter, "ASCOM Video SmartTee");
+                hr = filterGraph.AddFilter(smartTeeFilter, "AAVRec Video SmartTee");
 				DsError.ThrowExceptionForHR(hr);
 
 				// Connect the video device output to the splitter
@@ -368,7 +366,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
 				// Add the frame grabber to the graph
 				nullRenderer = (IBaseFilter)new NullRenderer();
-				hr = filterGraph.AddFilter(nullRenderer, "ASCOM Video Null Renderer");
+                hr = filterGraph.AddFilter(nullRenderer, "AAVRec Video Null Renderer");
 				DsError.ThrowExceptionForHR(hr);
 
 				// Connect the sample grabber to the null renderer (so frame samples will be coming through)
@@ -381,7 +379,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
 				// Create the compressor
 				compressorFilter = CreateFilter(FilterCategory.VideoCompressorCategory, compressor.Name);
-				hr = filterGraph.AddFilter(compressorFilter, "ASCOM Video Compressor");
+                hr = filterGraph.AddFilter(compressorFilter, "AAVRec Video Compressor");
 				DsError.ThrowExceptionForHR(hr);
 
 				// Connect the splitter Capture pin to the compressor
@@ -654,6 +652,8 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                         rot = null;
                     }
                 }
+
+	            crossbar = null;
 	        }
         }
 
@@ -804,5 +804,18 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				DisplayPropertyPage(deviceFilter, IntPtr.Zero);
 		}
 
+        public void ConnectToCrossbarSource(int inputPinIndex)
+        {
+            if (crossbar != null)
+                CrossbarHelper.ConnectToCrossbarSource(crossbar, inputPinIndex);
+        }
+
+        public void LoadCrossbarSources(ComboBox comboBox)
+        {
+            Trace.WriteLine(string.Format("LoadCrossbarSources() called. crossbar is {0}", crossbar == null ? "NULL" : "NOT NULL"));
+
+            if (crossbar != null)
+                CrossbarHelper.LoadCrossbarSources(crossbar, comboBox);
+        }
 	}
 }

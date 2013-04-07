@@ -16,6 +16,8 @@ using System.Windows.Forms;
 using AAVRec.Drivers;
 using AAVRec.Helpers;
 using AAVRec.Properties;
+using AAVRec.Scheduling;
+using AAVRec.StateManagement;
 
 namespace AAVRec
 {
@@ -30,6 +32,7 @@ namespace AAVRec
 		private string recordingfileName;
 		private int framesBeforeUpdatingCameraVideoFormat = -1;
 
+	    private CameraStateManager stateManager;
 	    private ICameraImage cameraImage;
 	    private string appVersion;
 
@@ -41,6 +44,9 @@ namespace AAVRec
 			previewOn = true;
 
 		    cameraImage = new CameraImage();
+
+		    stateManager = new CameraStateManager();
+            stateManager.CameraDisconnected();
 
 			ThreadPool.QueueUserWorkItem(new WaitCallback(DisplayVideoFrames));
 
@@ -94,7 +100,11 @@ namespace AAVRec
 
                             ResizeVideoFrameTo(imageWidth, imageHeight);
                             tssIntegrationRate.Visible = Settings.Default.IsIntegrating && Settings.Default.FileFormat == "AAV";
+                            pnlAAV.Visible = Settings.Default.FileFormat == "AAV";
                         }
+
+                        stateManager.CameraConnected(driverInstance);
+                        UpdateScheduleDisplay();
                     }
                     finally
                     {
@@ -120,6 +130,7 @@ namespace AAVRec
 
 			UpdateCameraState(false);
 		    tssIntegrationRate.Visible = false;
+		    stateManager.CameraDisconnected();
 		}
 
 		private void UpdateCameraState(bool connected)
@@ -146,13 +157,41 @@ namespace AAVRec
 						videoObject.VideoCaptureDeviceName != null
 							? string.Format(" ({0})", videoObject.VideoCaptureDeviceName) 
 							: string.Empty);
+
+                if (Settings.Default.UsesTunerCrossbar && videoObject.SupportsCrossbar)
+                {
+                    cbxCrossbarInput.Items.Clear();
+                    cbxCrossbarInput.SelectedIndexChanged -= new EventHandler(cbxCrossbarInput_SelectedIndexChanged);
+                    try
+                    {
+                        videoObject.LoadCrossbarSources(cbxCrossbarInput);
+                    }
+                    finally
+                    {
+                        cbxCrossbarInput.SelectedIndexChanged += new EventHandler(cbxCrossbarInput_SelectedIndexChanged);
+                        Cursor = Cursors.Default;
+                    }  
+
+                    pnlCrossbar.Visible = true;
+                }			    
 			}
 			else
 			{
+                pnlCrossbar.Visible = false;
 				lblVideoFormat.Text = "N/A";
                 Text = string.Format("AAVRec v{0}", appVersion);
 			}
 		}
+
+        private void cbxCrossbarInput_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selectedItem = cbxCrossbarInput.SelectedItem as CrossbarHelper.CrossbarPinEntry;
+
+            if (videoObject is ISupportsCrossbar && selectedItem != null)
+            {
+                ((ISupportsCrossbar)videoObject).ConnectToCrossbarSource(selectedItem.PinIndex);
+            }
+        }
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -182,7 +221,7 @@ namespace AAVRec
 		private long lastDisplayedVideoFrameNumber = -1;
 		private bool previewOn = true;
 
-		private delegate void PaintVideoFrameDelegate(IVideoFrame frame, Bitmap bmp);
+        private delegate void PaintVideoFrameDelegate(VideoFrameWrapper frame, Bitmap bmp);
 
 		private int renderedFrameCounter = 0;
 		private long startTicks = 0;
@@ -191,7 +230,7 @@ namespace AAVRec
 		private double renderFps = double.NaN;
 		private long currentFrameNo = 0;
 
-		private void PaintVideoFrame(IVideoFrame frame, Bitmap bmp)
+        private void PaintVideoFrame(VideoFrameWrapper frame, Bitmap bmp)
 		{
 			bool isEmptyFrame = frame == null;
 			if (!isEmptyFrame)
@@ -250,26 +289,8 @@ namespace AAVRec
 
             if (!string.IsNullOrEmpty(frame.ImageInfo))
             {
-                string[] tokens = frame.ImageInfo.Split(';');
-                string ctOff = null;
-                string frmCnt = null;
-                foreach(string token in tokens)
-                {
-                    string[] nvpair = token.Split(':');
-                    if (nvpair.Length == 2)
-                    {
-                        if (nvpair[0] == "INT")
-                            frmCnt = nvpair[1];
-
-                        if (nvpair[0] == "CTOF")
-                            ctOff = nvpair[1];
-
-                        
-                    }
-                }
-
-                if (frmCnt != null)
-                    tssIntegrationRate.Text = string.Format("Integration Rate: x{0} ({1})", frmCnt, ctOff);
+                if (frame.IntegrationRate != null)
+                    tssIntegrationRate.Text = string.Format("Integration Rate: x{0}", frame.IntegrationRate);
                 else
                     tssIntegrationRate.Text = "Integration Rate: ...";
             }
@@ -329,27 +350,33 @@ namespace AAVRec
 								? videoObject.LastVideoFrameVariant 
 								: videoObject.LastVideoFrame;
 
-						if (frame != null &&
-							(frame.FrameNumber == -1 || frame.FrameNumber != lastDisplayedVideoFrameNumber))
+						if (frame != null)                            
 						{
-							lastDisplayedVideoFrameNumber = frame.FrameNumber;
+                            var frameWrapper = new VideoFrameWrapper(frame);
 
-							Bitmap bmp = null;
+                            if (frameWrapper.UniqueFrameId == -1 || frameWrapper.UniqueFrameId != lastDisplayedVideoFrameNumber)
+                            {
+                                stateManager.ProcessFrame(frameWrapper);
 
-                            cameraImage.SetImageArray(
-                                useVariantPixels
-                                    ? frame.ImageArrayVariant
-                                    : frame.ImageArray,
-                                imageWidth,
-                                imageHeight,
-                                videoObject.SensorType);
+                                lastDisplayedVideoFrameNumber = frameWrapper.UniqueFrameId;
 
-                            bmp = cameraImage.GetDisplayBitmap();
+                                Bitmap bmp = null;
 
-							Invoke(new PaintVideoFrameDelegate(PaintVideoFrame), new object[] { frame, bmp });
+                                cameraImage.SetImageArray(
+                                    useVariantPixels
+                                        ? frame.ImageArrayVariant
+                                        : frame.ImageArray,
+                                    imageWidth,
+                                    imageHeight,
+                                    videoObject.SensorType);
+
+                                bmp = cameraImage.GetDisplayBitmap();
+
+                                Invoke(new PaintVideoFrameDelegate(PaintVideoFrame), new object[] { frameWrapper, bmp });                                
+                            }
 						}
 					}
-					catch(ObjectDisposedException){ }
+                    catch (InvalidOperationException) { }
 					catch(Exception ex)
 					{
 						Trace.WriteLine(ex);
@@ -436,6 +463,15 @@ namespace AAVRec
 					btnStopRecording.Enabled = false;
 					btnRecord.Enabled = true;
 				}
+
+                btnLockIntegration.Enabled = stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0;
+                if (stateManager.IntegrationRate > 0)
+                    btnLockIntegration.Text = string.Format("Lock at x{0}", stateManager.IntegrationRate);
+                else
+                    btnLockIntegration.Text = "Checking Integration ...";
+
+                btnRecord.Enabled = lbSchedule.Items.Count == 0;
+                btnStopRecording.Enabled = lbSchedule.Items.Count == 0;
 			}
 		}
 
@@ -443,7 +479,7 @@ namespace AAVRec
 		{
 			if (videoObject != null)
 			{
-				string fileName = Path.GetFullPath(string.Format("{0}\\video-{1}.avi", Settings.Default.OutputLocation, DateTime.Now.ToString("yyyy-MMM-dd HH-mm-ss")));
+			    string fileName = FileNameGenerator.GenerateFileName();
 
 				recordingfileName = videoObject.StartRecording(fileName);
 
@@ -474,5 +510,80 @@ namespace AAVRec
 			if (videoObject != null)
 				videoObject.ConfigureImage();
 		}
+
+        private void btnLockIntegration_Click(object sender, EventArgs e)
+        {
+            if (stateManager.IsIntegrationLocked)
+                stateManager.UnlockIntegration();
+            else if (stateManager.CanLockIntegrationNow)
+                stateManager.LockIntegration();
+        }
+
+        private void btnAddSchedule_Click(object sender, EventArgs e)
+        {
+            var frm = new frmAddScheduleEntry();
+            if (frm.ShowDialog(this) == DialogResult.OK)
+            {
+                UpdateScheduleDisplay();
+            }
+        }
+
+        private void UpdateScheduleDisplay()
+        {
+            lbSchedule.Items.Clear();
+
+            foreach(ScheduleEntry entry in Scheduler.GetAllSchedules())
+            {
+                lbSchedule.Items.Add(entry);
+            }
+        }
+
+        private void timerScheduler_Tick(object sender, EventArgs e)
+        {
+            ScheduledAction actionToTake = Scheduler.CheckSchedules();
+
+            if (actionToTake != ScheduledAction.None)
+            {
+                switch(actionToTake)
+                {
+                    case ScheduledAction.StartRecording:
+                        if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning)
+                        {
+                            string fileName = FileNameGenerator.GenerateFileName();
+                            recordingfileName = videoObject.StartRecording(fileName);
+                            UpdateState();
+                        }
+                        break;
+
+                    case ScheduledAction.StopRecording:
+                        if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
+                        {
+                            videoObject.StopRecording();
+                            UpdateState();
+                        }
+                        break;
+                }
+
+                UpdateScheduleDisplay();
+            }
+
+            ScheduleEntry entry = Scheduler.GetNextEntry();
+            if (entry != null)
+            {
+                lblSecheduleWhatsNext.Text = entry.GetRemainingTime();
+                pnlNextScheduledAction.Visible = true;
+            }
+            else
+            {
+                pnlNextScheduledAction.Visible = false;
+            }
+        }
+
+        private void btnClearSchedule_Click(object sender, EventArgs e)
+        {
+            Scheduler.ClearSchedules();
+            UpdateScheduleDisplay();
+        }
+
 	}
 }

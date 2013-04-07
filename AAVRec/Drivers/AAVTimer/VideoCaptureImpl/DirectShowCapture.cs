@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 using AAVRec.Helpers;
 using AAVRec.Properties;
 using DirectShowLib;
@@ -34,6 +35,7 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 		private IMediaControl mediaCtrl;
 		private ISampleGrabber samplGrabber;
 		private ICaptureGraphBuilder2 capBuilder;
+	    private IAMCrossbar crossbar;
 
 		private bool isRunning = false;
 
@@ -67,7 +69,8 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
                     Settings.Default.FlipHorizontally, 
                     Settings.Default.FlipVertically,
                     Settings.Default.IsIntegrating,
-                    (float)Settings.Default.SignatureDiffFactorEx2);
+                    (float)Settings.Default.SignatureDiffFactorEx2,
+                    (float)Settings.Default.MinSignatureDiff);
 			}
 			catch
 			{
@@ -164,14 +167,12 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 				ConfigureSampleGrabber(samplGrabber);
 
 				// Add the frame grabber to the graph
-				hr = filterGraph.AddFilter(baseGrabFlt, "ASCOM Video Grabber");
+				hr = filterGraph.AddFilter(baseGrabFlt, "AAVRec Video Grabber");
 				DsError.ThrowExceptionForHR(hr);
-
-                DirectShowHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
 
 				// Add the frame grabber to the graph
 				nullRendered = (IBaseFilter)new NullRenderer();
-				hr = filterGraph.AddFilter(nullRendered, "ASCOM Video Null Renderer");
+                hr = filterGraph.AddFilter(nullRendered, "AAVRec Video Null Renderer");
 				DsError.ThrowExceptionForHR(hr);
 
 				// Connect everything together
@@ -184,6 +185,8 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
 				// Now that sizes are fixed/known, store the sizes
 				SaveSizeInfo(samplGrabber);
+
+                crossbar = CrossbarHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
 
 				// Turn off clock so frames are sent as fast as possible
 				hr = ((IMediaFilter) filterGraph).SetSyncSource(null);
@@ -367,6 +370,8 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
                         rot = null;
                     }
                 }
+
+                crossbar = null;
 	        }
         }
 
@@ -495,6 +500,18 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
         {
             if (capFilter != null)
                 DisplayPropertyPage(capFilter, IntPtr.Zero);
+        }
+
+        public void ConnectToCrossbarSource(int inputPinIndex)
+        {
+            if (crossbar != null)
+                CrossbarHelper.ConnectToCrossbarSource(crossbar, inputPinIndex);
+        }
+
+        public void LoadCrossbarSources(ComboBox comboBox)
+        {
+            if (crossbar != null)
+                CrossbarHelper.LoadCrossbarSources(crossbar, comboBox);
         }
 	}
 }

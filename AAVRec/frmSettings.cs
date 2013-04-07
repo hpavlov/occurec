@@ -1,16 +1,4 @@
-﻿//tabs=4
-// --------------------------------------------------------------------------------
-//
-// ASCOM Video Driver - Video Client
-//
-// Description:	The settings form
-//
-// Author:		(HDP) Hristo Pavlov <hristo_dpavlov@yahoo.com>
-//
-// --------------------------------------------------------------------------------
-//
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -34,8 +22,11 @@ namespace AAVRec
 
 		    m_OCRSettings = OCRSettings.Instance;
 
-		    nudSignDiffFactor.Value = Math.Min(10, Math.Max(1, (decimal)Settings.Default.SignatureDiffFactorEx2));
+		    nudSignDiffFactor.Value = Math.Min(50, Math.Max(1, (decimal)Settings.Default.SignatureDiffFactorEx2));
+            nudMinSignDiff.Value = Math.Min(10, Math.Max(0, (decimal)Settings.Default.MinSignatureDiff));
 		    cbxGraphDebugMode.Checked = Settings.Default.VideoGraphDebugMode;
+            tbxOutputLocation.Text = Settings.Default.OutputLocation;
+            cbxTimeInUT.Checked = Settings.Default.DisplayTimeInUT;
 		}
 
         private void frmSettings_Load(object sender, EventArgs e)
@@ -47,11 +38,33 @@ namespace AAVRec
         private void btnOK_Click(object sender, EventArgs e)
         {
             Settings.Default.VideoGraphDebugMode = cbxGraphDebugMode.Checked;
-            Settings.Default.SignatureDiffFactorEx2 = Math.Min(10, Math.Max(1, (double)nudSignDiffFactor.Value));
+            Settings.Default.SignatureDiffFactorEx2 = (double) nudSignDiffFactor.Value;
+            Settings.Default.MinSignatureDiff = (float)nudMinSignDiff.Value;
+
+            if (!Directory.Exists(tbxOutputLocation.Text))
+            {
+                MessageBox.Show("Output location must be an existing directory.");
+                tbxOutputLocation.Focus();
+                return;
+            }
+
+            Settings.Default.OutputLocation = tbxOutputLocation.Text;
+            Settings.Default.DisplayTimeInUT = cbxTimeInUT.Checked;
+
             Settings.Default.Save();
 
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void btnBrowseOutputFolder_Click(object sender, EventArgs e)
+        {
+            folderBrowserDialog.SelectedPath = tbxOutputLocation.Text;
+
+            if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
+            {
+                tbxOutputLocation.Text = folderBrowserDialog.SelectedPath;
+            }
         }
 	}
 }

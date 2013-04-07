@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 using AAVRec.Helpers;
 using AAVRec.Properties;
 using DirectShowLib;
@@ -149,6 +150,7 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 					cameraFrame = new VideoCameraFrame()
 					{
                         FrameNumber = status.IntegratedFrameNo,
+                        UniqueFrameNumber = status.UniqueFrameNo,
                         ImageStatus = status,
 						Pixels = pixels,
 						ImageLayout = VideoFrameLayout.Monochrome
@@ -198,6 +200,26 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
             {
                 dsCapture.ShowDeviceProperties();
             }
+        }
+
+        public bool LockIntegration()
+        {
+            return NativeHelpers.LockIntegration();
+        }
+
+        public bool UnlockIntegration()
+        {
+            return NativeHelpers.UnlockIntegration();
+        }
+
+        public void ConnectToCrossbarSource(int inputPinIndex)
+        {
+            dsCapture.ConnectToCrossbarSource(inputPinIndex);
+        }
+
+        public void LoadCrossbarSources(ComboBox comboBox)
+        {
+            dsCapture.LoadCrossbarSources(comboBox);
         }
 	}
 }
