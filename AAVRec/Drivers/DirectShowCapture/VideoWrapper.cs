@@ -893,7 +893,12 @@ namespace AAVRec.Helpers
             if (video is ISupportsCrossbar)
                 ((ISupportsCrossbar)video).LoadCrossbarSources(cbxCrossbarInput);    
         }
-        
+
+        public void ConnectToCrossbarSource(int inputPinIndex)
+        {
+            if (video is ISupportsCrossbar)
+                ((ISupportsCrossbar)video).ConnectToCrossbarSource(inputPinIndex);               
+        }
 
 		private T ShieldedCall<T>(Func<T> method, T errorValue)
 		{

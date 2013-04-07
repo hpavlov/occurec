@@ -187,9 +187,9 @@ namespace AAVRec
         {
             var selectedItem = cbxCrossbarInput.SelectedItem as CrossbarHelper.CrossbarPinEntry;
 
-            if (videoObject is ISupportsCrossbar && selectedItem != null)
+            if (videoObject.SupportsCrossbar && selectedItem != null)
             {
-                ((ISupportsCrossbar)videoObject).ConnectToCrossbarSource(selectedItem.PinIndex);
+                videoObject.ConnectToCrossbarSource(selectedItem.PinIndex);
             }
         }
 
