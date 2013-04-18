@@ -15,6 +15,7 @@ using System.Threading;
 using System.Windows.Forms;
 using AAVRec.Drivers;
 using AAVRec.Helpers;
+using AAVRec.OCR;
 using AAVRec.Properties;
 using AAVRec.Scheduling;
 using AAVRec.StateManagement;
@@ -82,8 +83,10 @@ namespace AAVRec
                     IVideo driverInstance;
                     if (Settings.Default.FileFormat == "AAV")
                         driverInstance = new Drivers.AAVTimer.Video();
-                    else
+                    else if (Settings.Default.FileFormat == "AVI")
                         driverInstance = new Drivers.DirectShowCapture.Video();
+                    else
+                        driverInstance = new Drivers.AAVSimulator.Video();
 
                     videoObject = new VideoWrapper(driverInstance);
 

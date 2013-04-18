@@ -52,6 +52,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.cbxFlipHorizontally = new System.Windows.Forms.CheckBox();
             this.cbxFlipVertically = new System.Windows.Forms.CheckBox();
+            this.rbFileSIM = new System.Windows.Forms.RadioButton();
             this.gbxCodecs.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gbxAAVSettings.SuspendLayout();
@@ -198,6 +199,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.rbFileSIM);
             this.groupBox2.Controls.Add(this.rbFileAVI);
             this.groupBox2.Controls.Add(this.rbFileAAV);
             this.groupBox2.Location = new System.Drawing.Point(15, 89);
@@ -210,7 +212,7 @@
             // rbFileAVI
             // 
             this.rbFileAVI.AutoSize = true;
-            this.rbFileAVI.Location = new System.Drawing.Point(23, 66);
+            this.rbFileAVI.Location = new System.Drawing.Point(23, 58);
             this.rbFileAVI.Name = "rbFileAVI";
             this.rbFileAVI.Size = new System.Drawing.Size(42, 17);
             this.rbFileAVI.TabIndex = 1;
@@ -222,7 +224,7 @@
             // 
             this.rbFileAAV.AutoSize = true;
             this.rbFileAAV.Checked = true;
-            this.rbFileAAV.Location = new System.Drawing.Point(23, 36);
+            this.rbFileAAV.Location = new System.Drawing.Point(23, 28);
             this.rbFileAAV.Name = "rbFileAAV";
             this.rbFileAAV.Size = new System.Drawing.Size(46, 17);
             this.rbFileAAV.TabIndex = 0;
@@ -307,6 +309,16 @@
             this.cbxFlipVertically.UseVisualStyleBackColor = true;
             this.cbxFlipVertically.Visible = false;
             // 
+            // rbFileSIM
+            // 
+            this.rbFileSIM.AutoSize = true;
+            this.rbFileSIM.Location = new System.Drawing.Point(23, 86);
+            this.rbFileSIM.Name = "rbFileSIM";
+            this.rbFileSIM.Size = new System.Drawing.Size(44, 17);
+            this.rbFileSIM.TabIndex = 2;
+            this.rbFileSIM.Text = "SIM";
+            this.rbFileSIM.UseVisualStyleBackColor = true;
+            // 
             // frmChooseCamera
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -366,5 +378,6 @@
         private System.Windows.Forms.ComboBox cbxCrossbarInput;
         private System.Windows.Forms.CheckBox cbxFlipHorizontally;
         private System.Windows.Forms.CheckBox cbxFlipVertically;
+        private System.Windows.Forms.RadioButton rbFileSIM;
     }
 }

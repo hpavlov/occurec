@@ -306,10 +306,10 @@ namespace AAVRec.Helpers
 
         public static void SetupOcrConfig()
         {
-            OCRSettings config = OCRSettings.Instance;
+            OcrSettings config = OcrSettings.Instance;
 
-            SetTimeStampArea1(config.TimeStampArea1.Top, config.TimeStampArea1.Left, config.TimeStampArea1.Width, config.TimeStampArea1. Height);
-            SetTimeStampArea2(config.TimeStampArea2.Top, config.TimeStampArea2.Left, config.TimeStampArea2.Width, config.TimeStampArea2.Height);
+            //SetTimeStampArea1(config.TimeStampArea1.Top, config.TimeStampArea1.Left, config.TimeStampArea1.Width, config.TimeStampArea1. Height);
+            //SetTimeStampArea2(config.TimeStampArea2.Top, config.TimeStampArea2.Left, config.TimeStampArea2.Width, config.TimeStampArea2.Height);
         }
 
         public static bool LockIntegration()

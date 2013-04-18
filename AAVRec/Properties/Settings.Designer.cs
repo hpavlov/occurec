@@ -214,5 +214,41 @@ namespace AAVRec.Properties {
                 this["DisplayTimeInUT"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SimulatorFilePath {
+            get {
+                return ((string)(this["SimulatorFilePath"]));
+            }
+            set {
+                this["SimulatorFilePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("25")]
+        public float SimulatorFrameRate {
+            get {
+                return ((float)(this["SimulatorFrameRate"]));
+            }
+            set {
+                this["SimulatorFrameRate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string OcrDebugOutputFolder {
+            get {
+                return ((string)(this["OcrDebugOutputFolder"]));
+            }
+            set {
+                this["OcrDebugOutputFolder"] = value;
+            }
+        }
     }
 }

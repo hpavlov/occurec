@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -32,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>aavrec-big.ico</ApplicationIcon>
@@ -52,6 +54,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Drivers\AAVSimulator\AAVPlayerImpl\AAVPlayer.cs" />
+    <Compile Include="OCR\ManagedOcrTester.cs" />
+    <Compile Include="OCR\OcrCharRecognizer.cs" />
+    <Compile Include="OCR\OcredChar.cs" />
+    <Compile Include="OCR\OcrZoneChecker.cs" />
+    <Compile Include="OCR\OsdFieldInfoExtractor.cs" />
+    <Compile Include="OCR\TestStates\CalibratedState.cs" />
+    <Compile Include="OCR\TestStates\StateBase.cs" />
+    <Compile Include="OCR\TestStates\StateContext.cs" />
+    <Compile Include="OCR\TestStates\UncalibratedState.cs" />
+    <Compile Include="Video\AstroDigitalVideoStream.cs" />
+    <Compile Include="Video\AstroDigitalVideo\AdvFile.cs" />
+    <Compile Include="Video\AstroDigitalVideo\AdvFramesIndex.cs" />
+    <Compile Include="Video\AstroDigitalVideo\AdvImageLayout.cs" />
+    <Compile Include="Video\AstroDigitalVideo\AdvImageSection.cs" />
+    <Compile Include="Video\AstroDigitalVideo\AdvSectionFactory.cs" />
+    <Compile Include="Video\AstroDigitalVideo\AdvStatusSection.cs" />
+    <Compile Include="Video\AstroDigitalVideo\AdvTags.cs" />
+    <Compile Include="Video\AstroDigitalVideo\Compression\QuickLZ.cs" />
+    <Compile Include="Video\AstroDigitalVideo\Interfaces.cs" />
+    <Compile Include="Drivers\AAVSimulator\Video.cs" />
+    <Compile Include="Drivers\AAVSimulator\VideoFrame.cs" />
     <Compile Include="Drivers\AAVTimer\Video.cs" />
     <Compile Include="Drivers\AAVTimer\VideoCaptureImpl\DirectShowCapture.cs" />
     <Compile Include="Drivers\AAVTimer\VideoCaptureImpl\Profiler.cs" />
@@ -101,7 +125,7 @@
     <Compile Include="Helpers\FileNameGenerator.cs" />
     <Compile Include="Helpers\NativeHelpers.cs" />
     <Compile Include="Helpers\VideoFrameWrapper.cs" />
-    <Compile Include="OCR\OCRSettings.cs" />
+    <Compile Include="OCR\OcrSettings.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Drivers\DirectShowCapture\VideoWrapper.cs" />
@@ -160,6 +184,7 @@
     <Content Include="aavrec-big.ico" />
     <Content Include="IOTA-VTI-OCR-Settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup />

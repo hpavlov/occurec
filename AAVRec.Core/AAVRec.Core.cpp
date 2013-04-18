@@ -446,9 +446,9 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 
 	double* ptrPixels = integratedPixels;
 	
-	for (int x = 0; x < IMAGE_HEIGHT; x++)
+	for (int y = 0; y < IMAGE_HEIGHT; y++)
 	{
-		for (int i=0; i < IMAGE_WIDTH; i++)
+		for (int x = 0; x < IMAGE_WIDTH; x++)
 		{
 			if (MONOCHROME_CONVERSION_MODE == 0)
 				*ptrPixels += *(ptrPixelItt + 2); //R
@@ -471,7 +471,7 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 			}
 
 			ptrPixels++;
-			ptrPixelItt+=3;			
+			ptrPixelItt+=3;
 		}
 
 		ptrPixelItt = ptrPixelItt - 2 * IMAGE_STRIDE;
