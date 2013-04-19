@@ -39,17 +39,14 @@ namespace AAVRec.OCR.TestStates
 
         public TestFrameResult TestTimeStamp(OsdFrameInfo frameTimestamp)
         {
-            currentState.TestTimeStamp(this, frameTimestamp);
+            TestFrameResult suggestedResult = currentState.TestTimeStamp(this, frameTimestamp);
 
-            if (currentState is CalibratedState)
+            if (!frameTimestamp.FrameInfoIsOk() || suggestedResult == TestFrameResult.ErrorSaveScreenShotImages)
             {
-                if (!frameTimestamp.FrameInfoIsOk())
-                    return TestFrameResult.ErrorSaveScreenShotImages;
+                return TestFrameResult.ErrorSaveScreenShotImages;
             }
             else
-                return TestFrameResult.Undefined;
-
-            return TestFrameResult.Okay;
+                return suggestedResult;
         }
     }
 }

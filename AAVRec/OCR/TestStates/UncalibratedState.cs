@@ -11,10 +11,12 @@ namespace AAVRec.OCR.TestStates
 
         private OsdFrameInfo lastGoodTimeStamp;
         private OsdFrameInfo secondLastGoodTimeStamp;
+        private int attempts;
 
-
-        internal override void TestTimeStamp(StateContext context, OsdFrameInfo frameTimestamp)
+        internal override TestFrameResult TestTimeStamp(StateContext context, OsdFrameInfo frameTimestamp)
         {
+            attempts++;
+
             if (lastGoodTimeStamp == null)
             {
                 if (frameTimestamp.FrameInfoIsOk())
@@ -36,12 +38,15 @@ namespace AAVRec.OCR.TestStates
                     context.TransitionToState(CalibratedState.Instance);
                 }                
             }
+
+            return attempts > 4 ? TestFrameResult.ErrorSaveScreenShotImages : TestFrameResult.Undefined;
         }
 
         internal override void Reset(StateContext context)
         {
             lastGoodTimeStamp = null;
             secondLastGoodTimeStamp = null;
+            attempts = 0;
         }
     }
 }

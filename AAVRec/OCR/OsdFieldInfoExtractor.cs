@@ -27,35 +27,81 @@ namespace AAVRec.OCR
         public string GpsFixStyatus = string.Empty;
         public bool GpsAlmanacOk = false;
 
+        private bool bothFieldNumbersAndTimeStampsAreBad = false;
+
         public OsdFrameInfo(OsdFieldInfo oddField, OsdFieldInfo evenField)
         {
-            if (Math.Abs(oddField.FieldNumber - evenField.FieldNumber) == 1) 
-                FrameNumber = Math.Min(oddField.FieldNumber, evenField.FieldNumber);
+            ReCalculate(oddField, evenField);
+        }
 
-            GpsFixStyatus = oddField.GpsFixStyatus;
-            GpsAlmanacOk = oddField.GpsAlmanacOk && evenField.GpsAlmanacOk;
-            NumSatellites = Math.Min(oddField.NumSatellites, evenField.NumSatellites);
-             
-            if (oddField.FieldNumber < evenField.FieldNumber)
+        public void ReCalculate()
+        {
+            ReCalculate(FirstField, SecondField);
+        }
+
+        private void ReCalculate(OsdFieldInfo field1, OsdFieldInfo field2)
+        {
+            bothFieldNumbersAndTimeStampsAreBad = false;
+
+            if (Math.Abs(field1.FieldNumber - field2.FieldNumber) == 1)
+                FrameNumber = Math.Min(field1.FieldNumber, field2.FieldNumber);
+
+            GpsFixStyatus = field1.GpsFixStyatus;
+            GpsAlmanacOk = field1.GpsAlmanacOk && field2.GpsAlmanacOk;
+            NumSatellites = Math.Min(field1.NumSatellites, field2.NumSatellites);
+
+            if (Math.Abs(field1.FieldNumber - field2.FieldNumber) == 1)
             {
-                StartTime = oddField.TimeStamp;
-                EndTime = evenField.TimeStamp;
+                // Field numbers of the consequtive frames are OK. Use them to determine which frame is first and which is second
+                if (field1.FieldNumber < field2.FieldNumber)
+                {
+                    StartTime = field1.TimeStamp;
+                    EndTime = field2.TimeStamp;
 
-                FirstField = oddField;
-                SecondField = evenField;
+                    FirstField = field1;
+                    SecondField = field2;
+                }
+                else
+                {
+                    StartTime = field2.TimeStamp;
+                    EndTime = field1.TimeStamp;
+
+                    FirstField = field2;
+                    SecondField = field1;
+                }                
+            }
+            else if (Math.Abs(new TimeSpan(field1.TimeStamp.Ticks - field2.TimeStamp.Ticks).TotalMilliseconds) - 20 <= 1)
+            {
+                // Timestamps are OK. Use them to determine which frame is first and which is second
+                if (field1.TimeStamp.Ticks < field2.TimeStamp.Ticks)
+                {
+                    StartTime = field1.TimeStamp;
+                    EndTime = field2.TimeStamp;
+
+                    FirstField = field1;
+                    SecondField = field2;                    
+                }
+                else
+                {
+                    StartTime = field2.TimeStamp;
+                    EndTime = field1.TimeStamp;
+
+                    FirstField = field2;
+                    SecondField = field1;
+                }
             }
             else
             {
-                StartTime = evenField.TimeStamp;
-                EndTime = oddField.TimeStamp;
-
-                FirstField = evenField;
-                SecondField = oddField;
+                bothFieldNumbersAndTimeStampsAreBad = true;
+                FirstField = field1;
+                SecondField = field2; 
             }
         }
 
         public bool FrameInfoIsOk()
         {
+            if (bothFieldNumbersAndTimeStampsAreBad) return false;
+
             if (FrameNumber == -1) return false;
             if (GpsFixStyatus != "P" && GpsFixStyatus != "G") return false;
             if (NumSatellites == -1) return false;
@@ -63,6 +109,8 @@ namespace AAVRec.OCR
             TimeSpan exposure = new TimeSpan(EndTime.Ticks - StartTime.Ticks);
             if (exposure.TotalMinutes <= 0) return false;
             if (Math.Abs(exposure.TotalMilliseconds - 20) > 1) return false;
+
+            if (FirstField.FieldNumber + 1 != SecondField.FieldNumber) return false;
 
             return true;
         }

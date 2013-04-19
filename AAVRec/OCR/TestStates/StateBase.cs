@@ -12,6 +12,6 @@ namespace AAVRec.OCR.TestStates
     public abstract class StateBase
     {
         internal abstract void Reset(StateContext context);
-        internal abstract void TestTimeStamp(StateContext context, OsdFrameInfo frameTimestamp);
+        internal abstract TestFrameResult TestTimeStamp(StateContext context, OsdFrameInfo frameTimestamp);
     }
 }
