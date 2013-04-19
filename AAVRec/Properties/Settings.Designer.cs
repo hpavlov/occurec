@@ -250,5 +250,29 @@ namespace AAVRec.Properties {
                 this["OcrDebugOutputFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OcrCameraTestMode {
+            get {
+                return ((bool)(this["OcrCameraTestMode"]));
+            }
+            set {
+                this["OcrCameraTestMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OcrSimulatorTestMode {
+            get {
+                return ((bool)(this["OcrSimulatorTestMode"]));
+            }
+            set {
+                this["OcrSimulatorTestMode"] = value;
+            }
+        }
     }
 }

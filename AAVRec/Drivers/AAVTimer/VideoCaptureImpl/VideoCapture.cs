@@ -221,5 +221,15 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
         {
             dsCapture.LoadCrossbarSources(comboBox);
         }
+
+        public bool StartIotaVtiOcrTesting()
+        {
+            return true;
+        }
+
+        public bool StopIotaVtiOcrTesting()
+        {
+            return true;
+        }
 	}
 }

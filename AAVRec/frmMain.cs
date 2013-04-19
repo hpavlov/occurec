@@ -141,6 +141,7 @@ namespace AAVRec
 			pnlVideoControls.Enabled = connected;
 			miConnect.Enabled = !connected;
 			miDisconnect.Enabled = connected;
+            pnlOcrTesting.Visible = false;
 
 			UpdateState();
 
@@ -176,7 +177,9 @@ namespace AAVRec
                     }  
 
                     pnlCrossbar.Visible = true;
-                }			    
+                }
+
+                pnlOcrTesting.Visible = Settings.Default.OcrCameraTestMode && Settings.Default.FileFormat == "AAV";
 			}
 			else
 			{
@@ -408,6 +411,28 @@ namespace AAVRec
 			}
 		}
 
+        private void UpdateApplicationStateFromCameraState()
+        {
+            switch (videoObject.State)
+            {
+                case VideoCameraState.videoCameraIdle:
+                    tssCameraState.Text = "Idle";
+                    break;
+
+                case VideoCameraState.videoCameraRunning:
+                    tssCameraState.Text = "Running";
+                    break;
+
+                case VideoCameraState.videoCameraRecording:
+                    tssCameraState.Text = "Recording";
+                    break;
+
+                case VideoCameraState.videoCameraError:
+                    tssCameraState.Text = "Error";
+                    break;
+            }
+        }
+
 		private void UpdateState()
 		{
 			if (videoObject == null)
@@ -420,24 +445,7 @@ namespace AAVRec
 			}
 			else
 			{
-				switch(videoObject.State)
-				{
-					case VideoCameraState.videoCameraIdle:
-						tssCameraState.Text = "Idle";
-						break;
-
-					case VideoCameraState.videoCameraRunning:
-						tssCameraState.Text = "Running";
-						break;
-
-					case VideoCameraState.videoCameraRecording:
-						tssCameraState.Text = "Recording";
-						break;
-
-					case VideoCameraState.videoCameraError:
-						tssCameraState.Text = "Error";
-						break;
-				}
+			    UpdateApplicationStateFromCameraState();
 
 				if (!tssFrameNo.Visible) tssFrameNo.Visible = true;				
 
@@ -473,8 +481,21 @@ namespace AAVRec
                 else
                     btnLockIntegration.Text = "Checking Integration ...";
 
-                btnRecord.Enabled = lbSchedule.Items.Count == 0;
-                btnStopRecording.Enabled = lbSchedule.Items.Count == 0;
+                if (stateManager.IsTestingIotaVtiOcr)
+                {
+                    btnOcrTesting.Text = "Stop OCR Testing";
+                    tssCameraState.Text = "OCR Testing";
+                    gbxSchedules.Enabled = false;
+                }
+                else
+                {
+                    btnOcrTesting.Text = "Run OCR Testing";
+                    UpdateApplicationStateFromCameraState();
+                    gbxSchedules.Enabled = true;
+                }
+
+                btnRecord.Enabled = lbSchedule.Items.Count == 0 && !stateManager.IsTestingIotaVtiOcr;
+                btnStopRecording.Enabled = lbSchedule.Items.Count == 0 && !stateManager.IsTestingIotaVtiOcr;
 			}
 		}
 
@@ -520,6 +541,20 @@ namespace AAVRec
                 stateManager.UnlockIntegration();
             else if (stateManager.CanLockIntegrationNow)
                 stateManager.LockIntegration();
+        }
+
+
+        private void btnOcrTesting_Click(object sender, EventArgs e)
+        {
+            if (stateManager.IsIntegrationLocked)
+                MessageBox.Show("OCR testing cannot be done if the integration has been locked.");
+            else if (Scheduler.GetAllSchedules().Count > 0)
+                MessageBox.Show("OCR testing cannot be done if there are scheduled tasks.");
+            else
+            {
+                stateManager.ToggleIotaVtiOcrTesting();
+                UpdateState();
+            } 
         }
 
         private void btnAddSchedule_Click(object sender, EventArgs e)
@@ -587,6 +622,7 @@ namespace AAVRec
             Scheduler.ClearSchedules();
             UpdateScheduleDisplay();
         }
+
 
 	}
 }

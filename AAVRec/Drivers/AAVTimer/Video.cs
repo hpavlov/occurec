@@ -114,6 +114,16 @@ namespace AAVRec.Drivers.AAVTimer
                 AssertConnected();
                 return camera.UnlockIntegration().ToString(CultureInfo.InvariantCulture);
             }
+            else if (string.Compare(ActionName, "StartIotaVtiOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
+            {
+                AssertConnected();
+                return camera.StartIotaVtiOcrTesting().ToString(CultureInfo.InvariantCulture);
+            }
+            else if (string.Compare(ActionName, "StopIotaVtiOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
+            {
+                AssertConnected();
+                return camera.StopIotaVtiOcrTesting().ToString(CultureInfo.InvariantCulture);
+            }            
 
 		    return null;
 		}
@@ -122,7 +132,7 @@ namespace AAVRec.Drivers.AAVTimer
 		{
 			get
 			{
-                return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration" });
+                return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "StartIotaVtiOcrTesting", "StopIotaVtiOcrTesting" });
 			}
 		}
 

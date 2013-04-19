@@ -30,6 +30,9 @@ namespace AAVRec
 
 		    tbxSimlatorFilePath.Text = Settings.Default.SimulatorFilePath;
             tbxOcrDebugOutputLocation.Text = Settings.Default.OcrDebugOutputFolder;
+
+            cbxOcrCameraTestMode.Checked = Settings.Default.OcrCameraTestMode;
+            cbxOcrSimlatorTestMode.Checked = Settings.Default.OcrSimulatorTestMode;
 		}
 
         private void frmSettings_Load(object sender, EventArgs e)
@@ -56,6 +59,9 @@ namespace AAVRec
 
             Settings.Default.SimulatorFilePath = tbxSimlatorFilePath.Text;
             Settings.Default.OcrDebugOutputFolder = tbxOcrDebugOutputLocation.Text;
+
+            Settings.Default.OcrCameraTestMode = cbxOcrCameraTestMode.Checked;
+            Settings.Default.OcrSimulatorTestMode = cbxOcrSimlatorTestMode.Checked;
 
             Settings.Default.Save();
 

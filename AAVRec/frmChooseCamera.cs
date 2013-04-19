@@ -80,7 +80,7 @@ namespace AAVRec
             cbxFlipHorizontally.Checked = Settings.Default.FlipHorizontally;
             cbxFlipVertically.Checked = Settings.Default.FlipVertically;
 
-            rbFileSIM.Enabled = File.Exists(Settings.Default.SimulatorFilePath);
+            rbFileSIM.Enabled = Settings.Default.OcrSimulatorTestMode && File.Exists(Settings.Default.SimulatorFilePath);
 
             SetSettingsVisibility();
         }

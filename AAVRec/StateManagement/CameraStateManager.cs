@@ -111,5 +111,48 @@ namespace AAVRec.StateManagement
                     return 0;
             }
         }
+
+        public bool ToggleIotaVtiOcrTesting()
+        {
+            if (!IsTestingIotaVtiOcr && currentState is UndeterminedIntegrationCameraState)
+            {
+                string result = driverInstance.Action("StartIotaVtiOcrTesting", null);
+
+                bool boolResult;
+                bool.TryParse(result, out boolResult);
+
+                if (boolResult)
+                {
+                    ChangeState(IotaVtiOcrTestingState.Instance);
+
+                    return true;
+                }
+                else
+                    return false;
+            }
+            else if (IsTestingIotaVtiOcr && currentState is IotaVtiOcrTestingState)
+            {
+                string result = driverInstance.Action("StopIotaVtiOcrTesting", null);
+
+                bool boolResult;
+                bool.TryParse(result, out boolResult);
+
+                if (boolResult)
+                {
+                    ChangeState(UndeterminedIntegrationCameraState.Instance);
+
+                    return true;
+                }
+                else
+                    return false;
+            }
+
+            return false;
+        }
+
+        public bool IsTestingIotaVtiOcr
+        {
+            get { return currentState is IotaVtiOcrTestingState; }
+        }
     }
 }

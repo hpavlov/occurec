@@ -34,6 +34,9 @@
             this.pnlVideoFrames = new System.Windows.Forms.Panel();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.pnlVideoControls = new System.Windows.Forms.Panel();
+            this.pnlCrossbar = new System.Windows.Forms.Panel();
+            this.cbxCrossbarInput = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.gbxSchedules = new System.Windows.Forms.GroupBox();
             this.pnlNextScheduledAction = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
@@ -50,19 +53,19 @@
             this.label5 = new System.Windows.Forms.Label();
             this.btnRecord = new System.Windows.Forms.Button();
             this.timerScheduler = new System.Windows.Forms.Timer(this.components);
-            this.pnlCrossbar = new System.Windows.Forms.Panel();
-            this.cbxCrossbarInput = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.pnlOcrTesting = new System.Windows.Forms.Panel();
+            this.btnOcrTesting = new System.Windows.Forms.Button();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
             this.pnlVideoFrames.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.pnlVideoControls.SuspendLayout();
+            this.pnlCrossbar.SuspendLayout();
             this.gbxSchedules.SuspendLayout();
             this.pnlNextScheduledAction.SuspendLayout();
             this.pnlAAV.SuspendLayout();
-            this.pnlCrossbar.SuspendLayout();
+            this.pnlOcrTesting.SuspendLayout();
             this.SuspendLayout();
             // 
             // statusStrip
@@ -154,7 +157,7 @@
             // miConnect
             // 
             this.miConnect.Name = "miConnect";
-            this.miConnect.Size = new System.Drawing.Size(152, 22);
+            this.miConnect.Size = new System.Drawing.Size(133, 22);
             this.miConnect.Text = "&Connect";
             this.miConnect.Click += new System.EventHandler(this.miConnect_Click);
             // 
@@ -162,19 +165,19 @@
             // 
             this.miDisconnect.Enabled = false;
             this.miDisconnect.Name = "miDisconnect";
-            this.miDisconnect.Size = new System.Drawing.Size(152, 22);
+            this.miDisconnect.Size = new System.Drawing.Size(133, 22);
             this.miDisconnect.Text = "&Disconnect";
             this.miDisconnect.Click += new System.EventHandler(this.miDisconnect_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(130, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -219,6 +222,7 @@
             // 
             this.pnlVideoControls.BackColor = System.Drawing.SystemColors.Control;
             this.pnlVideoControls.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pnlVideoControls.Controls.Add(this.pnlOcrTesting);
             this.pnlVideoControls.Controls.Add(this.pnlCrossbar);
             this.pnlVideoControls.Controls.Add(this.gbxSchedules);
             this.pnlVideoControls.Controls.Add(this.pnlAAV);
@@ -234,15 +238,44 @@
             this.pnlVideoControls.Size = new System.Drawing.Size(200, 478);
             this.pnlVideoControls.TabIndex = 1;
             // 
+            // pnlCrossbar
+            // 
+            this.pnlCrossbar.Controls.Add(this.cbxCrossbarInput);
+            this.pnlCrossbar.Controls.Add(this.label2);
+            this.pnlCrossbar.Location = new System.Drawing.Point(8, 31);
+            this.pnlCrossbar.Name = "pnlCrossbar";
+            this.pnlCrossbar.Size = new System.Drawing.Size(178, 51);
+            this.pnlCrossbar.TabIndex = 24;
+            this.pnlCrossbar.Visible = false;
+            // 
+            // cbxCrossbarInput
+            // 
+            this.cbxCrossbarInput.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxCrossbarInput.FormattingEnabled = true;
+            this.cbxCrossbarInput.Location = new System.Drawing.Point(7, 21);
+            this.cbxCrossbarInput.Name = "cbxCrossbarInput";
+            this.cbxCrossbarInput.Size = new System.Drawing.Size(165, 21);
+            this.cbxCrossbarInput.TabIndex = 18;
+            this.cbxCrossbarInput.SelectedIndexChanged += new System.EventHandler(this.cbxCrossbarInput_SelectedIndexChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 3);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(75, 13);
+            this.label2.TabIndex = 13;
+            this.label2.Text = "Crossbar Input";
+            // 
             // gbxSchedules
             // 
             this.gbxSchedules.Controls.Add(this.pnlNextScheduledAction);
             this.gbxSchedules.Controls.Add(this.btnClearSchedule);
             this.gbxSchedules.Controls.Add(this.btnAddSchedule);
             this.gbxSchedules.Controls.Add(this.lbSchedule);
-            this.gbxSchedules.Location = new System.Drawing.Point(6, 200);
+            this.gbxSchedules.Location = new System.Drawing.Point(6, 237);
             this.gbxSchedules.Name = "gbxSchedules";
-            this.gbxSchedules.Size = new System.Drawing.Size(187, 221);
+            this.gbxSchedules.Size = new System.Drawing.Size(187, 184);
             this.gbxSchedules.TabIndex = 12;
             this.gbxSchedules.TabStop = false;
             this.gbxSchedules.Text = "Schedule";
@@ -251,7 +284,7 @@
             // 
             this.pnlNextScheduledAction.Controls.Add(this.label1);
             this.pnlNextScheduledAction.Controls.Add(this.lblSecheduleWhatsNext);
-            this.pnlNextScheduledAction.Location = new System.Drawing.Point(2, 186);
+            this.pnlNextScheduledAction.Location = new System.Drawing.Point(2, 150);
             this.pnlNextScheduledAction.Name = "pnlNextScheduledAction";
             this.pnlNextScheduledAction.Size = new System.Drawing.Size(176, 29);
             this.pnlNextScheduledAction.TabIndex = 9;
@@ -279,7 +312,6 @@
             // 
             // btnClearSchedule
             // 
-            this.btnClearSchedule.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnClearSchedule.Location = new System.Drawing.Point(76, 19);
             this.btnClearSchedule.Name = "btnClearSchedule";
             this.btnClearSchedule.Size = new System.Drawing.Size(63, 23);
@@ -290,7 +322,6 @@
             // 
             // btnAddSchedule
             // 
-            this.btnAddSchedule.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnAddSchedule.Location = new System.Drawing.Point(7, 19);
             this.btnAddSchedule.Name = "btnAddSchedule";
             this.btnAddSchedule.Size = new System.Drawing.Size(63, 23);
@@ -305,16 +336,16 @@
             this.lbSchedule.Location = new System.Drawing.Point(7, 48);
             this.lbSchedule.Name = "lbSchedule";
             this.lbSchedule.ScrollAlwaysVisible = true;
-            this.lbSchedule.Size = new System.Drawing.Size(167, 134);
+            this.lbSchedule.Size = new System.Drawing.Size(167, 95);
             this.lbSchedule.TabIndex = 0;
             // 
             // pnlAAV
             // 
             this.pnlAAV.Controls.Add(this.label3);
             this.pnlAAV.Controls.Add(this.btnLockIntegration);
-            this.pnlAAV.Location = new System.Drawing.Point(3, 118);
+            this.pnlAAV.Location = new System.Drawing.Point(4, 88);
             this.pnlAAV.Name = "pnlAAV";
-            this.pnlAAV.Size = new System.Drawing.Size(189, 76);
+            this.pnlAAV.Size = new System.Drawing.Size(189, 51);
             this.pnlAAV.TabIndex = 11;
             this.pnlAAV.Visible = false;
             // 
@@ -396,34 +427,24 @@
             this.timerScheduler.Interval = 1000;
             this.timerScheduler.Tick += new System.EventHandler(this.timerScheduler_Tick);
             // 
-            // pnlCrossbar
+            // pnlOcrTesting
             // 
-            this.pnlCrossbar.Controls.Add(this.cbxCrossbarInput);
-            this.pnlCrossbar.Controls.Add(this.label2);
-            this.pnlCrossbar.Location = new System.Drawing.Point(8, 31);
-            this.pnlCrossbar.Name = "pnlCrossbar";
-            this.pnlCrossbar.Size = new System.Drawing.Size(178, 56);
-            this.pnlCrossbar.TabIndex = 24;
-            this.pnlCrossbar.Visible = false;
+            this.pnlOcrTesting.Controls.Add(this.btnOcrTesting);
+            this.pnlOcrTesting.Location = new System.Drawing.Point(4, 146);
+            this.pnlOcrTesting.Name = "pnlOcrTesting";
+            this.pnlOcrTesting.Size = new System.Drawing.Size(189, 85);
+            this.pnlOcrTesting.TabIndex = 25;
+            this.pnlOcrTesting.Visible = false;
             // 
-            // cbxCrossbarInput
+            // btnOcrTesting
             // 
-            this.cbxCrossbarInput.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbxCrossbarInput.FormattingEnabled = true;
-            this.cbxCrossbarInput.Location = new System.Drawing.Point(7, 21);
-            this.cbxCrossbarInput.Name = "cbxCrossbarInput";
-            this.cbxCrossbarInput.Size = new System.Drawing.Size(165, 21);
-            this.cbxCrossbarInput.TabIndex = 18;
-            this.cbxCrossbarInput.SelectedIndexChanged += new System.EventHandler(this.cbxCrossbarInput_SelectedIndexChanged);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 3);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(75, 13);
-            this.label2.TabIndex = 13;
-            this.label2.Text = "Crossbar Input";
+            this.btnOcrTesting.Location = new System.Drawing.Point(11, 15);
+            this.btnOcrTesting.Name = "btnOcrTesting";
+            this.btnOcrTesting.Size = new System.Drawing.Size(162, 23);
+            this.btnOcrTesting.TabIndex = 1;
+            this.btnOcrTesting.Text = "Run OCR Testing";
+            this.btnOcrTesting.UseVisualStyleBackColor = true;
+            this.btnOcrTesting.Click += new System.EventHandler(this.btnOcrTesting_Click);
             // 
             // frmMain
             // 
@@ -449,13 +470,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.pnlVideoControls.ResumeLayout(false);
             this.pnlVideoControls.PerformLayout();
+            this.pnlCrossbar.ResumeLayout(false);
+            this.pnlCrossbar.PerformLayout();
             this.gbxSchedules.ResumeLayout(false);
             this.pnlNextScheduledAction.ResumeLayout(false);
             this.pnlNextScheduledAction.PerformLayout();
             this.pnlAAV.ResumeLayout(false);
             this.pnlAAV.PerformLayout();
-            this.pnlCrossbar.ResumeLayout(false);
-            this.pnlCrossbar.PerformLayout();
+            this.pnlOcrTesting.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -499,6 +521,8 @@
         private System.Windows.Forms.Panel pnlCrossbar;
         private System.Windows.Forms.ComboBox cbxCrossbarInput;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Panel pnlOcrTesting;
+        private System.Windows.Forms.Button btnOcrTesting;
 
 	}
 }

@@ -64,6 +64,7 @@
     <Compile Include="OCR\TestStates\StateBase.cs" />
     <Compile Include="OCR\TestStates\StateContext.cs" />
     <Compile Include="OCR\TestStates\UncalibratedState.cs" />
+    <Compile Include="StateManagement\IotaVtiOcrTestingState.cs" />
     <Compile Include="Video\AstroDigitalVideoStream.cs" />
     <Compile Include="Video\AstroDigitalVideo\AdvFile.cs" />
     <Compile Include="Video\AstroDigitalVideo\AdvFramesIndex.cs" />
