@@ -77,7 +77,8 @@ namespace AAVRec.Helpers
 			int height,
 			int bpp,
 			[In] IntPtr hBitmap,
-			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,,] bitmapBytes);
+			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,,] bitmapBytes,
+            short flipMode);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupCamera(
@@ -161,14 +162,14 @@ namespace AAVRec.Helpers
 			return bitmapBytes;
 		}
 
-		public static object GetColourPixelsFromBitmap(Bitmap bitmap)
+		public static object GetColourPixelsFromBitmap(Bitmap bitmap, short flipMode)
 		{
 			int[,,] bitmapBytes = new int[bitmap.Width, bitmap.Height, 3];
 
 			IntPtr hBitmap = bitmap.GetHbitmap();
 			try
 			{
-				GetColourPixelsFromBitmap(bitmap.Width, bitmap.Height, 8, hBitmap, bitmapBytes);
+                GetColourPixelsFromBitmap(bitmap.Width, bitmap.Height, 8, hBitmap, bitmapBytes, (short)flipMode);
 			}
 			finally
 			{

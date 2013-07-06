@@ -145,7 +145,7 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 			{
 				using (bmp)
 				{
-					object pixels = cameraImageHelper.GetImageArray(bmp, SimulatedSensorType, Settings.Default.MonochromePixelsType);
+                    object pixels = cameraImageHelper.GetImageArray(bmp, SimulatedSensorType, Settings.Default.MonochromePixelsType, Settings.Default.FlipHorizontally, Settings.Default.FlipVertically);
 
 					cameraFrame = new VideoCameraFrame()
 					{

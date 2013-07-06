@@ -21,10 +21,7 @@ HRESULT GetBitmapPixels(long width, long height, long bpp, long* pixels, BYTE* b
 	bih.biClrUsed = 0; 
 	bih.biClrImportant = 0; 
 	bih.biWidth = width;                          // bitmap width 
-	if (FLIP_VERTICALLY)
-		bih.biHeight = -height;                        // bitmap height 
-	else
-		bih.biHeight = height;                      
+	bih.biHeight = height;                      
 
 	// and BitmapInfo variable-length UDT
 	BYTE memBitmapInfo[40];
@@ -101,10 +98,7 @@ HRESULT GetColourBitmapPixels(long width, long height, long bpp, long* pixels, B
 	bih.biClrUsed = 0; 
 	bih.biClrImportant = 0; 
 	bih.biWidth = width;                          // bitmap width 
-	if (FLIP_VERTICALLY)
-		bih.biHeight = -height;                        // bitmap height 
-	else
-		bih.biHeight = height;
+	bih.biHeight = height;
 
 	// and BitmapInfo variable-length UDT
 	BYTE memBitmapInfo[40];
@@ -228,7 +222,7 @@ HRESULT GetMonochromePixelsFromBitmap(long width, long height, long bpp, HBITMAP
 	return S_OK;
 }
 
-HRESULT GetColourPixelsFromBitmap(long width, long height, long bpp, HBITMAP* bitmap, long* pixels)
+HRESULT GetColourPixelsFromBitmap(long width, long height, long bpp, HBITMAP* bitmap, long* pixels, int flipMode)
 {
 	BITMAP bmp;
 	GetObject(bitmap, sizeof(bmp), &bmp);
@@ -241,17 +235,38 @@ HRESULT GetColourPixelsFromBitmap(long width, long height, long bpp, HBITMAP* bi
 
 	unsigned char* ptrBuf = buf + ((width * height) - 1) * 4;
 
-    for (int i=0; i < width * height; i++)
+	for (int y=0; y < height; y++)
     {
-		*ptrPixelsR = *(ptrBuf + 2);
-		*ptrPixelsG = *(ptrBuf + 1);
-		*ptrPixelsB = *(ptrBuf);
+		for (int x=0; x < width; x++)
+		{
+			if (flipMode == 0)
+			{
+				*(ptrPixelsR + x + width * y ) = *(ptrBuf + 2);
+				*(ptrPixelsG + x + width * y ) = *(ptrBuf + 1);
+				*(ptrPixelsB + x + width * y ) = *(ptrBuf);
+			}
+			else if (flipMode == 1) /* Flip Horizontally */
+			{
+				*(ptrPixelsR + (width - 1 - x) + width * y ) = *(ptrBuf + 2);
+				*(ptrPixelsG + (width - 1 - x) + width * y ) = *(ptrBuf + 1);
+				*(ptrPixelsB + (width - 1 - x) + width * y ) = *(ptrBuf);
+			}
+			else if (flipMode == 2) /* Flip Vertically */
+			{
+				*(ptrPixelsR + x + width * (height - 1 - y) ) = *(ptrBuf + 2);
+				*(ptrPixelsG + x + width * (height - 1 - y) ) = *(ptrBuf + 1);
+				*(ptrPixelsB + x + width * (height - 1 - y) ) = *(ptrBuf);
+			}
+			else if (flipMode == 3) /* Flip Horizontally & Vertically */
+			{
+				*(ptrPixelsR + (width - 1 - x) + width * (height - 1 - y) ) = *(ptrBuf + 2);
+				*(ptrPixelsG + (width - 1 - x) + width * (height - 1 - y) ) = *(ptrBuf + 1);
+				*(ptrPixelsB + (width - 1 - x) + width * (height - 1 - y) ) = *(ptrBuf);
+			}
 
-		ptrPixelsR++;
-		ptrPixelsG++;
-		ptrPixelsB++;
-		ptrBuf-=4;
-    }
+			ptrBuf-=4;
+		}
+	}
 
 	return S_OK;
 }

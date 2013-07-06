@@ -15,7 +15,7 @@ namespace AAVRec.Helpers
 	    int GetPixel(int x, int y, int plain);
         IntPtr GetDisplayHBitmap();
         Bitmap GetDisplayBitmap();
-	    object GetImageArray(Bitmap bmp, SensorType sensorType, LumaConversionMode conversionMode);
+        object GetImageArray(Bitmap bmp, SensorType sensorType, LumaConversionMode conversionMode, bool flipHorizontally, bool flipVertically);
     }
 
     public class CameraImage : ICameraImage
@@ -166,15 +166,18 @@ namespace AAVRec.Helpers
 			throw new InvalidOperationException();
 	    }
 
-	    public object GetImageArray(Bitmap bmp, SensorType sensorType, LumaConversionMode conversionMode)
+	    public object GetImageArray(Bitmap bmp, SensorType sensorType, LumaConversionMode conversionMode, bool flipHorizontally, bool flipVertically)
 		{
 			this.imageWidth = bmp.Width;
 			this.imageHeight = bmp.Height;
 
+	        short flipMode = 0;
+	        if (flipHorizontally) flipMode += 1;
+            if (flipVertically) flipMode += 2;
 			if (sensorType == SensorType.Monochrome)
 				return NativeHelpers.GetMonochromePixelsFromBitmap(bmp, conversionMode);
 			else if (sensorType == SensorType.Color)
-				return NativeHelpers.GetColourPixelsFromBitmap(bmp);
+                return NativeHelpers.GetColourPixelsFromBitmap(bmp, flipMode);
 			else
 				throw new NotSupportedException(string.Format("Sensor type {0} is not currently supported.", sensorType));
 		}

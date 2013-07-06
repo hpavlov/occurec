@@ -163,7 +163,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 			{
 				using (bmp)
 				{
-					object pixels = cameraImageHelper.GetImageArray(bmp, SimulatedSensorType, (LumaConversionMode)Settings.Default.MonochromePixelsType);
+                    object pixels = cameraImageHelper.GetImageArray(bmp, SimulatedSensorType, (LumaConversionMode)Settings.Default.MonochromePixelsType, Settings.Default.FlipHorizontally, Settings.Default.FlipVertically);
 
 					cameraFrame = new VideoCameraFrame()
 					{

@@ -159,8 +159,6 @@ namespace AAVRec
                 gbxAAVSettings.SendToBack();
                 gbxCodecs.Visible = true;
                 gbxCodecs.BringToFront();
-
-                cbxFlipVertically.Visible = true;
             }
             else
             {
@@ -168,8 +166,6 @@ namespace AAVRec
                 gbxCodecs.SendToBack();
                 gbxAAVSettings.Visible = true;
                 gbxAAVSettings.BringToFront();
-
-                cbxFlipVertically.Visible = false;
             }
         }
 

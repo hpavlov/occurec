@@ -43,6 +43,7 @@
             this.rbCodecXviD = new System.Windows.Forms.RadioButton();
             this.rbCodecUncompressed = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.rbFileSIM = new System.Windows.Forms.RadioButton();
             this.rbFileAVI = new System.Windows.Forms.RadioButton();
             this.rbFileAAV = new System.Windows.Forms.RadioButton();
             this.cbxIsIntegrating = new System.Windows.Forms.CheckBox();
@@ -52,7 +53,6 @@
             this.label5 = new System.Windows.Forms.Label();
             this.cbxFlipHorizontally = new System.Windows.Forms.CheckBox();
             this.cbxFlipVertically = new System.Windows.Forms.CheckBox();
-            this.rbFileSIM = new System.Windows.Forms.RadioButton();
             this.gbxCodecs.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gbxAAVSettings.SuspendLayout();
@@ -209,6 +209,16 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Format";
             // 
+            // rbFileSIM
+            // 
+            this.rbFileSIM.AutoSize = true;
+            this.rbFileSIM.Location = new System.Drawing.Point(23, 86);
+            this.rbFileSIM.Name = "rbFileSIM";
+            this.rbFileSIM.Size = new System.Drawing.Size(44, 17);
+            this.rbFileSIM.TabIndex = 2;
+            this.rbFileSIM.Text = "SIM";
+            this.rbFileSIM.UseVisualStyleBackColor = true;
+            // 
             // rbFileAVI
             // 
             this.rbFileAVI.AutoSize = true;
@@ -301,23 +311,12 @@
             // cbxFlipVertically
             // 
             this.cbxFlipVertically.AutoSize = true;
-            this.cbxFlipVertically.Location = new System.Drawing.Point(123, 60);
+            this.cbxFlipVertically.Location = new System.Drawing.Point(124, 60);
             this.cbxFlipVertically.Name = "cbxFlipVertically";
             this.cbxFlipVertically.Size = new System.Drawing.Size(87, 17);
             this.cbxFlipVertically.TabIndex = 25;
             this.cbxFlipVertically.Text = "Flip Vertically";
             this.cbxFlipVertically.UseVisualStyleBackColor = true;
-            this.cbxFlipVertically.Visible = false;
-            // 
-            // rbFileSIM
-            // 
-            this.rbFileSIM.AutoSize = true;
-            this.rbFileSIM.Location = new System.Drawing.Point(23, 86);
-            this.rbFileSIM.Name = "rbFileSIM";
-            this.rbFileSIM.Size = new System.Drawing.Size(44, 17);
-            this.rbFileSIM.TabIndex = 2;
-            this.rbFileSIM.Text = "SIM";
-            this.rbFileSIM.UseVisualStyleBackColor = true;
             // 
             // frmChooseCamera
             // 
