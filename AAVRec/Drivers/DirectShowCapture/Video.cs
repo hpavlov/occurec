@@ -100,14 +100,20 @@ namespace AAVRec.Drivers.DirectShowCapture
 		[DebuggerStepThrough]
 		public string Action(string ActionName, string ActionParameters)
 		{
-            throw new MethodNotImplementedException("Action");
+            if (string.Compare(ActionName, "ToggleIotaVtiOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
+            {
+                AssertConnected();
+                return camera.ToggleIotaVtiOcrTesting();
+            }
+
+            return null;
 		}
 
 		public System.Collections.ArrayList SupportedActions
 		{
 			get
 			{
-				return new ArrayList();
+                return new ArrayList() { "ToggleIotaVtiOcrTesting" };
 			}
 		}
 

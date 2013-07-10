@@ -184,7 +184,9 @@ namespace AAVRec
                     pnlCrossbar.Visible = true;
                 }
 
-                pnlOcrTesting.Visible = Settings.Default.OcrCameraTestMode && Settings.Default.FileFormat == "AAV";
+                pnlOcrTesting.Visible = 
+                     (Settings.Default.OcrCameraTestModeAav && Settings.Default.FileFormat == "AAV") ||
+                     (Settings.Default.OcrCameraTestModeAvi && Settings.Default.FileFormat == "AVI");
 			}
 			else
 			{
@@ -560,13 +562,18 @@ namespace AAVRec
 
         private void btnOcrTesting_Click(object sender, EventArgs e)
         {
-            if (stateManager.IsIntegrationLocked)
-                MessageBox.Show("OCR testing cannot be done if the integration has been locked.");
-            else if (Scheduler.GetAllSchedules().Count > 0)
+            if (Scheduler.GetAllSchedules().Count > 0)
                 MessageBox.Show("OCR testing cannot be done if there are scheduled tasks.");
             else
             {
-                stateManager.ToggleIotaVtiOcrTesting();
+                if (Settings.Default.FileFormat == "AAV")
+                    stateManager.ToggleIotaVtiOcrTesting();
+                else if (Settings.Default.FileFormat == "AVI")
+                {
+                    if (videoObject != null)
+                        videoObject.ExecuteAction("ToggleIotaVtiOcrTesting", null);
+                }
+
                 UpdateState();
             } 
         }
@@ -636,17 +643,22 @@ namespace AAVRec
 
             if (nextNTPSyncTime < DateTime.UtcNow)
             {
-                try
-                {
-                    DateTime networkUTCTime = NTPClient.GetNetworkTime();
-                    NTPClient.SetTime(networkUTCTime);
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine(ex);
-                }
+                ThreadPool.QueueUserWorkItem(UpdateTimeFromNTPServer);
 
                 nextNTPSyncTime = DateTime.UtcNow.AddMinutes(10);
+            }
+        }
+
+        private void UpdateTimeFromNTPServer(object state)
+        {
+            try
+            {
+                DateTime networkUTCTime = NTPClient.GetNetworkTime();
+                NTPClient.SetTime(networkUTCTime);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
             }
         }
 
@@ -655,7 +667,6 @@ namespace AAVRec
             Scheduler.ClearSchedules();
             UpdateScheduleDisplay();
         }
-
 
 	}
 }

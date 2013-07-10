@@ -31,7 +31,9 @@ namespace AAVRec
 		    tbxSimlatorFilePath.Text = Settings.Default.SimulatorFilePath;
             tbxOcrDebugOutputLocation.Text = Settings.Default.OcrDebugOutputFolder;
 
-            cbxOcrCameraTestMode.Checked = Settings.Default.OcrCameraTestMode;
+            cbxOcrCameraTestModeAvi.Checked = Settings.Default.OcrCameraTestModeAvi;
+            cbxOcrCameraTestModeAav.Checked = Settings.Default.OcrCameraTestModeAav;
+            nudMaxErrorsPerTestRun.Value = Settings.Default.OcrMaxErrorsPerCameraTestRun;
             cbxOcrSimlatorTestMode.Checked = Settings.Default.OcrSimulatorTestMode;
             cbxSimulatorRunOCR.Checked = Settings.Default.SimulatorRunOCR;
 		}
@@ -55,13 +57,23 @@ namespace AAVRec
                 return;
             }
 
+            if ((cbxOcrCameraTestModeAvi.Checked || cbxOcrSimlatorTestMode.Checked || cbxOcrCameraTestModeAav.Checked) &&
+                !Directory.Exists(tbxOcrDebugOutputLocation.Text))
+            {
+                MessageBox.Show("Debug output location must be an existing directory when using Camera or Simulator OCR testing.");
+                tbxOcrDebugOutputLocation.Focus();
+                return;                
+            }
+
             Settings.Default.OutputLocation = tbxOutputLocation.Text;
             Settings.Default.DisplayTimeInUT = cbxTimeInUT.Checked;
 
             Settings.Default.SimulatorFilePath = tbxSimlatorFilePath.Text;
             Settings.Default.OcrDebugOutputFolder = tbxOcrDebugOutputLocation.Text;
 
-            Settings.Default.OcrCameraTestMode = cbxOcrCameraTestMode.Checked;
+            Settings.Default.OcrCameraTestModeAvi = cbxOcrCameraTestModeAvi.Checked;
+            Settings.Default.OcrCameraTestModeAav = cbxOcrCameraTestModeAav.Checked;
+            Settings.Default.OcrMaxErrorsPerCameraTestRun = (int)nudMaxErrorsPerTestRun.Value;
             Settings.Default.OcrSimulatorTestMode = cbxOcrSimlatorTestMode.Checked;
             Settings.Default.SimulatorRunOCR = cbxSimulatorRunOCR.Checked;
 

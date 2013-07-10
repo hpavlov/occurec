@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AAVRec.Drivers.DirectShowCapture;
 using AAVRec.Helpers;
 
 namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl

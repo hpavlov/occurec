@@ -176,7 +176,7 @@ namespace AAVRec.Drivers.AAVSimulator
 
                 if (player.GetCurrentFrame(out cameraFrame, out frameNumber))
 				{
-                    VideoFrame rv = VideoFrame.CreateFrame(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber);
+                    BasicVideoFrame rv = BasicVideoFrame.CreateFrame(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber);
 					return rv;
 				}
 				else
@@ -195,7 +195,7 @@ namespace AAVRec.Drivers.AAVSimulator
 
                 if (player.GetCurrentFrame(out cameraFrame, out frameNumber))
 				{
-                    VideoFrame rv = VideoFrame.CreateFrameVariant(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber);
+                    BasicVideoFrame rv = BasicVideoFrame.CreateFrameVariant(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber);
 					return rv;
 				}
 				else

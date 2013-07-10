@@ -55,9 +55,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Drivers\AAVSimulator\AAVPlayerImpl\AAVPlayer.cs" />
+    <Compile Include="Drivers\AAVTimer\VideoFrame.cs" />
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
     <Compile Include="Drivers\AVISimulator\Video.cs" />
-    <Compile Include="Drivers\AVISimulator\VideoFrame.cs" />
+    <Compile Include="Drivers\BasicVideoFrame.cs" />
     <Compile Include="Helpers\ImageUtils.cs" />
     <Compile Include="Helpers\NonBlockingLock.cs" />
     <Compile Include="Helpers\NTPClient.cs" />
@@ -82,13 +83,11 @@
     <Compile Include="Video\AstroDigitalVideo\Compression\QuickLZ.cs" />
     <Compile Include="Video\AstroDigitalVideo\Interfaces.cs" />
     <Compile Include="Drivers\AAVSimulator\Video.cs" />
-    <Compile Include="Drivers\AAVSimulator\VideoFrame.cs" />
     <Compile Include="Drivers\AAVTimer\Video.cs" />
     <Compile Include="Drivers\AAVTimer\VideoCaptureImpl\DirectShowCapture.cs" />
     <Compile Include="Drivers\AAVTimer\VideoCaptureImpl\Profiler.cs" />
     <Compile Include="Drivers\AAVTimer\VideoCaptureImpl\VideoCameraFrame.cs" />
     <Compile Include="Drivers\AAVTimer\VideoCaptureImpl\VideoCapture.cs" />
-    <Compile Include="Drivers\AAVTimer\VideoFrame.cs" />
     <Compile Include="Drivers\DirectShowCapture\Video.cs" />
     <Compile Include="Drivers\DirectShowCapture\VideoCaptureImpl\DirectShowCapture.cs" />
     <Compile Include="Drivers\DirectShowCapture\VideoCaptureImpl\VideoCameraFrame.cs" />
@@ -135,7 +134,7 @@
     <Compile Include="OCR\OcrSettings.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Drivers\DirectShowCapture\VideoWrapper.cs" />
+    <Compile Include="Helpers\VideoWrapper.cs" />
     <Compile Include="Scheduling\frmAddScheduleEntry.cs">
       <SubType>Form</SubType>
     </Compile>

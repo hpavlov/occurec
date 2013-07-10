@@ -9,7 +9,9 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using AAVRec.Helpers;
+using AAVRec.OCR;
 using AAVRec.Properties;
+using AAVRec.Video.AstroDigitalVideo;
 using DirectShowLib;
 
 namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
@@ -44,6 +46,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 	    private IAMCrossbar crossbar;
 
 		private bool isRunning = false;
+	    private bool iotaVtiOcrTesting = false;
 
 		private int videoWidth;
 		private int videoHeight;
@@ -54,6 +57,13 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 		Rectangle fullRect;
 
 		private object syncRoot = new object();
+
+	    private ManagedOcrTester ocrTester;
+
+        public DirectShowCapture()
+        {
+            ocrTester = new ManagedOcrTester();
+        }
 		
 		// NOTE: If the graph doesn't show up in GraphEdit then see this: http://sourceforge.net/p/directshownet/discussion/460697/thread/67dbf387
 		private DsROTEntry rot = null;
@@ -733,6 +743,15 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                         CopyBitmap(pBuffer);
 
                         frameCounter++;
+
+                        if (iotaVtiOcrTesting)
+                        {
+                            if (latestBitmap != null)
+                            {
+                                int[,] pixels = ImageUtils.GetPixelArray(latestBitmap, AdvImageSection.GetPixelMode.Raw8Bit);
+                                ocrTester.ProcessFrame(pixels);
+                            }
+                        }
                     });
 
 			return 0;
@@ -827,6 +846,12 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
             if (crossbar != null)
                 CrossbarHelper.LoadCrossbarSources(crossbar, comboBox);
+        }
+
+        public void ToggleIotaVtiOcrTesting()
+        {
+            ocrTester.Reset();
+            iotaVtiOcrTesting = !iotaVtiOcrTesting;
         }
 	}
 }

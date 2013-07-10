@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using AAVRec.Helpers;
+using AAVRec.OCR;
 using AAVRec.Properties;
 using AAVRec.Video.AstroDigitalVideo;
 using DirectShowLib;
@@ -29,6 +30,8 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
         private int m_FrameCount;
         private double m_FrameRate;
 
+        private ManagedOcrTester ocrTester = null;
+
         public bool IsRunning
         {
             get;
@@ -43,6 +46,7 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
             OpenVideoFile();
 
             IsRunning = false;
+            ocrTester = new ManagedOcrTester();
         }
 
         public int ImageWidth { get; private set; }
@@ -151,6 +155,17 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
                 }
 
                 Thread.Sleep(waitTimeMs);
+
+                if (Settings.Default.SimulatorRunOCR)
+                {
+                    long frameNo = 0 + (frameCounter % m_FrameCount);
+                    double frameTime = ConvertFrameNumberToSeconds((int)frameNo);
+                    using (Bitmap bmp = GetImageAtTime(frameTime))
+                    {
+                        int[,] pixels = ImageUtils.GetPixelArray(bmp, AdvImageSection.GetPixelMode.Raw8Bit);
+                        ocrTester.ProcessFrame(pixels);
+                    }
+                }
             }
         }
 

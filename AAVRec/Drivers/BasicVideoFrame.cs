@@ -4,12 +4,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using AAVRec.Drivers.AAVSimulator.AAVPlayerImpl;
 using AAVRec.Helpers;
 
-namespace AAVRec.Drivers.AVISimulator
+namespace AAVRec.Drivers
 {
-    public class VideoFrame : IVideoFrame
+    public class BasicVideoFrame : IVideoFrame
     {
         private long? frameNumber;
         private string imageInfo;
@@ -20,19 +19,29 @@ namespace AAVRec.Drivers.AVISimulator
 
         private static int s_Counter = 0;
 
-        internal static VideoFrame CreateFrameVariant(int width, int height, Bitmap cameraFrame, int fameNumber)
+        internal static BasicVideoFrame FakeFrame(int width, int height)
+        {
+            var rv = new BasicVideoFrame();
+            s_Counter++;
+            rv.frameNumber = s_Counter;
+
+            rv.pixels = new int[0, 0];
+            return rv;
+        }
+
+        internal static BasicVideoFrame CreateFrameVariant(int width, int height, Bitmap cameraFrame, int fameNumber)
         {
             return InternalCreateFrame(width, height, cameraFrame, fameNumber, true);
         }
 
-        internal static VideoFrame CreateFrame(int width, int height, Bitmap cameraFrame, int fameNumber)
+        internal static BasicVideoFrame CreateFrame(int width, int height, Bitmap cameraFrame, int fameNumber)
         {
             return InternalCreateFrame(width, height, cameraFrame, fameNumber, false);
         }
 
-        private static VideoFrame InternalCreateFrame(int width, int height, Bitmap cameraFrame, int fameNumber, bool variant)
+        private static BasicVideoFrame InternalCreateFrame(int width, int height, Bitmap cameraFrame, int fameNumber, bool variant)
         {
-            var rv = new VideoFrame();
+            var rv = new BasicVideoFrame();
 
             rv.pixels = ImageUtils.GetPixelArray(cameraFrame);
 
@@ -44,7 +53,7 @@ namespace AAVRec.Drivers.AVISimulator
             rv.imageInfo = null;
             return rv;
         }
-        
+
         public object ImageArray
         {
             get
@@ -99,5 +108,6 @@ namespace AAVRec.Drivers.AVISimulator
         {
             get { return imageInfo; }
         }
+
     }
 }

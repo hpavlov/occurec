@@ -59,7 +59,7 @@
     <Setting Name="OcrDebugOutputFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="OcrCameraTestMode" Type="System.Boolean" Scope="User">
+    <Setting Name="OcrCameraTestModeAvi" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="OcrSimulatorTestMode" Type="System.Boolean" Scope="User">
@@ -70,6 +70,12 @@
     </Setting>
     <Setting Name="SimulatorRunOCR" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="OcrMaxErrorsPerCameraTestRun" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">100</Value>
+    </Setting>
+    <Setting Name="OcrCameraTestModeAav" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

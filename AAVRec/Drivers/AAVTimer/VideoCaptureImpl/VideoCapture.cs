@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using AAVRec.Drivers.DirectShowCapture;
 using AAVRec.Helpers;
 using AAVRec.Properties;
 using DirectShowLib;

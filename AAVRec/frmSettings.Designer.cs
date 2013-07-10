@@ -45,7 +45,9 @@
             this.nudSignDiffFactor = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.tabIOTAVTI = new System.Windows.Forms.TabPage();
-            this.cbxOcrCameraTestMode = new System.Windows.Forms.CheckBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.nudMaxErrorsPerTestRun = new System.Windows.Forms.NumericUpDown();
+            this.cbxOcrCameraTestModeAvi = new System.Windows.Forms.CheckBox();
             this.btnBrowseDebugFolder = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.tbxOcrDebugOutputLocation = new System.Windows.Forms.TextBox();
@@ -58,12 +60,14 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.openAavFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.cbxOcrCameraTestModeAav = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.tabIntegration.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSignDiffFactor)).BeginInit();
             this.tabIOTAVTI.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMaxErrorsPerTestRun)).BeginInit();
             this.gbxOcrTesting.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -244,7 +248,10 @@
             // 
             // tabIOTAVTI
             // 
-            this.tabIOTAVTI.Controls.Add(this.cbxOcrCameraTestMode);
+            this.tabIOTAVTI.Controls.Add(this.cbxOcrCameraTestModeAav);
+            this.tabIOTAVTI.Controls.Add(this.label5);
+            this.tabIOTAVTI.Controls.Add(this.nudMaxErrorsPerTestRun);
+            this.tabIOTAVTI.Controls.Add(this.cbxOcrCameraTestModeAvi);
             this.tabIOTAVTI.Controls.Add(this.btnBrowseDebugFolder);
             this.tabIOTAVTI.Controls.Add(this.label1);
             this.tabIOTAVTI.Controls.Add(this.tbxOcrDebugOutputLocation);
@@ -254,18 +261,44 @@
             this.tabIOTAVTI.Padding = new System.Windows.Forms.Padding(3);
             this.tabIOTAVTI.Size = new System.Drawing.Size(391, 204);
             this.tabIOTAVTI.TabIndex = 0;
-            this.tabIOTAVTI.Text = "IOTA-VTI TimeStamp OCR Testing";
+            this.tabIOTAVTI.Text = "OCR Testing";
             this.tabIOTAVTI.UseVisualStyleBackColor = true;
             // 
-            // cbxOcrCameraTestMode
+            // label5
             // 
-            this.cbxOcrCameraTestMode.AutoSize = true;
-            this.cbxOcrCameraTestMode.Location = new System.Drawing.Point(16, 111);
-            this.cbxOcrCameraTestMode.Name = "cbxOcrCameraTestMode";
-            this.cbxOcrCameraTestMode.Size = new System.Drawing.Size(152, 17);
-            this.cbxOcrCameraTestMode.TabIndex = 24;
-            this.cbxOcrCameraTestMode.Text = "Enable Camera Test Mode";
-            this.cbxOcrCameraTestMode.UseVisualStyleBackColor = true;
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(235, 120);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(92, 13);
+            this.label5.TabIndex = 26;
+            this.label5.Text = "Max errors per run";
+            // 
+            // nudMaxErrorsPerTestRun
+            // 
+            this.nudMaxErrorsPerTestRun.Location = new System.Drawing.Point(333, 116);
+            this.nudMaxErrorsPerTestRun.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.nudMaxErrorsPerTestRun.Name = "nudMaxErrorsPerTestRun";
+            this.nudMaxErrorsPerTestRun.Size = new System.Drawing.Size(52, 20);
+            this.nudMaxErrorsPerTestRun.TabIndex = 25;
+            this.nudMaxErrorsPerTestRun.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            // 
+            // cbxOcrCameraTestModeAvi
+            // 
+            this.cbxOcrCameraTestModeAvi.AutoSize = true;
+            this.cbxOcrCameraTestModeAvi.Location = new System.Drawing.Point(17, 111);
+            this.cbxOcrCameraTestModeAvi.Name = "cbxOcrCameraTestModeAvi";
+            this.cbxOcrCameraTestModeAvi.Size = new System.Drawing.Size(178, 17);
+            this.cbxOcrCameraTestModeAvi.TabIndex = 24;
+            this.cbxOcrCameraTestModeAvi.Text = "Enable Camera Test Mode (AVI)";
+            this.cbxOcrCameraTestModeAvi.UseVisualStyleBackColor = true;
             // 
             // btnBrowseDebugFolder
             // 
@@ -371,6 +404,16 @@
             this.openAavFileDialog.FileName = "Open AAV/AVI File";
             this.openAavFileDialog.Filter = "Supported Video Files (*.aav;*.avi)|*.aav;*.avi";
             // 
+            // cbxOcrCameraTestModeAav
+            // 
+            this.cbxOcrCameraTestModeAav.AutoSize = true;
+            this.cbxOcrCameraTestModeAav.Location = new System.Drawing.Point(16, 129);
+            this.cbxOcrCameraTestModeAav.Name = "cbxOcrCameraTestModeAav";
+            this.cbxOcrCameraTestModeAav.Size = new System.Drawing.Size(182, 17);
+            this.cbxOcrCameraTestModeAav.TabIndex = 27;
+            this.cbxOcrCameraTestModeAav.Text = "Enable Camera Test Mode (AAV)";
+            this.cbxOcrCameraTestModeAav.UseVisualStyleBackColor = true;
+            // 
             // frmSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -396,6 +439,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudSignDiffFactor)).EndInit();
             this.tabIOTAVTI.ResumeLayout(false);
             this.tabIOTAVTI.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMaxErrorsPerTestRun)).EndInit();
             this.gbxOcrTesting.ResumeLayout(false);
             this.gbxOcrTesting.PerformLayout();
             this.ResumeLayout(false);
@@ -429,9 +473,12 @@
         private System.Windows.Forms.Button btnBrowseDebugFolder;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox tbxOcrDebugOutputLocation;
-        private System.Windows.Forms.CheckBox cbxOcrCameraTestMode;
+        private System.Windows.Forms.CheckBox cbxOcrCameraTestModeAvi;
         private System.Windows.Forms.CheckBox cbxSimulatorRunOCR;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cbxNTPServer;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.NumericUpDown nudMaxErrorsPerTestRun;
+        private System.Windows.Forms.CheckBox cbxOcrCameraTestModeAav;
 	}
 }

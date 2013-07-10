@@ -228,5 +228,12 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
         {
             dsCapture.LoadCrossbarSources(comboBox);
         }
+
+        public string ToggleIotaVtiOcrTesting()
+        {
+            dsCapture.ToggleIotaVtiOcrTesting();
+
+            return null;
+        }
 	}
 }
