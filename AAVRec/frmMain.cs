@@ -86,7 +86,12 @@ namespace AAVRec
                     else if (Settings.Default.FileFormat == "AVI")
                         driverInstance = new Drivers.DirectShowCapture.Video();
                     else
-                        driverInstance = new Drivers.AAVSimulator.Video();
+                    {
+                        if (".avi".Equals(Path.GetExtension(Settings.Default.SimulatorFilePath), StringComparison.InvariantCultureIgnoreCase))
+                            driverInstance = new Drivers.AVISimulator.Video();
+                        else
+                            driverInstance = new Drivers.AAVSimulator.Video();
+                    }
 
                     videoObject = new VideoWrapper(driverInstance);
 
@@ -146,8 +151,8 @@ namespace AAVRec
 			UpdateState();
 
 			pnlVideoControls.Enabled = connected;
-			btnRecord.Enabled = connected && videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning;
-			btnStopRecording.Enabled = connected && videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording;
+			btnRecord.Enabled = connected && videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning && lbSchedule.Items.Count == 0;
+            btnStopRecording.Enabled = connected && videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording && lbSchedule.Items.Count == 0;
 			btnImageSettings.Enabled = connected && videoObject != null && videoObject.CanConfigureImage;
 
 		    
@@ -214,7 +219,15 @@ namespace AAVRec
 
 		private void miConnect_Click(object sender, EventArgs e)
 		{
-			ConnectToCamera();
+            if (!Directory.Exists(Settings.Default.OutputLocation))
+            {
+                MessageBox.Show("Output Video Location is invalid.", "AAVRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                var frmSettings = new frmSettings();
+                frmSettings.ShowDialog(this);
+            }
+            else
+			    ConnectToCamera();
 		}
 
 		private void miDisconnect_Click(object sender, EventArgs e)
@@ -458,8 +471,7 @@ namespace AAVRec
 				else
 					tssDisplayRate.Text = "Display Rate: N/A";
 
-				if (videoObject.State == VideoCameraState.videoCameraRecording &&
-                    File.Exists(recordingfileName))
+				if (videoObject.State == VideoCameraState.videoCameraRecording && File.Exists(recordingfileName))
 				{
 					var fi = new FileInfo(recordingfileName);
 					tssRecordingFile.Text = string.Format("{0} ({1:0.0} Mb)", fi.Name, 1.0 * fi.Length / (1024 * 1024));
@@ -468,12 +480,17 @@ namespace AAVRec
 					btnStopRecording.Enabled = true;
 					btnRecord.Enabled = false;
 				}
-				else
-				{
-					tssRecordingFile.Visible = false;
-					btnStopRecording.Enabled = false;
-					btnRecord.Enabled = true;
-				}
+                else if (videoObject.State == VideoCameraState.videoCameraRunning && lbSchedule.Items.Count == 0 && !stateManager.IsTestingIotaVtiOcr)
+                {
+                    tssRecordingFile.Visible = false;
+                    btnStopRecording.Enabled = false;
+                    btnRecord.Enabled = true;
+                }
+                else
+                {
+                    btnRecord.Enabled = lbSchedule.Items.Count == 0 && !stateManager.IsTestingIotaVtiOcr;
+                    btnStopRecording.Enabled = lbSchedule.Items.Count == 0 && !stateManager.IsTestingIotaVtiOcr;                  
+                }
 
                 btnLockIntegration.Enabled = stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0;
                 if (stateManager.IntegrationRate > 0)
@@ -493,9 +510,6 @@ namespace AAVRec
                     UpdateApplicationStateFromCameraState();
                     gbxSchedules.Enabled = true;
                 }
-
-                btnRecord.Enabled = lbSchedule.Items.Count == 0 && !stateManager.IsTestingIotaVtiOcr;
-                btnStopRecording.Enabled = lbSchedule.Items.Count == 0 && !stateManager.IsTestingIotaVtiOcr;
 			}
 		}
 
@@ -503,7 +517,7 @@ namespace AAVRec
 		{
 			if (videoObject != null)
 			{
-			    string fileName = FileNameGenerator.GenerateFileName();
+                string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
 
 				recordingfileName = videoObject.StartRecording(fileName);
 
@@ -576,6 +590,8 @@ namespace AAVRec
             }
         }
 
+	    private DateTime nextNTPSyncTime = DateTime.MinValue;
+
         private void timerScheduler_Tick(object sender, EventArgs e)
         {
             ScheduledAction actionToTake = Scheduler.CheckSchedules();
@@ -587,8 +603,9 @@ namespace AAVRec
                     case ScheduledAction.StartRecording:
                         if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning)
                         {
-                            string fileName = FileNameGenerator.GenerateFileName();
+                            string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
                             recordingfileName = videoObject.StartRecording(fileName);
+                            Console.Beep();
                             UpdateState();
                         }
                         break;
@@ -597,6 +614,7 @@ namespace AAVRec
                         if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
                         {
                             videoObject.StopRecording();
+                            Console.Beep();
                             UpdateState();
                         }
                         break;
@@ -614,6 +632,21 @@ namespace AAVRec
             else
             {
                 pnlNextScheduledAction.Visible = false;
+            }
+
+            if (nextNTPSyncTime < DateTime.UtcNow)
+            {
+                try
+                {
+                    DateTime networkUTCTime = NTPClient.GetNetworkTime();
+                    NTPClient.SetTime(networkUTCTime);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                }
+
+                nextNTPSyncTime = DateTime.UtcNow.AddMinutes(10);
             }
         }
 

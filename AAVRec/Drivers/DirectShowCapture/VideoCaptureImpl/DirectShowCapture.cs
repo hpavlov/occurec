@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using AAVRec.Helpers;
 using AAVRec.Properties;
@@ -126,11 +127,17 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				return null;
 			}
 
-			lock (syncRoot)
-			{
-				frameId = frameCounter;
-				return (Bitmap)latestBitmap.Clone();
-			}
+            Bitmap rv = null;
+
+            NonBlockingLock.Lock(
+                NonBlockingLock.LOCK_ID_GetNextFrame,
+                () =>
+                    {
+                        rv = (Bitmap) latestBitmap.Clone();
+                    });
+
+            frameId = frameCounter;
+            return rv;
 		}
 
 		private IBaseFilter CreateFilter(Guid category, string friendlyname)
@@ -675,8 +682,16 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 			{
 				if (mediaCtrl != null)
 				{
-					// Stop the graph
-					int hr = mediaCtrl.Stop();
+                    NonBlockingLock.ExclusiveLock(
+                        NonBlockingLock.LOCK_ID_CloseInterfaces, 
+                        () =>
+				            {
+				                Application.DoEvents();
+
+				                // Stop the graph
+				                int hr = mediaCtrl.Stop();
+				            });
+
 					mediaCtrl = null;
 					isRunning = false;
 				}
@@ -706,23 +721,19 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 			return 0;
 		}
 
+	    private int lockedStatus = 0;
+
 		/// <summary> buffer callback, COULD BE FROM FOREIGN THREAD. </summary>
 		int ISampleGrabberCB.BufferCB(double SampleTime, IntPtr pBuffer, int BufferLen)
 		{
-			// TODO: Implement a no-blocking loading using 2 bitmaps and CompareExchange - making sure
-			//       that the image being returned by GetNextFrame() is never the same as the one being copied here
-			//       if the GetNextFrame() requires more time to work, then this code here should continue to copy the new
-			//       frames into the second image
-			
-			lock (syncRoot)
-			{
+            NonBlockingLock.Lock(
+                NonBlockingLock.LOCK_ID_BufferCB,
+                () =>
+                    {
+                        CopyBitmap(pBuffer);
 
-				// TODO: Investigate 'pinning' the unamaged pBuffer pointer rather than copying it. This would speed up things dramatically
-
-				CopyBitmap(pBuffer);
-
-				frameCounter++;
-			}
+                        frameCounter++;
+                    });
 
 			return 0;
 		}

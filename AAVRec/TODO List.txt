@@ -1,0 +1,24 @@
+﻿V) Implement horizontal flip for AVI format
+V) Make the horizontal flip the default option
+V) Remove the vertical flip option or implement a vertical flip for AAV format
+V) Make a Beep when starting and stopping a recording
+V) Implement NTP Server time synchronisation every 10 min
+V) Test XviD recording. It has been reported that stopping the recording crashes AAVRec
+
+EASY:
+
+- "Rec" should not be enabled for "Integrating" cameras if "Lock" hasn't been pressed
+- The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
+
+HARDER:
+
+- Implement x2 integration time recognition (using a different simultaneously tested algorithm such as testing if every second diff signature is very close to the one 2 frames ago)
+- Implement Differential Coding Compression for AAV 8 bit format
+- Ensure that the start/end timestamps are not overwritten in the process of stacking
+
+OCR Implemntation:
+
+V) Implement an AVI simulator (that plays an AVI file rather than AAV)
+- Complete the OCR tuning using simulated videos
+- Implement a 'live' OCR testing without crashing and with logging all errors
+- Successfully run a live test for 24 hours without any errors

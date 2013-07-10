@@ -3,15 +3,33 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using AAVRec.Properties;
 
 namespace AAVRec.Helpers
 {
     public static class FileNameGenerator
     {
-        public static string GenerateFileName()
+        private static Regex REGEX_FILEMASK = new Regex("\\d\\d\\d\\d\\-[a-z]{3}\\-\\d\\d \\d\\d\\-\\d\\d\\-\\d\\d \\((?<SeqNo>\\d+)\\).(avi|aav)"); 
+
+        public static string GenerateFileName(bool isAAVFile)
         {
-            return Path.GetFullPath(string.Format("{0}\\video-{1}.avi", Settings.Default.OutputLocation, DateTime.Now.ToString("yyyy-MMM-dd HH-mm-ss")));
+            IEnumerable<string> existingFiles = Directory.EnumerateFiles(Settings.Default.OutputLocation, "*.avi;*.aav", SearchOption.TopDirectoryOnly);
+            List<int> existingSequenceIds = existingFiles
+                .Select(x => REGEX_FILEMASK.Match(x).Groups["SeqNo"])
+                .Where(g => g != null)
+                .Select(g => int.Parse(g.Value))
+                .Distinct()
+                .ToList();
+
+            int nextNumber = existingSequenceIds.Any() ? existingSequenceIds.Max() + 1 : 1;
+
+            return Path.GetFullPath(
+                string.Format("{0}\\{1} ({2}).{3}", 
+                    Settings.Default.OutputLocation, 
+                    DateTime.Now.ToString("yyyy-MMM-dd HH-mm-ss"),
+                    nextNumber,
+                    isAAVFile ? "aav" : "avi"));
         }
     }
 }

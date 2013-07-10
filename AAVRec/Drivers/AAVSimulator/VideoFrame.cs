@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using AAVRec.Drivers.AAVSimulator.AAVPlayerImpl;
 using AAVRec.Drivers.AAVTimer.VideoCaptureImpl;
+using AAVRec.Helpers;
 
 namespace AAVRec.Drivers.AAVSimulator
 {
@@ -46,7 +47,7 @@ namespace AAVRec.Drivers.AAVSimulator
 		{
 			var rv = new VideoFrame();
 
-            rv.pixels = AAVPlayer.GetPixelArray(cameraFrame);
+            rv.pixels = ImageUtils.GetPixelArray(cameraFrame);
 
             rv.pixelsVariant = null;
 

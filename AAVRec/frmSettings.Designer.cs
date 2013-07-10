@@ -32,12 +32,12 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.label2 = new System.Windows.Forms.Label();
+            this.cbxNTPServer = new System.Windows.Forms.ComboBox();
             this.cbxTimeInUT = new System.Windows.Forms.CheckBox();
             this.btnBrowseOutputFolder = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.tbxOutputLocation = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
             this.cbxGraphDebugMode = new System.Windows.Forms.CheckBox();
             this.tabIntegration = new System.Windows.Forms.TabPage();
             this.nudMinSignDiff = new System.Windows.Forms.NumericUpDown();
@@ -45,7 +45,12 @@
             this.nudSignDiffFactor = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.tabIOTAVTI = new System.Windows.Forms.TabPage();
+            this.cbxOcrCameraTestMode = new System.Windows.Forms.CheckBox();
+            this.btnBrowseDebugFolder = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.tbxOcrDebugOutputLocation = new System.Windows.Forms.TextBox();
             this.gbxOcrTesting = new System.Windows.Forms.GroupBox();
+            this.cbxSimulatorRunOCR = new System.Windows.Forms.CheckBox();
             this.cbxOcrSimlatorTestMode = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.tbxSimlatorFilePath = new System.Windows.Forms.TextBox();
@@ -53,10 +58,6 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.openAavFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.btnBrowseDebugFolder = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.tbxOcrDebugOutputLocation = new System.Windows.Forms.TextBox();
-            this.cbxOcrCameraTestMode = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.tabIntegration.SuspendLayout();
@@ -89,12 +90,12 @@
             // 
             // tabGeneral
             // 
+            this.tabGeneral.Controls.Add(this.label2);
+            this.tabGeneral.Controls.Add(this.cbxNTPServer);
             this.tabGeneral.Controls.Add(this.cbxTimeInUT);
             this.tabGeneral.Controls.Add(this.btnBrowseOutputFolder);
             this.tabGeneral.Controls.Add(this.label6);
             this.tabGeneral.Controls.Add(this.tbxOutputLocation);
-            this.tabGeneral.Controls.Add(this.label5);
-            this.tabGeneral.Controls.Add(this.textBox1);
             this.tabGeneral.Controls.Add(this.cbxGraphDebugMode);
             this.tabGeneral.Location = new System.Drawing.Point(4, 22);
             this.tabGeneral.Name = "tabGeneral";
@@ -103,6 +104,23 @@
             this.tabGeneral.TabIndex = 1;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(19, 64);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(63, 13);
+            this.label2.TabIndex = 16;
+            this.label2.Text = "NTP Server";
+            // 
+            // cbxNTPServer
+            // 
+            this.cbxNTPServer.FormattingEnabled = true;
+            this.cbxNTPServer.Location = new System.Drawing.Point(17, 80);
+            this.cbxNTPServer.Name = "cbxNTPServer";
+            this.cbxNTPServer.Size = new System.Drawing.Size(197, 21);
+            this.cbxNTPServer.TabIndex = 15;
             // 
             // cbxTimeInUT
             // 
@@ -139,22 +157,6 @@
             this.tbxOutputLocation.Name = "tbxOutputLocation";
             this.tbxOutputLocation.Size = new System.Drawing.Size(322, 20);
             this.tbxOutputLocation.TabIndex = 11;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(17, 66);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(87, 13);
-            this.label5.TabIndex = 2;
-            this.label5.Text = "File name format:";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(17, 85);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(212, 20);
-            this.textBox1.TabIndex = 1;
             // 
             // cbxGraphDebugMode
             // 
@@ -255,18 +257,66 @@
             this.tabIOTAVTI.Text = "IOTA-VTI TimeStamp OCR Testing";
             this.tabIOTAVTI.UseVisualStyleBackColor = true;
             // 
+            // cbxOcrCameraTestMode
+            // 
+            this.cbxOcrCameraTestMode.AutoSize = true;
+            this.cbxOcrCameraTestMode.Location = new System.Drawing.Point(16, 111);
+            this.cbxOcrCameraTestMode.Name = "cbxOcrCameraTestMode";
+            this.cbxOcrCameraTestMode.Size = new System.Drawing.Size(152, 17);
+            this.cbxOcrCameraTestMode.TabIndex = 24;
+            this.cbxOcrCameraTestMode.Text = "Enable Camera Test Mode";
+            this.cbxOcrCameraTestMode.UseVisualStyleBackColor = true;
+            // 
+            // btnBrowseDebugFolder
+            // 
+            this.btnBrowseDebugFolder.Location = new System.Drawing.Point(344, 164);
+            this.btnBrowseDebugFolder.Name = "btnBrowseDebugFolder";
+            this.btnBrowseDebugFolder.Size = new System.Drawing.Size(30, 23);
+            this.btnBrowseDebugFolder.TabIndex = 23;
+            this.btnBrowseDebugFolder.Text = "...";
+            this.btnBrowseDebugFolder.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(16, 151);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(83, 13);
+            this.label1.TabIndex = 22;
+            this.label1.Text = "Output Location";
+            // 
+            // tbxOcrDebugOutputLocation
+            // 
+            this.tbxOcrDebugOutputLocation.Location = new System.Drawing.Point(16, 167);
+            this.tbxOcrDebugOutputLocation.Name = "tbxOcrDebugOutputLocation";
+            this.tbxOcrDebugOutputLocation.Size = new System.Drawing.Size(322, 20);
+            this.tbxOcrDebugOutputLocation.TabIndex = 21;
+            // 
             // gbxOcrTesting
             // 
+            this.gbxOcrTesting.Controls.Add(this.cbxSimulatorRunOCR);
             this.gbxOcrTesting.Controls.Add(this.cbxOcrSimlatorTestMode);
             this.gbxOcrTesting.Controls.Add(this.label7);
             this.gbxOcrTesting.Controls.Add(this.tbxSimlatorFilePath);
             this.gbxOcrTesting.Controls.Add(this.btnBrowseSimulatorFile);
             this.gbxOcrTesting.Location = new System.Drawing.Point(7, 7);
             this.gbxOcrTesting.Name = "gbxOcrTesting";
-            this.gbxOcrTesting.Size = new System.Drawing.Size(378, 81);
+            this.gbxOcrTesting.Size = new System.Drawing.Size(378, 89);
             this.gbxOcrTesting.TabIndex = 19;
             this.gbxOcrTesting.TabStop = false;
             this.gbxOcrTesting.Text = "                                                      ";
+            // 
+            // cbxSimulatorRunOCR
+            // 
+            this.cbxSimulatorRunOCR.AutoSize = true;
+            this.cbxSimulatorRunOCR.Checked = true;
+            this.cbxSimulatorRunOCR.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbxSimulatorRunOCR.Location = new System.Drawing.Point(12, 68);
+            this.cbxSimulatorRunOCR.Name = "cbxSimulatorRunOCR";
+            this.cbxSimulatorRunOCR.Size = new System.Drawing.Size(72, 17);
+            this.cbxSimulatorRunOCR.TabIndex = 25;
+            this.cbxSimulatorRunOCR.Text = "Run OCR";
+            this.cbxSimulatorRunOCR.UseVisualStyleBackColor = true;
             // 
             // cbxOcrSimlatorTestMode
             // 
@@ -318,43 +368,8 @@
             // openAavFileDialog
             // 
             this.openAavFileDialog.DefaultExt = "aav";
-            this.openAavFileDialog.FileName = "Open AAV File";
-            this.openAavFileDialog.Filter = "AAV Files (*.aav)|*.aav";
-            // 
-            // btnBrowseDebugFolder
-            // 
-            this.btnBrowseDebugFolder.Location = new System.Drawing.Point(344, 164);
-            this.btnBrowseDebugFolder.Name = "btnBrowseDebugFolder";
-            this.btnBrowseDebugFolder.Size = new System.Drawing.Size(30, 23);
-            this.btnBrowseDebugFolder.TabIndex = 23;
-            this.btnBrowseDebugFolder.Text = "...";
-            this.btnBrowseDebugFolder.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(16, 151);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(83, 13);
-            this.label1.TabIndex = 22;
-            this.label1.Text = "Output Location";
-            // 
-            // tbxOcrDebugOutputLocation
-            // 
-            this.tbxOcrDebugOutputLocation.Location = new System.Drawing.Point(16, 167);
-            this.tbxOcrDebugOutputLocation.Name = "tbxOcrDebugOutputLocation";
-            this.tbxOcrDebugOutputLocation.Size = new System.Drawing.Size(322, 20);
-            this.tbxOcrDebugOutputLocation.TabIndex = 21;
-            // 
-            // cbxOcrCameraTestMode
-            // 
-            this.cbxOcrCameraTestMode.AutoSize = true;
-            this.cbxOcrCameraTestMode.Location = new System.Drawing.Point(16, 111);
-            this.cbxOcrCameraTestMode.Name = "cbxOcrCameraTestMode";
-            this.cbxOcrCameraTestMode.Size = new System.Drawing.Size(152, 17);
-            this.cbxOcrCameraTestMode.TabIndex = 24;
-            this.cbxOcrCameraTestMode.Text = "Enable Camera Test Mode";
-            this.cbxOcrCameraTestMode.UseVisualStyleBackColor = true;
+            this.openAavFileDialog.FileName = "Open AAV/AVI File";
+            this.openAavFileDialog.Filter = "Supported Video Files (*.aav;*.avi)|*.aav;*.avi";
             // 
             // frmSettings
             // 
@@ -400,8 +415,6 @@
         private System.Windows.Forms.CheckBox cbxGraphDebugMode;
         private System.Windows.Forms.NumericUpDown nudMinSignDiff;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button btnBrowseOutputFolder;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox tbxOutputLocation;
@@ -417,5 +430,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox tbxOcrDebugOutputLocation;
         private System.Windows.Forms.CheckBox cbxOcrCameraTestMode;
+        private System.Windows.Forms.CheckBox cbxSimulatorRunOCR;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox cbxNTPServer;
 	}
 }

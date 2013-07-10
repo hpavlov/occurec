@@ -33,6 +33,7 @@ namespace AAVRec
 
             cbxOcrCameraTestMode.Checked = Settings.Default.OcrCameraTestMode;
             cbxOcrSimlatorTestMode.Checked = Settings.Default.OcrSimulatorTestMode;
+            cbxSimulatorRunOCR.Checked = Settings.Default.SimulatorRunOCR;
 		}
 
         private void frmSettings_Load(object sender, EventArgs e)
@@ -62,6 +63,7 @@ namespace AAVRec
 
             Settings.Default.OcrCameraTestMode = cbxOcrCameraTestMode.Checked;
             Settings.Default.OcrSimulatorTestMode = cbxOcrSimlatorTestMode.Checked;
+            Settings.Default.SimulatorRunOCR = cbxSimulatorRunOCR.Checked;
 
             Settings.Default.Save();
 

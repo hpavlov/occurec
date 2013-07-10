@@ -55,6 +55,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Drivers\AAVSimulator\AAVPlayerImpl\AAVPlayer.cs" />
+    <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
+    <Compile Include="Drivers\AVISimulator\Video.cs" />
+    <Compile Include="Drivers\AVISimulator\VideoFrame.cs" />
+    <Compile Include="Helpers\ImageUtils.cs" />
+    <Compile Include="Helpers\NonBlockingLock.cs" />
+    <Compile Include="Helpers\NTPClient.cs" />
     <Compile Include="OCR\ManagedOcrTester.cs" />
     <Compile Include="OCR\OcrCharRecognizer.cs" />
     <Compile Include="OCR\OcredChar.cs" />
@@ -187,6 +193,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="TODO List.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
