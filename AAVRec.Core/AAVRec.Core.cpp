@@ -17,6 +17,7 @@
 #include "IotaVtiOcr.h"
 
 #define MAX_INTEGRATION 256
+#define LOW_INTEGRATION_CHECK_POOL_SIZE 65 // 2.5 sec @ PAL
 
 long IMAGE_WIDTH;
 long IMAGE_HEIGHT;
@@ -60,6 +61,7 @@ float pastSignaturesResidualSquareSum = 0;
 float pastSignaturesSigma = 0;
 int pastSignaturesCount = 0;
 float pastSignatures[MAX_INTEGRATION];
+float signaturesHistory[LOW_INTEGRATION_CHECK_POOL_SIZE];
 float newIntegrationPeriodCutOffRatio;
 float currentSignatureRatio;
 
@@ -97,18 +99,168 @@ HRESULT LockIntegration(bool lock)
 	return S_OK;
 }
 
+
+float evenLowFrameSignSigma = 0;
+float oddLowFrameSignSigma = 0;
+float allLowFrameSignSigma = 0;
+float evenLowFrameSignAverage = 0;
+float oddLowFrameSignAverage = 0;
+float allLowFrameSignAverage = 0;
+int lowFrameIntegrationMode = 0;
+float evenSignMaxResidual = 0;
+float oddSignMaxResidual = 0;
+float allSignMaxResidual = 0;
+
+void RecalculateLowIntegrationMetrics()
+{
+	float evenSignSum = 0;
+	float oddSignSum = 0;
+	for (int i = 0; i < LOW_INTEGRATION_CHECK_POOL_SIZE; i++)
+	{
+		bool isEvenValue = i % 2 == 0;
+		if (isEvenValue)
+			evenSignSum += signaturesHistory[i];
+		else
+			oddSignSum += signaturesHistory[i];
+
+	}
+
+	evenLowFrameSignAverage = evenSignSum * 2 / LOW_INTEGRATION_CHECK_POOL_SIZE;
+	oddLowFrameSignAverage = oddSignSum * 2 / LOW_INTEGRATION_CHECK_POOL_SIZE;
+	allLowFrameSignAverage = (evenSignSum + oddSignSum) / LOW_INTEGRATION_CHECK_POOL_SIZE;
+
+	float evenSignResidualSquareSum = 0;
+	float oddSignResidualSquareSum = 0;
+	float allSignResidualSquareSum = 0;
+	evenSignMaxResidual = 0;
+	oddSignMaxResidual = 0;
+	allSignMaxResidual = 0;
+
+	for (int i = 0; i < LOW_INTEGRATION_CHECK_POOL_SIZE; i++)
+	{
+		float residual = abs(allLowFrameSignAverage - signaturesHistory[i]);
+		if (residual > allSignMaxResidual) allSignMaxResidual = residual;
+
+		allSignResidualSquareSum += (allLowFrameSignAverage - signaturesHistory[i]) * (allLowFrameSignAverage - signaturesHistory[i]);
+		bool isEvenValue = i % 2 == 0;
+		if (isEvenValue)
+		{
+			residual = abs(evenLowFrameSignAverage - signaturesHistory[i]);
+			if (residual > evenSignMaxResidual) evenSignMaxResidual = residual;
+			evenSignResidualSquareSum += (evenLowFrameSignAverage - signaturesHistory[i]) * (evenLowFrameSignAverage - signaturesHistory[i]);
+		}
+		else
+		{
+			residual = abs(oddLowFrameSignAverage - signaturesHistory[i]);
+			if (residual > oddSignMaxResidual) oddSignMaxResidual = residual;
+			oddSignResidualSquareSum += (oddLowFrameSignAverage - signaturesHistory[i]) * (oddLowFrameSignAverage - signaturesHistory[i]);			
+		}
+	}
+		
+	evenLowFrameSignSigma = sqrt(evenSignResidualSquareSum) * 2 / LOW_INTEGRATION_CHECK_POOL_SIZE;
+	oddLowFrameSignSigma = sqrt(oddSignResidualSquareSum) * 2  / LOW_INTEGRATION_CHECK_POOL_SIZE;
+	allLowFrameSignSigma = sqrt(allSignResidualSquareSum) * 2  / LOW_INTEGRATION_CHECK_POOL_SIZE;
+
+	DebugViewPrint(L"LowIntData Even:%.3f +/- %.3f (MAX: %.3f); Odd:%.3f +/- %.3f(MAX: %.3f); All:%.3f +/- %.3f (MAX: %.3f)\n", 
+		evenLowFrameSignAverage, evenLowFrameSignSigma, evenSignMaxResidual, 
+		oddLowFrameSignAverage, oddLowFrameSignSigma, oddSignMaxResidual,
+		allLowFrameSignAverage, allLowFrameSignSigma, allSignMaxResidual); 
+}
+
 bool IsNewIntegrationPeriod(float diffSignature)
 {
 	if (!IS_INTEGRATING_CAMERA)
 		return true;
 
-	float diff = abs(pastSignaturesAverage - diffSignature);
+	float diff = 0;
+	bool isNewIntegrationPeriod = false;
 
-	bool isNewIntegrationPeriod = 
-		pastSignaturesCount >= MAX_INTEGRATION || 
-		(pastSignaturesCount > 1 && diff > MINIMUM_SIGNATURE_DIFFERENCE && diff > SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
+	if (lowFrameIntegrationMode == 1)
+	{
+		// NOTE: This code is still 'IN TESTING' and may not work
+		diff = abs(allLowFrameSignAverage - diffSignature);
 
-	DebugViewPrint(L"PSC:%d DF:%.5f D:%.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f\n", pastSignaturesCount, diffSignature, diff, SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma, pastSignaturesSum, pastSignaturesAverage, pastSignaturesResidualSquareSum, pastSignaturesSigma); 
+		// TODO: Consiuder using "10 times sigma" rather than "3-times max value". USe is as a configuration parameter
+		// "10-times sigma" will be more sensitive to integration changess and less tolerant to slewing and field movement
+		// "3-times max value" will be less sensitive to integration changess and more tolerant to slewing and field movement
+
+		if (diff <= 3 * allSignMaxResidual)
+			isNewIntegrationPeriod = true;
+		else
+			// Looks like the the 1-frame integration has ended. So enter in normal mode
+			lowFrameIntegrationMode = 0;
+
+		DebugViewPrint(L"LFM-1: lowFrameIntegrationMode = %d; diff = %.3f; 10-Sigma = %.3f; 3-MaxVal = %.3f; NEW = %d\n", lowFrameIntegrationMode, diff, 10 * allLowFrameSignSigma, 3 * allSignMaxResidual, isNewIntegrationPeriod);
+	}
+	else if (lowFrameIntegrationMode == 2)
+	{
+		float evenDiff = abs(evenLowFrameSignAverage - diffSignature);
+		float oddDiff = abs(oddLowFrameSignAverage - diffSignature);
+
+		bool isEvenFrame = evenDiff <= 3 * evenSignMaxResidual;
+		bool isOddFrame = oddDiff <= 3 * oddSignMaxResidual;
+
+		if (isEvenFrame && !isOddFrame && evenLowFrameSignAverage > oddLowFrameSignAverage)
+			isNewIntegrationPeriod = true; // New 2-Frame period starts on an even frame
+		else if (isOddFrame && !isEvenFrame && oddLowFrameSignAverage > evenLowFrameSignAverage)
+			isNewIntegrationPeriod = true; // New 2-Frame period starts on an odd frame
+		else
+			// Looks like the the 1-frame integration has ended. So enter in normal mode
+			lowFrameIntegrationMode = 0;
+
+		DebugViewPrint(L"LFM-2: lowFrameIntegrationMode = %d; evenDiff = %.3f; oddDiff = %.3f; 10-sigmaEven = %.3f; 10-sigmaOdd = %.3f; 3-MaxValEven = %.3f; 3-MaxValOdd = %.3f; NEW = %d\n", 
+			lowFrameIntegrationMode, evenDiff, oddDiff, 10 * evenLowFrameSignSigma, 10 * oddLowFrameSignSigma, 3 * evenSignMaxResidual, 3 * oddSignMaxResidual, isNewIntegrationPeriod);
+	}
+
+	if (lowFrameIntegrationMode == 0)
+	{
+		diff = abs(pastSignaturesAverage - diffSignature);
+
+		isNewIntegrationPeriod = 
+			pastSignaturesCount >= MAX_INTEGRATION || 
+			(pastSignaturesCount > 1 && diff > MINIMUM_SIGNATURE_DIFFERENCE && diff > SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
+	}
+
+	int currSignaturesHistoryIndex = (int)(idxFrameNumber % LOW_INTEGRATION_CHECK_POOL_SIZE);
+	signaturesHistory[currSignaturesHistoryIndex] = diffSignature;
+
+	if (!isNewIntegrationPeriod && lowFrameIntegrationMode == 0 && pastSignaturesCount > LOW_INTEGRATION_CHECK_POOL_SIZE)
+	{
+		// After having collected history for LOW_INTEGRATION_CHECK_POOL_SIZE frames, without recognizing a new integration period larger than 2-frame integration
+		// we can try to recognize a 1-frame and 2-frame signatures in order to enter lowFrameIntegrationMode
+
+		RecalculateLowIntegrationMetrics();
+
+		float allLowFrameDiff = abs(allLowFrameSignAverage - diffSignature);
+		float MAX_LOW_INT_SAMEFRAME_SIGMA = 3 * MINIMUM_SIGNATURE_DIFFERENCE / SIGNATURE_DIFFERENCE_FACTOR;
+
+		// NOTE: This code is still 'IN TESTING' and may not work
+		if (evenLowFrameSignSigma <= MAX_LOW_INT_SAMEFRAME_SIGMA && oddLowFrameSignSigma <= MAX_LOW_INT_SAMEFRAME_SIGMA && allLowFrameSignSigma > MAX_LOW_INT_SAMEFRAME_SIGMA)
+		{
+			// 2-Frame integration
+			lowFrameIntegrationMode = 2;
+			isNewIntegrationPeriod = false; // will be checked on the next frame in the lowFrameIntegrationMode specific code
+		}
+		else if (allLowFrameSignSigma <= MAX_LOW_INT_SAMEFRAME_SIGMA)
+		{
+			// 1-Frame integration (No integration)
+			lowFrameIntegrationMode = 1;
+			isNewIntegrationPeriod = false; // will be checked on the next frame in the lowFrameIntegrationMode specific code
+		}
+		else
+		{
+			// Low frame integration not found. Could be more than 64-frame integration
+			lowFrameIntegrationMode = 0;
+		}
+
+		DebugViewPrint(L"lowFrameIntegrationMode = %d; MAX_LOW_INT_SAMEFRAME_SIGMA = %.5f\n", lowFrameIntegrationMode, MAX_LOW_INT_SAMEFRAME_SIGMA);
+	}
+
+
+	DebugViewPrint(L"PSC:%d DF:%.5f D:%.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f\n", 
+		pastSignaturesCount, diffSignature, diff, SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma, 
+		pastSignaturesSum, pastSignaturesAverage, pastSignaturesResidualSquareSum, pastSignaturesSigma); 
+
 
 	if (pastSignaturesCount < MAX_INTEGRATION && pastSignaturesCount > 1)
 		currentSignatureRatio = diff / (SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
@@ -288,16 +440,39 @@ HRESULT GetCurrentImage(BYTE* bitmapPixels)
 	return S_OK;
 }
 
-float CalculateDiffSignature(unsigned char* bmpBits)
+void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev, float* signatureThisTwoAgo)
 {
 	numberOfDiffSignaturesCalculated++;
 
 	unsigned char* ptrBuf = bmpBits + IMAGE_STRIDE * (IMAGE_HEIGHT / 2 - 1) + (3 * (IMAGE_WIDTH / 2));
 
-	unsigned char* ptrPrevPixels = prtPreviousDiffArea + (numberOfDiffSignaturesCalculated % 2 == 0 ? IMAGE_WIDTH * 3 : 0);
-	unsigned char* ptrThisPixels = prtPreviousDiffArea + (numberOfDiffSignaturesCalculated % 2 == 1 ? IMAGE_WIDTH * 3 : 0);
+	unsigned char* ptrTwoFramesAgoPixels;
+	unsigned char* ptrPrevPixels;
+	unsigned char* ptrThisPixels;
+	
+	switch(numberOfDiffSignaturesCalculated % 3)
+	{
+		case 0:
+			ptrTwoFramesAgoPixels = prtPreviousDiffArea;
+			ptrPrevPixels		  = prtPreviousDiffArea + IMAGE_WIDTH * 3;
+			ptrThisPixels		  = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
+			break;
 
-	float signature = 0;
+		case 1:
+			ptrTwoFramesAgoPixels = prtPreviousDiffArea + IMAGE_WIDTH * 3;
+			ptrPrevPixels		  = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
+			ptrThisPixels		  = prtPreviousDiffArea;
+			break;
+
+		case 2:
+			ptrTwoFramesAgoPixels = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
+			ptrPrevPixels		  = prtPreviousDiffArea;
+			ptrThisPixels		  = prtPreviousDiffArea + IMAGE_WIDTH * 3;
+			break;
+	}
+
+	*signatureThisPrev = 0;
+	*signatureThisTwoAgo = 0;
 
 	for(int y = 0; y < 32; y++)
 	{
@@ -305,17 +480,20 @@ float CalculateDiffSignature(unsigned char* bmpBits)
 		{
 			*ptrThisPixels = *ptrBuf;
 
-			signature += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
+			*signatureThisPrev += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
+			*signatureThisTwoAgo += abs((float)*ptrThisPixels - (float)*ptrTwoFramesAgoPixels) / 2.0;
 
 			ptrThisPixels++;
 			ptrPrevPixels++;
+			ptrTwoFramesAgoPixels++;
 			ptrBuf+=3;
 		}
 
 		ptrBuf+= IMAGE_STRIDE - (32 * 3);
 	}
 
-	return signature / 1024.0;
+	*signatureThisPrev = *signatureThisPrev / 1024.0;
+	*signatureThisTwoAgo = *signatureThisTwoAgo / 1024.0;
 }
 
 long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
@@ -416,7 +594,11 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 
 	unsigned char* buf = reinterpret_cast<unsigned char*>(bmpBits);
 
-	float diffSignature = CalculateDiffSignature(buf);
+	float diffSignature;
+	float diffSignature2;
+
+	// NOTE: Remove the diffSignature2 code if diffSignature logic for 1-frame and 2-frame integrations work
+	CalculateDiffSignature(buf, &diffSignature, &diffSignature2);
 
 	idxFrameNumber++;
 

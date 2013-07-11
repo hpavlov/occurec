@@ -20,5 +20,7 @@ OCR Implemntation:
 
 V) Implement an AVI simulator (that plays an AVI file rather than AAV)
 - Complete the OCR tuning using simulated videos
-- Implement a 'live' OCR testing without crashing and with logging all errors
+- Implement the OCR in unmanaged code
+- Implement a 'live' OCR testing without crashing and with logging of all errors
 - Successfully run a live test for 24 hours without any errors
+
