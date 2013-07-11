@@ -33,8 +33,7 @@ namespace AavLib
 	public:
 		unsigned char LayoutId;
 		unsigned int Width;
-		unsigned int Height;		
-		unsigned char Bpp;
+		unsigned int Height;
 	
 		const char* Compression;
 		bool IsDiffCorrLayout;
@@ -44,25 +43,20 @@ namespace AavLib
 		enum DiffCorrBaseFrame BaseFrameType;
 	
 	private:
-		void GetDataBytes12Bpp(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
-		void GetDataBytes16Bpp(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		void GetDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount);
 		
-		void GetDataBytes12BppIndex12BppWords(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
-		void GetDataBytes12BppIndex16BppWords(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
-		void GetDataBytes12BppIndexBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
-		
-		unsigned char* GetFullImageDiffCorrWithSignsDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp);
-		unsigned char* GetFullImageRawDataBytes(unsigned char* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		unsigned char* GetFullImageDiffCorrWithSignsDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount);
+		unsigned char* GetFullImageRawDataBytes(unsigned char* currFramePixels, unsigned int *bytesCount);
 		
 		
 		void ResetBuffers();
 		
 	public:
-		AavImageLayout(unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame);
+		AavImageLayout(unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame);
 		~AavImageLayout();
 		
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);
-		unsigned char* GetDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		unsigned char* GetDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount);
 		void WriteHeader(FILE* pfile);
 		void StartNewDiffCorrSequence();
 	};

@@ -686,7 +686,9 @@ void ProcessCurrentFrame(IntegratedFrame* nextFrame)
 
 	bool frameStartedOk = AavBeginFrame(timeStamp, elapsedTimeMilliseconds, exposureIn10thMilliseconds);
 
-	AavFrameAddImage(1, nextFrame->Pixels);
+	//AavFrameAddImage(1 /* Uncompressed Raw*/, nextFrame->Pixels);
+	//AavFrameAddImage(2 /* Compressed DiffCode */, nextFrame->Pixels);
+	AavFrameAddImage(3 /* Compressed Raw */, nextFrame->Pixels);
 	
 	AavEndFrame();
 }
@@ -723,9 +725,9 @@ HRESULT StartRecording(LPCTSTR szFileName)
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
 	
-	AavDefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", 8, 0, NULL);
-	AavDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 8, 32, "PREV-FRAME");
-	AavDefineImageLayout(3, "FULL-IMAGE-RAW", "QUICKLZ", 8, 0, NULL);
+	AavDefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", 0, NULL);
+	AavDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
+	AavDefineImageLayout(3, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
 
 
 	ClearRecordingBuffer();

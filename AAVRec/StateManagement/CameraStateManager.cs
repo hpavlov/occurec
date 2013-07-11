@@ -101,6 +101,16 @@ namespace AAVRec.StateManagement
             }
         }
 
+        public bool CanStartRecording
+        {
+            get
+            {
+                return
+                    currentState is LockedIntegrationCameraState ||
+                    currentState is NoIntegrationSupportedCameraState;
+            }
+        }
+
         public int IntegrationRate
         {
             get

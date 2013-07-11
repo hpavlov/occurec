@@ -16,19 +16,18 @@ namespace AavLib
 unsigned char m_PreviousLayoutId;
 unsigned int m_NumFramesInThisLayoutId;
 
-AavImageSection::AavImageSection(unsigned int width, unsigned int height, unsigned char dataBpp)
+AavImageSection::AavImageSection(unsigned int width, unsigned int height)
 {
 	Width = width;
-	Height = height;
-	DataBpp = dataBpp;		
+	Height = height;	
 	
 	m_PreviousLayoutId = UNINITIALIZED_LAYOUT_ID;
 	m_NumFramesInThisLayoutId = 0;
 }
 
-AavImageLayout* AavImageSection::AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame)
+AavImageLayout* AavImageSection::AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame)
 {
-	AavLib::AavImageLayout* layout = new AavLib::AavImageLayout(Width, Height, layoutId, layoutType, compression, bpp, keyFrame); 
+	AavLib::AavImageLayout* layout = new AavLib::AavImageLayout(Width, Height, layoutId, layoutType, compression, keyFrame); 
 	m_ImageLayouts.insert(make_pair(layoutId, layout));
 	return layout;
 }
@@ -109,7 +108,7 @@ AavImageLayout* AavImageSection::GetImageLayoutById(unsigned char layoutId)
 	return NULL;
 }
 
-unsigned char* AavImageSection::GetDataBytes(unsigned char layoutId, unsigned char* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp)
+unsigned char* AavImageSection::GetDataBytes(unsigned char layoutId, unsigned char* currFramePixels, unsigned int *bytesCount, char* byteMode)
 {
 	AavImageLayout* currentLayout = GetImageLayoutById(layoutId);
 	
@@ -140,7 +139,7 @@ unsigned char* AavImageSection::GetDataBytes(unsigned char layoutId, unsigned ch
 		}
 	}	
 	
-	unsigned char* pixels = currentLayout->GetDataBytes(currFramePixels, mode, bytesCount, pixelsBpp);
+	unsigned char* pixels = currentLayout->GetDataBytes(currFramePixels, mode, bytesCount);
 	
 	
 	m_PreviousLayoutId = layoutId;
@@ -164,7 +163,9 @@ void AavImageSection::WriteHeader(FILE* pFile)
 	
 	fwrite(&Width, 4, 1, pFile);
 	fwrite(&Height, 4, 1, pFile);
-	fwrite(&DataBpp, 1, 1, pFile);	
+	unsigned char dataBpp = 8;
+
+	fwrite(&dataBpp, 1, 1, pFile);	
 	
 	buffChar = (unsigned char)m_ImageLayouts.size();
 	fwrite(&buffChar, 1, 1, pFile);

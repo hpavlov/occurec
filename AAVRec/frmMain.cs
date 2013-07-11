@@ -482,7 +482,11 @@ namespace AAVRec
 					btnStopRecording.Enabled = true;
 					btnRecord.Enabled = false;
 				}
-                else if (videoObject.State == VideoCameraState.videoCameraRunning && lbSchedule.Items.Count == 0 && !stateManager.IsTestingIotaVtiOcr)
+                else if (
+                    videoObject.State == VideoCameraState.videoCameraRunning && 
+                    lbSchedule.Items.Count == 0 && 
+                    !stateManager.IsTestingIotaVtiOcr &&
+                    stateManager.CanStartRecording)
                 {
                     tssRecordingFile.Visible = false;
                     btnStopRecording.Enabled = false;
@@ -490,8 +494,8 @@ namespace AAVRec
                 }
                 else
                 {
-                    btnRecord.Enabled = lbSchedule.Items.Count == 0 && !stateManager.IsTestingIotaVtiOcr;
-                    btnStopRecording.Enabled = lbSchedule.Items.Count == 0 && !stateManager.IsTestingIotaVtiOcr;                  
+                    btnRecord.Enabled = false;
+                    btnStopRecording.Enabled = false;                  
                 }
 
                 btnLockIntegration.Enabled = stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0;

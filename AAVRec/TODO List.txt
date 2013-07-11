@@ -4,17 +4,18 @@ V) Remove the vertical flip option or implement a vertical flip for AAV format
 V) Make a Beep when starting and stopping a recording
 V) Implement NTP Server time synchronisation every 10 min
 V) Test XviD recording. It has been reported that stopping the recording crashes AAVRec
+V) "Rec" should not be enabled for "Integrating" cameras if "Lock" hasn't been pressed
+V) Refactor the AAV native code and remove all unused 12 and 16 bit stuff
 
 EASY:
 
-- "Rec" should not be enabled for "Integrating" cameras if "Lock" hasn't been pressed
 - The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
 
 HARDER:
 
 - Implement x2 integration time recognition (using a different simultaneously tested algorithm such as testing if every second diff signature is very close to the one 2 frames ago)
 - Implement Differential Coding Compression for AAV 8 bit format
-- Ensure that the start/end timestamps are not overwritten in the process of stacking
+- Ensure that the start/end timestamps are not overwritten in the process of stacking images. There will be a challenge to determine the start and end milliseconds position. May need the OCR fully working to solve this.
 
 OCR Implemntation:
 

@@ -26,16 +26,15 @@ class AavImageSection {
 	public:
 		unsigned int Width;
 		unsigned int Height;
-		unsigned char DataBpp;
 		
 	public:
 
-		AavImageSection(unsigned int width, unsigned int height, unsigned char dataBpp);
+		AavImageSection(unsigned int width, unsigned int height);
 		~AavImageSection();
-		AavImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame);
+		AavImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame);
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);
 		void WriteHeader(FILE* pfile);
-		unsigned char* GetDataBytes(unsigned char layoutId, unsigned char* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp);		
+		unsigned char* GetDataBytes(unsigned char layoutId, unsigned char* currFramePixels, unsigned int *bytesCount, char* byteMode);		
 		void BeginFrame();
 		int MaxFrameBufferSize();
 		AavImageLayout* GetImageLayoutById(unsigned char layoutId);

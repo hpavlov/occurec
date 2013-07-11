@@ -182,7 +182,7 @@ void AavFile::AddImageSection(AavLib::AavImageSection* section)
 	snprintf(convStr, 10, "%d", section->Height);
 	m_FileTags.insert(make_pair("HEIGHT", string(convStr)));
 	
-	snprintf(convStr, 10, "%d", section->DataBpp);
+	snprintf(convStr, 10, "%d", 8);
 	m_FileTags.insert(make_pair("BITPIX", string(convStr)));
 }
 
@@ -267,12 +267,12 @@ void AavFile::AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue)
 	StatusSection->AddFrameStatusTagUInt64(tagIndex, tagValue);
 }
 
-void AavFile::AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
+void AavFile::AddFrameImage(unsigned char layoutId, unsigned char* pixels)
 {
 	unsigned int imageBytesCount = 0;	
 	char byteMode = 0;
 	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
-	unsigned char *imageBytes = ImageSection->GetDataBytes(layoutId, pixels, &imageBytesCount, &byteMode, pixelsBpp);
+	unsigned char *imageBytes = ImageSection->GetDataBytes(layoutId, pixels, &imageBytesCount, &byteMode);
 	
 	int imageSectionBytesCount = imageBytesCount + 2; // +1 byte for the layout id and +1 byte for the byteMode (See few lines below)
 	
