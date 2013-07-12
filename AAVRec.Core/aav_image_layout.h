@@ -22,8 +22,8 @@ namespace AavLib
 		ImageBytesLayout m_BytesLayout;	
 		
 		int m_KeyFrameBytesCount;
-		unsigned short *m_PrevFramePixels;
-		unsigned short *m_PrevFramePixelsTemp;
+		unsigned char *m_PrevFramePixels;
+		unsigned char *m_PrevFramePixelsTemp;
 		unsigned char *m_PixelArrayBuffer;
 		unsigned int m_MaxSignsBytesCount;
 		unsigned int m_MaxPixelArrayLengthWithoutSigns;

@@ -148,7 +148,7 @@ unsigned char* AavImageSection::GetDataBytes(unsigned char layoutId, unsigned ch
 	return pixels;
 }
 	
-unsigned int AavImageSection::ComputePixelsCRC32(unsigned short* pixels)
+unsigned int AavImageSection::ComputePixelsCRC32(unsigned char* pixels)
 {
 	return compute_crc32((unsigned char*)pixels, 2 * Height * Width);
 }

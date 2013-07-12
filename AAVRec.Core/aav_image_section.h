@@ -21,7 +21,7 @@ class AavImageSection {
 		map<unsigned char, AavImageLayout*> m_ImageLayouts;
 		
 	private:
-		unsigned int ComputePixelsCRC32(unsigned short* pixels);
+		unsigned int ComputePixelsCRC32(unsigned char* pixels);
 		
 	public:
 		unsigned int Width;

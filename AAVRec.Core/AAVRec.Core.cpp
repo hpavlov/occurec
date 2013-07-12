@@ -687,8 +687,8 @@ void ProcessCurrentFrame(IntegratedFrame* nextFrame)
 	bool frameStartedOk = AavBeginFrame(timeStamp, elapsedTimeMilliseconds, exposureIn10thMilliseconds);
 
 	//AavFrameAddImage(1 /* Uncompressed Raw*/, nextFrame->Pixels);
-	//AavFrameAddImage(2 /* Compressed DiffCode */, nextFrame->Pixels);
-	AavFrameAddImage(3 /* Compressed Raw */, nextFrame->Pixels);
+	AavFrameAddImage(2 /* Compressed DiffCode */, nextFrame->Pixels);
+	//AavFrameAddImage(3 /* Compressed Raw */, nextFrame->Pixels);
 	
 	AavEndFrame();
 }

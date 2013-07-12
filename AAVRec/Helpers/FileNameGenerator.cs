@@ -10,14 +10,14 @@ namespace AAVRec.Helpers
 {
     public static class FileNameGenerator
     {
-        private static Regex REGEX_FILEMASK = new Regex("\\d\\d\\d\\d\\-[a-z]{3}\\-\\d\\d \\d\\d\\-\\d\\d\\-\\d\\d \\((?<SeqNo>\\d+)\\).(avi|aav)"); 
+        private static Regex REGEX_FILEMASK = new Regex("\\d\\d\\d\\d\\-[a-z]{3}\\-\\d\\d \\d\\d\\-\\d\\d\\-\\d\\d \\((?<SeqNo>\\d+)\\).(avi|aav)", RegexOptions.IgnoreCase); 
 
         public static string GenerateFileName(bool isAAVFile)
         {
-            IEnumerable<string> existingFiles = Directory.EnumerateFiles(Settings.Default.OutputLocation, "*.avi;*.aav", SearchOption.TopDirectoryOnly);
+            IEnumerable<string> existingFiles = Directory.EnumerateFiles(Settings.Default.OutputLocation, "*.*", SearchOption.TopDirectoryOnly);
             List<int> existingSequenceIds = existingFiles
                 .Select(x => REGEX_FILEMASK.Match(x).Groups["SeqNo"])
-                .Where(g => g != null)
+                .Where(g => g != null && !string.IsNullOrEmpty(g.Value))
                 .Select(g => int.Parse(g.Value))
                 .Distinct()
                 .ToList();

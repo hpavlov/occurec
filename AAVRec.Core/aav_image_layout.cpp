@@ -51,10 +51,9 @@ AavImageLayout::AavImageLayout(unsigned int width, unsigned int height, unsigned
 	
 	m_MaxSignsBytesCount = (unsigned int)ceil(Width * Height / 8.0);
 	
-	m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 4 * Width * Height;	// NOTE: Should be Width * Height rather than Width * Height
+	m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + Width * Height;
 		
-	m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 4 * Width * Height;	
-	m_KeyFrameBytesCount = Width * Height * sizeof(unsigned short);
+	m_KeyFrameBytesCount = Width * Height * sizeof(unsigned char);
 	
 	m_PrevFramePixels = NULL;
 	m_PrevFramePixelsTemp = NULL;
@@ -63,10 +62,10 @@ AavImageLayout::AavImageLayout(unsigned int width, unsigned int height, unsigned
 	m_StateCompress = NULL;
 	
 	m_PixelArrayBuffer = (unsigned char*)malloc(m_MaxPixelArrayLengthWithoutSigns + m_MaxSignsBytesCount);
-	m_PrevFramePixels = (unsigned short*)malloc(m_KeyFrameBytesCount);		
+	m_PrevFramePixels = (unsigned char*)malloc(m_KeyFrameBytesCount);		
 	memset(m_PrevFramePixels, 0, m_KeyFrameBytesCount);
 	
-	m_PrevFramePixelsTemp = (unsigned short*)malloc(m_KeyFrameBytesCount);	
+	m_PrevFramePixelsTemp = (unsigned char*)malloc(m_KeyFrameBytesCount);	
 	m_CompressedPixels = (char*)malloc(m_MaxPixelArrayLengthWithoutSigns + m_MaxSignsBytesCount + 401);
 	
 	m_StateCompress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
