@@ -49,9 +49,9 @@ AavImageLayout::AavImageLayout(unsigned int width, unsigned int height, unsigned
 		AddOrUpdateTag("DIFFCODE-BASE-FRAME", "KEY-FRAME");		
 	}
 	
-	m_MaxSignsBytesCount = (unsigned int)ceil(Width * Height / 8.0);
+	m_MaxSignsBytesCount = (unsigned int)ceil(Width * Height / 8.0) + 1;
 	
-	m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + Width * Height;
+	m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 2 * Width * Height;
 		
 	m_KeyFrameBytesCount = Width * Height * sizeof(unsigned char);
 	
@@ -64,6 +64,8 @@ AavImageLayout::AavImageLayout(unsigned int width, unsigned int height, unsigned
 	m_PixelArrayBuffer = (unsigned char*)malloc(m_MaxPixelArrayLengthWithoutSigns + m_MaxSignsBytesCount);
 	m_PrevFramePixels = (unsigned char*)malloc(m_KeyFrameBytesCount);		
 	memset(m_PrevFramePixels, 0, m_KeyFrameBytesCount);
+	
+	m_SignsBytes = (unsigned char*)malloc(m_MaxSignsBytesCount);
 	
 	m_PrevFramePixelsTemp = (unsigned char*)malloc(m_KeyFrameBytesCount);	
 	m_CompressedPixels = (char*)malloc(m_MaxPixelArrayLengthWithoutSigns + m_MaxSignsBytesCount + 401);
@@ -93,11 +95,15 @@ void AavImageLayout::ResetBuffers()
 	if (NULL != m_StateCompress)
 		delete m_StateCompress;	
 	
+	if (NULL != m_SignsBytes)
+		delete m_SignsBytes;
+
 	m_PrevFramePixels = NULL;
 	m_PrevFramePixelsTemp = NULL;
 	m_PixelArrayBuffer = NULL;
 	m_CompressedPixels = NULL;	
 	m_StateCompress = NULL;
+	m_SignsBytes = NULL;
 }
 
 
@@ -140,7 +146,8 @@ void AavImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 	{
 		m_BytesLayout = FullImageRaw;
 		if (0 == strcmp("FULL-IMAGE-DIFFERENTIAL-CODING", tagValue)) m_BytesLayout = FullImageDiffCorrWithSigns;
-		IsDiffCorrLayout = m_BytesLayout == FullImageDiffCorrWithSigns;
+		if (0 == strcmp("FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", tagValue)) m_BytesLayout = FullImageDiffCorrNoSigns;
+		IsDiffCorrLayout = m_BytesLayout == FullImageDiffCorrWithSigns || m_BytesLayout == FullImageDiffCorrNoSigns;
 	}	
 }
 
@@ -288,6 +295,10 @@ unsigned char* AavImageLayout::GetDataBytes(unsigned char* currFramePixels, enum
 	{
 		bytesToCompress = GetFullImageDiffCorrWithSignsDataBytes(currFramePixels, mode, bytesCount);
 	}
+	else if (m_BytesLayout == FullImageDiffCorrNoSigns)
+	{
+		bytesToCompress = GetFullImageDiffCorrNoSignsDataBytes(currFramePixels, mode, bytesCount);
+	}
 	else if (m_BytesLayout == FullImageRaw)
 		bytesToCompress = GetFullImageRawDataBytes(currFramePixels, bytesCount);
 
@@ -299,7 +310,10 @@ unsigned char* AavImageLayout::GetDataBytes(unsigned char* currFramePixels, enum
 		// compress and write result 
 		size_t len2 = qlz_compress(bytesToCompress, m_CompressedPixels, *bytesCount, m_StateCompress); 		
 
+		DebugViewPrint(L"Compressed to %d %%\r\n",  100 * len2 / *bytesCount);
+
 		*bytesCount = len2;
+		
 		return (unsigned char*)(m_CompressedPixels);
 	}
 	else if (0 == strcmp(Compression, "UNCOMPRESSED"))
@@ -317,11 +331,12 @@ unsigned char* AavImageLayout::GetFullImageRawDataBytes(unsigned char* currFrame
 	
 	memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
 	
+
 	*bytesCount = buffLen;
 	return m_PixelArrayBuffer;
 }
 
-unsigned char* AavImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount)
+unsigned char* AavImageLayout::GetFullImageDiffCorrNoSignsDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount)
 {
 	bool isKeyFrame = mode == KeyFrameBytes;
 	bool diffCorrFromPrevFramePixels = isKeyFrame || this->BaseFrameType == DiffCorrPrevFrame;
@@ -346,18 +361,21 @@ unsigned char* AavImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned c
 	else if (mode == DiffCorrBytes)
 	{					
 		*bytesCount = 0;
-
+		
 		unsigned char* pCurrFramePixels = (unsigned char*)currFramePixels;
 		unsigned char* pPrevFramePixels = (unsigned char*)m_PrevFramePixels;
+
+		memcpy(&m_PixelArrayBuffer[5 + Width*Height], &currFramePixels[0], Width * Height);
+
 		for (int j = 0; j < Height; ++j)
 		{
 			for (int i = 0; i < Width; ++i)
 			{
-				unsigned char charCurr = (unsigned char)*pCurrFramePixels;
-				unsigned char charOld = (unsigned char)*pPrevFramePixels;
+				unsigned long charCurr = (unsigned char)*pCurrFramePixels;
+				unsigned long charOld = (unsigned char)*pPrevFramePixels;
 				
-				unsigned char charDiff = charCurr - charOld;
-				
+				unsigned char charDiff = (unsigned char)((charCurr - charOld) & 0xFF);
+
 				*pCurrFramePixels = charDiff;
 				
 				pCurrFramePixels++;
@@ -365,16 +383,114 @@ unsigned char* AavImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned c
 			}
 		}
 	}
-	
+
 	if (diffCorrFromPrevFramePixels && mode == DiffCorrBytes)
 		// STEP2 from maintaining the old pixels for DiffCorr
 		memcpy(&m_PrevFramePixels[0], &m_PrevFramePixelsTemp[0], m_KeyFrameBytesCount);
 	
-	GetDataBytes(currFramePixels, mode, pixelsCrc, bytesCount);
+	GetDataBytes(currFramePixels, mode, pixelsCrc, NULL, bytesCount);
+
+	*bytesCount+= Width * Height;
+
 	return m_PixelArrayBuffer;
 }
 
-void AavImageLayout::GetDataBytes(unsigned char* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount)
+unsigned char* AavImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount)
+{
+	bool isKeyFrame = mode == KeyFrameBytes;
+	bool diffCorrFromPrevFramePixels = isKeyFrame || this->BaseFrameType == DiffCorrPrevFrame;
+	
+	if (diffCorrFromPrevFramePixels)
+	{
+		// STEP1 from maintaining the old pixels for DiffCorr
+		if (mode == DiffCorrBytes)
+			memcpy(&m_PrevFramePixelsTemp[0], &currFramePixels[0], m_KeyFrameBytesCount);
+		else
+			memcpy(&m_PrevFramePixels[0], &currFramePixels[0], m_KeyFrameBytesCount);
+	}	
+
+    // NOTE: The CRC computation is a huge overhead and is currently disabled
+	//unsigned int pixelsCrc = ComputePixelsCRC32(currFramePixels);
+	unsigned int pixelsCrc = 0;
+	
+	if (mode == KeyFrameBytes)
+	{
+		*bytesCount = 0;		
+	}
+	else if (mode == DiffCorrBytes)
+	{					
+		*bytesCount = 0;
+
+		memset(m_SignsBytes, 0, m_MaxSignsBytesCount);
+		
+		unsigned char* pCurrFramePixels = (unsigned char*)currFramePixels;
+		unsigned char* pPrevFramePixels = (unsigned char*)m_PrevFramePixels;
+		//unsigned char* pOuputPixelsFrameCopy = (unsigned char*)(m_PixelArrayBuffer + 5 + Width*Height);
+
+		memcpy(&m_PixelArrayBuffer[5 + Width*Height + Width * Height / 8], &currFramePixels[0], Width * Height);
+
+		for (int y = 0; y < Height; ++y)
+		{
+			//char dbg[6400];
+
+			for (int x = 0; x < Width; ++x)
+			{
+				unsigned long charCurr = (unsigned char)*pCurrFramePixels;
+				unsigned long charOld = (unsigned char)*pPrevFramePixels;
+				
+				unsigned long charDiffLong; 
+				int signsBit = (x + y * Width) % 8;
+				int signsIndex = (x + y * Width) / 8;
+				bool signIsNegative;
+				if (charCurr > charOld)
+				{
+					charDiffLong = charCurr - charOld;
+					signIsNegative = false;
+				}
+				else
+				{
+					charDiffLong = charOld - charCurr;
+					signIsNegative = true;
+				}
+
+				unsigned char charDiff = (unsigned char)(charDiffLong & 0xFF);
+				
+				if (signIsNegative)
+					m_SignsBytes[signsIndex] = m_SignsBytes[signsIndex] | SIGNS_MASK[signsBit];
+
+				//sprintf(&dbg[i*4], "%03d ", charDiff);
+
+				*pCurrFramePixels = charDiff;
+				//*pOuputPixelsFrameCopy = charCurr;
+				
+				pCurrFramePixels++;
+				pPrevFramePixels++;
+				//pOuputPixelsFrameCopy++;
+			}
+			
+			//dbg[Width * 4 + 1] = '\0';
+			//std::wstring wc(4096, L'#');
+			//mbstowcs(&wc[0], dbg, 4096);
+			//DebugViewPrint(&wc[0]);
+		}
+
+		*bytesCount = Width * Height / 8;
+	}
+
+	if (diffCorrFromPrevFramePixels && mode == DiffCorrBytes)
+		// STEP2 from maintaining the old pixels for DiffCorr
+		memcpy(&m_PrevFramePixels[0], &m_PrevFramePixelsTemp[0], m_KeyFrameBytesCount);
+	
+	GetDataBytes(currFramePixels, mode, pixelsCrc, m_SignsBytes, bytesCount);
+
+	//*bytesCount += Width * Height; // The second frame copied at the end 
+
+	*bytesCount+= Width * Height;
+
+	return m_PixelArrayBuffer;
+}
+
+void AavImageLayout::GetDataBytes(unsigned char* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned char* signBytes, unsigned int *bytesCount)
 {
 	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows
 	bool isKeyFrame = mode == KeyFrameBytes;
@@ -387,6 +503,11 @@ void AavImageLayout::GetDataBytes(unsigned char* pixels, enum GetByteMode mode, 
 	
 	m_PixelArrayBuffer[0] = noKeyFrameUsed ? (unsigned char)0 : (isKeyFrame ? (unsigned char)1 : (unsigned char)2);
 	bytesCounter++;
+
+	if (signsBytesCnt > 0)
+	{
+		memcpy(&m_PixelArrayBuffer[1], &signBytes[0], signsBytesCnt);		
+	}	
 
 	for (int y = 0; y < Height; ++y)
 	{
@@ -404,6 +525,7 @@ void AavImageLayout::GetDataBytes(unsigned char* pixels, enum GetByteMode mode, 
 	m_PixelArrayBuffer[bytesCounter + 2] = (unsigned char)((pixelsCRC32 >> 16) & 0xFF);
 	m_PixelArrayBuffer[bytesCounter + 3] = (unsigned char)((pixelsCRC32 >> 24) & 0xFF);
 	*bytesCount = bytesCounter + 4;
+
 }
 
 

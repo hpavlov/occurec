@@ -12,6 +12,7 @@ EXPORTS
 
 
 	SetupCamera
+	SetupAav
 	GetCurrentImage
 	GetCurrentImageStatus
 	ProcessVideoFrame

@@ -177,6 +177,8 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                 false,
                 0, 0);
 
+            NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
+
 			filterGraph = (IFilterGraph2)new FilterGraph();
 			mediaCtrl = filterGraph as IMediaControl;
 

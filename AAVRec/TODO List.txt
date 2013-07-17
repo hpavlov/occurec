@@ -13,9 +13,10 @@ EASY:
 
 HARDER:
 
-- Implement x2 integration time recognition (using a different simultaneously tested algorithm such as testing if every second diff signature is very close to the one 2 frames ago)
-- Implement Differential Coding Compression for AAV 8 bit format
-- Ensure that the start/end timestamps are not overwritten in the process of stacking images. There will be a challenge to determine the start and end milliseconds position. May need the OCR fully working to solve this.
+? Implement 1x and x2 integration frame recognition
+? Implement Differential Coding Compression for AAV 8 bit format
+- Ensure that the start/end timestamps are not overwritten in the process of stacking images. There will be a challenge to determine the start and end milliseconds position. 
+  May need the OCR fully working to solve this problem (to know which position contains the smaller frame number/start timestamp)
 
 OCR Implemntation:
 

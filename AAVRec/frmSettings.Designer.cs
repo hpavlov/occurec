@@ -32,6 +32,8 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.cbxImageLayoutMode = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.cbxNTPServer = new System.Windows.Forms.ComboBox();
             this.cbxTimeInUT = new System.Windows.Forms.CheckBox();
@@ -45,6 +47,7 @@
             this.nudSignDiffFactor = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.tabIOTAVTI = new System.Windows.Forms.TabPage();
+            this.cbxOcrCameraTestModeAav = new System.Windows.Forms.CheckBox();
             this.label5 = new System.Windows.Forms.Label();
             this.nudMaxErrorsPerTestRun = new System.Windows.Forms.NumericUpDown();
             this.cbxOcrCameraTestModeAvi = new System.Windows.Forms.CheckBox();
@@ -60,7 +63,6 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.openAavFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.cbxOcrCameraTestModeAav = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.tabIntegration.SuspendLayout();
@@ -94,6 +96,8 @@
             // 
             // tabGeneral
             // 
+            this.tabGeneral.Controls.Add(this.cbxImageLayoutMode);
+            this.tabGeneral.Controls.Add(this.label8);
             this.tabGeneral.Controls.Add(this.label2);
             this.tabGeneral.Controls.Add(this.cbxNTPServer);
             this.tabGeneral.Controls.Add(this.cbxTimeInUT);
@@ -108,6 +112,24 @@
             this.tabGeneral.TabIndex = 1;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
+            // 
+            // cbxImageLayoutMode
+            // 
+            this.cbxImageLayoutMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxImageLayoutMode.FormattingEnabled = true;
+            this.cbxImageLayoutMode.Location = new System.Drawing.Point(223, 170);
+            this.cbxImageLayoutMode.Name = "cbxImageLayoutMode";
+            this.cbxImageLayoutMode.Size = new System.Drawing.Size(152, 21);
+            this.cbxImageLayoutMode.TabIndex = 18;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(220, 151);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(93, 13);
+            this.label8.TabIndex = 17;
+            this.label8.Text = "Aav Image Layout";
             // 
             // label2
             // 
@@ -264,6 +286,16 @@
             this.tabIOTAVTI.Text = "OCR Testing";
             this.tabIOTAVTI.UseVisualStyleBackColor = true;
             // 
+            // cbxOcrCameraTestModeAav
+            // 
+            this.cbxOcrCameraTestModeAav.AutoSize = true;
+            this.cbxOcrCameraTestModeAav.Location = new System.Drawing.Point(16, 129);
+            this.cbxOcrCameraTestModeAav.Name = "cbxOcrCameraTestModeAav";
+            this.cbxOcrCameraTestModeAav.Size = new System.Drawing.Size(182, 17);
+            this.cbxOcrCameraTestModeAav.TabIndex = 27;
+            this.cbxOcrCameraTestModeAav.Text = "Enable Camera Test Mode (AAV)";
+            this.cbxOcrCameraTestModeAav.UseVisualStyleBackColor = true;
+            // 
             // label5
             // 
             this.label5.AutoSize = true;
@@ -308,6 +340,7 @@
             this.btnBrowseDebugFolder.TabIndex = 23;
             this.btnBrowseDebugFolder.Text = "...";
             this.btnBrowseDebugFolder.UseVisualStyleBackColor = true;
+            this.btnBrowseDebugFolder.Click += new System.EventHandler(this.btnBrowseDebugFolder_Click);
             // 
             // label1
             // 
@@ -404,16 +437,6 @@
             this.openAavFileDialog.FileName = "Open AAV/AVI File";
             this.openAavFileDialog.Filter = "Supported Video Files (*.aav;*.avi)|*.aav;*.avi";
             // 
-            // cbxOcrCameraTestModeAav
-            // 
-            this.cbxOcrCameraTestModeAav.AutoSize = true;
-            this.cbxOcrCameraTestModeAav.Location = new System.Drawing.Point(16, 129);
-            this.cbxOcrCameraTestModeAav.Name = "cbxOcrCameraTestModeAav";
-            this.cbxOcrCameraTestModeAav.Size = new System.Drawing.Size(182, 17);
-            this.cbxOcrCameraTestModeAav.TabIndex = 27;
-            this.cbxOcrCameraTestModeAav.Text = "Enable Camera Test Mode (AAV)";
-            this.cbxOcrCameraTestModeAav.UseVisualStyleBackColor = true;
-            // 
             // frmSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -480,5 +503,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.NumericUpDown nudMaxErrorsPerTestRun;
         private System.Windows.Forms.CheckBox cbxOcrCameraTestModeAav;
+        private System.Windows.Forms.ComboBox cbxImageLayoutMode;
+        private System.Windows.Forms.Label label8;
 	}
 }

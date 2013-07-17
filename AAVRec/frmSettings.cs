@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using AAVRec.Helpers;
 using AAVRec.OCR;
 using AAVRec.Properties;
 
@@ -36,6 +37,14 @@ namespace AAVRec
             nudMaxErrorsPerTestRun.Value = Settings.Default.OcrMaxErrorsPerCameraTestRun;
             cbxOcrSimlatorTestMode.Checked = Settings.Default.OcrSimulatorTestMode;
             cbxSimulatorRunOCR.Checked = Settings.Default.SimulatorRunOCR;
+
+		    cbxImageLayoutMode.Items.Clear();
+            cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedRaw);
+            cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedDiffCodeNoSigns);
+            cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedDiffCodeWithSigns);
+            cbxImageLayoutMode.Items.Add(AavImageLayout.UncompressedRaw);
+
+            cbxImageLayoutMode.SelectedIndex = cbxImageLayoutMode.Items.IndexOf(Settings.Default.AavImageLayout);
 		}
 
         private void frmSettings_Load(object sender, EventArgs e)
@@ -76,6 +85,7 @@ namespace AAVRec
             Settings.Default.OcrMaxErrorsPerCameraTestRun = (int)nudMaxErrorsPerTestRun.Value;
             Settings.Default.OcrSimulatorTestMode = cbxOcrSimlatorTestMode.Checked;
             Settings.Default.SimulatorRunOCR = cbxSimulatorRunOCR.Checked;
+            Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
 
             Settings.Default.Save();
 

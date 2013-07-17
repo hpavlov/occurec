@@ -19,9 +19,13 @@ namespace AAVRec.Helpers
         {
             try
             {
-                do
-                { }
-                while (0 != Interlocked.CompareExchange(ref currentlyHeldLockId, lockId, 0) && !exclusiveLockActive);
+                var spinWait = new SpinWait();
+                while (true)
+                {
+                    int updVal = Interlocked.CompareExchange(ref currentlyHeldLockId, lockId, 0);
+                    if (0 !=  updVal && !exclusiveLockActive) break;
+                    spinWait.SpinOnce();
+                }
 
                 if (currentlyHeldLockId == lockId && !exclusiveLockActive)
                     method();
@@ -37,9 +41,13 @@ namespace AAVRec.Helpers
         {
             try
             {
-                do
-                { }
-                while (0 != Interlocked.CompareExchange(ref currentlyHeldLockId, lockId, 0));
+                var spinWait = new SpinWait();
+                while (true)
+                {
+                    int updVal = Interlocked.CompareExchange(ref currentlyHeldLockId, lockId, 0);
+                    if (0 != updVal) break;
+                    spinWait.SpinOnce();
+                }
 
                 exclusiveLockActive = true;
 

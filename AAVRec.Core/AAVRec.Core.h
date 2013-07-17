@@ -36,6 +36,7 @@ extern long IMAGE_HEIGHT;
 extern long IMAGE_STRIDE;
 extern long IMAGE_TOTAL_PIXELS;
 extern long MONOCHROME_CONVERSION_MODE;
+extern long USE_IMAGE_LAYOUT;
 
 extern bool FLIP_VERTICALLY;
 extern bool FLIP_HORIZONTALLY;
@@ -45,6 +46,7 @@ extern float SIGNATURE_DIFFERENCE_FACTOR;
 
 
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff);
+HRESULT SetupAav(int useImageLayout);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* imageStatus);
 HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo);

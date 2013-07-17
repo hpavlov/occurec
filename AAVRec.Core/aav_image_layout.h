@@ -25,6 +25,7 @@ namespace AavLib
 		unsigned char *m_PrevFramePixels;
 		unsigned char *m_PrevFramePixelsTemp;
 		unsigned char *m_PixelArrayBuffer;
+		unsigned char *m_SignsBytes;
 		unsigned int m_MaxSignsBytesCount;
 		unsigned int m_MaxPixelArrayLengthWithoutSigns;
 		char* m_CompressedPixels;
@@ -43,9 +44,10 @@ namespace AavLib
 		enum DiffCorrBaseFrame BaseFrameType;
 	
 	private:
-		void GetDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount);
+		void GetDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned char* signBytes, unsigned int *bytesCount);
 		
 		unsigned char* GetFullImageDiffCorrWithSignsDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount);
+		unsigned char* GetFullImageDiffCorrNoSignsDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount);
 		unsigned char* GetFullImageRawDataBytes(unsigned char* currFramePixels, unsigned int *bytesCount);
 		
 		

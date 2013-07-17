@@ -24,6 +24,7 @@ long IMAGE_HEIGHT;
 long IMAGE_STRIDE;
 long IMAGE_TOTAL_PIXELS;
 long MONOCHROME_CONVERSION_MODE;
+long USE_IMAGE_LAYOUT;
 
 bool FLIP_VERTICALLY;
 bool FLIP_HORIZONTALLY;
@@ -65,17 +66,6 @@ float signaturesHistory[LOW_INTEGRATION_CHECK_POOL_SIZE];
 float newIntegrationPeriodCutOffRatio;
 float currentSignatureRatio;
 
-
-void DebugViewPrint(const wchar_t* formatText, ...)
-{
-	wchar_t debug512CharBuffer[512];
-    va_list args;
-    va_start(args, formatText);
-	vswprintf(debug512CharBuffer, 512, formatText, args);
-    
-	OutputDebugString(debug512CharBuffer);
-	va_end(args);
-}
 
 void ClearResourses()
 {
@@ -300,10 +290,15 @@ bool IsNewIntegrationPeriod(float diffSignature)
 }
 
 
+HRESULT SetupAav(long useImageLayout)
+{
+	USE_IMAGE_LAYOUT = useImageLayout;
+
+	return S_OK;
+}
+
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff)
 {
-	// TODO: szCameraModel - should end up in the ADV  header
-
 	IMAGE_WIDTH = width;
 	IMAGE_HEIGHT = height;
 	IMAGE_TOTAL_PIXELS = width * height;
@@ -686,10 +681,8 @@ void ProcessCurrentFrame(IntegratedFrame* nextFrame)
 
 	bool frameStartedOk = AavBeginFrame(timeStamp, elapsedTimeMilliseconds, exposureIn10thMilliseconds);
 
-	//AavFrameAddImage(1 /* Uncompressed Raw*/, nextFrame->Pixels);
-	AavFrameAddImage(2 /* Compressed DiffCode */, nextFrame->Pixels);
-	//AavFrameAddImage(3 /* Compressed Raw */, nextFrame->Pixels);
-	
+	AavFrameAddImage(USE_IMAGE_LAYOUT, nextFrame->Pixels);
+
 	AavEndFrame();
 }
 
@@ -726,8 +719,9 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
 	
 	AavDefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", 0, NULL);
-	AavDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
-	AavDefineImageLayout(3, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
+	AavDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", "QUICKLZ", 32, "PREV-FRAME");
+	AavDefineImageLayout(3, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
+	AavDefineImageLayout(4, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
 
 
 	ClearRecordingBuffer();

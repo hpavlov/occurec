@@ -322,5 +322,17 @@ namespace AAVRec.Properties {
                 this["OcrCameraTestModeAav"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("CompressedRaw")]
+        public global::AAVRec.Helpers.AavImageLayout AavImageLayout {
+            get {
+                return ((global::AAVRec.Helpers.AavImageLayout)(this["AavImageLayout"]));
+            }
+            set {
+                this["AavImageLayout"] = value;
+            }
+        }
     }
 }

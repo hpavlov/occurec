@@ -36,12 +36,15 @@ enum DiffCorrBaseFrame
 enum ImageBytesLayout
 {
 	FullImageRaw = 0,
-	FullImageDiffCorrWithSigns = 1
+	FullImageDiffCorrWithSigns = 1,
+	FullImageDiffCorrNoSigns = 2
 };
 
 void crc32_init(void);
 unsigned int compute_crc32(unsigned char *data, int len);
 
 long long DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs);
+
+void DebugViewPrint(const wchar_t* formatText, ...);
 
 #endif // UTILS_H

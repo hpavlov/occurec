@@ -80,3 +80,14 @@ long long DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, in
 	else
 		return 0;
 }
+
+void DebugViewPrint(const wchar_t* formatText, ...)
+{
+	wchar_t debug512CharBuffer[512];
+    va_list args;
+    va_start(args, formatText);
+	vswprintf(debug512CharBuffer, 512, formatText, args);
+    
+	OutputDebugString(debug512CharBuffer);
+	va_end(args);
+}

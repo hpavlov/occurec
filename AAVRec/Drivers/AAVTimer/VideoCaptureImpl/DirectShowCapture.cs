@@ -71,6 +71,8 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
                     Settings.Default.IsIntegrating,
                     (float)Settings.Default.SignatureDiffFactorEx2,
                     (float)Settings.Default.MinSignatureDiff);
+
+                NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 			}
 			catch
 			{

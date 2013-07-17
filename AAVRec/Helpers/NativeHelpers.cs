@@ -19,6 +19,15 @@ namespace AAVRec.Helpers
 		GrayScale = 3
 	}
 
+    public enum AavImageLayout
+    {
+        Unknown = 0,
+        UncompressedRaw = 1,
+        CompressedDiffCodeNoSigns = 2,
+        CompressedDiffCodeWithSigns = 3,
+        CompressedRaw = 4
+    }
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     internal class ImageStatus
     {
@@ -91,6 +100,9 @@ namespace AAVRec.Helpers
             bool isIntegrating,
             float signDiffFactor, 
             float minSignDiff);
+
+	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+	    private static extern int SetupAav(int imageLayout);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
@@ -272,6 +284,11 @@ namespace AAVRec.Helpers
             imageHeight = height;
 
             SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating, signDiffFactor, minSignDiff);
+        }
+
+        public static void SetupAav(AavImageLayout imageLayout)
+        {
+            SetupAav((int) imageLayout);
         }
 
         public static Bitmap GetCurrentImage(out ImageStatus status)
