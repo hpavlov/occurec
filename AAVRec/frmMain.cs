@@ -498,9 +498,11 @@ namespace AAVRec
                     btnStopRecording.Enabled = false;                  
                 }
 
-                btnLockIntegration.Enabled = stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0;
-                if (stateManager.IntegrationRate > 0)
+                btnLockIntegration.Enabled = (stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0) || stateManager.IsIntegrationLocked;
+                if (stateManager.IntegrationRate > 0 && !stateManager.IsIntegrationLocked)
                     btnLockIntegration.Text = string.Format("Lock at x{0}", stateManager.IntegrationRate);
+                else if (stateManager.IsIntegrationLocked)
+                    btnLockIntegration.Text = "Unlock";
                 else
                     btnLockIntegration.Text = "Checking Integration ...";
 

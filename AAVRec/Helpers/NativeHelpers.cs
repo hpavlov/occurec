@@ -128,7 +128,17 @@ namespace AAVRec.Helpers
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetTimeStampArea2(int top, int left, int width, int height);
 
+        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SetupOcrAlignment(int width, int height, int frameTopOdd, int frameTopEven, int charWidth, int charHeight, int numberOfZones);
 
+        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+	    private static extern int SetupOcrZoneMatrix([In, MarshalAs(UnmanagedType.LPArray)] int[,] matrix);
+
+	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+	    private static extern int SetupOcrChar(char character, int fixedPosition);
+
+        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SetupOcrCharDefinitionZone(char character, int zoneId, int zoneValue);
 
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory")]
         public static extern void CopyMemory(IntPtr Destination, IntPtr Source, [MarshalAs(UnmanagedType.U4)] uint Length);
@@ -289,6 +299,37 @@ namespace AAVRec.Helpers
         public static void SetupAav(AavImageLayout imageLayout)
         {
             SetupAav((int) imageLayout);
+        }
+
+        public static void SetupOcr()
+        {
+            SetupOcrAlignment(
+                OcrSettings.Instance.Alignment.Width, 
+                OcrSettings.Instance.Alignment.Height, 
+                OcrSettings.Instance.Alignment.FrameTopOdd,
+                OcrSettings.Instance.Alignment.FrameTopEven, 
+                OcrSettings.Instance.Alignment.CharWidth, 
+                OcrSettings.Instance.Alignment.CharHeight,
+                OcrSettings.Instance.Zones.Max(x => x.ZoneId) - 1);
+
+            // Build the ocr zone matrix in managed world using the OcrZoneChecker
+            var zoneChecker = new OcrZoneChecker(
+                OcrSettings.Instance.Alignment.Width,
+                OcrSettings.Instance.Alignment.Height,
+                OcrSettings.Instance.Zones,
+                OcrSettings.Instance.Alignment.CharPositions);
+
+            SetupOcrZoneMatrix(zoneChecker.OcrPixelMap);
+            
+            foreach (CharDefinition charDef in OcrSettings.Instance.CharDefinitions)
+            {
+                SetupOcrChar(charDef.Character[0], charDef.FixedPosition.HasValue ? charDef.FixedPosition.Value : -1);
+
+                foreach (ZoneSignature zoneSignt in charDef.ZoneSignatures)
+                {
+                    SetupOcrCharDefinitionZone(charDef.Character[0], zoneSignt.ZoneId, (int)zoneSignt.ZoneValue);
+                }
+            }
         }
 
         public static Bitmap GetCurrentImage(out ImageStatus status)

@@ -1,4 +1,8 @@
-﻿V) Implement horizontal flip for AVI format
+﻿V) == DONE
+?) == NEED TESTING
+---------------------------------------------------------------------------
+
+V) Implement horizontal flip for AVI format
 V) Make the horizontal flip the default option
 V) Remove the vertical flip option or implement a vertical flip for AAV format
 V) Make a Beep when starting and stopping a recording
@@ -9,12 +13,14 @@ V) Refactor the AAV native code and remove all unused 12 and 16 bit stuff
 
 EASY:
 
-- The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
+?) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
+- Implement integration frame "Unlock-ing". Reconsider renaming the button to something else
+- Save the timestamp areas in the first and last frame in every integration period, so they can be used at OCR time and output frame 'composition' time
 
 HARDER:
 
-? Implement 1x and x2 integration frame recognition
-? Implement Differential Coding Compression for AAV 8 bit format
+?) Implement 1x and x2 integration frame recognition
+V) Implement Differential Coding Compression for AAV 8 bit format
 - Ensure that the start/end timestamps are not overwritten in the process of stacking images. There will be a challenge to determine the start and end milliseconds position. 
   May need the OCR fully working to solve this problem (to know which position contains the smaller frame number/start timestamp)
 

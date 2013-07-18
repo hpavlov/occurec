@@ -15,6 +15,9 @@
 #include <process.h>
 
 #include "IotaVtiOcr.h"
+#include "AAVRec.Ocr.h"
+
+using namespace AavOcr;
 
 #define MAX_INTEGRATION 256
 #define LOW_INTEGRATION_CHECK_POOL_SIZE 65 // 2.5 sec @ PAL
@@ -25,6 +28,14 @@ long IMAGE_STRIDE;
 long IMAGE_TOTAL_PIXELS;
 long MONOCHROME_CONVERSION_MODE;
 long USE_IMAGE_LAYOUT;
+
+
+long OCR_FRAME_TOP_ODD;
+long OCR_FRAME_TOP_EVEN;
+long OCR_CHAR_WIDTH;
+long OCR_CHAR_HEIGHT; 
+long* OCR_ZONE_MATRIX = NULL; 
+long OCR_NUMBER_OF_ZONES;
 
 bool FLIP_VERTICALLY;
 bool FLIP_HORIZONTALLY;
@@ -51,6 +62,9 @@ __int64 idxIntegratedFrameNumber = 0;
 unsigned char* latestIntegratedFrame = NULL;
 ImageStatus latestImageStatus;
 ImageStatus latestDetectedIntegrationFrameImageStatus;
+
+unsigned char* firstIntegratedFramePixels = NULL;
+unsigned char* lastIntegratedFramePixels = NULL;
 
 HANDLE hRecordingThread = NULL;
 bool recording = false;
@@ -151,10 +165,12 @@ void RecalculateLowIntegrationMetrics()
 	oddLowFrameSignSigma = sqrt(oddSignResidualSquareSum) * 2  / LOW_INTEGRATION_CHECK_POOL_SIZE;
 	allLowFrameSignSigma = sqrt(allSignResidualSquareSum) * 2  / LOW_INTEGRATION_CHECK_POOL_SIZE;
 
+#if _DEBUG
 	DebugViewPrint(L"LowIntData Even:%.3f +/- %.3f (MAX: %.3f); Odd:%.3f +/- %.3f(MAX: %.3f); All:%.3f +/- %.3f (MAX: %.3f)\n", 
 		evenLowFrameSignAverage, evenLowFrameSignSigma, evenSignMaxResidual, 
 		oddLowFrameSignAverage, oddLowFrameSignSigma, oddSignMaxResidual,
 		allLowFrameSignAverage, allLowFrameSignSigma, allSignMaxResidual); 
+#endif
 }
 
 bool IsNewIntegrationPeriod(float diffSignature)
@@ -170,7 +186,7 @@ bool IsNewIntegrationPeriod(float diffSignature)
 		// NOTE: This code is still 'IN TESTING' and may not work
 		diff = abs(allLowFrameSignAverage - diffSignature);
 
-		// TODO: Consiuder using "10 times sigma" rather than "3-times max value". USe is as a configuration parameter
+		// TODO: Consider using "10 times sigma" rather than "3-times max value". Use is as a configuration parameter
 		// "10-times sigma" will be more sensitive to integration changess and less tolerant to slewing and field movement
 		// "3-times max value" will be less sensitive to integration changess and more tolerant to slewing and field movement
 
@@ -180,7 +196,9 @@ bool IsNewIntegrationPeriod(float diffSignature)
 			// Looks like the the 1-frame integration has ended. So enter in normal mode
 			lowFrameIntegrationMode = 0;
 
+#if _DEBUG
 		DebugViewPrint(L"LFM-1: lowFrameIntegrationMode = %d; diff = %.3f; 10-Sigma = %.3f; 3-MaxVal = %.3f; NEW = %d\n", lowFrameIntegrationMode, diff, 10 * allLowFrameSignSigma, 3 * allSignMaxResidual, isNewIntegrationPeriod);
+#endif
 	}
 	else if (lowFrameIntegrationMode == 2)
 	{
@@ -198,8 +216,10 @@ bool IsNewIntegrationPeriod(float diffSignature)
 			// Looks like the the 1-frame integration has ended. So enter in normal mode
 			lowFrameIntegrationMode = 0;
 
+#if _DEBUG
 		DebugViewPrint(L"LFM-2: lowFrameIntegrationMode = %d; evenDiff = %.3f; oddDiff = %.3f; 10-sigmaEven = %.3f; 10-sigmaOdd = %.3f; 3-MaxValEven = %.3f; 3-MaxValOdd = %.3f; NEW = %d\n", 
 			lowFrameIntegrationMode, evenDiff, oddDiff, 10 * evenLowFrameSignSigma, 10 * oddLowFrameSignSigma, 3 * evenSignMaxResidual, 3 * oddSignMaxResidual, isNewIntegrationPeriod);
+#endif
 	}
 
 	if (lowFrameIntegrationMode == 0)
@@ -243,13 +263,17 @@ bool IsNewIntegrationPeriod(float diffSignature)
 			lowFrameIntegrationMode = 0;
 		}
 
+#if _DEBUG
 		DebugViewPrint(L"lowFrameIntegrationMode = %d; MAX_LOW_INT_SAMEFRAME_SIGMA = %.5f\n", lowFrameIntegrationMode, MAX_LOW_INT_SAMEFRAME_SIGMA);
+#endif
+
 	}
 
-
+#if _DEBUG
 	DebugViewPrint(L"PSC:%d DF:%.5f D:%.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f\n", 
 		pastSignaturesCount, diffSignature, diff, SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma, 
 		pastSignaturesSum, pastSignaturesAverage, pastSignaturesResidualSquareSum, pastSignaturesSigma); 
+#endif
 
 
 	if (pastSignaturesCount < MAX_INTEGRATION && pastSignaturesCount > 1)
@@ -297,6 +321,65 @@ HRESULT SetupAav(long useImageLayout)
 	return S_OK;
 }
 
+HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfZones)
+{
+	if (IMAGE_WIDTH != width || IMAGE_HEIGHT != height)
+		return E_FAIL;
+
+	OCR_FRAME_TOP_ODD = frameTopOdd;
+	OCR_FRAME_TOP_EVEN = frameTopEven;
+	OCR_CHAR_WIDTH = charWidth;
+	OCR_CHAR_HEIGHT = charHeight;
+	OCR_NUMBER_OF_ZONES = numberOfZones;
+
+	if (NULL != OCR_ZONE_MATRIX)
+	{
+		delete OCR_ZONE_MATRIX;
+		OCR_ZONE_MATRIX = NULL;
+	}
+	OCR_ZONE_MATRIX = (long*)malloc(IMAGE_TOTAL_PIXELS * sizeof(long));
+
+	::ZeroMemory(OCR_ZONE_MATRIX, IMAGE_TOTAL_PIXELS);
+
+	return S_OK;
+}
+
+HRESULT SetupOcrZoneMatrix(long* matrix)
+{
+	if (NULL == OCR_ZONE_MATRIX)
+		OCR_ZONE_MATRIX = (long*)malloc(IMAGE_TOTAL_PIXELS * sizeof(long));
+
+	memcpy(OCR_ZONE_MATRIX, matrix, IMAGE_TOTAL_PIXELS);
+
+	return S_OK;
+}
+
+HRESULT SetupOcrChar(char character, long fixedPosition)
+{
+	OcrCharDefinition *charDef = new OcrCharDefinition(character, fixedPosition);
+
+	OCR_CHAR_DEFS.push_back(charDef);
+
+	return S_OK;
+}
+
+HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue)
+{
+	vector<OcrCharDefinition*>::iterator curr = OCR_CHAR_DEFS.begin();
+	while (curr != OCR_CHAR_DEFS.end()) 
+	{
+		if (character == (*curr)->Character)
+		{
+			(*curr)->AddZoneEntry(zoneId, zoneValue);
+			return S_OK;
+		}
+		
+		curr++;
+	}
+
+	return E_FAIL;
+}
+
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff)
 {
 	IMAGE_WIDTH = width;
@@ -317,14 +400,43 @@ HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochr
 
 	ClearResourses();
 
+	if (NULL != prtPreviousDiffArea)
+	{
+		delete prtPreviousDiffArea;
+		prtPreviousDiffArea = NULL;
+	}
 	prtPreviousDiffArea = (unsigned char*)malloc(IMAGE_TOTAL_PIXELS);
 	::ZeroMemory(prtPreviousDiffArea, IMAGE_TOTAL_PIXELS);
 
+	if (NULL != integratedPixels)
+	{
+		delete integratedPixels;
+		integratedPixels = NULL;
+	}
 	integratedPixels = (double*)malloc(IMAGE_TOTAL_PIXELS * sizeof(double));
 	::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
+	if (NULL != latestIntegratedFrame)
+	{
+		delete latestIntegratedFrame;
+		latestIntegratedFrame = NULL;
+	}
 	latestIntegratedFrame = (unsigned char*)malloc(IMAGE_TOTAL_PIXELS);
 	::ZeroMemory(latestIntegratedFrame, IMAGE_TOTAL_PIXELS);
+
+	if (NULL != firstIntegratedFramePixels)
+	{
+		delete firstIntegratedFramePixels;
+		firstIntegratedFramePixels = NULL;
+	}
+	firstIntegratedFramePixels = (unsigned char*)malloc(IMAGE_TOTAL_PIXELS);
+
+	if (NULL != lastIntegratedFramePixels)
+	{
+		delete lastIntegratedFramePixels;
+		lastIntegratedFramePixels = NULL;
+	}
+	lastIntegratedFramePixels = (unsigned char*)malloc(IMAGE_TOTAL_PIXELS);
 
 	idxFrameNumber = 0;
 	numberOfDiffSignaturesCalculated = 0;
@@ -476,7 +588,8 @@ void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev, fl
 			*ptrThisPixels = *ptrBuf;
 
 			*signatureThisPrev += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
-			*signatureThisTwoAgo += abs((float)*ptrThisPixels - (float)*ptrTwoFramesAgoPixels) / 2.0;
+			// NOTE: The second Diff signature is not used at the moment so don't waste time computing it
+			//*signatureThisTwoAgo += abs((float)*ptrThisPixels - (float)*ptrTwoFramesAgoPixels) / 2.0;
 
 			ptrThisPixels++;
 			ptrPrevPixels++;
@@ -514,6 +627,19 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
 
 		for (int i=0; i < IMAGE_TOTAL_PIXELS; i++)
 		{
+			// TODO: Preserve the timestamp pixels from the first and last integrated frame in the final image
+			//		 Use firstIntegratedFramePixels and last IntegratedFramePixels for this
+
+			// TODO: Have a method to convert (x, y) position into a pointer in the final image array that can be compared to "i" in this loop
+			//       This works: int pixY = i / IMAGE_WIDTH; int pixX = i % IMAGE_WIDTH;
+
+			// TODO: The OCR logic will run here and will set the values of: idxFirstFrameNumber, idxFirstFrameTimestamp, idxLastFrameNumber and idxLastFrameTimestamp
+			//		 Run the OCR logic on firstIntegratedFramePixels and last IntegratedFramePixels
+
+
+			// NOTE: Possible way to speed this up (which may not be necessary) would be to build a very large memory table
+			//       that will return directly the average value for the given numberOfIntegratedFrames and 
+			//       *ptrPixels (which is of type double but the value is integer from 0 to 255 * numberOfIntegratedFrames)
 			long averageValue = (long)(*ptrPixels / (INTEGRATION_LOCKED ? numberOfIntegratedFrames : 1));
 
 			if (averageValue <= 0)
@@ -532,6 +658,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
 				*ptrFramePixels = averageValue;
 			}
 
+
+
 			ptr8BitPixels++;
 			ptrFramePixels++;
 			ptrPixels++;
@@ -544,8 +672,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
 			latestImageStatus.CountedFrames = latestDetectedIntegrationFrameImageStatus.CountedFrames = numberOfIntegratedFrames;
 			latestImageStatus.StartExposureFrameNo = latestDetectedIntegrationFrameImageStatus.StartExposureFrameNo = idxFirstFrameNumber;
 			latestImageStatus.StartExposureTicks = latestDetectedIntegrationFrameImageStatus.StartExposureTicks = idxFirstFrameTimestamp;
-			latestImageStatus.EndExposureFrameNo = latestDetectedIntegrationFrameImageStatus.EndExposureFrameNo = idxLastFrameTimestamp;
-			latestImageStatus.EndExposureTicks = latestDetectedIntegrationFrameImageStatus.EndExposureTicks = numberOfIntegratedFrames;
+			latestImageStatus.EndExposureFrameNo = latestDetectedIntegrationFrameImageStatus.EndExposureFrameNo = idxLastFrameNumber;
+			latestImageStatus.EndExposureTicks = latestDetectedIntegrationFrameImageStatus.EndExposureTicks = idxLastFrameTimestamp;
 			latestImageStatus.CutOffRatio = latestDetectedIntegrationFrameImageStatus.CutOffRatio = newIntegrationPeriodCutOffRatio;
 			latestImageStatus.IntegratedFrameNo = latestDetectedIntegrationFrameImageStatus.IntegratedFrameNo = idxIntegratedFrameNumber;
 		}
@@ -599,7 +727,11 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 
 	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
 
-	if (isNewIntegrationPeriod || !INTEGRATION_LOCKED)
+	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
+	// When the integration hasn't been 'locked' we output every frame received from the camera
+	bool showOutputFrame = isNewIntegrationPeriod || !INTEGRATION_LOCKED;
+
+	if (showOutputFrame)
 	{
 		BufferNewIntegratedFrame(isNewIntegrationPeriod);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
@@ -622,17 +754,21 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 	unsigned char* ptrPixelItt = buf + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;
 
 	double* ptrPixels = integratedPixels;
+
+	unsigned char* ptrFirstOrLastFrameCopy = numberOfIntegratedFrames == 0 ? firstIntegratedFramePixels : lastIntegratedFramePixels;
 	
 	for (int y = 0; y < IMAGE_HEIGHT; y++)
 	{
 		for (int x = 0; x < IMAGE_WIDTH; x++)
 		{
+			unsigned char thisPixel;
+
 			if (MONOCHROME_CONVERSION_MODE == 0)
-				*ptrPixels += *(ptrPixelItt + 2); //R
+				thisPixel= *(ptrPixelItt + 2); //R
 			else if (MONOCHROME_CONVERSION_MODE == 1)
-				*ptrPixels += *(ptrPixelItt + 1); //G
+				thisPixel= *(ptrPixelItt + 1); //G
 			else if (MONOCHROME_CONVERSION_MODE == 2)
-				*ptrPixels += *(ptrPixelItt); //B
+				thisPixel = *(ptrPixelItt); //B
 			else if (MONOCHROME_CONVERSION_MODE == 3)
 			{
 				// YUV Conversion (PAL & NTSC)
@@ -640,14 +776,19 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 				double luma = 0.299* *(ptrPixelItt) + 0.587* *(ptrPixelItt + 1) + 0.114* *(ptrPixelItt + 2);
 
 				if (luma < 0)
-					*ptrPixels += 0;
+					thisPixel = 0;
 				else if (luma > 255)
-					*ptrPixels += 255;
+					thisPixel = 255;
 				else
-					*ptrPixels += (unsigned char)luma;
+					thisPixel = (unsigned char)luma;
 			}
 
+			// Saving the first/last frame raw pixels for OCR-ing
+			*ptrFirstOrLastFrameCopy = thisPixel;
+		    *ptrPixels += thisPixel;
+
 			ptrPixels++;
+			ptrFirstOrLastFrameCopy++;
 			ptrPixelItt+=3;
 		}
 

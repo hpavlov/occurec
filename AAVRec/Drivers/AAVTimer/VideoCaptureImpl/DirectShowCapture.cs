@@ -73,6 +73,8 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
                     (float)Settings.Default.MinSignatureDiff);
 
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
+
+			    NativeHelpers.SetupOcr();
 			}
 			catch
 			{

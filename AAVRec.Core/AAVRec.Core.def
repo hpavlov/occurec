@@ -24,3 +24,8 @@ EXPORTS
 
 	SetTimeStampArea1
 	SetTimeStampArea2
+
+	SetupOcrAlignment
+	SetupOcrZoneMatrix
+	SetupOcrChar
+	SetupOcrCharDefinitionZone

@@ -31,6 +31,15 @@ struct FrameProcessingStatus
 	float CurrentSignatureRatio;
 };
 
+enum ZoneBehaviour
+{
+  On = 0,
+  Off = 1,
+  Gray = 2,
+  NotOn = 3,
+  NotOff = 4
+};
+
 extern long IMAGE_WIDTH;
 extern long IMAGE_HEIGHT;
 extern long IMAGE_STRIDE;
@@ -44,8 +53,19 @@ extern bool FLIP_HORIZONTALLY;
 extern bool IS_INTEGRATING_CAMERA;
 extern float SIGNATURE_DIFFERENCE_FACTOR;
 
+extern long OCR_FRAME_TOP_ODD;
+extern long OCR_FRAME_TOP_EVEN;
+extern long OCR_CHAR_WIDTH;
+extern long OCR_CHAR_HEIGHT;
+extern long* OCR_ZONE_MATRIX;
+extern long OCR_NUMBER_OF_ZONES;
+
 
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff);
+HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight);
+HRESULT SetupOcrZoneMatrix(long* matrix);
+HRESULT SetupOcrChar(char character, long fixedPosition);
+HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue);
 HRESULT SetupAav(int useImageLayout);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* imageStatus);

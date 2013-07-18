@@ -425,14 +425,9 @@ unsigned char* AavImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned c
 		
 		unsigned char* pCurrFramePixels = (unsigned char*)currFramePixels;
 		unsigned char* pPrevFramePixels = (unsigned char*)m_PrevFramePixels;
-		//unsigned char* pOuputPixelsFrameCopy = (unsigned char*)(m_PixelArrayBuffer + 5 + Width*Height);
-
-		memcpy(&m_PixelArrayBuffer[5 + Width*Height + Width * Height / 8], &currFramePixels[0], Width * Height);
 
 		for (int y = 0; y < Height; ++y)
 		{
-			//char dbg[6400];
-
 			for (int x = 0; x < Width; ++x)
 			{
 				unsigned long charCurr = (unsigned char)*pCurrFramePixels;
@@ -458,20 +453,11 @@ unsigned char* AavImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned c
 				if (signIsNegative)
 					m_SignsBytes[signsIndex] = m_SignsBytes[signsIndex] | SIGNS_MASK[signsBit];
 
-				//sprintf(&dbg[i*4], "%03d ", charDiff);
-
 				*pCurrFramePixels = charDiff;
-				//*pOuputPixelsFrameCopy = charCurr;
 				
 				pCurrFramePixels++;
 				pPrevFramePixels++;
-				//pOuputPixelsFrameCopy++;
 			}
-			
-			//dbg[Width * 4 + 1] = '\0';
-			//std::wstring wc(4096, L'#');
-			//mbstowcs(&wc[0], dbg, 4096);
-			//DebugViewPrint(&wc[0]);
 		}
 
 		*bytesCount = Width * Height / 8;
@@ -482,10 +468,6 @@ unsigned char* AavImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned c
 		memcpy(&m_PrevFramePixels[0], &m_PrevFramePixelsTemp[0], m_KeyFrameBytesCount);
 	
 	GetDataBytes(currFramePixels, mode, pixelsCrc, m_SignsBytes, bytesCount);
-
-	//*bytesCount += Width * Height; // The second frame copied at the end 
-
-	*bytesCount+= Width * Height;
 
 	return m_PixelArrayBuffer;
 }
