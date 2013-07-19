@@ -10,6 +10,10 @@
 #define AAVRECCORE_API __declspec(dllimport)
 #endif
 
+#include "AAVRec.Ocr.h"
+
+using namespace AavOcr;
+
 struct ImageStatus
 {
 	__int64 StartExposureTicks;
@@ -59,6 +63,12 @@ extern long OCR_CHAR_WIDTH;
 extern long OCR_CHAR_HEIGHT;
 extern long* OCR_ZONE_MATRIX;
 extern long OCR_NUMBER_OF_ZONES;
+
+extern long MEDIAN_CALC_INDEX_FROM;
+extern long MEDIAN_CALC_INDEX_TO;
+
+extern OcrFrameProcessor* firstFrameOcrProcessor;
+extern OcrFrameProcessor* lastFrameOcrProcessor;
 
 
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff);

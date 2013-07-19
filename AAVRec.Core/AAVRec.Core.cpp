@@ -21,6 +21,8 @@ using namespace AavOcr;
 
 #define MAX_INTEGRATION 256
 #define LOW_INTEGRATION_CHECK_POOL_SIZE 65 // 2.5 sec @ PAL
+#define MEDIAN_CALC_ROWS_FROM 10
+#define MEDIAN_CALC_ROWS_TO 11
 
 long IMAGE_WIDTH;
 long IMAGE_HEIGHT;
@@ -36,6 +38,12 @@ long OCR_CHAR_WIDTH;
 long OCR_CHAR_HEIGHT; 
 long* OCR_ZONE_MATRIX = NULL; 
 long OCR_NUMBER_OF_ZONES;
+
+long MEDIAN_CALC_INDEX_FROM;
+long MEDIAN_CALC_INDEX_TO;
+
+OcrFrameProcessor* firstFrameOcrProcessor = NULL;
+OcrFrameProcessor* lastFrameOcrProcessor = NULL;
 
 bool FLIP_VERTICALLY;
 bool FLIP_HORIZONTALLY;
@@ -341,6 +349,24 @@ HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameT
 
 	::ZeroMemory(OCR_ZONE_MATRIX, IMAGE_TOTAL_PIXELS);
 
+	if (NULL != firstFrameOcrProcessor)
+	{
+		delete firstFrameOcrProcessor;
+		firstFrameOcrProcessor = NULL;
+	}
+	if (NULL != lastFrameOcrProcessor)
+	{
+		delete lastFrameOcrProcessor;
+		lastFrameOcrProcessor = NULL;
+	}
+
+	firstFrameOcrProcessor = new OcrFrameProcessor(OCR_FRAME_TOP_ODD);
+	lastFrameOcrProcessor = new OcrFrameProcessor(OCR_FRAME_TOP_ODD);
+
+	
+	MEDIAN_CALC_INDEX_FROM = MEDIAN_CALC_ROWS_FROM * IMAGE_WIDTH;
+	MEDIAN_CALC_INDEX_TO = MEDIAN_CALC_ROWS_TO * IMAGE_WIDTH;
+
 	return S_OK;
 }
 
@@ -363,14 +389,14 @@ HRESULT SetupOcrChar(char character, long fixedPosition)
 	return S_OK;
 }
 
-HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue)
+HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue, long zonePixelsCount)
 {
 	vector<OcrCharDefinition*>::iterator curr = OCR_CHAR_DEFS.begin();
 	while (curr != OCR_CHAR_DEFS.end()) 
 	{
 		if (character == (*curr)->Character)
 		{
-			(*curr)->AddZoneEntry(zoneId, zoneValue);
+			(*curr)->AddZoneEntry(zoneId, zoneValue, zonePixelsCount);
 			return S_OK;
 		}
 		
@@ -625,17 +651,31 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
 
 		unsigned char* ptrFramePixels = frame->Pixels;
 
-		for (int i=0; i < IMAGE_TOTAL_PIXELS; i++)
+		bool runOCR = false;
+		if (NULL != firstFrameOcrProcessor)
 		{
-			// TODO: Preserve the timestamp pixels from the first and last integrated frame in the final image
-			//		 Use firstIntegratedFramePixels and last IntegratedFramePixels for this
+			firstFrameOcrProcessor->NewFrame();
+			lastFrameOcrProcessor->NewFrame();
+			runOCR = true;
+		}
 
-			// TODO: Have a method to convert (x, y) position into a pointer in the final image array that can be compared to "i" in this loop
-			//       This works: int pixY = i / IMAGE_WIDTH; int pixX = i % IMAGE_WIDTH;
+		for (long i=0; i < IMAGE_TOTAL_PIXELS; i++)
+		{
+			if (runOCR && i >= MEDIAN_CALC_INDEX_FROM && i <= MEDIAN_CALC_INDEX_TO)
+			{
+				firstFrameOcrProcessor->AddMedianComputationPixel(firstIntegratedFramePixels[i]);
+				lastFrameOcrProcessor->AddMedianComputationPixel(lastIntegratedFramePixels[i]);
+			}
 
-			// TODO: The OCR logic will run here and will set the values of: idxFirstFrameNumber, idxFirstFrameTimestamp, idxLastFrameNumber and idxLastFrameTimestamp
-			//		 Run the OCR logic on firstIntegratedFramePixels and last IntegratedFramePixels
+			long packedInfo = OCR_ZONE_MATRIX[i];
+			if (runOCR && packedInfo != 0)
+			{
+				long pixX = i % IMAGE_WIDTH;
+				long pixY = i / IMAGE_WIDTH; 
 
+				firstFrameOcrProcessor->ProcessZonePixel(packedInfo, pixX, pixY, firstIntegratedFramePixels[i]);
+				lastFrameOcrProcessor->ProcessZonePixel(packedInfo,  pixX, pixY, lastIntegratedFramePixels[i]);
+			}
 
 			// NOTE: Possible way to speed this up (which may not be necessary) would be to build a very large memory table
 			//       that will return directly the average value for the given numberOfIntegratedFrames and 
@@ -658,12 +698,32 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
 				*ptrFramePixels = averageValue;
 			}
 
+			if (runOCR)
+			{
 
+				firstFrameOcrProcessor->Ocr();
+				lastFrameOcrProcessor->Ocr();
+
+				if (firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success)
+				{
+					// TODO: Set OCR-ed timestamps, frame numbers, etc
+					idxFirstFrameNumber = 0;
+					idxLastFrameNumber = 0;
+					idxFirstFrameTimestamp = 0;
+					idxLastFrameTimestamp = 0;
+				}
+			}
+
+			// TODO: Preserve the timestamp pixels from the first and last integrated frame in the final image
+			//		 Use firstIntegratedFramePixels and last IntegratedFramePixels for this
 
 			ptr8BitPixels++;
 			ptrFramePixels++;
 			ptrPixels++;
 		}
+
+		// TODO: The OCR logic will run here and will set the values of: idxFirstFrameNumber, idxFirstFrameTimestamp, idxLastFrameNumber and idxLastFrameTimestamp
+		//		 Run the OCR logic on firstIntegratedFramePixels and lastIntegratedFramePixels
 
 		MarkTimeStampAreas(latestIntegratedFrame);
 

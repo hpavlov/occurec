@@ -138,7 +138,7 @@ namespace AAVRec.Helpers
 	    private static extern int SetupOcrChar(char character, int fixedPosition);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetupOcrCharDefinitionZone(char character, int zoneId, int zoneValue);
+        private static extern int SetupOcrCharDefinitionZone(char character, int zoneId, int zoneValue, int zonePixelsCount);
 
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory")]
         public static extern void CopyMemory(IntPtr Destination, IntPtr Source, [MarshalAs(UnmanagedType.U4)] uint Length);
@@ -327,7 +327,8 @@ namespace AAVRec.Helpers
 
                 foreach (ZoneSignature zoneSignt in charDef.ZoneSignatures)
                 {
-                    SetupOcrCharDefinitionZone(charDef.Character[0], zoneSignt.ZoneId, (int)zoneSignt.ZoneValue);
+                    int pixelsInZone = OcrSettings.Instance.Zones.Single(z => z.ZoneId == zoneSignt.ZoneId).Pixels.Count;
+                    SetupOcrCharDefinitionZone(charDef.Character[0], zoneSignt.ZoneId, (int)zoneSignt.ZoneValue, pixelsInZone);
                 }
             }
         }
