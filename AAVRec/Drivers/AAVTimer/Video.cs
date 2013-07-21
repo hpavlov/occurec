@@ -22,6 +22,7 @@ namespace AAVRec.Drivers.AAVTimer
 		private static string DRIVER_DESCRIPTION = "AAV Capture";
 
 		private VideoCaptureImpl.VideoCapture camera;
+        private IVideoCallbacks callbacksObject;
 
 		public Video()
 		{
@@ -94,6 +95,12 @@ namespace AAVRec.Drivers.AAVTimer
 
 		public void SetupDialog()
 		{ }
+
+        public void SetCallbacks(IVideoCallbacks callbacksObject)
+        {
+            this.callbacksObject = callbacksObject;
+            camera.CallbacksObject = callbacksObject;
+        }
 
 		private void AssertConnected()
 		{

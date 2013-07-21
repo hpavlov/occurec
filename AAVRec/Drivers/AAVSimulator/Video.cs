@@ -93,6 +93,9 @@ namespace AAVRec.Drivers.AAVSimulator
 		public void SetupDialog()
 		{ }
 
+        public void SetCallbacks(IVideoCallbacks callbacksObject)
+        { }
+
 		private void AssertConnected()
 		{ }
 

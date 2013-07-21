@@ -32,6 +32,7 @@ long MONOCHROME_CONVERSION_MODE;
 long USE_IMAGE_LAYOUT;
 
 
+bool OCR_IS_SETUP = false;
 long OCR_FRAME_TOP_ODD;
 long OCR_FRAME_TOP_EVEN;
 long OCR_CHAR_WIDTH;
@@ -324,6 +325,7 @@ bool IsNewIntegrationPeriod(float diffSignature)
 
 HRESULT SetupAav(long useImageLayout)
 {
+	OCR_IS_SETUP = false;
 	USE_IMAGE_LAYOUT = useImageLayout;
 
 	return S_OK;
@@ -332,7 +334,10 @@ HRESULT SetupAav(long useImageLayout)
 HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfZones)
 {
 	if (IMAGE_WIDTH != width || IMAGE_HEIGHT != height)
+	{
+		OCR_IS_SETUP = false;
 		return E_FAIL;
+	}
 
 	OCR_FRAME_TOP_ODD = frameTopOdd;
 	OCR_FRAME_TOP_EVEN = frameTopEven;
@@ -360,13 +365,14 @@ HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameT
 		lastFrameOcrProcessor = NULL;
 	}
 
-	firstFrameOcrProcessor = new OcrFrameProcessor(OCR_FRAME_TOP_ODD);
-	lastFrameOcrProcessor = new OcrFrameProcessor(OCR_FRAME_TOP_ODD);
+	firstFrameOcrProcessor = new OcrFrameProcessor();
+	lastFrameOcrProcessor = new OcrFrameProcessor();
 
 	
 	MEDIAN_CALC_INDEX_FROM = MEDIAN_CALC_ROWS_FROM * IMAGE_WIDTH;
 	MEDIAN_CALC_INDEX_TO = MEDIAN_CALC_ROWS_TO * IMAGE_WIDTH;
 
+	OCR_IS_SETUP = true;
 	return S_OK;
 }
 
@@ -630,7 +636,7 @@ void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev, fl
 	*signatureThisTwoAgo = *signatureThisTwoAgo / 1024.0;
 }
 
-long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
+long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks)
 {
 	// TODO: Prepare a new IntegratedFrame object, copy the averaged integratedPixels, set the start/end frame and timestamp, put in the buffer for recording.
 	// TODO: Have a second copy for display??
@@ -652,7 +658,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
 		unsigned char* ptrFramePixels = frame->Pixels;
 
 		bool runOCR = false;
-		if (NULL != firstFrameOcrProcessor)
+		if (OCR_ZONE_MATRIX && NULL != firstFrameOcrProcessor)
 		{
 			firstFrameOcrProcessor->NewFrame();
 			lastFrameOcrProcessor->NewFrame();
@@ -667,14 +673,17 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
 				lastFrameOcrProcessor->AddMedianComputationPixel(lastIntegratedFramePixels[i]);
 			}
 
-			long packedInfo = OCR_ZONE_MATRIX[i];
-			if (runOCR && packedInfo != 0)
+			if (runOCR)
 			{
-				long pixX = i % IMAGE_WIDTH;
-				long pixY = i / IMAGE_WIDTH; 
+				long packedInfo = OCR_ZONE_MATRIX[i];
+				if (packedInfo != 0)
+				{
+					long pixX = i % IMAGE_WIDTH;
+					long pixY = i / IMAGE_WIDTH; 
 
-				firstFrameOcrProcessor->ProcessZonePixel(packedInfo, pixX, pixY, firstIntegratedFramePixels[i]);
-				lastFrameOcrProcessor->ProcessZonePixel(packedInfo,  pixX, pixY, lastIntegratedFramePixels[i]);
+					firstFrameOcrProcessor->ProcessZonePixel(packedInfo, pixX, pixY, firstIntegratedFramePixels[i]);
+					lastFrameOcrProcessor->ProcessZonePixel(packedInfo,  pixX, pixY, lastIntegratedFramePixels[i]);
+				}
 			}
 
 			// NOTE: Possible way to speed this up (which may not be necessary) would be to build a very large memory table
@@ -701,16 +710,15 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod)
 			if (runOCR)
 			{
 
-				firstFrameOcrProcessor->Ocr();
-				lastFrameOcrProcessor->Ocr();
+				firstFrameOcrProcessor->Ocr(currentUtcDayAsTicks);
+				lastFrameOcrProcessor->Ocr(currentUtcDayAsTicks);
 
 				if (firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success)
 				{
-					// TODO: Set OCR-ed timestamps, frame numbers, etc
-					idxFirstFrameNumber = 0;
-					idxLastFrameNumber = 0;
-					idxFirstFrameTimestamp = 0;
-					idxLastFrameTimestamp = 0;
+					idxFirstFrameNumber = firstFrameOcrProcessor->GetOcredStartFrameNumber();
+					idxLastFrameNumber = lastFrameOcrProcessor->GetOcredEndFrameNumber();
+					idxFirstFrameTimestamp = firstFrameOcrProcessor->GetOcredStartFrameTimeStamp();
+					idxLastFrameTimestamp = firstFrameOcrProcessor->GetOcredEndFrameTimeStamp();
 				}
 			}
 
@@ -793,7 +801,7 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -801,9 +809,9 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 			numberOfIntegratedFrames = 0;
 
 			idxFirstFrameNumber = idxFrameNumber;
-			idxFirstFrameTimestamp = currentUtcDayAsTicks;
+			//idxFirstFrameTimestamp = currentUtcDayAsTicks;
 			idxLastFrameNumber = 0;
-			idxLastFrameTimestamp = 0;
+			//idxLastFrameTimestamp = 0;
 		}
 	}
 
@@ -858,7 +866,7 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 	numberOfIntegratedFrames++;
 
 	idxLastFrameNumber = idxFrameNumber;
-	idxLastFrameTimestamp = currentUtcDayAsTicks;
+	//idxLastFrameTimestamp = currentUtcDayAsTicks;
 
 	frameInfo->CameraFrameNo = idxFrameNumber;
 	frameInfo->IntegratedFrameNo = idxIntegratedFrameNumber;

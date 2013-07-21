@@ -74,6 +74,11 @@ namespace AAVRec.Drivers
 		string ImageInfo { get; }
 	}
 
+    public interface IVideoCallbacks
+    {
+        void OnError(int errorCode, string errorMessage);
+    }
+
 	public interface IVideo
 	{
 		bool Connected { get; set; }
@@ -91,6 +96,8 @@ namespace AAVRec.Drivers
 		string VideoCaptureDeviceName { get; }
 
 		void SetupDialog();
+
+	    void SetCallbacks(IVideoCallbacks callbacksObject);
 
 		string Action(string ActionName, string ActionParameters);
 

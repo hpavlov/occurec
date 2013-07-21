@@ -35,15 +35,6 @@ struct FrameProcessingStatus
 	float CurrentSignatureRatio;
 };
 
-enum ZoneBehaviour
-{
-  On = 0,
-  Off = 1,
-  Gray = 2,
-  NotOn = 3,
-  NotOff = 4
-};
-
 extern long IMAGE_WIDTH;
 extern long IMAGE_HEIGHT;
 extern long IMAGE_STRIDE;
@@ -57,6 +48,7 @@ extern bool FLIP_HORIZONTALLY;
 extern bool IS_INTEGRATING_CAMERA;
 extern float SIGNATURE_DIFFERENCE_FACTOR;
 
+extern bool OCR_IS_SETUP;
 extern long OCR_FRAME_TOP_ODD;
 extern long OCR_FRAME_TOP_EVEN;
 extern long OCR_CHAR_WIDTH;

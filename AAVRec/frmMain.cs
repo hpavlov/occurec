@@ -22,7 +22,7 @@ using AAVRec.StateManagement;
 
 namespace AAVRec
 {
-	public partial class frmMain : Form
+	public partial class frmMain : Form, IVideoCallbacks
 	{
 		private VideoWrapper videoObject;
 		private bool running = false;
@@ -54,7 +54,7 @@ namespace AAVRec
             var att = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
 		    appVersion = att.Version;
 
-            Text = string.Format("AAVRec v{0}", appVersion);
+		    Text = string.Format("AAVRec v{0}", appVersion);
 		}
 
 		/// <summary>
@@ -72,6 +72,13 @@ namespace AAVRec
 			DisconnectFromCamera();
 			running = false;
 		}
+
+	    private Queue<string> errorMessagesQueue = new Queue<string>();
+
+        public void OnError(int errorCode, string errorMessage)
+        {
+            errorMessagesQueue.Enqueue(errorMessage);
+        }
 
 		private void ConnectToCamera()
 		{
@@ -93,7 +100,7 @@ namespace AAVRec
                             driverInstance = new Drivers.AAVSimulator.Video();
                     }
 
-                    videoObject = new VideoWrapper(driverInstance);
+                    videoObject = new VideoWrapper(driverInstance, this);
 
                     try
                     {
@@ -251,6 +258,42 @@ namespace AAVRec
 		private double renderFps = double.NaN;
 		private long currentFrameNo = 0;
 
+	    private string currMessageToDisplay = null;
+	    private DateTime displayMessageUntil = DateTime.MinValue;
+
+        private static Font errorMessagesFont = new Font(FontFamily.GenericMonospace, 10);
+
+        private void PrintCurrentErrorMessage(Graphics g)
+        {
+            SizeF msgMeasurement = g.MeasureString(currMessageToDisplay, errorMessagesFont);
+
+            g.FillRectangle(Brushes.DarkSlateGray, pictureBox.Image.Width - msgMeasurement.Width - 9, 3, msgMeasurement.Width + 6, msgMeasurement.Height + 6);
+            g.DrawString(currMessageToDisplay, errorMessagesFont, Brushes.Yellow, pictureBox.Image.Width - msgMeasurement.Width - 6, 6);
+        }
+
+        private void ProcessErrorMessages(Graphics g)
+        {
+            if (displayMessageUntil != DateTime.MinValue && currMessageToDisplay != null)
+            {
+                if (DateTime.Now.Ticks > displayMessageUntil.Ticks)
+                {
+                    displayMessageUntil = DateTime.MinValue;
+                    currMessageToDisplay = null;
+                }
+                else
+                    PrintCurrentErrorMessage(g);
+            }
+            else
+            {
+                if (errorMessagesQueue.Count > 0)
+                {
+                    currMessageToDisplay = errorMessagesQueue.Dequeue();
+                    displayMessageUntil = DateTime.Now.AddSeconds(5);
+                    PrintCurrentErrorMessage(g);
+                }
+            }
+        }
+
         private void PaintVideoFrame(VideoFrameWrapper frame, Bitmap bmp)
 		{
 			bool isEmptyFrame = frame == null;
@@ -267,6 +310,8 @@ namespace AAVRec
 						g.Clear(Color.Green);
 					else
 						g.DrawImage(bmp, 0, 0);
+
+				    ProcessErrorMessages(g);
 
 					g.Save();
 				}
@@ -293,6 +338,8 @@ namespace AAVRec
 			using (Graphics g = Graphics.FromImage(pictureBox.Image))
 			{
 			    g.DrawImage(bmp, 0, 0);
+
+                ProcessErrorMessages(g);
 
 			    g.Save();
 			}
@@ -495,7 +542,7 @@ namespace AAVRec
                 else
                 {
                     btnRecord.Enabled = false;
-                    btnStopRecording.Enabled = false;                  
+                    btnStopRecording.Enabled = false;
                 }
 
                 btnLockIntegration.Enabled = (stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0) || stateManager.IsIntegrationLocked;

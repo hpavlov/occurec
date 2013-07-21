@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using AAVRec.Drivers.AAVTimer.VideoCaptureImpl;
+using AAVRec.Helpers;
 
 namespace AAVRec.Drivers.AAVTimer
 {
@@ -103,12 +104,21 @@ namespace AAVRec.Drivers.AAVTimer
 				throw new NotSupportedException();
 
 			rv.frameNumber = cameraFrame.FrameNumber;
-            rv.exposureStartTime = cameraFrame.ImageStatus.StartExposureTicks.ToString();
+            rv.exposureStartTime = new DateTime(cameraFrame.ImageStatus.StartExposureSystemTime).ToString("HH:mm:ss.fff");
 			rv.exposureDuration = null;
             rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4}", cameraFrame.ImageStatus.CountedFrames, cameraFrame.ImageStatus.StartExposureFrameNo, cameraFrame.ImageStatus.EndExposureFrameNo, cameraFrame.ImageStatus.CutOffRatio, cameraFrame.ImageStatus.UniqueFrameNo);
 
 			return rv;
 		}
+
+        private static DateTime SYSTEMTIME2DateTime(SYSTEMTIME st)
+        {
+            if (st.Year == 0 || st == SYSTEMTIME.MinValue)
+                return DateTime.MinValue;
+            if (st == SYSTEMTIME.MaxValue)
+                return DateTime.MaxValue;
+            return new DateTime(st.Year, st.Month, st.Day, st.Hour, st.Minute, st.Second, st.Milliseconds, DateTimeKind.Local);
+        }
 
 		public object ImageArray
 		{

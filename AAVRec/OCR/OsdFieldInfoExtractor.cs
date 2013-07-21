@@ -145,7 +145,7 @@ namespace AAVRec.OCR
             int.TryParse(charsOnly.Substring(5, 2).Trim(), out mm);
 
             int ss = 0;
-            int.TryParse(charsOnly.Substring(5, 2).Trim(), out ss);
+            int.TryParse(charsOnly.Substring(7, 2).Trim(), out ss);
             
             int ms1 = 0;
             int.TryParse(charsOnly.Substring(9, 4).Trim(), out ms1);

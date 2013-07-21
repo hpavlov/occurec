@@ -54,6 +54,8 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 		// NOTE: If the graph doesn't show up in GraphEdit then see this: http://sourceforge.net/p/directshownet/discussion/460697/thread/67dbf387
 		private DsROTEntry rot = null;
 
+	    internal IVideoCallbacks callbacksObject;
+
 		public void SetupGraph(DsDevice dev, ref float iFrameRate, ref int iWidth, ref int iHeight)
 		{
 			try
@@ -74,7 +76,9 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 
-			    NativeHelpers.SetupOcr();
+			    string errorMessage = NativeHelpers.SetupOcr();
+			    if (errorMessage != null && callbacksObject != null)
+			        callbacksObject.OnError(-1, errorMessage);
 			}
 			catch
 			{

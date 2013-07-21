@@ -92,6 +92,9 @@ namespace AAVRec.Drivers.DirectShowCapture
 		public void SetupDialog()
 		{ }
 
+        public void SetCallbacks(IVideoCallbacks callbacksObject)
+        { }
+
 		private void AssertConnected()
 		{
 			if (!camera.IsConnected)

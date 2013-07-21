@@ -3,6 +3,11 @@
 #include "AAVRec.Ocr.h"
 #include "stdio.h"
 #include <algorithm>
+#include <functional>
+#include <numeric>
+#include "utils.h"
+#include <time.h>
+
 
 namespace AavOcr
 {
@@ -13,7 +18,7 @@ vector<OcrCharDefinition*> OCR_CHAR_DEFS;
 OcrCharDefinition::OcrCharDefinition(char character, long fixedPosition)
 {
 	Character = character;
-	m_FixedPosition = fixedPosition;
+	FixedPosition = fixedPosition;
 }
 
 OcrCharDefinition::~OcrCharDefinition()
@@ -31,28 +36,18 @@ void OcrCharDefinition::AddZoneEntry(long zoneId, long zoneBehaviour, long numPi
 	ZoneEntries.push_back(entry);
 }
 
-bool OcrCharDefinition::IsMatch(long position)
+OcrZoneProcessor::OcrZoneProcessor(OcrZoneEntry* zoneConfig)
 {
-	vector<OcrZoneEntry*>::iterator curr = ZoneEntries.begin();
-	while (curr != ZoneEntries.end()) 
-	{
-		long zoneId = (*curr)->ZoneId;
-		long zoneValue = (*curr)->ZoneBehaviour;
-		
-		// TODO: Check if this character is a match
-
-		curr++;
-	}
-
-	return false;
+	ZoneConfig = zoneConfig;
 }
 
-OcrCharProcessor::OcrCharProcessor(OcrCharDefinition* charDef)
+OcrCharProcessor::OcrCharProcessor(OcrCharDefinition* charDef, long charPosition)
 {
 	vector<OcrZoneEntry*>::iterator itZones = charDef->ZoneEntries.begin();
 	while(itZones != charDef->ZoneEntries.end())
 	{
-		OcrZoneProcessor* zoneProc = new OcrZoneProcessor();
+		OcrZoneProcessor* zoneProc = new OcrZoneProcessor(*itZones);
+
 		Zones.insert(make_pair((*itZones)->ZoneId, zoneProc));
 
 		for (int i = 0; i < (*itZones)->NumPixels; i++)
@@ -62,6 +57,8 @@ OcrCharProcessor::OcrCharProcessor(OcrCharDefinition* charDef)
 
 		itZones++;
 	}
+
+	m_CharPosition = charPosition;
 }
 
 void OcrCharProcessor::NewFrame()
@@ -81,40 +78,96 @@ void OcrCharProcessor::NewFrame()
 }
 
 
-void OcrCharProcessor::Ocr()
+char OcrCharProcessor::Ocr(long frameMedian)
 {
 	map<long, OcrZoneProcessor*>::iterator itZoneProc = Zones.begin();
 	while (itZoneProc != Zones.end()) 
 	{
 		OcrZoneProcessor* zoneProc = itZoneProc->second;
 
-		// TODO: Compute the zone status for each zone
+		long sum = std::accumulate(zoneProc->ZonePixels.begin(), zoneProc->ZonePixels.end(), 0.0);
+		zoneProc->ZoneMean = sum / zoneProc->ZonePixels.size();
 
 		itZoneProc++;
 	}
 
+	long MIN_ON_VALUE = 220;
+	long MAX_OFF_VALUE = frameMedian + (MIN_ON_VALUE - frameMedian) / 4;
+
+	vector<OcrCharDefinition*>::iterator itCharDef = OCR_CHAR_DEFS.begin();
+	while(itCharDef != OCR_CHAR_DEFS.end())
+	{
+		if ((*itCharDef)->FixedPosition > -1 &&
+			(*itCharDef)->FixedPosition != m_CharPosition)
+		{
+			continue;
+		}
+
+		bool isMatch = true;
+
+		vector<OcrZoneEntry*>::iterator itZoneConfig = (*itCharDef)->ZoneEntries.begin();
+		while(itZoneConfig != (*itCharDef)->ZoneEntries.end())
+		{
+			long zoneBEhaviour = (*itZoneConfig)->ZoneBehaviour;
+			unsigned char zoneValue = Zones[(*itZoneConfig)->ZoneId]->ZoneMean;
+
+			if (zoneBEhaviour == ZoneBehaviour::On && zoneValue < MIN_ON_VALUE)
+			{
+				isMatch = false;
+				break;
+			}
+
+			if (zoneBEhaviour == ZoneBehaviour::Off && zoneValue >= MAX_OFF_VALUE)
+			{
+				isMatch = false;
+				break;                        
+			}
+
+			if (zoneBEhaviour == ZoneBehaviour::Gray && (zoneValue < MAX_OFF_VALUE || zoneValue > MIN_ON_VALUE))
+			{
+				isMatch = false;
+				break;
+			}
+
+			if (zoneBEhaviour == ZoneBehaviour::NotOn && zoneValue > MIN_ON_VALUE)
+			{
+				isMatch = false;
+				break;
+			}
+
+			if ((*itZoneConfig)->ZoneBehaviour == ZoneBehaviour::NotOff && zoneValue < MAX_OFF_VALUE)
+			{
+				isMatch = false;
+				break;
+			}
+		}
+
+		if (isMatch)
+			return (*itCharDef)->Character;
+	}
 	
-	// TODO: Run the OCR logic against the OCR_CHAR_DEFS to recognize the char in the position
+	return 0;
 }
 
 
-OcrFrameProcessor::OcrFrameProcessor(long ocrLinesFrom)
+OcrFrameProcessor::OcrFrameProcessor()
 {
-	m_OcrLinesFrom = ocrLinesFrom;
-
 	OddFieldChars.clear();
 	EvenFieldChars.clear();
+
+	long position = 0;
 
 	vector<OcrCharDefinition*>::iterator itCharDefs = OCR_CHAR_DEFS.begin();
 	while (itCharDefs != OCR_CHAR_DEFS.end())
 	{
-		OcrCharProcessor* charProcEven = new OcrCharProcessor(*itCharDefs);
-		OcrCharProcessor* charProcOdd = new OcrCharProcessor(*itCharDefs);
+		OcrCharProcessor* charProcEven = new OcrCharProcessor(*itCharDefs, position);
+		OcrCharProcessor* charProcOdd = new OcrCharProcessor(*itCharDefs, position);
 
 		EvenFieldChars.insert(make_pair((*itCharDefs)->Character, charProcEven));
 		OddFieldChars.insert(make_pair((*itCharDefs)->Character, charProcOdd));
 
 		itCharDefs++;
+		position++;
 	}
 
 	Success = false;
@@ -167,57 +220,160 @@ void OcrFrameProcessor::ProcessZonePixel(long packedInfo, long pixX, long pixY, 
     ocredChar->Zones[zoneId]->ZonePixels[zonePixelId] = pixelValue;
 }
 
-void OcrFrameProcessor::Ocr()
+void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 {
 	if (m_MedianComputationValues.size() > 0)
 	{
 		std::sort(m_MedianComputationValues.begin(), m_MedianComputationValues.end());
-		unsigned char medianValue = m_MedianComputationValues[m_MedianComputationValues.size() / 2];
+		long medianValue = m_MedianComputationValues[m_MedianComputationValues.size() / 2];
 
+		int position = 0;
 		map<char,  OcrCharProcessor*>::iterator itCharProc = OddFieldChars.begin();
 		while (itCharProc != OddFieldChars.end()) 
 		{
-			itCharProc->second->Ocr();
-			itCharProc++;
-		}
+			char chr = itCharProc->second->Ocr(medianValue);
+			m_OcredCharsOdd[position] = chr;
 
+			itCharProc++;
+			position++;
+		}
+		m_OcredCharsOdd[position] = 0;
+
+		position = 0;
 		itCharProc = EvenFieldChars.begin();
 		while (itCharProc != EvenFieldChars.end()) 
 		{
-			itCharProc->second->Ocr();
+			char chr = itCharProc->second->Ocr(medianValue);
+			m_OcredCharsEven[position] = chr;
+
 			itCharProc++;
+			position++;
+		}
+		m_OcredCharsEven[position] = 0;
+
+		ExtractFieldInfo(m_OcredCharsOdd, currentUtcDayAsTicks, OddFieldOcredOsd);
+		ExtractFieldInfo(m_OcredCharsEven, currentUtcDayAsTicks, EvenFieldOcredOsd);
+	}
+}
+
+void OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo)
+{
+	bool success = true;
+
+	fieldInfo.GpsFixType = ocredChars[0];
+	if (ocredChars[1] > 0)
+		fieldInfo.TrackedSatellites = ocredChars[1] - 0x30;
+	else
+	{
+		fieldInfo.TrackedSatellites = 0;
+		success = false;
+	}
+
+	long hh = 0;
+	if (ocredChars[3] > 0 && ocredChars[4] > 0)
+		hh = 10 * (ocredChars[3] - 0x30) + (ocredChars[4] - 0x30);
+	else
+		success = false;
+
+	long mm = 0;
+	if (ocredChars[5] > 0 && ocredChars[6] > 0)
+		mm = 10 * (ocredChars[5] - 0x30) + (ocredChars[6] - 0x30);
+	else
+		success = false;
+
+	long ss = 0;
+	if (ocredChars[7] > 0 && ocredChars[8] > 0)
+		ss = 10 * (ocredChars[7] - 0x30) + (ocredChars[8] - 0x30);
+	else
+		success = false;
+        
+	long ms1 = 0;
+	long ms2 = 0;
+
+	if (ocredChars[9] > 0 && ocredChars[10] > 0 && ocredChars[11] > 0 && ocredChars[12] > 0)
+		ms1 = 1000 * (ocredChars[9] - 0x30) + 100 * (ocredChars[10] - 0x30) + 10 * (ocredChars[11] - 0x30) + (ocredChars[12] - 0x30);
+	else if (ocredChars[13] > 0 && ocredChars[14] > 0 && ocredChars[15] > 0 && ocredChars[16] > 0)
+		ms2 = 1000 * (ocredChars[13] - 0x30) + 100 * (ocredChars[14] - 0x30) + 10 * (ocredChars[15] - 0x30) + (ocredChars[16] - 0x30);
+	else
+		success = false;
+
+	// NOTE: This will be problematic at date change. 
+	// TODO: Need to some something more to ensure we are capturing and processing correctly the case of date change
+	// 1ms = 10000 ticks
+	// 1sec = 10000000 ticks
+	// 1min = 600000000 ticks
+	// 1hour = 36000000000 ticks
+	fieldInfo.FieldTimeStamp = 
+		currentUtcDayAsTicks + 
+		36000000000 * hh + 600000000 * mm + 10000000 * ss +
+		10000 * (ms1 != 0 ? ms1 : ms2);
+
+	char fieldNoStr[7];
+	::ZeroMemory(fieldNoStr, 7);
+	char* fieldNoPtr = &fieldNoStr[0];
+	bool fieldNoBeginingFound = false;
+	for (int i = 17; i < 23; i++)
+	{
+		if (ocredChars[i] != 0)
+		{
+			*fieldNoPtr = ocredChars[i];
+			fieldNoPtr++;
+			fieldNoBeginingFound = true;
+		}
+		else
+		{
+			if (fieldNoBeginingFound)
+				success = false;
 		}
 	}
+
+	if (!fieldNoBeginingFound)
+		success = false;
+
+	fieldInfo.FieldNumber = atoi(fieldNoStr);
+
+	Success = success;
+	m_IsOddFieldDataFirst = 
+		Success && 
+		OddFieldOcredOsd.FieldNumber < EvenFieldOcredOsd.FieldNumber;
 }
 
 bool OcrFrameProcessor::IsStartTimeStampFirst()
 {
-	return false;
+	return m_IsOddFieldDataFirst;
 }
 
 long OcrFrameProcessor::GetOcredStartFrameNumber()
 {
-	return 0;
+	return m_IsOddFieldDataFirst 
+		? OddFieldOcredOsd.FieldNumber 
+		: EvenFieldOcredOsd.FieldNumber;
 }
 
-long long OcrFrameProcessor::GetOcredStartFrameTimeStamp()
+__int64 OcrFrameProcessor::GetOcredStartFrameTimeStamp()
 {
-	return 0;
+	return m_IsOddFieldDataFirst 
+		? OddFieldOcredOsd.FieldTimeStamp 
+		: EvenFieldOcredOsd.FieldTimeStamp;
 }
 
 long OcrFrameProcessor::GetOcredEndFrameNumber()
 {
-	return 0;
+	return m_IsOddFieldDataFirst 
+		? EvenFieldOcredOsd.FieldNumber 
+		: OddFieldOcredOsd.FieldNumber;
 }
 
-long long OcrFrameProcessor::GetOcredEndFrameTimeStamp()
+__int64 OcrFrameProcessor::GetOcredEndFrameTimeStamp()
 {
-	return 0;
+	return m_IsOddFieldDataFirst 
+		? EvenFieldOcredOsd.FieldTimeStamp 
+		: OddFieldOcredOsd.FieldTimeStamp;
 }
 
 long OcrFrameProcessor::GetOcredTrackedSatellitesCount()
 {
-	return 0;
+	return OddFieldOcredOsd.TrackedSatellites;
 }
 
 long OcrFrameProcessor::GetOcredAlmanacUpdateState()
@@ -225,11 +381,10 @@ long OcrFrameProcessor::GetOcredAlmanacUpdateState()
 	return 0;
 }
 
-long OcrFrameProcessor::GetOcredGpsFixType()
+char OcrFrameProcessor::GetOcredGpsFixType()
 {
-	return 0;
+	return OddFieldOcredOsd.GpsFixType;
 }
-
 
 }
 

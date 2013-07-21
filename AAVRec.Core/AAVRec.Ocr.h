@@ -10,6 +10,15 @@ using namespace std;
 namespace AavOcr
 {
 
+enum ZoneBehaviour
+{
+  On = 0,
+  Off = 1,
+  Gray = 2,
+  NotOn = 3,
+  NotOff = 4
+};
+
 class OcrZoneEntry
 {
 	public:
@@ -27,35 +36,50 @@ class OcrZoneValue
 
 class OcrCharDefinition 
 {
-	private:		
-		long m_FixedPosition;
-
 	public:
 		char Character;
+		long FixedPosition;
 		vector<OcrZoneEntry*> ZoneEntries;
 
 		OcrCharDefinition(char character, long fixedPosition);
 		~OcrCharDefinition();
 
 		void AddZoneEntry(long zoneId, long zoneBehaviour, long numPixelsInZone);
-		bool IsMatch(long position);
 };
 
 class OcrZoneProcessor
 {
 	public:
+		unsigned char ZoneMean;
+		OcrZoneEntry* ZoneConfig;
+
+		OcrZoneProcessor(OcrZoneEntry* zoneConfig);
+
 		vector<unsigned char> ZonePixels;
 };
 
 class OcrCharProcessor
 {
+	private:
+		long m_CharPosition;
+
 	public:
 		map<long, OcrZoneProcessor*> Zones;
 
-		OcrCharProcessor(OcrCharDefinition* charDef);
+		OcrCharProcessor(OcrCharDefinition* charDef, long charPosition);
 
 		void NewFrame();
-		void Ocr();
+		char Ocr(long medianValue);
+};
+
+class OcredFieldOsd
+{
+	public:
+		long FieldNumber;
+		__int64 FieldTimeStamp;
+		long TrackedSatellites;
+		long AlmanacUpdateState;
+		char GpsFixType;
 };
 
 class OcrFrameProcessor
@@ -64,25 +88,33 @@ class OcrFrameProcessor
 		vector<unsigned char> m_MedianComputationValues;
 		map<char, OcrCharProcessor*> OddFieldChars;
 		map<char, OcrCharProcessor*> EvenFieldChars;
-		long m_OcrLinesFrom;
+		bool m_IsOddFieldDataFirst;
+
+		char m_OcredCharsOdd[25];
+		char m_OcredCharsEven[25];
+
+		OcredFieldOsd OddFieldOcredOsd;
+		OcredFieldOsd EvenFieldOcredOsd;
+
+		void ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo);
 
 	public:
 		bool Success;
 
-		OcrFrameProcessor(long ocrLinesFrom);
+		OcrFrameProcessor();
 
 		void NewFrame();
 		void AddMedianComputationPixel(unsigned char pixelValue);
 		void ProcessZonePixel(long packedInfo, long pixX, long pixY, unsigned char pixelValue);
-		void Ocr();		
+		void Ocr(__int64 currentUtcDayAsTicks);
 		bool IsStartTimeStampFirst();
 		long GetOcredStartFrameNumber();
-		long long GetOcredStartFrameTimeStamp();
+		__int64 GetOcredStartFrameTimeStamp();
 		long GetOcredEndFrameNumber();
-		long long GetOcredEndFrameTimeStamp();
+		__int64 GetOcredEndFrameTimeStamp();
 		long GetOcredTrackedSatellitesCount();
 		long GetOcredAlmanacUpdateState();
-		long GetOcredGpsFixType();
+		char GetOcredGpsFixType();
 };
 
 extern vector<OcrCharDefinition*> OCR_CHAR_DEFS;

@@ -28,11 +28,71 @@ namespace AAVRec.Helpers
         CompressedRaw = 4
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SYSTEMTIME
+    {
+        [MarshalAs(UnmanagedType.U2)]
+        public short Year;
+        [MarshalAs(UnmanagedType.U2)]
+        public short Month;
+        [MarshalAs(UnmanagedType.U2)]
+        public short DayOfWeek;
+        [MarshalAs(UnmanagedType.U2)]
+        public short Day;
+        [MarshalAs(UnmanagedType.U2)]
+        public short Hour;
+        [MarshalAs(UnmanagedType.U2)]
+        public short Minute;
+        [MarshalAs(UnmanagedType.U2)]
+        public short Second;
+        [MarshalAs(UnmanagedType.U2)]
+        public short Milliseconds;
+
+        public SYSTEMTIME(DateTime dt)
+        {
+            dt = dt.ToUniversalTime();  // SetSystemTime expects the SYSTEMTIME in UTC
+            Year = (short)dt.Year;
+            Month = (short)dt.Month;
+            DayOfWeek = (short)dt.DayOfWeek;
+            Day = (short)dt.Day;
+            Hour = (short)dt.Hour;
+            Minute = (short)dt.Minute;
+            Second = (short)dt.Second;
+            Milliseconds = (short)dt.Millisecond;
+        }
+
+
+        public static SYSTEMTIME MinValue = new SYSTEMTIME(1601, 1, 1);
+        public static SYSTEMTIME MaxValue = new SYSTEMTIME(30827, 12, 31, 23, 59, 59, 999);
+
+        public SYSTEMTIME(short year, short month, short day, short hour = 0, short minute = 0, short second = 0, short millisecond = 0)
+        {
+           Year = year;
+           Month = month;
+           Day = day;
+           Hour = hour;
+           Minute = minute;
+           Second = second;
+           Milliseconds = millisecond;
+           DayOfWeek = 0;
+        }
+
+        public static bool operator ==(SYSTEMTIME s1, SYSTEMTIME s2)
+        {
+            return (s1.Year == s2.Year && s1.Month == s2.Month && s1.Day == s2.Day && s1.Hour == s2.Hour && s1.Minute == s2.Minute && s1.Second == s2.Second && s1.Milliseconds == s2.Milliseconds);
+        }
+
+        public static bool operator !=(SYSTEMTIME s1, SYSTEMTIME s2)
+        {
+            return !(s1 == s2);
+        }
+    }
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     internal class ImageStatus
     {
-        public long StartExposureTicks;
-        public long EndExposureTicks;
+        public long StartExposureSystemTime;
+        public long EndExposureSystemTime;
         public long StartExposureFrameNo;
         public long EndExposureFrameNo;
         public int CountedFrames;
@@ -301,9 +361,9 @@ namespace AAVRec.Helpers
             SetupAav((int) imageLayout);
         }
 
-        public static void SetupOcr()
+        public static string SetupOcr()
         {
-            SetupOcrAlignment(
+            int hr = SetupOcrAlignment(
                 OcrSettings.Instance.Alignment.Width, 
                 OcrSettings.Instance.Alignment.Height, 
                 OcrSettings.Instance.Alignment.FrameTopOdd,
@@ -311,6 +371,9 @@ namespace AAVRec.Helpers
                 OcrSettings.Instance.Alignment.CharWidth, 
                 OcrSettings.Instance.Alignment.CharHeight,
                 OcrSettings.Instance.Zones.Max(x => x.ZoneId) - 1);
+
+            if (hr != 0)
+                return "OCR config is incompatible with the current device.";
 
             // Build the ocr zone matrix in managed world using the OcrZoneChecker
             var zoneChecker = new OcrZoneChecker(
@@ -331,6 +394,8 @@ namespace AAVRec.Helpers
                     SetupOcrCharDefinitionZone(charDef.Character[0], zoneSignt.ZoneId, (int)zoneSignt.ZoneValue, pixelsInZone);
                 }
             }
+
+            return null;
         }
 
         public static Bitmap GetCurrentImage(out ImageStatus status)

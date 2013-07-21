@@ -9,15 +9,34 @@ using AAVRec.Drivers;
 
 namespace AAVRec.Helpers
 {
-	internal class VideoWrapper
+	internal class VideoWrapper : IVideoCallbacks
 	{
 		private IVideo video;
 		private short[] gainSlots;
+	    private IVideoCallbacks callbacksDelegate;
+	    private Control window;
 
-		public VideoWrapper(IVideo video)
+		public VideoWrapper(IVideo video, Control window)
 		{
 			this.video = video;
+		    this.window = window;
+		    callbacksDelegate = (IVideoCallbacks)window;
+
+            video.SetCallbacks(this);
 		}
+
+        public delegate void OnErrorDelegate(int errorCode, string errorMessage);
+
+        public void OnError(int errorCode, string errorMessage)
+        {
+            if (callbacksDelegate != null && window != null)
+            {
+                if (window.InvokeRequired)
+                    window.Invoke(new OnErrorDelegate(callbacksDelegate.OnError), new object[] {errorCode, errorMessage});
+                else
+                    callbacksDelegate.OnError(errorCode, errorMessage);
+            }
+        }
 
 		public void SetFreeRangeGainIntervals(short numIntervals)
 		{

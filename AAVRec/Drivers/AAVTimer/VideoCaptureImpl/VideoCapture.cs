@@ -28,6 +28,17 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
 		private VideoCameraState cameraState = VideoCameraState.videoCameraIdle;
 
+	    private IVideoCallbacks callbacksObject;
+        internal IVideoCallbacks CallbacksObject
+	    {
+            get { return callbacksObject; }
+            set
+	        {
+                callbacksObject = value;
+                dsCapture.callbacksObject = value;
+	        }
+	    }
+
 		public bool IsConnected
 		{
 			get { return dsCapture.IsRunning; }
@@ -148,12 +159,13 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 				{
                     object pixels = cameraImageHelper.GetImageArray(bmp, SimulatedSensorType, Settings.Default.MonochromePixelsType, Settings.Default.FlipHorizontally, Settings.Default.FlipVertically);
 
+
 					cameraFrame = new VideoCameraFrame()
 					{
                         FrameNumber = status.IntegratedFrameNo,
                         UniqueFrameNumber = status.UniqueFrameNo,
                         ImageStatus = status,
-						Pixels = pixels,
+						Pixels = pixels,                        
 						ImageLayout = VideoFrameLayout.Monochrome
 					};					
 				}
