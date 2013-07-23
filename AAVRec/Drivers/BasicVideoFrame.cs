@@ -47,6 +47,8 @@ namespace AAVRec.Drivers
 
             rv.pixelsVariant = null;
 
+            // TODO: Set these from the unmanaged OCR data, when native OCR is running
+
             rv.frameNumber = fameNumber;
             rv.exposureStartTime = null;
             rv.exposureDuration = null;

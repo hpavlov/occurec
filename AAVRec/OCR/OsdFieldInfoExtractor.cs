@@ -121,9 +121,9 @@ namespace AAVRec.OCR
                 FirstField.NumSatellites,
                 FirstField.GpsFixStyatus,
                 FirstField.GpsAlmanacOk ? " " : "W",
-                FirstField.TimeStamp.ToString("dd-MMM-yyyy HH:mm:ss.ffff"),
+                FirstField.TimeStamp.ToString("HH:mm:ss.ffff"),
                 FirstField.FieldNumber,
-                SecondField.TimeStamp.ToString("dd-MMM-yyyy HH:mm:ss.ffff"),
+                SecondField.TimeStamp.ToString("HH:mm:ss.ffff"),
                 FirstField.FieldNumber);
         }
     }

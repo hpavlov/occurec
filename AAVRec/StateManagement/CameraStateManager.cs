@@ -26,10 +26,12 @@ namespace AAVRec.StateManagement
                 currentState.ProcessFrame(this, frame);
         }
 
-        public void CameraConnected(IVideo driverInstance)
+        public void CameraConnected(IVideo driverInstance, int maxOcrErrorsPerRun)
         {
             this.driverInstance = driverInstance;
             ocrErrors = 0;
+            MAX_ORC_ERRORS_PER_RUN = maxOcrErrorsPerRun;
+
             driverInstanceSupportedActions = driverInstance.SupportedActions.Cast<string>().ToList();
 
             ocrMayBeRunning = driverInstanceSupportedActions.Contains("DisableOcr");
@@ -183,6 +185,11 @@ namespace AAVRec.StateManagement
         public bool IsTestingIotaVtiOcr
         {
             get { return currentState is IotaVtiOcrTestingState; }
+        }
+
+        public int OcrErors
+        {
+            get { return ocrErrors; }
         }
 
         public void RegisterOcrError()

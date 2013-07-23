@@ -106,7 +106,7 @@ namespace AAVRec.Drivers.AAVSimulator.AAVPlayerImpl
                     using (Bitmap bmp = aavStream.GetFrame((int)frameNo))
                     {
                         int[,] pixels = ImageUtils.GetPixelArray(bmp, AdvImageSection.GetPixelMode.Raw8Bit);
-                        ocrTester.ProcessFrame(pixels);
+                        ocrTester.ProcessFrame(pixels, frameNo);
                     }
                 }
             }

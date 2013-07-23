@@ -17,8 +17,9 @@ namespace AAVRec.OCR
     {
         string Initialize(int imageWidth, int imageHeight);
         void Reset();
-        OsdFrameInfo ProcessFrame(int[,] pixels);
+        OsdFrameInfo ProcessFrame(int[,] pixels, long frameNo);
         void DisableOcr();
+        void DisableOcrErrorReporting();
     }
 
     internal class NativeOcrTester : IOcrTester
@@ -33,7 +34,7 @@ namespace AAVRec.OCR
             
         }
 
-        public OsdFrameInfo ProcessFrame(int[,] pixels)
+        public OsdFrameInfo ProcessFrame(int[,] pixels, long frameNo)
         {
             //throw new NotImplementedException();
             return new OsdFrameInfo(new OsdFieldInfo(), new OsdFieldInfo());
@@ -42,6 +43,11 @@ namespace AAVRec.OCR
         public void DisableOcr()
         {
             NativeHelpers.DisableOcr();            
+        }
+
+        public void DisableOcrErrorReporting()
+        {
+            // TODO
         }
     }
 
@@ -56,6 +62,7 @@ namespace AAVRec.OCR
         private StateContext testContext;
         private bool generateDebugImages;
         private bool ocrEnabled = false;
+        private bool ocrErrorReporting = false;
 
         public string Initialize(int imageWidth, int imageHeight)
         {
@@ -99,14 +106,15 @@ namespace AAVRec.OCR
             Directory.CreateDirectory(outputDebugFolder);
             outputDebugFileCounter = 0;
             ocrEnabled = true;
+            ocrErrorReporting = true;
         }
 
         private static Font s_DebugFont = new Font(FontFamily.GenericMonospace, 14, FontStyle.Bold, GraphicsUnit.Pixel);
 
-        public OsdFrameInfo ProcessFrame(int[,] pixels)
+        public OsdFrameInfo ProcessFrame(int[,] pixels, long frameNo)
         {
             if (!ocrEnabled)
-                return new OsdFrameInfo(new OsdFieldInfo(), new OsdFieldInfo());
+                return null;
 
             int IMAGE_HEIGHT = pixels.GetLength(0);
             int IMAGE_WIDTH = pixels.GetLength(1);
@@ -201,16 +209,31 @@ namespace AAVRec.OCR
 
             TestFrameResult testResult = testContext.TestTimeStamp(frameInfo);
 
-            if (testResult == TestFrameResult.ErrorSaveScreenShotImages)
+            if (ocrErrorReporting && testResult == TestFrameResult.ErrorSaveScreenShotImages && oddFieldInfo.FieldNumber > 0 && evenFieldInfo.FieldNumber > 0)
             {
                 Bitmap bmpOdd = CreateBitmapFromPixels(tsPixelsOdd);
                 Bitmap bmpEven = CreateBitmapFromPixels(tsPixelsEven);
+
+                int MAX_OFF_VALUE = median + (OcrCharRecognizer.MIN_ON_VALUE - median) / 4;
 
                 using (Graphics g = Graphics.FromImage(bmpOdd))
                 {
                     foreach (OcredChar ocredChar in ocredCharsOdd)
                     {
                         g.DrawString(ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Yellow, ocredChar.LeftFrom + 4, 26);
+                        double[] zoneValues = ocredChar.ComputeZones();
+                        for (int i = 0; i < zoneValues.Length; i++)
+                        {
+                            int left = ocredChar.LeftFrom + 7 + i;
+                            g.DrawLine(i % 2 == 0 ? Pens.Blue : Pens.Red, left, 39, left, 42);
+                            Pen zonePen = Pens.Black;
+                            if (zoneValues[i] >= OcrCharRecognizer.MIN_ON_VALUE)
+                                zonePen = Pens.White;
+                            else if (zoneValues[i] > MAX_OFF_VALUE)
+                                zonePen = Pens.LightSalmon;
+                            g.DrawLine(zonePen, left, 40, left, 42);
+                            g.DrawLine(i % 2 == 0 ? Pens.Blue : Pens.Red, left, 41, left, 42);
+                        }
                     }
 
                     g.Save();
@@ -221,14 +244,27 @@ namespace AAVRec.OCR
                     foreach (OcredChar ocredChar in ocredCharsEven)
                     {
                         g.DrawString(ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Yellow, ocredChar.LeftFrom + 4, 26);
+                        double[] zoneValues = ocredChar.ComputeZones();
+                        for (int i = 0; i < zoneValues.Length; i++)
+                        {
+                            int left = ocredChar.LeftFrom + 7 + i;
+                            g.DrawLine(i % 2 == 0 ? Pens.Blue : Pens.Red, left, 39, left, 42);
+                            Pen zonePen = Pens.Black;
+                            if (zoneValues[i] >= OcrCharRecognizer.MIN_ON_VALUE)
+                                zonePen = Pens.White;
+                            else if (zoneValues[i] > MAX_OFF_VALUE)
+                                zonePen = Pens.LightSalmon;
+                            g.DrawLine(zonePen, left, 40, left, 42);
+                            g.DrawLine(i % 2 == 0 ? Pens.Blue : Pens.Red, left, 41, left, 42);
+                        }
                     }
 
                     g.Save();
                 }
 
                 outputDebugFileCounter++;
-                bmpOdd.Save(Path.GetFullPath(string.Format("{0}\\{1}-odd-ts.bmp", outputDebugFolder, outputDebugFileCounter)));
-                bmpEven.Save(Path.GetFullPath(string.Format("{0}\\{1}-even-ts.bmp", outputDebugFolder, outputDebugFileCounter)));                   
+                bmpOdd.Save(Path.GetFullPath(string.Format("{0}\\{1}-odd-ts({2}).bmp", outputDebugFolder, frameNo, outputDebugFileCounter)));
+                bmpEven.Save(Path.GetFullPath(string.Format("{0}\\{1}-even-ts({2}).bmp", outputDebugFolder, frameNo, outputDebugFileCounter)));                   
             }
 
             return frameInfo;
@@ -275,6 +311,11 @@ namespace AAVRec.OCR
         public void DisableOcr()
         {
             ocrEnabled = false;
+        }
+
+        public void DisableOcrErrorReporting()
+        {
+            ocrErrorReporting = false;
         }
     }
 }

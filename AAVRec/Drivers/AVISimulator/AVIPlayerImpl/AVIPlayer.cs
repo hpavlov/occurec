@@ -141,6 +141,7 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
         {
             if (!IsRunning)
             {
+                ocrTester.Reset();
                 IsRunning = true;
                 ThreadPool.QueueUserWorkItem(new WaitCallback(Run));
             }
@@ -177,8 +178,8 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
                     using (Bitmap bmp = GetImageAtTime(frameTime))
                     {
                         int[,] pixels = ImageUtils.GetPixelArray(bmp, AdvImageSection.GetPixelMode.Raw8Bit);
-                        OsdFrameInfo frameInfo = ocrTester.ProcessFrame(pixels);
-                        if (callbacksObject != null)
+                        OsdFrameInfo frameInfo = ocrTester.ProcessFrame(pixels, frameNo);
+                        if (callbacksObject != null && frameInfo != null)
                         {
                             callbacksObject.OnEvent(0, frameInfo.ToDisplayString());
                             if (!frameInfo.FrameInfoIsOk())
@@ -290,7 +291,7 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
         {
             if (ocrEnabled)
             {
-                ocrTester.DisableOcr();
+                ocrTester.DisableOcrErrorReporting(); // DisableOcr();
                 ocrEnabled = false;
                 return true;
             }

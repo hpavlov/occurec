@@ -32,7 +32,14 @@ namespace AAVRec.Helpers
             if (callbacksDelegate != null && window != null)
             {
                 if (window.InvokeRequired)
-                    window.Invoke(new OnErrorDelegate(callbacksDelegate.OnError), new object[] {errorCode, errorMessage});
+                {
+                    try
+                    {
+                        window.Invoke(new OnErrorDelegate(callbacksDelegate.OnError), new object[] { errorCode, errorMessage });
+                    }
+                    catch (ObjectDisposedException)
+                    { }
+                }
                 else
                     callbacksDelegate.OnError(errorCode, errorMessage);
             }
@@ -40,7 +47,20 @@ namespace AAVRec.Helpers
 
         public void OnEvent(int eventId, string eventData)
         {
-            
+            if (callbacksDelegate != null && window != null)
+            {
+                if (window.InvokeRequired)
+                {
+                    try
+                    {
+                        window.Invoke(new OnErrorDelegate(callbacksDelegate.OnEvent), new object[] { eventId, eventData });
+                    }
+                    catch (ObjectDisposedException)
+                    { }                    
+                }
+                else
+                    callbacksDelegate.OnError(eventId, eventData);
+            }
         }
 
 		public void SetFreeRangeGainIntervals(short numIntervals)

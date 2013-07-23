@@ -7,7 +7,7 @@ namespace AAVRec.OCR
 {
     public class OcrCharRecognizer
     {
-        public static int MIN_ON_VALUE = 220;
+        public static int MIN_ON_VALUE = 200;
 
         private List<OcrZone> zones = new List<OcrZone>();
         private List<CharDefinition> charDefinitions = new List<CharDefinition>();

@@ -55,12 +55,13 @@ namespace AAVRec.Helpers
             ProcessErrorMessages(g);
 
             string ocrStampToDisplay = currentOcrStamp;
+            currentOcrStamp = null;
             if (ocrStampToDisplay != null)
             {
                 SizeF msgMeasurement = g.MeasureString(ocrStampToDisplay, overlayMessagesFont);
 
-                g.FillRectangle(Brushes.DarkSlateGray, imageWidth - msgMeasurement.Width - 9, imageHeight - msgMeasurement.Height - 9, msgMeasurement.Width + 6, msgMeasurement.Height + 6);
-                g.DrawString(ocrStampToDisplay, overlayMessagesFont, Brushes.Lime, imageHeight - msgMeasurement.Width - 6, imageHeight - msgMeasurement.Height - 6);                
+                g.FillRectangle(Brushes.DarkSlateGray, imageWidth - msgMeasurement.Width - 9, imageHeight - msgMeasurement.Height - 39, msgMeasurement.Width + 6, msgMeasurement.Height + 6);
+                g.DrawString(ocrStampToDisplay, overlayMessagesFont, Brushes.Lime, imageWidth - msgMeasurement.Width - 6, imageHeight - msgMeasurement.Height - 36);
             }
         }
 

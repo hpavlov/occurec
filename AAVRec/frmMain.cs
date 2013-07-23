@@ -77,7 +77,8 @@ namespace AAVRec
 
         public void OnError(int errorCode, string errorMessage)
         {
-            overlayManager.OnError(errorCode, errorMessage);
+            if (overlayManager != null)
+                overlayManager.OnError(errorCode, errorMessage);
         }
 
         public void OnEvent(int eventId, string eventData)
@@ -85,7 +86,8 @@ namespace AAVRec
             if (eventId == 1)
                 stateManager.RegisterOcrError();
 
-            overlayManager.OnEvent(eventId, eventData);
+            if (overlayManager != null)
+                overlayManager.OnEvent(eventId, eventData);
         }
 
 		private void ConnectToCamera()
@@ -128,7 +130,7 @@ namespace AAVRec
                             overlayManager = new OverlayManager(videoObject.Width, videoObject.Height);
                         }
 
-                        stateManager.CameraConnected(driverInstance);
+                        stateManager.CameraConnected(driverInstance, Settings.Default.OcrMaxErrorsPerCameraTestRun);
                         UpdateScheduleDisplay();
                     }
                     finally
@@ -344,6 +346,19 @@ namespace AAVRec
                     tssIntegrationRate.Text = string.Format("Integration Rate: x{0}", frame.IntegrationRate);
                 else
                     tssIntegrationRate.Text = "Integration Rate: ...";
+            }
+
+            if (stateManager.OcrErors > 0)
+            {
+                tssOcrErr.Text = string.Format("OCR ERR {0}", stateManager.OcrErors);
+
+                if (!tssOcrErr.Visible)
+                    tssOcrErr.Visible = true;
+            }
+            else
+            {
+                if (tssOcrErr.Visible)
+                    tssOcrErr.Visible = false;
             }
 		}
 		

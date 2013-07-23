@@ -751,7 +751,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                             if (latestBitmap != null)
                             {
                                 int[,] pixels = ImageUtils.GetPixelArray(latestBitmap, AdvImageSection.GetPixelMode.Raw8Bit);
-                                ocrTester.ProcessFrame(pixels);
+                                ocrTester.ProcessFrame(pixels, frameCounter);
                             }
                         }
                     });

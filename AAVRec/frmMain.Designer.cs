@@ -56,8 +56,9 @@
             this.btnRecord = new System.Windows.Forms.Button();
             this.timerScheduler = new System.Windows.Forms.Timer(this.components);
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.pnlControlArea = new System.Windows.Forms.Panel();
             this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
+            this.pnlControlArea = new System.Windows.Forms.Panel();
+            this.tssOcrErr = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -77,6 +78,7 @@
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tssCameraState,
+            this.tssOcrErr,
             this.tssFrameNo,
             this.tssDisplayRate,
             this.tssIntegrationRate,
@@ -162,7 +164,7 @@
             // miConnect
             // 
             this.miConnect.Name = "miConnect";
-            this.miConnect.Size = new System.Drawing.Size(152, 22);
+            this.miConnect.Size = new System.Drawing.Size(126, 22);
             this.miConnect.Text = "&Connect";
             this.miConnect.Click += new System.EventHandler(this.miConnect_Click);
             // 
@@ -170,19 +172,19 @@
             // 
             this.miDisconnect.Enabled = false;
             this.miDisconnect.Name = "miDisconnect";
-            this.miDisconnect.Size = new System.Drawing.Size(152, 22);
+            this.miDisconnect.Size = new System.Drawing.Size(126, 22);
             this.miDisconnect.Text = "&Disconnect";
             this.miDisconnect.Click += new System.EventHandler(this.miDisconnect_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(123, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -463,6 +465,15 @@
             this.toolStrip1.TabIndex = 5;
             this.toolStrip1.Text = "toolStrip1";
             // 
+            // tsbCrosshair
+            // 
+            this.tsbCrosshair.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbCrosshair.Image = ((System.Drawing.Image)(resources.GetObject("tsbCrosshair.Image")));
+            this.tsbCrosshair.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbCrosshair.Name = "tsbCrosshair";
+            this.tsbCrosshair.Size = new System.Drawing.Size(23, 22);
+            this.tsbCrosshair.ToolTipText = "Crosshair";
+            // 
             // pnlControlArea
             // 
             this.pnlControlArea.Controls.Add(this.pnlClient);
@@ -472,14 +483,16 @@
             this.pnlControlArea.Size = new System.Drawing.Size(903, 494);
             this.pnlControlArea.TabIndex = 6;
             // 
-            // tsbCrosshair
+            // tssOcrErr
             // 
-            this.tsbCrosshair.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbCrosshair.Image = ((System.Drawing.Image)(resources.GetObject("tsbCrosshair.Image")));
-            this.tsbCrosshair.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbCrosshair.Name = "tsbCrosshair";
-            this.tsbCrosshair.Size = new System.Drawing.Size(23, 22);
-            this.tsbCrosshair.ToolTipText = "Crosshair";
+            this.tssOcrErr.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tssOcrErr.ForeColor = System.Drawing.Color.Red;
+            this.tssOcrErr.Name = "tssOcrErr";
+            this.tssOcrErr.Size = new System.Drawing.Size(71, 17);
+            this.tssOcrErr.Text = "OCR ERR 23";
+            this.tssOcrErr.Visible = false;
             // 
             // frmMain
             // 
@@ -565,6 +578,7 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.Panel pnlControlArea;
         private System.Windows.Forms.ToolStripButton tsbCrosshair;
+        private System.Windows.Forms.ToolStripStatusLabel tssOcrErr;
 
 	}
 }
