@@ -77,6 +77,7 @@ namespace AAVRec.Drivers
     public interface IVideoCallbacks
     {
         void OnError(int errorCode, string errorMessage);
+        void OnEvent(int eventId, string eventData);
     }
 
 	public interface IVideo

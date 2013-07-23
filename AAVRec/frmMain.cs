@@ -37,6 +37,8 @@ namespace AAVRec
 	    private ICameraImage cameraImage;
 	    private string appVersion;
 
+	    private OverlayManager overlayManager = null;
+
 		public frmMain()
 		{
 			InitializeComponent();
@@ -73,11 +75,17 @@ namespace AAVRec
 			running = false;
 		}
 
-	    private Queue<string> errorMessagesQueue = new Queue<string>();
-
         public void OnError(int errorCode, string errorMessage)
         {
-            errorMessagesQueue.Enqueue(errorMessage);
+            overlayManager.OnError(errorCode, errorMessage);
+        }
+
+        public void OnEvent(int eventId, string eventData)
+        {
+            if (eventId == 1)
+                stateManager.RegisterOcrError();
+
+            overlayManager.OnEvent(eventId, eventData);
         }
 
 		private void ConnectToCamera()
@@ -116,6 +124,8 @@ namespace AAVRec
                             ResizeVideoFrameTo(imageWidth, imageHeight);
                             tssIntegrationRate.Visible = Settings.Default.IsIntegrating && Settings.Default.FileFormat == "AAV";
                             pnlAAV.Visible = Settings.Default.FileFormat == "AAV";
+
+                            overlayManager = new OverlayManager(videoObject.Width, videoObject.Height);
                         }
 
                         stateManager.CameraConnected(driverInstance);
@@ -142,6 +152,12 @@ namespace AAVRec
 				videoObject.Disconnect();
 				videoObject = null;
 			}
+
+            if (overlayManager != null)
+            {
+                overlayManager.Finalise();
+                overlayManager = null;
+            }
 
 			UpdateCameraState(false);
 		    tssIntegrationRate.Visible = false;
@@ -258,41 +274,6 @@ namespace AAVRec
 		private double renderFps = double.NaN;
 		private long currentFrameNo = 0;
 
-	    private string currMessageToDisplay = null;
-	    private DateTime displayMessageUntil = DateTime.MinValue;
-
-        private static Font errorMessagesFont = new Font(FontFamily.GenericMonospace, 10);
-
-        private void PrintCurrentErrorMessage(Graphics g)
-        {
-            SizeF msgMeasurement = g.MeasureString(currMessageToDisplay, errorMessagesFont);
-
-            g.FillRectangle(Brushes.DarkSlateGray, pictureBox.Image.Width - msgMeasurement.Width - 9, 3, msgMeasurement.Width + 6, msgMeasurement.Height + 6);
-            g.DrawString(currMessageToDisplay, errorMessagesFont, Brushes.Yellow, pictureBox.Image.Width - msgMeasurement.Width - 6, 6);
-        }
-
-        private void ProcessErrorMessages(Graphics g)
-        {
-            if (displayMessageUntil != DateTime.MinValue && currMessageToDisplay != null)
-            {
-                if (DateTime.Now.Ticks > displayMessageUntil.Ticks)
-                {
-                    displayMessageUntil = DateTime.MinValue;
-                    currMessageToDisplay = null;
-                }
-                else
-                    PrintCurrentErrorMessage(g);
-            }
-            else
-            {
-                if (errorMessagesQueue.Count > 0)
-                {
-                    currMessageToDisplay = errorMessagesQueue.Dequeue();
-                    displayMessageUntil = DateTime.Now.AddSeconds(5);
-                    PrintCurrentErrorMessage(g);
-                }
-            }
-        }
 
         private void PaintVideoFrame(VideoFrameWrapper frame, Bitmap bmp)
 		{
@@ -311,7 +292,8 @@ namespace AAVRec
 					else
 						g.DrawImage(bmp, 0, 0);
 
-				    ProcessErrorMessages(g);
+                    if (overlayManager != null)
+    				    overlayManager.ProcessFrame(g);
 
 					g.Save();
 				}
@@ -339,7 +321,8 @@ namespace AAVRec
 			{
 			    g.DrawImage(bmp, 0, 0);
 
-                ProcessErrorMessages(g);
+                if (overlayManager != null)
+			        overlayManager.ProcessFrame(g);
 
 			    g.Save();
 			}
@@ -665,7 +648,6 @@ namespace AAVRec
                         {
                             string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
                             recordingfileName = videoObject.StartRecording(fileName);
-                            Console.Beep();
                             UpdateState();
                         }
                         break;
@@ -674,7 +656,6 @@ namespace AAVRec
                         if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
                         {
                             videoObject.StopRecording();
-                            Console.Beep();
                             UpdateState();
                         }
                         break;
@@ -706,7 +687,7 @@ namespace AAVRec
         {
             try
             {
-                DateTime networkUTCTime = NTPClient.GetNetworkTime();
+                DateTime networkUTCTime = NTPClient.GetNetworkTime(Settings.Default.NTPServer);
                 NTPClient.SetTime(networkUTCTime);
             }
             catch (Exception ex)

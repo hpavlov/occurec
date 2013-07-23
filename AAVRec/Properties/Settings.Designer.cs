@@ -334,5 +334,29 @@ namespace AAVRec.Properties {
                 this["AavImageLayout"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("time.windows.com")]
+        public string NTPServer {
+            get {
+                return ((string)(this["NTPServer"]));
+            }
+            set {
+                this["NTPServer"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OcrSimulatorNativeCode {
+            get {
+                return ((bool)(this["OcrSimulatorNativeCode"]));
+            }
+            set {
+                this["OcrSimulatorNativeCode"] = value;
+            }
+        }
     }
 }

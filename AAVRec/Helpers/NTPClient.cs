@@ -12,7 +12,7 @@ namespace AAVRec.Helpers
     public class NTPClient
     {
         // http://stackoverflow.com/questions/1193955/how-to-query-an-ntp-server-using-c
-        public static DateTime GetNetworkTime(string ntpServer = "time.windows.com")
+        public static DateTime GetNetworkTime(string ntpServer)
         {
             // NTP message size - 16 bytes of the digest (RFC 2030)
             var ntpData = new byte[48];

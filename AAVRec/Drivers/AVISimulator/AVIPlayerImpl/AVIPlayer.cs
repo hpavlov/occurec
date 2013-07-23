@@ -30,13 +30,16 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
         private int m_FrameCount;
         private double m_FrameRate;
 
-        private ManagedOcrTester ocrTester = null;
+        private IOcrTester ocrTester = null;
+        private bool ocrEnabled = false;
 
         public bool IsRunning
         {
             get;
             private set;
         }
+
+        internal IVideoCallbacks callbacksObject;
 
         public AVIPlayer(string fileName, float frameRate)
         {
@@ -46,7 +49,18 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
             OpenVideoFile();
 
             IsRunning = false;
-            ocrTester = new ManagedOcrTester();
+
+            if (Settings.Default.OcrSimulatorNativeCode)
+                ocrTester = new NativeOcrTester();    
+            else
+                ocrTester = new ManagedOcrTester();
+
+            string errorMessage = ocrTester.Initialize(ImageWidth, ImageHeight);
+
+            if (errorMessage != null && callbacksObject != null)
+                callbacksObject.OnError(-1, errorMessage);
+            else
+                ocrEnabled = true;
         }
 
         public int ImageWidth { get; private set; }
@@ -163,7 +177,13 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
                     using (Bitmap bmp = GetImageAtTime(frameTime))
                     {
                         int[,] pixels = ImageUtils.GetPixelArray(bmp, AdvImageSection.GetPixelMode.Raw8Bit);
-                        ocrTester.ProcessFrame(pixels);
+                        OsdFrameInfo frameInfo = ocrTester.ProcessFrame(pixels);
+                        if (callbacksObject != null)
+                        {
+                            callbacksObject.OnEvent(0, frameInfo.ToDisplayString());
+                            if (!frameInfo.FrameInfoIsOk())
+                                callbacksObject.OnEvent(1, null);
+                        }
                     }
                 }
             }
@@ -264,6 +284,18 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
             }
 
             return null;
+        }
+
+        public bool DisableOcr()
+        {
+            if (ocrEnabled)
+            {
+                ocrTester.DisableOcr();
+                ocrEnabled = false;
+                return true;
+            }
+            else
+                return false;
         }
     }
 }

@@ -38,6 +38,11 @@ namespace AAVRec.Helpers
             }
         }
 
+        public void OnEvent(int eventId, string eventData)
+        {
+            
+        }
+
 		public void SetFreeRangeGainIntervals(short numIntervals)
 		{
 			if (SupporstFreeStyleGain)

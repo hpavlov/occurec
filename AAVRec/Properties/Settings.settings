@@ -80,5 +80,11 @@
     <Setting Name="AavImageLayout" Type="AAVRec.Helpers.AavImageLayout" Scope="User">
       <Value Profile="(Default)">CompressedRaw</Value>
     </Setting>
+    <Setting Name="NTPServer" Type="System.String" Scope="User">
+      <Value Profile="(Default)">time.windows.com</Value>
+    </Setting>
+    <Setting Name="OcrSimulatorNativeCode" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

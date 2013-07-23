@@ -19,7 +19,7 @@ namespace AAVRec.Drivers.AAVSimulator.AAVPlayerImpl
         private AstroDigitalVideoStream aavStream;
         private float frameRate;
         private object syncRoot = new object();
-        private ManagedOcrTester ocrTester = null;
+        private IOcrTester ocrTester = null;
         
         public bool IsRunning
         {
@@ -42,13 +42,27 @@ namespace AAVRec.Drivers.AAVSimulator.AAVPlayerImpl
             get { return aavStream.BitPix; }
         }
 
+        internal IVideoCallbacks callbacksObject;
+        private bool ocrEnabled = false;
+
         public AAVPlayer(string fileName, float frameRate)
         {
             aavStream = AstroDigitalVideoStream.OpenADVFile(fileName);
             this.frameRate = frameRate;
 
             IsRunning = false;
-            ocrTester = new ManagedOcrTester();
+
+            if (Settings.Default.OcrSimulatorNativeCode)
+                ocrTester = new NativeOcrTester();
+            else
+                ocrTester = new ManagedOcrTester();
+
+            string errorMessage = ocrTester.Initialize(ImageWidth, ImageHeight);
+
+            if (errorMessage != null && callbacksObject != null)
+                callbacksObject.OnError(-1, errorMessage);
+            else
+                ocrEnabled = true;
         }
 
         public void Start()
@@ -119,6 +133,18 @@ namespace AAVRec.Drivers.AAVSimulator.AAVPlayerImpl
             bmp = aavStream.GetFrame(frameNumber);
             
             return true;
+        }
+
+        public bool DisableOcr()
+        {
+            if (ocrEnabled)
+            {
+                ocrTester.DisableOcr();
+                ocrEnabled = false;
+                return true;
+            }
+            else
+                return false;
         }
     }
 }

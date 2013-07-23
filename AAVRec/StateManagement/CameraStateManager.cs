@@ -11,9 +11,14 @@ namespace AAVRec.StateManagement
     public class CameraStateManager
     {
         private static long MIN_CONSEQUTIVE_FRAMES_TO_LOCK_INTEGRATION = 4;
+        private static long MAX_ORC_ERRORS_PER_RUN = 100;
 
         private CameraState currentState;
         private IVideo driverInstance;
+        private List<string> driverInstanceSupportedActions;
+
+        private int ocrErrors;
+        private bool ocrMayBeRunning;
 
         public void ProcessFrame(VideoFrameWrapper frame)
         {
@@ -24,12 +29,17 @@ namespace AAVRec.StateManagement
         public void CameraConnected(IVideo driverInstance)
         {
             this.driverInstance = driverInstance;
+            ocrErrors = 0;
+            driverInstanceSupportedActions = driverInstance.SupportedActions.Cast<string>().ToList();
+
+            ocrMayBeRunning = driverInstanceSupportedActions.Contains("DisableOcr");
 
             if (driverInstance is Drivers.AAVTimer.Video)
                 ChangeState(UndeterminedIntegrationCameraState.Instance);
             else
                 ChangeState(NoIntegrationSupportedCameraState.Instance);
         }
+
         public void ChangeState(CameraState newState)
         {
             if (currentState != null)
@@ -126,43 +136,75 @@ namespace AAVRec.StateManagement
         {
             if (!IsTestingIotaVtiOcr && currentState is UndeterminedIntegrationCameraState)
             {
-                string result = driverInstance.Action("StartIotaVtiOcrTesting", null);
-
-                bool boolResult;
-                bool.TryParse(result, out boolResult);
-
-                if (boolResult)
-                {
-                    ChangeState(IotaVtiOcrTestingState.Instance);
-
-                    return true;
-                }
-                else
-                    return false;
+                return StartIotaVtiOcrTesting();
             }
             else if (IsTestingIotaVtiOcr && currentState is IotaVtiOcrTestingState)
             {
-                string result = driverInstance.Action("StopIotaVtiOcrTesting", null);
-
-                bool boolResult;
-                bool.TryParse(result, out boolResult);
-
-                if (boolResult)
-                {
-                    ChangeState(UndeterminedIntegrationCameraState.Instance);
-
-                    return true;
-                }
-                else
-                    return false;
+                return StopIotaVtiOcrTesting();
             }
 
             return false;
         }
 
+        private bool StartIotaVtiOcrTesting()
+        {
+            string result = driverInstance.Action("StartIotaVtiOcrTesting", null);
+
+            bool boolResult;
+            bool.TryParse(result, out boolResult);
+
+            if (boolResult)
+            {
+                ChangeState(IotaVtiOcrTestingState.Instance);
+
+                return true;
+            }
+            else
+                return false;            
+        }
+
+        private bool StopIotaVtiOcrTesting()
+        {
+            string result = driverInstance.Action("StopIotaVtiOcrTesting", null);
+
+            bool boolResult;
+            bool.TryParse(result, out boolResult);
+
+            if (boolResult)
+            {
+                ChangeState(UndeterminedIntegrationCameraState.Instance);
+
+                return true;
+            }
+            else
+                return false;            
+        }
+
         public bool IsTestingIotaVtiOcr
         {
             get { return currentState is IotaVtiOcrTestingState; }
+        }
+
+        public void RegisterOcrError()
+        {
+            ocrErrors++;
+
+            if (ocrErrors > MAX_ORC_ERRORS_PER_RUN)
+            {
+                if (IsTestingIotaVtiOcr)
+                {
+                    if (currentState is IotaVtiOcrTestingState)
+                        StopIotaVtiOcrTesting();
+                }
+                else
+                {
+                    if (ocrMayBeRunning)
+                    {
+                        driverInstance.Action("DisableOcr", null);
+                        ocrMayBeRunning = false;
+                    }
+                }
+            }
         }
     }
 }

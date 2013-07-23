@@ -13,7 +13,39 @@ using AAVRec.Properties;
 
 namespace AAVRec.OCR
 {
-    internal class ManagedOcrTester
+    internal interface IOcrTester
+    {
+        string Initialize(int imageWidth, int imageHeight);
+        void Reset();
+        OsdFrameInfo ProcessFrame(int[,] pixels);
+        void DisableOcr();
+    }
+
+    internal class NativeOcrTester : IOcrTester
+    {
+        public string Initialize(int imageWidth, int imageHeight)
+        {
+            return NativeHelpers.SetupOcr();            
+        }
+
+        public void Reset()
+        {
+            
+        }
+
+        public OsdFrameInfo ProcessFrame(int[,] pixels)
+        {
+            //throw new NotImplementedException();
+            return new OsdFrameInfo(new OsdFieldInfo(), new OsdFieldInfo());
+        }
+
+        public void DisableOcr()
+        {
+            NativeHelpers.DisableOcr();            
+        }
+    }
+
+    internal class ManagedOcrTester : IOcrTester
     {
         private List<OcredChar> ocredCharsOdd = new List<OcredChar>();
         private List<OcredChar> ocredCharsEven = new List<OcredChar>();
@@ -23,8 +55,9 @@ namespace AAVRec.OCR
 	    private ICameraImage cameraImage;
         private StateContext testContext;
         private bool generateDebugImages;
+        private bool ocrEnabled = false;
 
-        public ManagedOcrTester()
+        public string Initialize(int imageWidth, int imageHeight)
         {
             for (int i = 0; i < OcrSettings.Instance.Alignment.CharPositions.Count; i++)
             {
@@ -39,18 +72,20 @@ namespace AAVRec.OCR
             }
 
             zoneChecker = new OcrZoneChecker(
-                OcrSettings.Instance.Alignment.Width, 
-                OcrSettings.Instance.Alignment.Height, 
+                OcrSettings.Instance.Alignment.Width,
+                OcrSettings.Instance.Alignment.Height,
                 OcrSettings.Instance.Zones,
                 OcrSettings.Instance.Alignment.CharPositions);
 
             charRecognizer = new OcrCharRecognizer(
-                OcrSettings.Instance.Zones, 
+                OcrSettings.Instance.Zones,
                 OcrSettings.Instance.CharDefinitions);
 
-			cameraImage = new CameraImage();
+            cameraImage = new CameraImage();
             testContext = new StateContext();
             generateDebugImages = false;
+
+            return null;
         }
 
         private string outputDebugFolder;
@@ -63,12 +98,16 @@ namespace AAVRec.OCR
             outputDebugFolder = Path.GetFullPath(string.Format("{0}\\{1}-{2}", Settings.Default.OcrDebugOutputFolder, DateTime.Now.ToString("dd-MMM-HHmm-"), Guid.NewGuid()));
             Directory.CreateDirectory(outputDebugFolder);
             outputDebugFileCounter = 0;
+            ocrEnabled = true;
         }
 
         private static Font s_DebugFont = new Font(FontFamily.GenericMonospace, 14, FontStyle.Bold, GraphicsUnit.Pixel);
 
         public OsdFrameInfo ProcessFrame(int[,] pixels)
-        {			
+        {
+            if (!ocrEnabled)
+                return new OsdFrameInfo(new OsdFieldInfo(), new OsdFieldInfo());
+
             int IMAGE_HEIGHT = pixels.GetLength(0);
             int IMAGE_WIDTH = pixels.GetLength(1);
 
@@ -231,6 +270,11 @@ namespace AAVRec.OCR
             b.UnlockBits(bmData);
 
             return b;
+        }
+
+        public void DisableOcr()
+        {
+            ocrEnabled = false;
         }
     }
 }

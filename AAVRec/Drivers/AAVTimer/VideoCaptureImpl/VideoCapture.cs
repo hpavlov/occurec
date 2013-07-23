@@ -244,5 +244,10 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
         {
             return true;
         }
+
+        public bool DisableOcr()
+        {
+            return dsCapture.DisableOcr();
+        }
 	}
 }

@@ -658,7 +658,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		unsigned char* ptrFramePixels = frame->Pixels;
 
 		bool runOCR = false;
-		if (OCR_ZONE_MATRIX && NULL != firstFrameOcrProcessor)
+		if (OCR_IS_SETUP && OCR_ZONE_MATRIX && NULL != firstFrameOcrProcessor)
 		{
 			firstFrameOcrProcessor->NewFrame();
 			lastFrameOcrProcessor->NewFrame();
@@ -950,6 +950,13 @@ HRESULT StopRecording(long* pixels)
 	WaitForSingleObject(hRecordingThread, INFINITE); // wait for thread to exit
 
 	AavEndFile();
+
+	return S_OK;
+}
+
+HRESULT DisableOcrProcessing()
+{
+	OCR_IS_SETUP = false;
 
 	return S_OK;
 }

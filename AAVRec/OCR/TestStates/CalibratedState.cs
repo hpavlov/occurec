@@ -86,7 +86,7 @@ namespace AAVRec.OCR.TestStates
             int totalDigits = 1 + (int)Math.Log10(expectedFieldNumber);
             int problemWithDigitAtPosition = totalDigits - (int)((expectedFieldNumber - detectedFieldNo) / 10);
 
-            if (problemWithDigitAtPosition <= 0)
+            if (problemWithDigitAtPosition <= 0 || problemWithDigitAtPosition > totalDigits)
             {
                 // There is undetected digit from the 'detected' timestamp
                 RequestFullTimeStampDump();

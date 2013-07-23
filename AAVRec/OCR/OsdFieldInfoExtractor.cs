@@ -114,6 +114,18 @@ namespace AAVRec.OCR
 
             return true;
         }
+
+        public string ToDisplayString()
+        {
+            return string.Format("{0}{1}{2} {3} {4} - {5} {6}", 
+                FirstField.NumSatellites,
+                FirstField.GpsFixStyatus,
+                FirstField.GpsAlmanacOk ? " " : "W",
+                FirstField.TimeStamp.ToString("dd-MMM-yyyy HH:mm:ss.ffff"),
+                FirstField.FieldNumber,
+                SecondField.TimeStamp.ToString("dd-MMM-yyyy HH:mm:ss.ffff"),
+                FirstField.FieldNumber);
+        }
     }
 
 

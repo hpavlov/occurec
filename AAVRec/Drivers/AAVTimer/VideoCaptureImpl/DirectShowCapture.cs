@@ -53,6 +53,7 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 		
 		// NOTE: If the graph doesn't show up in GraphEdit then see this: http://sourceforge.net/p/directshownet/discussion/460697/thread/67dbf387
 		private DsROTEntry rot = null;
+	    private bool ocrEnabled = false;
 
 	    internal IVideoCallbacks callbacksObject;
 
@@ -77,8 +78,11 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 
 			    string errorMessage = NativeHelpers.SetupOcr();
+
 			    if (errorMessage != null && callbacksObject != null)
 			        callbacksObject.OnError(-1, errorMessage);
+			    else
+			        ocrEnabled = true;
 			}
 			catch
 			{
@@ -473,7 +477,6 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
                 IAMVfwCompressDialogs compressDialog = dev as IAMVfwCompressDialogs;
                 if (compressDialog != null)
                 {
-
                     hr = compressDialog.ShowDialog(VfwCompressDialogs.Config, IntPtr.Zero);
                     DsError.ThrowExceptionForHR(hr);
                 }
@@ -520,6 +523,18 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
         {
             if (crossbar != null)
                 CrossbarHelper.LoadCrossbarSources(crossbar, comboBox);
+        }
+
+        public bool DisableOcr()
+        {
+            if (ocrEnabled)
+            {
+                NativeHelpers.DisableOcr();
+                ocrEnabled = false;
+                return true;    
+            }
+            else
+                return false;
         }
 	}
 }

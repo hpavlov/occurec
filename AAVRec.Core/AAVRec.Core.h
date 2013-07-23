@@ -68,6 +68,7 @@ HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameT
 HRESULT SetupOcrZoneMatrix(long* matrix);
 HRESULT SetupOcrChar(char character, long fixedPosition);
 HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue);
+HRESULT DisableOcrProcessing();
 HRESULT SetupAav(int useImageLayout);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* imageStatus);

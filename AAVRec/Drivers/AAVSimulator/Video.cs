@@ -94,7 +94,9 @@ namespace AAVRec.Drivers.AAVSimulator
 		{ }
 
         public void SetCallbacks(IVideoCallbacks callbacksObject)
-        { }
+        {
+            player.callbacksObject = callbacksObject;
+        }
 
 		private void AssertConnected()
 		{ }
@@ -102,6 +104,12 @@ namespace AAVRec.Drivers.AAVSimulator
 		[DebuggerStepThrough]
 		public string Action(string ActionName, string ActionParameters)
 		{
+            if (string.Compare(ActionName, "DisableOcr", StringComparison.InvariantCultureIgnoreCase) == 0)
+            {
+                AssertConnected();
+                return player.DisableOcr().ToString(CultureInfo.InvariantCulture);
+            }
+
             throw new NotImplementedException();
 		}
 
@@ -109,7 +117,7 @@ namespace AAVRec.Drivers.AAVSimulator
 		{
 			get
 			{
-                return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration" });
+                return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "DisableOcr" });
 			}
 		}
 

@@ -37,6 +37,8 @@ namespace AAVRec
             nudMaxErrorsPerTestRun.Value = Settings.Default.OcrMaxErrorsPerCameraTestRun;
             cbxOcrSimlatorTestMode.Checked = Settings.Default.OcrSimulatorTestMode;
             cbxSimulatorRunOCR.Checked = Settings.Default.SimulatorRunOCR;
+            tbxNTPServer.Text = Settings.Default.NTPServer;
+		    rbNativeOCR.Checked = Settings.Default.OcrSimulatorNativeCode;
 
 		    cbxImageLayoutMode.Items.Clear();
             cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedRaw);
@@ -45,6 +47,8 @@ namespace AAVRec
             cbxImageLayoutMode.Items.Add(AavImageLayout.UncompressedRaw);
 
             cbxImageLayoutMode.SelectedIndex = cbxImageLayoutMode.Items.IndexOf(Settings.Default.AavImageLayout);
+
+            UpdateControls();
 		}
 
         private void frmSettings_Load(object sender, EventArgs e)
@@ -85,6 +89,8 @@ namespace AAVRec
             Settings.Default.OcrMaxErrorsPerCameraTestRun = (int)nudMaxErrorsPerTestRun.Value;
             Settings.Default.OcrSimulatorTestMode = cbxOcrSimlatorTestMode.Checked;
             Settings.Default.SimulatorRunOCR = cbxSimulatorRunOCR.Checked;
+            Settings.Default.NTPServer = tbxNTPServer.Text;
+            Settings.Default.OcrSimulatorNativeCode = rbNativeOCR.Checked;
             Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
 
             Settings.Default.Save();
@@ -117,6 +123,17 @@ namespace AAVRec
             {
                 tbxOcrDebugOutputLocation.Text = folderBrowserDialog.SelectedPath;
             }
+        }
+
+        private void cbxSimulatorRunOCR_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateControls();
+        }
+
+        private void UpdateControls()
+        {
+            rbManagedSim.Enabled = cbxSimulatorRunOCR.Checked;
+            rbNativeOCR.Enabled = cbxSimulatorRunOCR.Checked;            
         }
 	}
 }
