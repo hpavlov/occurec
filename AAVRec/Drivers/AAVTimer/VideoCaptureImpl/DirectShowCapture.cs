@@ -57,7 +57,7 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
 	    internal IVideoCallbacks callbacksObject;
 
-		public void SetupGraph(DsDevice dev, ref float iFrameRate, ref int iWidth, ref int iHeight)
+		public void SetupGraph(DsDevice dev, bool runOCR, ref float iFrameRate, ref int iWidth, ref int iHeight)
 		{
 			try
 			{
@@ -77,12 +77,21 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 
-			    string errorMessage = NativeHelpers.SetupOcr();
+			    ocrEnabled = false;
 
-			    if (errorMessage != null && callbacksObject != null)
-			        callbacksObject.OnError(-1, errorMessage);
-			    else
-			        ocrEnabled = true;
+                string errorMessage = NativeHelpers.SetupBasicOcrMetrix();
+                if (errorMessage != null && callbacksObject != null)
+                    callbacksObject.OnError(-1, errorMessage);
+                else
+                {
+                    if (runOCR)
+                    {
+                        NativeHelpers.SetupOcr();
+                        ocrEnabled = true;
+                    }
+                    else
+                        callbacksObject.OnError(-1, "IOTA VTI Timestamp OCR is disabled.");                    
+                }
 			}
 			catch
 			{

@@ -189,6 +189,9 @@ bool IsNewIntegrationPeriod(float diffSignature)
 
 	float diff = 0;
 	bool isNewIntegrationPeriod = false;
+	
+	if (idxFrameNumber % 128 == 0)
+		RecalculateLowIntegrationMetrics();
 
 	if (lowFrameIntegrationMode == 1)
 	{
@@ -371,8 +374,7 @@ HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameT
 	
 	MEDIAN_CALC_INDEX_FROM = MEDIAN_CALC_ROWS_FROM * IMAGE_WIDTH;
 	MEDIAN_CALC_INDEX_TO = MEDIAN_CALC_ROWS_TO * IMAGE_WIDTH;
-
-	OCR_IS_SETUP = true;
+	
 	return S_OK;
 }
 
@@ -383,6 +385,7 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 
 	memcpy(OCR_ZONE_MATRIX, matrix, IMAGE_TOTAL_PIXELS);
 
+	OCR_IS_SETUP = true;
 	return S_OK;
 }
 
@@ -483,7 +486,9 @@ HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochr
 
 	ghMutex = CreateMutex( NULL, FALSE, NULL); 
 	
+#if _DEBUG
 	DebugViewPrint(L"SetupCamera(SIGNATURE_DIFFERENCE_FACTOR = %.2f; INTEGRATION_LOCKED = %d)\n", SIGNATURE_DIFFERENCE_FACTOR, INTEGRATION_LOCKED); 
+#endif
 
 	return S_OK;
 }
@@ -636,6 +641,61 @@ void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev, fl
 	*signatureThisTwoAgo = *signatureThisTwoAgo / 1024.0;
 }
 
+void CalculateDiffSignature2(long* pixels, float* signatureThisPrev, float* signatureThisTwoAgo)
+{
+	numberOfDiffSignaturesCalculated++;
+
+	long* ptrLongBuf = pixels + (IMAGE_WIDTH * (IMAGE_HEIGHT / 2 - 1) + (3 * (IMAGE_WIDTH / 2)));
+
+	unsigned char* ptrTwoFramesAgoPixels;
+	unsigned char* ptrPrevPixels;
+	unsigned char* ptrThisPixels;
+	
+	switch(numberOfDiffSignaturesCalculated % 3)
+	{
+		case 0:
+			ptrTwoFramesAgoPixels = prtPreviousDiffArea;
+			ptrPrevPixels		  = prtPreviousDiffArea + IMAGE_WIDTH * 3;
+			ptrThisPixels		  = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
+			break;
+
+		case 1:
+			ptrTwoFramesAgoPixels = prtPreviousDiffArea + IMAGE_WIDTH * 3;
+			ptrPrevPixels		  = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
+			ptrThisPixels		  = prtPreviousDiffArea;
+			break;
+
+		case 2:
+			ptrTwoFramesAgoPixels = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
+			ptrPrevPixels		  = prtPreviousDiffArea;
+			ptrThisPixels		  = prtPreviousDiffArea + IMAGE_WIDTH * 3;
+			break;
+	}
+
+	*signatureThisPrev = 0;
+	*signatureThisTwoAgo = 0;
+
+	for(int y = 0; y < 32; y++)
+	{
+		for(int x = 0; x < 32; x++)
+		{
+			*ptrThisPixels = *ptrLongBuf & 0xFF;
+
+			*signatureThisPrev += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
+			// NOTE: The second Diff signature is not used at the moment so don't waste time computing it
+			//*signatureThisTwoAgo += abs((float)*ptrThisPixels - (float)*ptrTwoFramesAgoPixels) / 2.0;
+
+			ptrThisPixels++;
+			ptrPrevPixels++;
+			ptrTwoFramesAgoPixels++;
+			ptrLongBuf++;
+		}
+	}
+
+	*signatureThisPrev = *signatureThisPrev / 1024.0;
+	*signatureThisTwoAgo = *signatureThisTwoAgo / 1024.0;
+}
+
 long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks)
 {
 	// TODO: Prepare a new IntegratedFrame object, copy the averaged integratedPixels, set the start/end frame and timestamp, put in the buffer for recording.
@@ -665,8 +725,13 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			runOCR = true;
 		}
 
+		int restoredPixels = 0;
+
 		for (long i=0; i < IMAGE_TOTAL_PIXELS; i++)
 		{
+			long pixX = i % IMAGE_WIDTH;
+			long pixY = i / IMAGE_WIDTH; 
+
 			if (runOCR && i >= MEDIAN_CALC_INDEX_FROM && i <= MEDIAN_CALC_INDEX_TO)
 			{
 				firstFrameOcrProcessor->AddMedianComputationPixel(firstIntegratedFramePixels[i]);
@@ -678,9 +743,6 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				long packedInfo = OCR_ZONE_MATRIX[i];
 				if (packedInfo != 0)
 				{
-					long pixX = i % IMAGE_WIDTH;
-					long pixY = i / IMAGE_WIDTH; 
-
 					firstFrameOcrProcessor->ProcessZonePixel(packedInfo, pixX, pixY, firstIntegratedFramePixels[i]);
 					lastFrameOcrProcessor->ProcessZonePixel(packedInfo,  pixX, pixY, lastIntegratedFramePixels[i]);
 				}
@@ -722,13 +784,31 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				}
 			}
 
-			// TODO: Preserve the timestamp pixels from the first and last integrated frame in the final image
-			//		 Use firstIntegratedFramePixels and last IntegratedFramePixels for this
+			if (pixY >= OCR_FRAME_TOP_ODD && pixY < OCR_FRAME_TOP_EVEN + OCR_CHAR_HEIGHT)
+			{
+				restoredPixels++;
+
+				// Preserve the timestamp pixels from the first and last integrated frame in the final image
+				if (pixY % 2 == 0)
+				{
+					*ptrFramePixels = firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+					*ptr8BitPixels = *ptrFramePixels;
+				}
+				else
+				{
+					*ptrFramePixels = lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+					*ptr8BitPixels = *ptrFramePixels;
+				}
+			}
 
 			ptr8BitPixels++;
 			ptrFramePixels++;
 			ptrPixels++;
 		}
+
+#if _DEBUG
+		DebugViewPrint(L"Restored Pixels: %d\n", restoredPixels);
+#endif
 
 		// TODO: The OCR logic will run here and will set the values of: idxFirstFrameNumber, idxFirstFrameTimestamp, idxLastFrameNumber and idxLastFrameTimestamp
 		//		 Run the OCR logic on firstIntegratedFramePixels and lastIntegratedFramePixels
@@ -777,6 +857,78 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 		return numItems;
 	}
+}
+
+HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+{
+	frameInfo->FrameDiffSignature = 0;
+
+	float diffSignature;
+	float diffSignature2;
+
+	// NOTE: Remove the diffSignature2 code if diffSignature logic for 1-frame and 2-frame integrations work
+	CalculateDiffSignature2(pixels, &diffSignature, &diffSignature2);
+
+	idxFrameNumber++;
+
+	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
+
+	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
+	// When the integration hasn't been 'locked' we output every frame received from the camera
+	bool showOutputFrame = isNewIntegrationPeriod || !INTEGRATION_LOCKED;
+
+	if (showOutputFrame)
+	{
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks);
+		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
+
+		if (isNewIntegrationPeriod)
+		{
+			numberOfIntegratedFrames = 0;
+
+			idxFirstFrameNumber = idxFrameNumber;
+			//idxFirstFrameTimestamp = currentUtcDayAsTicks;
+			idxLastFrameNumber = 0;
+			//idxLastFrameTimestamp = 0;
+		}
+	}
+
+	frameInfo->FrameDiffSignature  = diffSignature;
+	frameInfo->CurrentSignatureRatio  = currentSignatureRatio;
+
+	long stride = 3 * IMAGE_WIDTH;
+	long* ptrPixelItt = pixels;
+
+	double* ptrPixels = integratedPixels;
+
+	unsigned char* ptrFirstOrLastFrameCopy = numberOfIntegratedFrames == 0 ? firstIntegratedFramePixels : lastIntegratedFramePixels;
+	
+	for (int y = 0; y < IMAGE_HEIGHT; y++)
+	{
+		for (int x = 0; x < IMAGE_WIDTH; x++)
+		{
+			unsigned char thisPixel = *ptrPixelItt & 0xFF;
+
+			// Saving the first/last frame raw pixels for OCR-ing
+			*ptrFirstOrLastFrameCopy = thisPixel;
+		    *ptrPixels += thisPixel;
+
+			ptrPixels++;
+			ptrFirstOrLastFrameCopy++;
+			ptrPixelItt++;
+		}
+	}
+
+	numberOfIntegratedFrames++;
+
+	idxLastFrameNumber = idxFrameNumber;
+	//idxLastFrameTimestamp = currentUtcDayAsTicks;
+
+	frameInfo->CameraFrameNo = idxFrameNumber;
+	frameInfo->IntegratedFrameNo = idxIntegratedFrameNumber;
+	frameInfo->IntegratedFramesSoFar = numberOfIntegratedFrames;
+
+	return S_OK;
 }
 
 HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
@@ -899,16 +1051,22 @@ void RecorderThreadProc( void* pContext )
 {
 	while(recording)
 	{
-		IntegratedFrame* nextFrame = FetchFrameFromRecordingBuffer();
+		IntegratedFrame* nextFrame = NULL;
 
-		if (nextFrame != NULL)
+		do
 		{
-			unsigned char* dataToSave;
+			nextFrame = FetchFrameFromRecordingBuffer();
 
-			ProcessCurrentFrame(nextFrame);
+			if (nextFrame != NULL)
+			{
+				unsigned char* dataToSave;
 
-			delete nextFrame;
+				ProcessCurrentFrame(nextFrame);
+
+				delete nextFrame;
+			}
 		}
+		while(nextFrame != NULL);
 	};
 
     _endthread();
@@ -945,7 +1103,24 @@ HRESULT StartRecording(LPCTSTR szFileName)
 
 HRESULT StopRecording(long* pixels)
 {
+	// Add the current 'first' frame from the integration period so it is saved, then stop the recording
+	WaitForSingleObject(ghMutex, INFINITE);
+
 	recording = false;
+
+	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
+	memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
+
+	frame->NumberOfIntegratedFrames = 0;
+	frame->StartFrameId = -1;
+	frame->EndFrameId = -1;
+	frame->StartTimeStamp = 0;
+	frame->EndTimeStamp = 0;
+	frame->FrameNumber = -1;
+
+	recordingBuffer.push_back(frame);
+
+	ReleaseMutex(ghMutex);
 
 	WaitForSingleObject(hRecordingThread, INFINITE); // wait for thread to exit
 

@@ -30,6 +30,7 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
         private int m_FrameCount;
         private double m_FrameRate;
 
+        private bool fullAAVSimulation;
         private IOcrTester ocrTester = null;
         private bool ocrEnabled = false;
 
@@ -41,21 +42,41 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
 
         internal IVideoCallbacks callbacksObject;
 
-        public AVIPlayer(string fileName, float frameRate)
+        public AVIPlayer(string fileName, float frameRate, bool fullAAVSimulation)
         {
             this.m_FileName = fileName;
             this.frameRate = frameRate;
+            this.fullAAVSimulation = fullAAVSimulation;
 
             OpenVideoFile();
 
             IsRunning = false;
+            string errorMessage;
+
+            if (fullAAVSimulation)
+            {
+                NativeHelpers.SetupCamera(
+                       Settings.Default.CameraModel,
+                       ImageWidth, ImageHeight,
+                       Settings.Default.FlipHorizontally,
+                       Settings.Default.FlipVertically,
+                       Settings.Default.IsIntegrating,
+                       (float)Settings.Default.SignatureDiffFactorEx2,
+                       (float)Settings.Default.MinSignatureDiff);
+
+                NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
+
+                errorMessage = NativeHelpers.SetupBasicOcrMetrix();
+                if (errorMessage != null && callbacksObject != null)
+                    callbacksObject.OnError(-1, errorMessage);                
+            }
 
             if (Settings.Default.OcrSimulatorNativeCode)
                 ocrTester = new NativeOcrTester();    
             else
                 ocrTester = new ManagedOcrTester();
 
-            string errorMessage = ocrTester.Initialize(ImageWidth, ImageHeight);
+            errorMessage = ocrTester.Initialize(ImageWidth, ImageHeight);
 
             if (errorMessage != null && callbacksObject != null)
                 callbacksObject.OnError(-1, errorMessage);
@@ -156,55 +177,71 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
         }
 
         private long frameCounter = 0;
+        private FrameProcessingStatus frameStatus;
 
         private void Run(object state)
         {
-
             int waitTimeMs = (int)(1000 / frameRate);
 
             while (IsRunning)
             {
-                lock (syncRoot)
-                {
-                    frameCounter++;
-                }
+                long nextFrameCounterValue = frameCounter + 1;
+                FrameProcessingStatus nextFrameStatus = FrameProcessingStatus.Empty;
 
                 Thread.Sleep(waitTimeMs);
 
-                if (Settings.Default.SimulatorRunOCR)
+                if (Settings.Default.SimulatorRunOCR || fullAAVSimulation)
                 {
-                    long frameNo = 0 + (frameCounter % m_FrameCount);
-                    double frameTime = ConvertFrameNumberToSeconds((int)frameNo);
+                    long frameNo = 0 + (frameCounter%m_FrameCount);
+                    double frameTime = ConvertFrameNumberToSeconds((int) frameNo);
                     using (Bitmap bmp = GetImageAtTime(frameTime))
                     {
                         int[,] pixels = ImageUtils.GetPixelArray(bmp, AdvImageSection.GetPixelMode.Raw8Bit);
-                        OsdFrameInfo frameInfo = ocrTester.ProcessFrame(pixels, frameNo);
-                        if (callbacksObject != null && frameInfo != null)
+
+                        if (fullAAVSimulation)
                         {
-                            callbacksObject.OnEvent(0, frameInfo.ToDisplayString());
-                            if (!frameInfo.FrameInfoIsOk())
-                                callbacksObject.OnEvent(1, null);
+                            if (pixels != null)
+                                nextFrameStatus = NativeHelpers.ProcessVideoFrame2(pixels);
+                        }
+
+                        if (Settings.Default.SimulatorRunOCR)
+                        {
+                            OsdFrameInfo frameInfo = ocrTester.ProcessFrame(pixels, frameNo);
+                            if (callbacksObject != null && frameInfo != null)
+                            {
+                                callbacksObject.OnEvent(0, frameInfo.ToDisplayString());
+                                if (!frameInfo.FrameInfoIsOk())
+                                    callbacksObject.OnEvent(1, null);
+                            }
                         }
                     }
+                }
+
+                lock (syncRoot)
+                {
+                    frameCounter = nextFrameCounterValue;
+                    frameStatus = FrameProcessingStatus.Clone(nextFrameStatus);
                 }
             }
         }
 
-        public bool GetCurrentFrame(out Bitmap cameraFrame, out int frameNumber)
+        public bool GetCurrentFrame(out Bitmap cameraFrame, out int frameNumber, out FrameProcessingStatus status)
         {
             if (!IsRunning)
             {
                 cameraFrame = null;
                 frameNumber = -1;
+                status = FrameProcessingStatus.Empty;
+
                 return false;
             }
 
-            long frameNo;
+            long frameNo;            ;
 
             lock (syncRoot)
             {
                 frameNo = 0 + (frameCounter % m_FrameCount);
-
+                status = FrameProcessingStatus.Clone(frameStatus);
             }
 
             frameNumber = (int)frameNo;
@@ -291,8 +328,30 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
         {
             if (ocrEnabled)
             {
-                ocrTester.DisableOcrErrorReporting(); // DisableOcr();
+                ocrTester.DisableOcrErrorReporting();
                 ocrEnabled = false;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public bool LockIntegration()
+        {
+            if (fullAAVSimulation)
+            {
+                NativeHelpers.LockIntegration();
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public bool UnlockIntegration()
+        {
+            if (fullAAVSimulation)
+            {
+                NativeHelpers.UnlockIntegration();
                 return true;
             }
             else

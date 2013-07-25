@@ -38,7 +38,8 @@ namespace AAVRec
 	    private string appVersion;
 
 	    private OverlayManager overlayManager = null;
-
+	    private List<string> initializationErrorMessages = new List<string>();
+ 
 		public frmMain()
 		{
 			InitializeComponent();
@@ -79,6 +80,8 @@ namespace AAVRec
         {
             if (overlayManager != null)
                 overlayManager.OnError(errorCode, errorMessage);
+            else
+                initializationErrorMessages.Add(errorMessage);
         }
 
         public void OnEvent(int eventId, string eventData)
@@ -98,23 +101,28 @@ namespace AAVRec
                 if (!string.IsNullOrEmpty(Settings.Default.FileFormat))
                 {
                     IVideo driverInstance;
-                    if (Settings.Default.FileFormat == "AAV")
+                    if (Settings.Default.FileSimulation)
+                    {
+                        bool fullAAVSimulation = Settings.Default.FileFormat == "AAV";
+                        if (".avi".Equals(Path.GetExtension(Settings.Default.SimulatorFilePath), StringComparison.InvariantCultureIgnoreCase))
+                            driverInstance = new Drivers.AVISimulator.Video(fullAAVSimulation);
+                        else
+                            driverInstance = new Drivers.AAVSimulator.Video(fullAAVSimulation);
+                    }
+                    else if (Settings.Default.FileFormat == "AAV")
                         driverInstance = new Drivers.AAVTimer.Video();
                     else if (Settings.Default.FileFormat == "AVI")
                         driverInstance = new Drivers.DirectShowCapture.Video();
                     else
-                    {
-                        if (".avi".Equals(Path.GetExtension(Settings.Default.SimulatorFilePath), StringComparison.InvariantCultureIgnoreCase))
-                            driverInstance = new Drivers.AVISimulator.Video();
-                        else
-                            driverInstance = new Drivers.AAVSimulator.Video();
-                    }
+                        throw new NotSupportedException();
 
                     videoObject = new VideoWrapper(driverInstance, this);
 
                     try
                     {
                         Cursor = Cursors.WaitCursor;
+                        initializationErrorMessages.Clear();
+
                         videoObject.Connected = true;
 
                         if (videoObject.Connected)
@@ -127,10 +135,10 @@ namespace AAVRec
                             tssIntegrationRate.Visible = Settings.Default.IsIntegrating && Settings.Default.FileFormat == "AAV";
                             pnlAAV.Visible = Settings.Default.FileFormat == "AAV";
 
-                            overlayManager = new OverlayManager(videoObject.Width, videoObject.Height);
+                            overlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages);
                         }
 
-                        stateManager.CameraConnected(driverInstance, Settings.Default.OcrMaxErrorsPerCameraTestRun);
+                        stateManager.CameraConnected(driverInstance, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");
                         UpdateScheduleDisplay();
                     }
                     finally

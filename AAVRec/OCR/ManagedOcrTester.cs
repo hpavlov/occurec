@@ -26,7 +26,11 @@ namespace AAVRec.OCR
     {
         public string Initialize(int imageWidth, int imageHeight)
         {
-            return NativeHelpers.SetupOcr();            
+            string initMsg = NativeHelpers.SetupBasicOcrMetrix();
+            if (initMsg == null)
+                NativeHelpers.SetupOcr();
+
+            return initMsg;
         }
 
         public void Reset()

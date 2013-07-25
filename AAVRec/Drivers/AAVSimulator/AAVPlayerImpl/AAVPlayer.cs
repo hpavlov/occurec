@@ -42,13 +42,15 @@ namespace AAVRec.Drivers.AAVSimulator.AAVPlayerImpl
             get { return aavStream.BitPix; }
         }
 
+        private bool fullAAVSimulation;
         internal IVideoCallbacks callbacksObject;
         private bool ocrEnabled = false;
 
-        public AAVPlayer(string fileName, float frameRate)
+        public AAVPlayer(string fileName, float frameRate, bool fullAAVSimulation)
         {
             aavStream = AstroDigitalVideoStream.OpenADVFile(fileName);
             this.frameRate = frameRate;
+            this.fullAAVSimulation = fullAAVSimulation;
 
             IsRunning = false;
 

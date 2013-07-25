@@ -16,6 +16,7 @@ EXPORTS
 	GetCurrentImage
 	GetCurrentImageStatus
 	ProcessVideoFrame
+	ProcessVideoFrame2
 	StartRecording
 	StopRecording
 

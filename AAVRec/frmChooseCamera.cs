@@ -80,7 +80,12 @@ namespace AAVRec
             cbxFlipHorizontally.Checked = Settings.Default.FlipHorizontally;
             cbxFlipVertically.Checked = Settings.Default.FlipVertically;
 
-            rbFileSIM.Enabled = Settings.Default.OcrSimulatorTestMode && File.Exists(Settings.Default.SimulatorFilePath);
+            cbFileSIM.Enabled = Settings.Default.OcrSimulatorTestMode && File.Exists(Settings.Default.SimulatorFilePath);
+
+#if !DEBUG
+            rbFileSIM.Checked = false;
+            rbFileSIM.Visible = false;
+#endif            
 
             SetSettingsVisibility();
         }
@@ -117,8 +122,8 @@ namespace AAVRec
             }
             else if (rbFileAVI.Checked)
                 Settings.Default.FileFormat = "AVI";
-            else if (rbFileSIM.Checked)
-                Settings.Default.FileFormat = "SIM";
+
+            Settings.Default.FileSimulation = cbFileSIM.Checked;
 
             RadioButton rbCodec = gbxCodecs
                                 .Controls

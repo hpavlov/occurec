@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using AAVRec.Drivers.AAVTimer.VideoCaptureImpl;
 using AAVRec.Drivers.AVISimulator.AVIPlayerImpl;
+using AAVRec.Helpers;
 
 namespace AAVRec.Drivers.AVISimulator
 {
@@ -17,12 +19,14 @@ namespace AAVRec.Drivers.AVISimulator
         private static string DRIVER_DESCRIPTION = "AVI Player";
 
         private AVIPlayer player;
+        private bool fullAAVSimulation;
 
-        public Video()
+        public Video(bool fullAAVSimulation)
         {
             Properties.Settings.Default.Reload();
 
-            player = new AVIPlayer(Properties.Settings.Default.SimulatorFilePath, Properties.Settings.Default.SimulatorFrameRate);
+            this.fullAAVSimulation = fullAAVSimulation;
+            player = new AVIPlayer(Properties.Settings.Default.SimulatorFilePath, Properties.Settings.Default.SimulatorFrameRate, fullAAVSimulation);
         }
 
         public bool Connected
@@ -35,9 +39,13 @@ namespace AAVRec.Drivers.AVISimulator
                     if (value)
                     {
                         player.Start();
+                        cameraState = VideoCameraState.videoCameraRunning;
                     }
                     else
+                    {
                         player.Stop();
+                        cameraState = VideoCameraState.videoCameraIdle;
+                    }
                 }
             }
         }
@@ -102,8 +110,22 @@ namespace AAVRec.Drivers.AVISimulator
             {
                 AssertConnected();
                 return player.DisableOcr().ToString(CultureInfo.InvariantCulture);
-            } 
+            }
 
+            if (fullAAVSimulation)
+            {
+                if (string.Compare(ActionName, "LockIntegration", StringComparison.InvariantCultureIgnoreCase) == 0)
+                {
+                    AssertConnected();
+                    return player.LockIntegration().ToString(CultureInfo.InvariantCulture);
+                }
+                else if (string.Compare(ActionName, "UnlockIntegration", StringComparison.InvariantCultureIgnoreCase) == 0)
+                {
+                    AssertConnected();
+                    return player.UnlockIntegration().ToString(CultureInfo.InvariantCulture);
+                }                
+            }
+            
             throw new NotImplementedException();
         }
 
@@ -111,7 +133,10 @@ namespace AAVRec.Drivers.AVISimulator
         {
             get
             {
-                return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "DisableOcr" });
+                if (fullAAVSimulation)
+                    return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "DisableOcr" });
+                else
+                    return new ArrayList(new string[] { "DisableOcr" });
             }
         }
 
@@ -178,10 +203,11 @@ namespace AAVRec.Drivers.AVISimulator
 
                 Bitmap cameraFrame;
                 int frameNumber;
+                FrameProcessingStatus status;
 
-                if (player.GetCurrentFrame(out cameraFrame, out frameNumber))
+                if (player.GetCurrentFrame(out cameraFrame, out frameNumber, out status))
                 {
-                    BasicVideoFrame rv = BasicVideoFrame.CreateFrame(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber);
+                    BasicVideoFrame rv = BasicVideoFrame.CreateFrame(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber, status);
                     return rv;
                 }
                 else
@@ -197,10 +223,11 @@ namespace AAVRec.Drivers.AVISimulator
 
                 Bitmap cameraFrame;
                 int frameNumber;
+                FrameProcessingStatus status;
 
-                if (player.GetCurrentFrame(out cameraFrame, out frameNumber))
+                if (player.GetCurrentFrame(out cameraFrame, out frameNumber, out status))
                 {
-                    BasicVideoFrame rv = BasicVideoFrame.CreateFrameVariant(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber);
+                    BasicVideoFrame rv = BasicVideoFrame.CreateFrameVariant(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber, status);
                     return rv;
                 }
                 else
@@ -295,13 +322,13 @@ namespace AAVRec.Drivers.AVISimulator
         {
             get
             {
-                return "AVI";
+                return fullAAVSimulation ? "AAV" : "N/A";
             }
         }
 
         public string VideoFileFormat
         {
-            get { return "AVI"; }
+            get { return fullAAVSimulation ? "AAV" : "N/A"; }
         }
 
         public int VideoFramesBufferSize
@@ -312,14 +339,44 @@ namespace AAVRec.Drivers.AVISimulator
             }
         }
 
+        private VideoCameraState cameraState = VideoCameraState.videoCameraIdle;
+
         public string StartRecordingVideoFile(string PreferredFileName)
         {
-            throw new NotImplementedException();
+            if (fullAAVSimulation)
+            {
+                if (cameraState == VideoCameraState.videoCameraRunning)
+                {
+                    string directory = Path.GetDirectoryName(PreferredFileName);
+                    string fileName = Path.GetFileName(PreferredFileName);
+
+                    if (!Directory.Exists(directory))
+                        Directory.CreateDirectory(fileName);
+
+                    if (File.Exists(PreferredFileName))
+                        throw new DriverException(string.Format("File '{0}' already exists. Video can be recorded only in a non existing file.", PreferredFileName));
+
+                    NativeHelpers.StartRecordingVideoFile(PreferredFileName);
+
+                    cameraState = VideoCameraState.videoCameraRecording;
+
+                    return PreferredFileName;                    
+                }
+                else
+                    throw new DriverException("Camera not running.");
+            }
+            else
+                throw new NotSupportedException();
         }
 
         public void StopRecordingVideoFile()
         {
-            throw new NotImplementedException();
+            if (fullAAVSimulation && cameraState == VideoCameraState.videoCameraRecording)
+            {
+                NativeHelpers.StopRecordingVideoFile();
+
+                cameraState = VideoCameraState.videoCameraRunning;
+            }
         }
 
         public VideoCameraState CameraState
@@ -328,7 +385,7 @@ namespace AAVRec.Drivers.AVISimulator
             {
                 AssertConnected();
 
-                return VideoCameraState.videoCameraRunning;
+                return cameraState;
             }
         }
 

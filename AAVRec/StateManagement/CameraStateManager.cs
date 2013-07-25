@@ -26,7 +26,7 @@ namespace AAVRec.StateManagement
                 currentState.ProcessFrame(this, frame);
         }
 
-        public void CameraConnected(IVideo driverInstance, int maxOcrErrorsPerRun)
+        public void CameraConnected(IVideo driverInstance, int maxOcrErrorsPerRun, bool isIntegrating)
         {
             this.driverInstance = driverInstance;
             ocrErrors = 0;
@@ -36,7 +36,7 @@ namespace AAVRec.StateManagement
 
             ocrMayBeRunning = driverInstanceSupportedActions.Contains("DisableOcr");
 
-            if (driverInstance is Drivers.AAVTimer.Video)
+            if (isIntegrating)
                 ChangeState(UndeterminedIntegrationCameraState.Instance);
             else
                 ChangeState(NoIntegrationSupportedCameraState.Instance);

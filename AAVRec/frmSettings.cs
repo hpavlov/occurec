@@ -23,6 +23,10 @@ namespace AAVRec
 
 		    m_OCRSettings = OcrSettings.Instance;
 
+#if !DEBUG
+		    tabControl.TabPages.Remove(tabDebug);
+#endif
+
 		    nudSignDiffFactor.Value = Math.Min(50, Math.Max(1, (decimal)Settings.Default.SignatureDiffFactorEx2));
             nudMinSignDiff.Value = Math.Min(10, Math.Max(0, (decimal)Settings.Default.MinSignatureDiff));
 		    cbxGraphDebugMode.Checked = Settings.Default.VideoGraphDebugMode;
@@ -45,6 +49,8 @@ namespace AAVRec
             cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedDiffCodeNoSigns);
             cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedDiffCodeWithSigns);
             cbxImageLayoutMode.Items.Add(AavImageLayout.UncompressedRaw);
+
+            cbxEnableAAVIOTAVTIOCR.Checked = Settings.Default.IotaVtiOcrEnabled;
 
             cbxImageLayoutMode.SelectedIndex = cbxImageLayoutMode.Items.IndexOf(Settings.Default.AavImageLayout);
 
@@ -92,6 +98,7 @@ namespace AAVRec
             Settings.Default.NTPServer = tbxNTPServer.Text;
             Settings.Default.OcrSimulatorNativeCode = rbNativeOCR.Checked;
             Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
+            Settings.Default.IotaVtiOcrEnabled = cbxEnableAAVIOTAVTIOCR.Checked;
 
             Settings.Default.Save();
 

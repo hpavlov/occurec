@@ -24,11 +24,11 @@ namespace AAVRec.Drivers.AAVSimulator
 
         private AAVPlayer player;
 
-		public Video()
+        public Video(bool fullAAVSimulation)
 		{
 			Properties.Settings.Default.Reload();
 
-            player = new AAVPlayer(Properties.Settings.Default.SimulatorFilePath, Properties.Settings.Default.SimulatorFrameRate);
+            player = new AAVPlayer(Properties.Settings.Default.SimulatorFilePath, Properties.Settings.Default.SimulatorFrameRate, fullAAVSimulation);
 		}
 
 		public bool Connected

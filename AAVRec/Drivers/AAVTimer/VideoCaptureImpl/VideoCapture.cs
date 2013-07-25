@@ -90,7 +90,7 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
 				// TODO: Set a preferred frameRate and image size stored in the configuration
 
-				dsCapture.SetupGraph(videoInputDevice, ref frameRate, ref imageWidth, ref imageHeight);
+				dsCapture.SetupGraph(videoInputDevice, Settings.Default.IotaVtiOcrEnabled, ref frameRate, ref imageWidth, ref imageHeight);
 
 				dsCapture.Start();
 

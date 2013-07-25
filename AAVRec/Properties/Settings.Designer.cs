@@ -358,5 +358,29 @@ namespace AAVRec.Properties {
                 this["OcrSimulatorNativeCode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IotaVtiOcrEnabled {
+            get {
+                return ((bool)(this["IotaVtiOcrEnabled"]));
+            }
+            set {
+                this["IotaVtiOcrEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool FileSimulation {
+            get {
+                return ((bool)(this["FileSimulation"]));
+            }
+            set {
+                this["FileSimulation"] = value;
+            }
+        }
     }
 }

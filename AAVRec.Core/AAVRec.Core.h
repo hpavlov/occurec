@@ -73,6 +73,7 @@ HRESULT SetupAav(int useImageLayout);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* imageStatus);
 HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo);
+HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo);
 HRESULT StartRecording(LPCTSTR szFileName);
 HRESULT StopRecording(long* pixels);
 bool IsNewIntegrationPeriod(float diffSignature);

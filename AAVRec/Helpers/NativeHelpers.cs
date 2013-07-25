@@ -104,11 +104,24 @@ namespace AAVRec.Helpers
     [StructLayout(LayoutKind.Sequential)]
     struct FrameProcessingStatus
     {
+        public static FrameProcessingStatus Empty = new FrameProcessingStatus();
+
         public long CameraFrameNo;
         public long IntegratedFrameNo;
         public int IntegratedFramesSoFar;
         public float FrameDiffSignature;
         public float CurrentSignatureRatio;
+
+        public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
+        {
+            var rv = new FrameProcessingStatus();
+            rv.CameraFrameNo = cloneFrom.CameraFrameNo;
+            rv.IntegratedFrameNo = cloneFrom.IntegratedFrameNo;
+            rv.IntegratedFramesSoFar = cloneFrom.IntegratedFramesSoFar;
+            rv.FrameDiffSignature = cloneFrom.FrameDiffSignature;
+            rv.CurrentSignatureRatio = cloneFrom.CurrentSignatureRatio;
+            return rv;
+        }
     };
 
 	internal static class NativeHelpers
@@ -166,6 +179,9 @@ namespace AAVRec.Helpers
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
+
+        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);        
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetCurrentImage([In, Out] byte[] bitmapPixels);
@@ -332,6 +348,20 @@ namespace AAVRec.Helpers
             StopRecording();
         }
 
+        public static FrameProcessingStatus ProcessVideoFrame2(int[,] pixels)
+        {
+            var frameInfo = new FrameProcessingStatus();
+
+            long currentUtcDayAsTicks = DateTime.UtcNow.Ticks;
+
+
+            ProcessVideoFrame2(pixels, currentUtcDayAsTicks, ref frameInfo);
+
+            Debug.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1}; IntegratedFrameNo: {2}; CurrentSignatureRatio: {3})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo, frameInfo.IntegratedFrameNo, frameInfo.CurrentSignatureRatio));
+
+            return frameInfo;
+        }
+
         public static FrameProcessingStatus ProcessVideoFrame(IntPtr bitmapData)
         {
             var frameInfo = new FrameProcessingStatus();
@@ -342,7 +372,7 @@ namespace AAVRec.Helpers
 
             ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, ref frameInfo);
 
-            Trace.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1}; IntegratedFrameNo: {2}; CurrentSignatureRatio: {3})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo, frameInfo.IntegratedFrameNo, frameInfo.CurrentSignatureRatio));
+            Debug.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1}; IntegratedFrameNo: {2}; CurrentSignatureRatio: {3})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo, frameInfo.IntegratedFrameNo, frameInfo.CurrentSignatureRatio));
 
             return frameInfo;
         }
@@ -364,20 +394,25 @@ namespace AAVRec.Helpers
             SetupAav((int) imageLayout);
         }
 
-        public static string SetupOcr()
-        {
+	    public static string SetupBasicOcrMetrix()
+	    {
             int hr = SetupOcrAlignment(
-                OcrSettings.Instance.Alignment.Width, 
-                OcrSettings.Instance.Alignment.Height, 
-                OcrSettings.Instance.Alignment.FrameTopOdd,
-                OcrSettings.Instance.Alignment.FrameTopEven, 
-                OcrSettings.Instance.Alignment.CharWidth, 
-                OcrSettings.Instance.Alignment.CharHeight,
-                OcrSettings.Instance.Zones.Max(x => x.ZoneId) - 1);
+                 OcrSettings.Instance.Alignment.Width,
+                 OcrSettings.Instance.Alignment.Height,
+                 OcrSettings.Instance.Alignment.FrameTopOdd,
+                 OcrSettings.Instance.Alignment.FrameTopEven,
+                 OcrSettings.Instance.Alignment.CharWidth,
+                 OcrSettings.Instance.Alignment.CharHeight,
+                 OcrSettings.Instance.Zones.Max(x => x.ZoneId) - 1);
 
-            if (hr != 0)
-                return "OCR config is incompatible with the current device.";
+	        if (hr != 0)
+	            return "OCR config is incompatible with the current device.";
+	        else
+	            return null;
+	    }
 
+	    public static void SetupOcr()
+        {
             // Build the ocr zone matrix in managed world using the OcrZoneChecker
             var zoneChecker = new OcrZoneChecker(
                 OcrSettings.Instance.Alignment.Width,
@@ -397,8 +432,6 @@ namespace AAVRec.Helpers
                     SetupOcrCharDefinitionZone(charDef.Character[0], zoneSignt.ZoneId, (int)zoneSignt.ZoneValue, pixelsInZone);
                 }
             }
-
-            return null;
         }
 
         public static void DisableOcr()

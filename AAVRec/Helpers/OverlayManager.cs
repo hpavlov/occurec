@@ -21,11 +21,14 @@ namespace AAVRec.Helpers
 
         private object syncRoot = new object();
 
-        public OverlayManager(int width, int height)
+        public OverlayManager(int width, int height, List<string> initializationErrorMessages)
         {
             imageWidth = width;
             imageHeight = height;
             currentOcrStamp = null;
+
+            foreach (string message in initializationErrorMessages)
+                errorMessagesQueue.Enqueue(message);
         }
 
         public void OnEvent(int eventId, string eventData)
@@ -70,7 +73,7 @@ namespace AAVRec.Helpers
             SizeF msgMeasurement = g.MeasureString(currMessageToDisplay, overlayMessagesFont);
 
             g.FillRectangle(Brushes.DarkSlateGray, imageWidth - msgMeasurement.Width - 9, 3, msgMeasurement.Width + 6, msgMeasurement.Height + 6);
-            g.DrawString(currMessageToDisplay, overlayMessagesFont, Brushes.Yellow, imageHeight - msgMeasurement.Width - 6, 6);
+            g.DrawString(currMessageToDisplay, overlayMessagesFont, Brushes.Yellow, imageWidth - msgMeasurement.Width - 6, 6);
         }
 
         private void ProcessErrorMessages(Graphics g)

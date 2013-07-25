@@ -19,6 +19,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.tssCameraState = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tssOcrErr = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssFrameNo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssDisplayRate = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssIntegrationRate = new System.Windows.Forms.ToolStripStatusLabel();
@@ -30,6 +31,12 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.miSettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.miHelp = new System.Windows.Forms.ToolStripMenuItem();
+            this.miHelpIndex = new System.Windows.Forms.ToolStripMenuItem();
+            this.miYahooGroup = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.miCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
+            this.miAbout = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlClient = new System.Windows.Forms.Panel();
             this.pnlVideoFrames = new System.Windows.Forms.Panel();
             this.pictureBox = new System.Windows.Forms.PictureBox();
@@ -56,9 +63,10 @@
             this.btnRecord = new System.Windows.Forms.Button();
             this.timerScheduler = new System.Windows.Forms.Timer(this.components);
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tsbConnectDisconnect = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
             this.pnlControlArea = new System.Windows.Forms.Panel();
-            this.tssOcrErr = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -97,6 +105,18 @@
             this.tssCameraState.Name = "tssCameraState";
             this.tssCameraState.Size = new System.Drawing.Size(75, 17);
             this.tssCameraState.Text = "Disconnected";
+            // 
+            // tssOcrErr
+            // 
+            this.tssOcrErr.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tssOcrErr.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.tssOcrErr.ForeColor = System.Drawing.Color.Red;
+            this.tssOcrErr.Name = "tssOcrErr";
+            this.tssOcrErr.Size = new System.Drawing.Size(76, 17);
+            this.tssOcrErr.Text = "OCR ERR 23";
+            this.tssOcrErr.Visible = false;
             // 
             // tssFrameNo
             // 
@@ -143,7 +163,8 @@
             // 
             this.msMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.miSettings});
+            this.miSettings,
+            this.miHelp});
             this.msMain.Location = new System.Drawing.Point(0, 0);
             this.msMain.Name = "msMain";
             this.msMain.Size = new System.Drawing.Size(903, 24);
@@ -194,6 +215,49 @@
             this.miSettings.Size = new System.Drawing.Size(58, 20);
             this.miSettings.Text = "&Settings";
             this.miSettings.Click += new System.EventHandler(this.miConfigure_Click);
+            // 
+            // miHelp
+            // 
+            this.miHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miHelpIndex,
+            this.miYahooGroup,
+            this.toolStripMenuItem1,
+            this.miCheckForUpdates,
+            this.miAbout});
+            this.miHelp.Name = "miHelp";
+            this.miHelp.Size = new System.Drawing.Size(40, 20);
+            this.miHelp.Text = "&Help";
+            // 
+            // miHelpIndex
+            // 
+            this.miHelpIndex.Image = ((System.Drawing.Image)(resources.GetObject("miHelpIndex.Image")));
+            this.miHelpIndex.Name = "miHelpIndex";
+            this.miHelpIndex.Size = new System.Drawing.Size(177, 22);
+            this.miHelpIndex.Text = "&Index";
+            // 
+            // miYahooGroup
+            // 
+            this.miYahooGroup.Image = ((System.Drawing.Image)(resources.GetObject("miYahooGroup.Image")));
+            this.miYahooGroup.Name = "miYahooGroup";
+            this.miYahooGroup.Size = new System.Drawing.Size(177, 22);
+            this.miYahooGroup.Text = "AAVRec Yahoo Group";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(174, 6);
+            // 
+            // miCheckForUpdates
+            // 
+            this.miCheckForUpdates.Name = "miCheckForUpdates";
+            this.miCheckForUpdates.Size = new System.Drawing.Size(177, 22);
+            this.miCheckForUpdates.Text = "&Check for Updates";
+            // 
+            // miAbout
+            // 
+            this.miAbout.Name = "miAbout";
+            this.miAbout.Size = new System.Drawing.Size(177, 22);
+            this.miAbout.Text = "&About";
             // 
             // pnlClient
             // 
@@ -458,12 +522,28 @@
             // toolStrip1
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbConnectDisconnect,
+            this.toolStripSeparator1,
             this.tsbCrosshair});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(903, 25);
             this.toolStrip1.TabIndex = 5;
             this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tsbConnectDisconnect
+            // 
+            this.tsbConnectDisconnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbConnectDisconnect.Image = ((System.Drawing.Image)(resources.GetObject("tsbConnectDisconnect.Image")));
+            this.tsbConnectDisconnect.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbConnectDisconnect.Name = "tsbConnectDisconnect";
+            this.tsbConnectDisconnect.Size = new System.Drawing.Size(23, 22);
+            this.tsbConnectDisconnect.Text = "toolStripButton1";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
             // tsbCrosshair
             // 
@@ -482,17 +562,6 @@
             this.pnlControlArea.Name = "pnlControlArea";
             this.pnlControlArea.Size = new System.Drawing.Size(903, 494);
             this.pnlControlArea.TabIndex = 6;
-            // 
-            // tssOcrErr
-            // 
-            this.tssOcrErr.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-            this.tssOcrErr.ForeColor = System.Drawing.Color.Red;
-            this.tssOcrErr.Name = "tssOcrErr";
-            this.tssOcrErr.Size = new System.Drawing.Size(71, 17);
-            this.tssOcrErr.Text = "OCR ERR 23";
-            this.tssOcrErr.Visible = false;
             // 
             // frmMain
             // 
@@ -579,6 +648,14 @@
         private System.Windows.Forms.Panel pnlControlArea;
         private System.Windows.Forms.ToolStripButton tsbCrosshair;
         private System.Windows.Forms.ToolStripStatusLabel tssOcrErr;
+        private System.Windows.Forms.ToolStripMenuItem miHelp;
+        private System.Windows.Forms.ToolStripMenuItem miHelpIndex;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem miAbout;
+        private System.Windows.Forms.ToolStripMenuItem miCheckForUpdates;
+        private System.Windows.Forms.ToolStripMenuItem miYahooGroup;
+        private System.Windows.Forms.ToolStripButton tsbConnectDisconnect;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 
 	}
 }
