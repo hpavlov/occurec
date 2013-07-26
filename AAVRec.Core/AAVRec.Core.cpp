@@ -36,7 +36,7 @@ bool OCR_IS_SETUP = false;
 long OCR_FRAME_TOP_ODD;
 long OCR_FRAME_TOP_EVEN;
 long OCR_CHAR_WIDTH;
-long OCR_CHAR_HEIGHT; 
+long OCR_CHAR_FIELD_HEIGHT; 
 long* OCR_ZONE_MATRIX = NULL; 
 long OCR_NUMBER_OF_ZONES;
 
@@ -345,7 +345,7 @@ HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameT
 	OCR_FRAME_TOP_ODD = frameTopOdd;
 	OCR_FRAME_TOP_EVEN = frameTopEven;
 	OCR_CHAR_WIDTH = charWidth;
-	OCR_CHAR_HEIGHT = charHeight;
+	OCR_CHAR_FIELD_HEIGHT = charHeight;
 	OCR_NUMBER_OF_ZONES = numberOfZones;
 
 	if (NULL != OCR_ZONE_MATRIX)
@@ -784,7 +784,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				}
 			}
 
-			if (pixY >= OCR_FRAME_TOP_ODD && pixY < OCR_FRAME_TOP_EVEN + OCR_CHAR_HEIGHT)
+			if (pixY >= OCR_FRAME_TOP_ODD && pixY < OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT)
 			{
 				restoredPixels++;
 
@@ -1047,30 +1047,39 @@ void ProcessCurrentFrame(IntegratedFrame* nextFrame)
 	AavEndFrame();
 }
 
+void RecordAllbufferedFrames()
+{
+	IntegratedFrame* nextFrame = NULL;
+
+	do
+	{
+		nextFrame = FetchFrameFromRecordingBuffer();
+
+		if (nextFrame != NULL)
+		{
+			unsigned char* dataToSave;
+
+			ProcessCurrentFrame(nextFrame);
+
+			delete nextFrame;
+		}
+	}
+	while(nextFrame != NULL);
+}
+
 void RecorderThreadProc( void* pContext )
 {
 	while(recording)
 	{
-		IntegratedFrame* nextFrame = NULL;
-
-		do
-		{
-			nextFrame = FetchFrameFromRecordingBuffer();
-
-			if (nextFrame != NULL)
-			{
-				unsigned char* dataToSave;
-
-				ProcessCurrentFrame(nextFrame);
-
-				delete nextFrame;
-			}
-		}
-		while(nextFrame != NULL);
+		RecordAllbufferedFrames();
 	};
+
+	// Record all remaining frames, after 'recording' has been set to false
+	RecordAllbufferedFrames();
 
     _endthread();
 }
+
 
 HRESULT StartRecording(LPCTSTR szFileName)
 {
@@ -1104,8 +1113,6 @@ HRESULT StartRecording(LPCTSTR szFileName)
 HRESULT StopRecording(long* pixels)
 {
 	// Add the current 'first' frame from the integration period so it is saved, then stop the recording
-	WaitForSingleObject(ghMutex, INFINITE);
-
 	recording = false;
 
 	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
@@ -1118,11 +1125,9 @@ HRESULT StopRecording(long* pixels)
 	frame->EndTimeStamp = 0;
 	frame->FrameNumber = -1;
 
-	recordingBuffer.push_back(frame);
-
-	ReleaseMutex(ghMutex);
-
 	WaitForSingleObject(hRecordingThread, INFINITE); // wait for thread to exit
+
+	ProcessCurrentFrame(frame);
 
 	AavEndFile();
 

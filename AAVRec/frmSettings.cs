@@ -43,6 +43,8 @@ namespace AAVRec
             cbxSimulatorRunOCR.Checked = Settings.Default.SimulatorRunOCR;
             tbxNTPServer.Text = Settings.Default.NTPServer;
 		    rbNativeOCR.Checked = Settings.Default.OcrSimulatorNativeCode;
+			nudPreserveTSTop.Value = Settings.Default.PreserveTSTopLine;
+			nudPreserveTSHeight.Value = Settings.Default.PreserveTSHeight;
 
 		    cbxImageLayoutMode.Items.Clear();
             cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedRaw);
@@ -99,6 +101,8 @@ namespace AAVRec
             Settings.Default.OcrSimulatorNativeCode = rbNativeOCR.Checked;
             Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
             Settings.Default.IotaVtiOcrEnabled = cbxEnableAAVIOTAVTIOCR.Checked;
+			Settings.Default.PreserveTSTopLine = (int)nudPreserveTSTop.Value;
+			Settings.Default.PreserveTSHeight = (int)nudPreserveTSHeight.Value;
 
             Settings.Default.Save();
 

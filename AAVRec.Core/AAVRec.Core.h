@@ -52,7 +52,7 @@ extern bool OCR_IS_SETUP;
 extern long OCR_FRAME_TOP_ODD;
 extern long OCR_FRAME_TOP_EVEN;
 extern long OCR_CHAR_WIDTH;
-extern long OCR_CHAR_HEIGHT;
+extern long OCR_CHAR_FIELD_HEIGHT;
 extern long* OCR_ZONE_MATRIX;
 extern long OCR_NUMBER_OF_ZONES;
 

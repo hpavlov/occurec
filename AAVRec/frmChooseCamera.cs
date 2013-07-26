@@ -83,8 +83,8 @@ namespace AAVRec
             cbFileSIM.Enabled = Settings.Default.OcrSimulatorTestMode && File.Exists(Settings.Default.SimulatorFilePath);
 
 #if !DEBUG
-            rbFileSIM.Checked = false;
-            rbFileSIM.Visible = false;
+			cbFileSIM.Checked = false;
+			cbFileSIM.Visible = false;
 #endif            
 
             SetSettingsVisibility();

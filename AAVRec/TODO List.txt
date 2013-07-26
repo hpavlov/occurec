@@ -15,16 +15,17 @@ EASY:
 
 ?) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
 - Implement integration frame "Unlock-ing". Reconsider renaming the button to something else
-- AAV should be usable without OCR i.e. add setting to turn on OCR (turned off by default)
->> DO THIS >> Make it possible to run in AAV mode using a simmulated video rather than live images from the camera
+V) AAV should be usable without OCR i.e. add setting to turn on OCR (turned off by default)
+V) Make it possible to run in AAV mode using a simmulated video rather than live images from the camera
 - Print the failed OCR chars in red, rather than yellow, on the error image
+- AAVRec should be usable without IOTA-VTI-OCR-Settings.xml. Add parameters for TimestampTop and TimestampHeight  
 
 HARDER:
 
 ?) Implement 1x and x2 integration frame recognition
 V) Implement Differential Coding Compression for AAV 8 bit format
-- Ensure that the start/end timestamps are not overwritten in the process of stacking images.
-- When recording an AAV file always save one extra single frame after the last integration period, in order to solve any timestamp ambiguity issues
+V) Ensure that the start/end timestamps are not overwritten in the process of stacking images.
+V) When recording an AAV file always save one extra single frame after the last integration period, in order to solve any timestamp ambiguity issues
 - Implement sub-pixel positioning for the OCRed chracter configutaion
 
 OCR Implemntation:

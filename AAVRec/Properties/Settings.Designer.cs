@@ -382,5 +382,29 @@ namespace AAVRec.Properties {
                 this["FileSimulation"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("452")]
+        public int PreserveTSTopLine {
+            get {
+                return ((int)(this["PreserveTSTopLine"]));
+            }
+            set {
+                this["PreserveTSTopLine"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("24")]
+        public int PreserveTSHeight {
+            get {
+                return ((int)(this["PreserveTSHeight"]));
+            }
+            set {
+                this["PreserveTSHeight"] = value;
+            }
+        }
     }
 }

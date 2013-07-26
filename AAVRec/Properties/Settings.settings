@@ -92,5 +92,11 @@
     <Setting Name="FileSimulation" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="PreserveTSTopLine" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">452</Value>
+    </Setting>
+    <Setting Name="PreserveTSHeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">24</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
