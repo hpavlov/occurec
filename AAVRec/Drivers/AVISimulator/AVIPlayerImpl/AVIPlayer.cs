@@ -66,7 +66,11 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
 
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 
-                errorMessage = NativeHelpers.SetupBasicOcrMetrix();
+				if (Settings.Default.SimulatorRunOCR)
+					errorMessage = NativeHelpers.SetupBasicOcrMetrix();
+				else
+					errorMessage = NativeHelpers.SetupTimestampPreservation(ImageWidth, ImageHeight);
+
                 if (errorMessage != null && callbacksObject != null)
                     callbacksObject.OnError(-1, errorMessage);                
             }

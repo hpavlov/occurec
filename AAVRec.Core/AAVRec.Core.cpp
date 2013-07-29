@@ -29,7 +29,7 @@ long IMAGE_HEIGHT;
 long IMAGE_STRIDE;
 long IMAGE_TOTAL_PIXELS;
 long MONOCHROME_CONVERSION_MODE;
-long USE_IMAGE_LAYOUT;
+long USE_IMAGE_LAYOUT = 4;
 
 
 bool OCR_IS_SETUP = false;
@@ -78,6 +78,7 @@ unsigned char* lastIntegratedFramePixels = NULL;
 HANDLE hRecordingThread = NULL;
 bool recording = false;
 char cameraModel[128];
+char aavRecVersion[32];
 
 float pastSignaturesAverage = 0;
 float pastSignaturesSum = 0;
@@ -326,10 +327,15 @@ bool IsNewIntegrationPeriod(float diffSignature)
 }
 
 
-HRESULT SetupAav(long useImageLayout)
+HRESULT SetupAav(long useImageLayout, LPCTSTR szAavRecVersion)
 {
 	OCR_IS_SETUP = false;
 	USE_IMAGE_LAYOUT = useImageLayout;
+
+	
+	strcpy(&aavRecVersion[0], (char *)szAavRecVersion);
+
+	DebugViewPrint(L"AAVRec - using Image Layout = %d)\n", USE_IMAGE_LAYOUT); 
 
 	return S_OK;
 }
@@ -384,7 +390,7 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 		OCR_ZONE_MATRIX = (long*)malloc(IMAGE_TOTAL_PIXELS * sizeof(long));
 
 	memcpy(OCR_ZONE_MATRIX, matrix, IMAGE_TOTAL_PIXELS);
-
+	
 	OCR_IS_SETUP = true;
 	return S_OK;
 }
@@ -1086,11 +1092,14 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	AavNewFile((const char*)szFileName);		
 	
 	AavAddFileTag("AAVR-SOFTWARE-VERSION", "1.0");
-	AavAddFileTag("RECORDER", "ASTRO ANALOGUE VIDEO");
+	AavAddFileTag("RECORDER", aavRecVersion);
 	AavAddFileTag("FSTF-TYPE", "AAV");
 	AavAddFileTag("AAV-VERSION", "1");
 
 	AavAddFileTag("CAMERA-MODEL", cameraModel);
+
+	if (OCR_IS_SETUP)
+		AavAddFileTag("OCR-ENGINE", "AAVRec IOTA-VTI OCR v0.2");
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
 	
@@ -1099,8 +1108,20 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	AavDefineImageLayout(3, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
 	AavDefineImageLayout(4, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
 
-
 	ClearRecordingBuffer();
+
+	// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
+	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
+	memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
+
+	frame->NumberOfIntegratedFrames = 0;
+	frame->StartFrameId = -1;
+	frame->EndFrameId = -1;
+	frame->StartTimeStamp = 0;
+	frame->EndTimeStamp = 0;
+	frame->FrameNumber = -1;
+
+	ProcessCurrentFrame(frame);
 
 	recording = true;
 
@@ -1112,9 +1133,9 @@ HRESULT StartRecording(LPCTSTR szFileName)
 
 HRESULT StopRecording(long* pixels)
 {
-	// Add the current 'first' frame from the integration period so it is saved, then stop the recording
 	recording = false;
 
+	// As a last frame add a non-integrated frame (to be able to tell the star-end timestamp order)
 	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
 	memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
 

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using AAVRec.OCR;
+using AAVRec.Properties;
 
 namespace AAVRec.Helpers
 {
@@ -175,7 +176,7 @@ namespace AAVRec.Helpers
             float minSignDiff);
 
 	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-	    private static extern int SetupAav(int imageLayout);
+		private static extern int SetupAav(int imageLayout, string aavRecVersion);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
@@ -389,12 +390,31 @@ namespace AAVRec.Helpers
             SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating, signDiffFactor, minSignDiff);
         }
 
+		private static AssemblyFileVersionAttribute ASSEMBLY_FILE_VERSION = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
+
         public static void SetupAav(AavImageLayout imageLayout)
         {
-            SetupAav((int) imageLayout);
+			SetupAav((int)imageLayout, string.Format("AAVRec v{0}", ASSEMBLY_FILE_VERSION.Version));
         }
 
-	    public static string SetupBasicOcrMetrix()
+		public static string SetupTimestampPreservation(int width, int height)
+		{
+			int hr = SetupOcrAlignment(
+				width,
+				height,
+				Settings.Default.PreserveTSTopLine,
+				Settings.Default.PreserveTSTopLine + 1,
+				0,
+				Settings.Default.PreserveTSHeight,
+				0);
+
+			if (hr != 0)
+				return "Could not configure the timestamp preservation.";
+			else
+				return null;
+		}
+
+		public static string SetupBasicOcrMetrix()
 	    {
             int hr = SetupOcrAlignment(
                  OcrSettings.Instance.Alignment.Width,
