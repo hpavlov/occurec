@@ -406,5 +406,29 @@ namespace AAVRec.Properties {
                 this["PreserveTSHeight"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AcceptBetaUpdates {
+            get {
+                return ((bool)(this["AcceptBetaUpdates"]));
+            }
+            set {
+                this["AcceptBetaUpdates"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000-01-01")]
+        public global::System.DateTime LastCheckedForUpdates {
+            get {
+                return ((global::System.DateTime)(this["LastCheckedForUpdates"]));
+            }
+            set {
+                this["LastCheckedForUpdates"] = value;
+            }
+        }
     }
 }

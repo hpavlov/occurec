@@ -423,7 +423,9 @@ namespace AAVRec.Helpers
                  OcrSettings.Instance.Alignment.FrameTopEven,
                  OcrSettings.Instance.Alignment.CharWidth,
                  OcrSettings.Instance.Alignment.CharHeight,
-                 OcrSettings.Instance.Zones.Max(x => x.ZoneId) - 1);
+				 OcrSettings.Instance.Zones.Any() 
+					? OcrSettings.Instance.Zones.Max(x => x.ZoneId) - 1
+					: 0);
 
 	        if (hr != 0)
 	            return "OCR config is incompatible with the current device.";

@@ -90,6 +90,12 @@ float signaturesHistory[LOW_INTEGRATION_CHECK_POOL_SIZE];
 float newIntegrationPeriodCutOffRatio;
 float currentSignatureRatio;
 
+unsigned int STATUS_TAG_NUMBER_INTEGRATED_FRAMES;
+unsigned int STATUS_TAG_START_FRAME_ID;
+unsigned int STATUS_TAG_END_FRAME_ID;
+unsigned int STATUS_TAG_START_TIMESTAMP;
+unsigned int STATUS_TAG_END_TIMESTAMP;
+
 
 void ClearResourses()
 {
@@ -1048,6 +1054,16 @@ void ProcessCurrentFrame(IntegratedFrame* nextFrame)
 
 	bool frameStartedOk = AavBeginFrame(timeStamp, elapsedTimeMilliseconds, exposureIn10thMilliseconds);
 
+	AavFrameAddStatusTag16(STATUS_TAG_NUMBER_INTEGRATED_FRAMES, nextFrame->NumberOfIntegratedFrames);
+	AavFrameAddStatusTag64(STATUS_TAG_START_FRAME_ID, nextFrame->StartFrameId);
+	AavFrameAddStatusTag64(STATUS_TAG_END_FRAME_ID, nextFrame->EndFrameId);
+
+	if (OCR_IS_SETUP)
+	{
+		AavFrameAddStatusTag64(STATUS_TAG_START_TIMESTAMP, nextFrame->StartTimeStamp);
+		AavFrameAddStatusTag64(STATUS_TAG_END_TIMESTAMP, nextFrame->EndTimeStamp);
+	}
+
 	AavFrameAddImage(USE_IMAGE_LAYOUT, nextFrame->Pixels);
 
 	AavEndFrame();
@@ -1107,6 +1123,12 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	AavDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", "QUICKLZ", 32, "PREV-FRAME");
 	AavDefineImageLayout(3, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
 	AavDefineImageLayout(4, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
+	
+	STATUS_TAG_NUMBER_INTEGRATED_FRAMES = AavDefineStatusSectionTag("INTEGRATED_FRAMES", AavTagType::UInt16);
+	STATUS_TAG_START_FRAME_ID = AavDefineStatusSectionTag("START_FRAME", AavTagType::ULong64);
+	STATUS_TAG_END_FRAME_ID = AavDefineStatusSectionTag("END_FRAME", AavTagType::ULong64);
+	STATUS_TAG_START_TIMESTAMP = AavDefineStatusSectionTag("START_FRAME_TIMESTAMP", AavTagType::ULong64);
+	STATUS_TAG_END_TIMESTAMP = AavDefineStatusSectionTag("END_FRAME_TIMESTAMP", AavTagType::ULong64);
 
 	ClearRecordingBuffer();
 

@@ -136,6 +136,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\VideoWrapper.cs" />
+    <Compile Include="Helpers\ZipUnzip.cs" />
+    <Compile Include="Helpers\UpdateManager.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Scheduling\frmAddScheduleEntry.cs">
       <SubType>Form</SubType>
     </Compile>

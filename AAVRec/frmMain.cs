@@ -8,11 +8,13 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml;
 using AAVRec.Drivers;
 using AAVRec.Helpers;
 using AAVRec.OCR;
@@ -58,6 +60,8 @@ namespace AAVRec
 		    appVersion = att.Version;
 
 		    Text = string.Format("AAVRec v{0}", appVersion);
+
+			CheckForUpdates(false);
 		}
 
 		/// <summary>
@@ -724,6 +728,355 @@ namespace AAVRec
             Scheduler.ClearSchedules();
             UpdateScheduleDisplay();
         }
+
+		#region Software Version Update
+
+		internal delegate void OnUpdateEventDelegate(int eventCode);
+
+		internal void OnUpdateEvent(int eventCode)
+		{
+			if (eventCode == MSG_ID_NEW_AAVREC_UPDATE_AVAILABLE)
+            {
+                pnlNewVersionAvailable.Visible = true;
+                m_ShowNegativeResultMessage = false;
+            }
+			else if (eventCode == MSG_ID_NO_AAVREC_UPDATES_AVAILABLE)
+            {
+                if (m_ShowNegativeResultMessage)
+                {
+                    MessageBox.Show(
+                        string.Format("There are no new {0}updates.", Settings.Default.AcceptBetaUpdates ? "beta " : ""), 
+                        "Information", 
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+
+                m_ShowNegativeResultMessage = false;
+            }			
+		}
+
+		private bool m_ShowNegativeResultMessage = false;
+		private DateTime m_LastUpdateTime;
+		private Thread m_CheckForUpdatesThread;
+
+		private byte MSG_ID_NEW_AAVREC_UPDATE_AVAILABLE = 13;
+		private byte MSG_ID_NO_AAVREC_UPDATES_AVAILABLE = 14;
+
+		private void miCheckForUpdates_Click(object sender, EventArgs e)
+		{
+			m_ShowNegativeResultMessage = true;
+			CheckForUpdates(true);
+		}
+
+		public void CheckForUpdates(bool manualCheck)
+		{
+			if (
+					m_CheckForUpdatesThread == null ||
+					!m_CheckForUpdatesThread.IsAlive
+				)
+			{
+				IntPtr handleHack = this.Handle;
+
+				m_CheckForUpdatesThread = new Thread(new ParameterizedThreadStart(CheckForUpdates));
+				m_CheckForUpdatesThread.Start(handleHack);
+			}
+		}
+
+		private void CheckForUpdates(object state)
+		{
+			try
+			{
+				m_LastUpdateTime = DateTime.Now;
+
+				int serverConfigVersion;
+				if (NewUpdatesAvailable(out serverConfigVersion) != null)
+				{
+					Trace.WriteLine("There is a new update.", "Update");
+					Invoke(new OnUpdateEventDelegate(OnUpdateEvent), MSG_ID_NEW_AAVREC_UPDATE_AVAILABLE);
+				}
+				else
+				{
+					Trace.WriteLine(string.Format("There are no new {0}updates.", Settings.Default.AcceptBetaUpdates ? "beta " : ""), "Update");
+					Invoke(new OnUpdateEventDelegate(OnUpdateEvent), MSG_ID_NO_AAVREC_UPDATES_AVAILABLE); 
+				}
+
+				Settings.Default.LastCheckedForUpdates = m_LastUpdateTime;
+				Settings.Default.Save();
+			}
+			catch (Exception ex)
+			{
+				Trace.WriteLine(ex, "Update");
+			}
+		}
+
+		private string aavRecUpdateServerVersion = null;
+
+		public XmlNode NewUpdatesAvailable(out int configUpdateVersion)
+		{
+			configUpdateVersion = -1;
+			Uri updateUri = new Uri(UpdateManager.UpdatesXmlFileLocation);
+
+			HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(updateUri);
+			httpRequest.Method = "GET";
+			httpRequest.Timeout = 30000; //30 sec
+
+			HttpWebResponse response = null;
+
+			try
+			{
+				response = (HttpWebResponse)httpRequest.GetResponse();
+
+				string updateXml = null;
+
+				Stream streamResponse = response.GetResponseStream();
+
+				try
+				{
+					using (TextReader reader = new StreamReader(streamResponse))
+					{
+						updateXml = reader.ReadToEnd();
+					}
+				}
+				finally
+				{
+					streamResponse.Close();
+				}
+
+				if (updateXml != null)
+				{
+					XmlDocument xmlDoc = new XmlDocument();
+					xmlDoc.LoadXml(updateXml);
+
+					int latestVersion = UpdateManager.CurrentlyInstalledAAVRecVersion();
+					XmlNode latestVersionNode = null;
+
+					foreach (XmlNode updateNode in xmlDoc.SelectNodes("/AAVRec/Update"))
+					{
+						int Version = int.Parse(updateNode.Attributes["Version"].Value);
+						if (latestVersion < Version)
+						{
+							Trace.WriteLine("Update location: " + updateUri.ToString());
+							Trace.WriteLine("Current version: " + latestVersion.ToString());
+							Trace.WriteLine("New version: " + Version.ToString());
+
+							XmlNode aavRecUpdateNode = xmlDoc.SelectSingleNode("/AAVRec/AAVRecUpdate");
+							if (aavRecUpdateNode != null)
+							{
+								aavRecUpdateServerVersion = aavRecUpdateNode.Attributes["Version"].Value;
+								Trace.WriteLine("AAVRecUpdate new version: " + aavRecUpdateServerVersion);
+							}
+							else
+								aavRecUpdateServerVersion = null;
+
+							latestVersion = Version;
+							latestVersionNode = updateNode;
+						}
+					}
+
+					foreach (XmlNode updateNode in xmlDoc.SelectNodes("/AAVRec/ModuleUpdate[@MustExist = 'false']"))
+					{
+						if (updateNode.Attributes["Version"] == null) continue;
+
+						int Version = int.Parse(updateNode.Attributes["Version"].Value);
+						latestVersion = UpdateManager.CurrentlyInstalledModuleVersion(updateNode.Attributes["File"].Value);
+
+						if (latestVersion < Version)
+						{
+							Trace.WriteLine("Update location: " + updateUri.ToString());
+							Trace.WriteLine("Module: " + updateNode.Attributes["File"].Value);
+							Trace.WriteLine("Current version: " + latestVersion.ToString());
+							Trace.WriteLine("New version: " + Version.ToString());
+
+							XmlNode aavRecUpdateNode = xmlDoc.SelectSingleNode("/AAVRec/AAVRecUpdate");
+							if (aavRecUpdateNode != null)
+							{
+								aavRecUpdateServerVersion = aavRecUpdateNode.Attributes["Version"].Value;
+								Trace.WriteLine("AAVRecUpdate new version: " + aavRecUpdateServerVersion);
+							}
+							else
+								aavRecUpdateServerVersion = null;
+
+							latestVersion = Version;
+							latestVersionNode = updateNode;
+						}
+					}
+
+					XmlNode cfgUpdateNode = xmlDoc.SelectSingleNode("/AAVRec/ConfigurationUpdate");
+					if (cfgUpdateNode != null)
+					{
+						XmlNode cfgUpdVer = cfgUpdateNode.Attributes["Version"];
+						if (cfgUpdVer != null)
+						{
+							configUpdateVersion = int.Parse(cfgUpdVer.InnerText);
+						}
+					}
+
+
+					return latestVersionNode;
+				}
+			}
+			finally
+			{
+				// Close response
+				if (response != null)
+					response.Close();
+			}
+
+			return null;
+		}
+
+		public void ForceUpdateSynchronously()
+		{
+			RunAAVRecUpdater();
+		}
+
+		private void pnlNewVersionAvailable_Click(object sender, EventArgs e)
+		{
+			pnlNewVersionAvailable.Enabled = false;
+			pnlNewVersionAvailable.IsLink = false;
+			pnlNewVersionAvailable.Tag = pnlNewVersionAvailable.Text;
+			pnlNewVersionAvailable.Text = "Update started ...";
+			statusStrip.Update();
+
+			RunAAVRecUpdater();
+
+			Close();
+		}
+
+		private void RunAAVRecUpdater()
+		{
+			try
+			{
+				string currentPath = AppDomain.CurrentDomain.BaseDirectory;
+				string updaterFileName = Path.GetFullPath(currentPath + "\\AAVRecUpdate.zip");
+
+				int currUpdVer = UpdateManager.CurrentlyInstalledAAVRecUpdateVersion();
+				int servUpdVer = int.Parse(aavRecUpdateServerVersion);
+				if (!File.Exists(Path.GetFullPath(currentPath + "\\AAVRecUpdate.exe")) || /* If there is no AAVRecUpdate.exe*/
+					(
+						statusStrip.Tag != null &&  /* Or it is an older version ... */
+						servUpdVer > currUpdVer)
+					)
+				{
+					if (servUpdVer > currUpdVer)
+						Trace.WriteLine(string.Format("Update required for 'AAVRecUpdate.exe': local version: {0}; server version: {1}", currUpdVer, servUpdVer));
+
+					Uri updateUri = new Uri(UpdateManager.UpdateLocation + "/AAVRecUpdate.zip");
+
+					HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(updateUri);
+					httpRequest.Method = "GET";
+					httpRequest.Timeout = 1200000; //1200 sec = 20 min
+
+					HttpWebResponse response = null;
+
+					try
+					{
+						response = (HttpWebResponse)httpRequest.GetResponse();
+
+						Stream streamResponse = response.GetResponseStream();
+
+						try
+						{
+							try
+							{
+								if (File.Exists(updaterFileName))
+									File.Delete(updaterFileName);
+
+								using (BinaryReader reader = new BinaryReader(streamResponse))
+								using (BinaryWriter writer = new BinaryWriter(new FileStream(updaterFileName, FileMode.Create)))
+								{
+									byte[] chunk = null;
+									do
+									{
+										chunk = reader.ReadBytes(1024);
+										writer.Write(chunk);
+									}
+									while (chunk != null && chunk.Length == 1024);
+
+									writer.Flush();
+								}
+							}
+							catch (UnauthorizedAccessException uex)
+							{
+								MessageBox.Show(this, uex.Message + "\r\n\r\nYou may need to run AAVRec as administrator to complete the update.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+							}
+							catch (Exception ex)
+							{
+								Trace.WriteLine(ex);
+							}
+
+							if (File.Exists(updaterFileName))
+							{
+								string tempOutputDir = Path.ChangeExtension(Path.GetTempFileName(), "");
+								Directory.CreateDirectory(tempOutputDir);
+								try
+								{
+									string zippedFileName = updaterFileName;
+									ZipUnZip.UnZip(updaterFileName, tempOutputDir, true);
+									string[] files = Directory.GetFiles(tempOutputDir);
+									updaterFileName = Path.ChangeExtension(updaterFileName, ".exe");
+									System.IO.File.Copy(files[0], updaterFileName, true);
+									System.IO.File.Delete(zippedFileName);
+								}
+								finally
+								{
+									Directory.Delete(tempOutputDir, true);
+								}
+							}
+						}
+						finally
+						{
+							streamResponse.Close();
+						}
+					}
+					catch (WebException)
+					{
+						MessageBox.Show("There was an error trying to download the AAVRecUpdate program. Please ensure that you have an active internet connection and try again later.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					}
+					finally
+					{
+						// Close response
+						if (response != null)
+							response.Close();
+					}
+				}
+
+				// Make sure after the update is completed a new check is done. 
+				// This will check for Add-in updates 
+				Settings.Default.LastCheckedForUpdates = DateTime.Now.AddDays(-15);
+				Settings.Default.Save();
+
+				updaterFileName = Path.GetFullPath(currentPath + "\\AAVRecUpdate.exe");
+
+				if (File.Exists(updaterFileName))
+				{
+					var processInfo = new ProcessStartInfo();
+
+					if (System.Environment.OSVersion.Version.Major > 5)
+						// UAC Elevate as Administrator for Windows Vista, Win7 and later
+						processInfo.Verb = "runas";
+
+					processInfo.FileName = updaterFileName;
+					Process.Start(processInfo);
+				}
+			}
+			catch (Exception ex)
+			{
+				Trace.WriteLine(ex.GetFullErrorDescription(), "Update");
+				pnlNewVersionAvailable.Enabled = true;
+			}
+		}
+		#endregion
+
+		private void miHelpIndex_Click(object sender, EventArgs e)
+		{
+			Process.Start("http://www.hristopavlov.net/AAVRec");
+		}
+
+		private void miYahooGroup_Click(object sender, EventArgs e)
+		{
+			Process.Start("http://tech.groups.yahoo.com/group/AAVRec");
+		}
 
 	}
 }

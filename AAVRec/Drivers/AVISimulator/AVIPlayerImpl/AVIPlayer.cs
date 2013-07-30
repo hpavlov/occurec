@@ -75,17 +75,20 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
                     callbacksObject.OnError(-1, errorMessage);                
             }
 
-            if (Settings.Default.OcrSimulatorNativeCode)
-                ocrTester = new NativeOcrTester();    
-            else
-                ocrTester = new ManagedOcrTester();
+			if (Settings.Default.SimulatorRunOCR)
+			{
+				if (Settings.Default.OcrSimulatorNativeCode)
+					ocrTester = new NativeOcrTester();
+				else
+					ocrTester = new ManagedOcrTester();
 
-            errorMessage = ocrTester.Initialize(ImageWidth, ImageHeight);
+				errorMessage = ocrTester.Initialize(ImageWidth, ImageHeight);
 
-            if (errorMessage != null && callbacksObject != null)
-                callbacksObject.OnError(-1, errorMessage);
-            else
-                ocrEnabled = true;
+				if (errorMessage != null && callbacksObject != null)
+					callbacksObject.OnError(-1, errorMessage);
+				else
+					ocrEnabled = true;
+			}
         }
 
         public int ImageWidth { get; private set; }
@@ -166,7 +169,9 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
         {
             if (!IsRunning)
             {
-                ocrTester.Reset();
+				if (ocrEnabled)
+					ocrTester.Reset();
+
                 IsRunning = true;
                 ThreadPool.QueueUserWorkItem(new WaitCallback(Run));
             }
