@@ -72,6 +72,12 @@
     <ClInclude Include="AAVRec.Ocr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RawFrame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="raw_frame_buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -120,6 +126,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AAVRec.Ocr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RawFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

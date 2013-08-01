@@ -369,8 +369,6 @@ namespace AAVRec.Helpers
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Ticks;
 
-            
-
             ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, ref frameInfo);
 
             Debug.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1}; IntegratedFrameNo: {2}; CurrentSignatureRatio: {3})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo, frameInfo.IntegratedFrameNo, frameInfo.CurrentSignatureRatio));

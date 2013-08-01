@@ -147,21 +147,32 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 				return null;
 			}
 
-			lock (syncRoot)
-			{
-				try
-				{
-					Bitmap bmp = NativeHelpers.GetCurrentImage(out status);
-					if (bmp != null)
-						return bmp;
-				}
-				catch (Exception ex)
-				{
-					Trace.WriteLine(ex);
-				}
+            Bitmap rv = null;
+            ImageStatus anonStatus = null;
 
-				return (Bitmap)latestBitmap.Clone();
-			}
+            NonBlockingLock.Lock(
+                NonBlockingLock.LOCK_ID_GetNextFrame,
+                () =>
+                {
+                    try
+                    {
+                        Bitmap bmp = NativeHelpers.GetCurrentImage(out anonStatus);
+                        if (bmp != null)
+                        {
+                            rv = bmp;
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(ex);
+                    }
+
+                    rv = (Bitmap)latestBitmap.Clone();
+                });
+
+            status = anonStatus;
+            return rv;
 		}
 
 		private void SetupGraphInternal(DsDevice dev, ref float iFrameRate, ref int iWidth, ref int iHeight)
@@ -453,28 +464,14 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 		/// <summary> buffer callback, COULD BE FROM FOREIGN THREAD. </summary>
 		int ISampleGrabberCB.BufferCB(double SampleTime, IntPtr pBuffer, int BufferLen)
 		{
-			// TODO: Implement a no-blocking loading using 2 bitmaps and CompareExchange - making sure
-			//       that the image being returned by GetNextFrame() is never the same as the one being copied here
-			//       if the GetNextFrame() requires more time to work, then this code here should continue to copy the new
-			//       frames into the second image
-            //if (Profiler.IsTimerRunning(22))
-            //{
-            //    Profiler.StopTimer(22);
-            //    Trace.WriteLine(string.Format("Between Frames Time: {0} ms", Profiler.GetElapsedMillisecondsForTimer(22)));
-            //}
+		    NonBlockingLock.Lock(
+		        NonBlockingLock.LOCK_ID_BufferCB,
+		        () =>
+		            {
+                        NativeHelpers.ProcessVideoFrame(pBuffer);
 
-            //Profiler.ResetAndStartTimer(33);
-			lock (syncRoot)
-			{
-				NativeHelpers.ProcessVideoFrame(pBuffer);
-								
-				frameCounter++;
-			}
-
-            //Profiler.StopTimer(33);
-            //Trace.WriteLine(string.Format("Process Frames Time: {0} ms", Profiler.GetElapsedMillisecondsForTimer(33)));
-
-            //Profiler.ResetAndStartTimer(22);
+                        frameCounter++;
+		            });
 
 			return 0;
 		}

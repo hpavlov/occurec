@@ -4,8 +4,10 @@
 #include "stdafx.h"
 
 #include "recording_buffer.h"
+#include "raw_frame_buffer.h"
 
 #include "AAVRec.Core.h"
+#include "RawFrame.h"
 #include "stdlib.h"
 #include <vector>
 #include <stdio.h>
@@ -17,10 +19,13 @@
 #include "IotaVtiOcr.h"
 #include "AAVRec.Ocr.h"
 
+//#define INTDET_DEBUG
+
 using namespace AavOcr;
 
 #define MAX_INTEGRATION 256
-#define LOW_INTEGRATION_CHECK_POOL_SIZE 65 // 2.5 sec @ PAL
+#define LOW_INTEGRATION_CHECK_POOL_SIZE 12 // 0.5 sec @ PAL
+#define LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY 24
 #define MEDIAN_CALC_ROWS_FROM 10
 #define MEDIAN_CALC_ROWS_TO 11
 
@@ -96,7 +101,6 @@ unsigned int STATUS_TAG_END_FRAME_ID;
 unsigned int STATUS_TAG_START_TIMESTAMP;
 unsigned int STATUS_TAG_END_TIMESTAMP;
 
-
 void ClearResourses()
 {
 	if (NULL != prtPreviousDiffArea)
@@ -143,6 +147,9 @@ void RecalculateLowIntegrationMetrics()
 		else
 			oddSignSum += signaturesHistory[i];
 
+#ifdef INTDET_DEBUG
+		DebugViewPrint(L"LIF:%2d %.3f (EVN:%.3f ODD:%.3f)\r\n", i, signaturesHistory[i], evenSignSum, oddSignSum);
+#endif
 	}
 
 	evenLowFrameSignAverage = evenSignSum * 2 / LOW_INTEGRATION_CHECK_POOL_SIZE;
@@ -181,7 +188,7 @@ void RecalculateLowIntegrationMetrics()
 	oddLowFrameSignSigma = sqrt(oddSignResidualSquareSum) * 2  / LOW_INTEGRATION_CHECK_POOL_SIZE;
 	allLowFrameSignSigma = sqrt(allSignResidualSquareSum) * 2  / LOW_INTEGRATION_CHECK_POOL_SIZE;
 
-#if _DEBUG
+#ifdef INTDET_DEBUG
 	DebugViewPrint(L"LowIntData Even:%.3f +/- %.3f (MAX: %.3f); Odd:%.3f +/- %.3f(MAX: %.3f); All:%.3f +/- %.3f (MAX: %.3f)\n", 
 		evenLowFrameSignAverage, evenLowFrameSignSigma, evenSignMaxResidual, 
 		oddLowFrameSignAverage, oddLowFrameSignSigma, oddSignMaxResidual,
@@ -189,10 +196,29 @@ void RecalculateLowIntegrationMetrics()
 #endif
 }
 
+bool IsNewIntegrationPeriodOfLockedIntegration(float diffSignature)
+{
+	// TODO: If the integration has been 'locked' then the user is not going to change it
+	//       so in this mode any inconsistencies between the locked integration and 'observed' integration
+	//       should be contributed to 'dropped frame'. May be count and report drop frames?
+
+	// TODO: After the integration has been locked (on LockIntegration()) we also need to copy accross current stats
+	//       We need to wait until the end of the current integration period before we can transition to using IsNewIntegrationPeriodOfLockedIntegration()
+	//       after the integration has been loacked.
+
+	return false;
+}
+
 bool IsNewIntegrationPeriod(float diffSignature)
 {
 	if (!IS_INTEGRATING_CAMERA)
 		return true;
+
+	if (INTEGRATION_LOCKED)
+	{
+		// TODO:
+		//return IsNewIntegrationPeriodOfLockedIntegration(diffSignature, diffSignature2);
+	}
 
 	float diff = 0;
 	bool isNewIntegrationPeriod = false;
@@ -215,7 +241,7 @@ bool IsNewIntegrationPeriod(float diffSignature)
 			// Looks like the the 1-frame integration has ended. So enter in normal mode
 			lowFrameIntegrationMode = 0;
 
-#if _DEBUG
+#ifdef INTDET_DEBUG
 		DebugViewPrint(L"LFM-1: lowFrameIntegrationMode = %d; diff = %.3f; 10-Sigma = %.3f; 3-MaxVal = %.3f; NEW = %d\n", lowFrameIntegrationMode, diff, 10 * allLowFrameSignSigma, 3 * allSignMaxResidual, isNewIntegrationPeriod);
 #endif
 	}
@@ -224,18 +250,30 @@ bool IsNewIntegrationPeriod(float diffSignature)
 		float evenDiff = abs(evenLowFrameSignAverage - diffSignature);
 		float oddDiff = abs(oddLowFrameSignAverage - diffSignature);
 
-		bool isEvenFrame = evenDiff <= 3 * evenSignMaxResidual;
-		bool isOddFrame = oddDiff <= 3 * oddSignMaxResidual;
+		bool isEvenFrame = evenDiff <= 5 * evenSignMaxResidual;
+		bool isOddFrame = oddDiff <= 5 * oddSignMaxResidual;
 
-		if (isEvenFrame && !isOddFrame && evenLowFrameSignAverage > oddLowFrameSignAverage)
-			isNewIntegrationPeriod = true; // New 2-Frame period starts on an even frame
-		else if (isOddFrame && !isEvenFrame && oddLowFrameSignAverage > evenLowFrameSignAverage)
-			isNewIntegrationPeriod = true; // New 2-Frame period starts on an odd frame
+		if (isEvenFrame && !isOddFrame)
+		{
+			// Correctly recognized even frame of a x2 integration 
+			
+			// This is a new frame if a new 2-Frame period starts on an even frame
+			isNewIntegrationPeriod = evenLowFrameSignAverage > oddLowFrameSignAverage; 
+		}
+		else if (isOddFrame && !isEvenFrame)
+		{
+			// Correctly recognized odd frame of a x2 integration 
+
+			// This is a new frame if a new 2-Frame period starts on an odd frame
+			isNewIntegrationPeriod = oddLowFrameSignAverage > evenLowFrameSignAverage; 
+		}
 		else
-			// Looks like the the 1-frame integration has ended. So enter in normal mode
+		{
+			// Looks like the the 2-frame integration cannot be recognized further, so enter normal mode
 			lowFrameIntegrationMode = 0;
+		}
 
-#if _DEBUG
+#ifdef INTDET_DEBUG
 		DebugViewPrint(L"LFM-2: lowFrameIntegrationMode = %d; evenDiff = %.3f; oddDiff = %.3f; 10-sigmaEven = %.3f; 10-sigmaOdd = %.3f; 3-MaxValEven = %.3f; 3-MaxValOdd = %.3f; NEW = %d\n", 
 			lowFrameIntegrationMode, evenDiff, oddDiff, 10 * evenLowFrameSignSigma, 10 * oddLowFrameSignSigma, 3 * evenSignMaxResidual, 3 * oddSignMaxResidual, isNewIntegrationPeriod);
 #endif
@@ -250,10 +288,10 @@ bool IsNewIntegrationPeriod(float diffSignature)
 			(pastSignaturesCount > 1 && diff > MINIMUM_SIGNATURE_DIFFERENCE && diff > SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
 	}
 
-	int currSignaturesHistoryIndex = (int)(idxFrameNumber % LOW_INTEGRATION_CHECK_POOL_SIZE);
+	long currSignaturesHistoryIndex = (long)((idxFrameNumber % (long long)LOW_INTEGRATION_CHECK_POOL_SIZE) & 0xFFFF);
 	signaturesHistory[currSignaturesHistoryIndex] = diffSignature;
 
-	if (!isNewIntegrationPeriod && lowFrameIntegrationMode == 0 && pastSignaturesCount > LOW_INTEGRATION_CHECK_POOL_SIZE)
+	if (!isNewIntegrationPeriod && lowFrameIntegrationMode == 0 && pastSignaturesCount > 0 && pastSignaturesCount % LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY == 0)
 	{
 		// After having collected history for LOW_INTEGRATION_CHECK_POOL_SIZE frames, without recognizing a new integration period larger than 2-frame integration
 		// we can try to recognize a 1-frame and 2-frame signatures in order to enter lowFrameIntegrationMode
@@ -288,10 +326,10 @@ bool IsNewIntegrationPeriod(float diffSignature)
 
 	}
 
-#if _DEBUG
-	DebugViewPrint(L"PSC:%d DF:%.5f D:%.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f\n", 
-		pastSignaturesCount, diffSignature, diff, SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma, 
-		pastSignaturesSum, pastSignaturesAverage, pastSignaturesResidualSquareSum, pastSignaturesSigma); 
+#ifdef INTDET_DEBUG
+	DebugViewPrint(L"FRID:%I64d PSC:%d DF:%.5f (%.5f) D:%.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f CSI:%d LFIM: %d\n", 
+		idxFrameNumber, pastSignaturesCount, diffSignature, diffSignature2, diff, SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma, 
+		pastSignaturesSum, pastSignaturesAverage, pastSignaturesResidualSquareSum, pastSignaturesSigma, currSignaturesHistoryIndex, lowFrameIntegrationMode); 
 #endif
 
 
@@ -596,39 +634,29 @@ HRESULT GetCurrentImage(BYTE* bitmapPixels)
 	return S_OK;
 }
 
-void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev, float* signatureThisTwoAgo)
+void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev)
 {
 	numberOfDiffSignaturesCalculated++;
 
 	unsigned char* ptrBuf = bmpBits + IMAGE_STRIDE * (IMAGE_HEIGHT / 2 - 1) + (3 * (IMAGE_WIDTH / 2));
 
-	unsigned char* ptrTwoFramesAgoPixels;
 	unsigned char* ptrPrevPixels;
 	unsigned char* ptrThisPixels;
-	
-	switch(numberOfDiffSignaturesCalculated % 3)
+
+	switch(numberOfDiffSignaturesCalculated % 2)
 	{
 		case 0:
-			ptrTwoFramesAgoPixels = prtPreviousDiffArea;
-			ptrPrevPixels		  = prtPreviousDiffArea + IMAGE_WIDTH * 3;
-			ptrThisPixels		  = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
+			ptrPrevPixels		  = prtPreviousDiffArea;
+			ptrThisPixels		  = prtPreviousDiffArea + 1 * IMAGE_WIDTH * 3;
 			break;
 
 		case 1:
-			ptrTwoFramesAgoPixels = prtPreviousDiffArea + IMAGE_WIDTH * 3;
-			ptrPrevPixels		  = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
 			ptrThisPixels		  = prtPreviousDiffArea;
-			break;
-
-		case 2:
-			ptrTwoFramesAgoPixels = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
-			ptrPrevPixels		  = prtPreviousDiffArea;
-			ptrThisPixels		  = prtPreviousDiffArea + IMAGE_WIDTH * 3;
+			ptrPrevPixels		  = prtPreviousDiffArea + 1 * IMAGE_WIDTH * 3;
 			break;
 	}
 
 	*signatureThisPrev = 0;
-	*signatureThisTwoAgo = 0;
 
 	for(int y = 0; y < 32; y++)
 	{
@@ -637,12 +665,9 @@ void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev, fl
 			*ptrThisPixels = *ptrBuf;
 
 			*signatureThisPrev += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
-			// NOTE: The second Diff signature is not used at the moment so don't waste time computing it
-			//*signatureThisTwoAgo += abs((float)*ptrThisPixels - (float)*ptrTwoFramesAgoPixels) / 2.0;
 
 			ptrThisPixels++;
 			ptrPrevPixels++;
-			ptrTwoFramesAgoPixels++;
 			ptrBuf+=3;
 		}
 
@@ -650,42 +675,31 @@ void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev, fl
 	}
 
 	*signatureThisPrev = *signatureThisPrev / 1024.0;
-	*signatureThisTwoAgo = *signatureThisTwoAgo / 1024.0;
 }
 
-void CalculateDiffSignature2(long* pixels, float* signatureThisPrev, float* signatureThisTwoAgo)
+void CalculateDiffSignature2(long* pixels, float* signatureThisPrev)
 {
 	numberOfDiffSignaturesCalculated++;
 
 	long* ptrLongBuf = pixels + (IMAGE_WIDTH * (IMAGE_HEIGHT / 2 - 1) + (3 * (IMAGE_WIDTH / 2)));
 
-	unsigned char* ptrTwoFramesAgoPixels;
 	unsigned char* ptrPrevPixels;
 	unsigned char* ptrThisPixels;
-	
-	switch(numberOfDiffSignaturesCalculated % 3)
+
+	switch(numberOfDiffSignaturesCalculated % 2)
 	{
 		case 0:
-			ptrTwoFramesAgoPixels = prtPreviousDiffArea;
-			ptrPrevPixels		  = prtPreviousDiffArea + IMAGE_WIDTH * 3;
-			ptrThisPixels		  = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
+			ptrPrevPixels		  = prtPreviousDiffArea;
+			ptrThisPixels		  = prtPreviousDiffArea + 1 * IMAGE_WIDTH * 3;
 			break;
 
 		case 1:
-			ptrTwoFramesAgoPixels = prtPreviousDiffArea + IMAGE_WIDTH * 3;
-			ptrPrevPixels		  = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
 			ptrThisPixels		  = prtPreviousDiffArea;
-			break;
-
-		case 2:
-			ptrTwoFramesAgoPixels = prtPreviousDiffArea + 2 * IMAGE_WIDTH * 3;
-			ptrPrevPixels		  = prtPreviousDiffArea;
-			ptrThisPixels		  = prtPreviousDiffArea + IMAGE_WIDTH * 3;
+			ptrPrevPixels		  = prtPreviousDiffArea + 1 * IMAGE_WIDTH * 3;
 			break;
 	}
 
 	*signatureThisPrev = 0;
-	*signatureThisTwoAgo = 0;
 
 	for(int y = 0; y < 32; y++)
 	{
@@ -694,18 +708,14 @@ void CalculateDiffSignature2(long* pixels, float* signatureThisPrev, float* sign
 			*ptrThisPixels = *ptrLongBuf & 0xFF;
 
 			*signatureThisPrev += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
-			// NOTE: The second Diff signature is not used at the moment so don't waste time computing it
-			//*signatureThisTwoAgo += abs((float)*ptrThisPixels - (float)*ptrTwoFramesAgoPixels) / 2.0;
 
 			ptrThisPixels++;
 			ptrPrevPixels++;
-			ptrTwoFramesAgoPixels++;
-			ptrLongBuf++;
+			ptrLongBuf+=3;
 		}
 	}
 
 	*signatureThisPrev = *signatureThisPrev / 1024.0;
-	*signatureThisTwoAgo = *signatureThisTwoAgo / 1024.0;
 }
 
 long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks)
@@ -818,10 +828,6 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			ptrPixels++;
 		}
 
-#if _DEBUG
-		DebugViewPrint(L"Restored Pixels: %d\n", restoredPixels);
-#endif
-
 		// TODO: The OCR logic will run here and will set the values of: idxFirstFrameNumber, idxFirstFrameTimestamp, idxLastFrameNumber and idxLastFrameTimestamp
 		//		 Run the OCR logic on firstIntegratedFramePixels and lastIntegratedFramePixels
 
@@ -876,10 +882,8 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProc
 	frameInfo->FrameDiffSignature = 0;
 
 	float diffSignature;
-	float diffSignature2;
 
-	// NOTE: Remove the diffSignature2 code if diffSignature logic for 1-frame and 2-frame integrations work
-	CalculateDiffSignature2(pixels, &diffSignature, &diffSignature2);
+	CalculateDiffSignature2(pixels, &diffSignature);
 
 	idxFrameNumber++;
 
@@ -943,17 +947,11 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProc
 	return S_OK;
 }
 
-HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+void ProcessRawFrame(RawFrame* rawFrame)
 {
-	frameInfo->FrameDiffSignature = 0;
-
-	unsigned char* buf = reinterpret_cast<unsigned char*>(bmpBits);
-
 	float diffSignature;
-	float diffSignature2;
 
-	// NOTE: Remove the diffSignature2 code if diffSignature logic for 1-frame and 2-frame integrations work
-	CalculateDiffSignature(buf, &diffSignature, &diffSignature2);
+	CalculateDiffSignature(rawFrame->BmpBits, &diffSignature);
 
 	idxFrameNumber++;
 
@@ -965,7 +963,7 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, rawFrame->CurrentUtcDayAsTicks);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -979,11 +977,8 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 		}
 	}
 
-	frameInfo->FrameDiffSignature  = diffSignature;
-	frameInfo->CurrentSignatureRatio  = currentSignatureRatio;
-
 	long stride = 3 * IMAGE_WIDTH;
-	unsigned char* ptrPixelItt = buf + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;
+	unsigned char* ptrPixelItt = rawFrame->BmpBits + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;
 
 	double* ptrPixels = integratedPixels;
 
@@ -1030,14 +1025,146 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 	numberOfIntegratedFrames++;
 
 	idxLastFrameNumber = idxFrameNumber;
-	//idxLastFrameTimestamp = currentUtcDayAsTicks;
+	//idxLastFrameTimestamp = currentUtcDayAsTicks
+}
 
-	frameInfo->CameraFrameNo = idxFrameNumber;
-	frameInfo->IntegratedFrameNo = idxIntegratedFrameNumber;
-	frameInfo->IntegratedFramesSoFar = numberOfIntegratedFrames;
+void ProcessBufferedVideoFrame()
+{
+	RawFrame* nextFrame = NULL;
+
+	do
+	{
+		nextFrame = FetchFrameFromRawFrameBuffer();
+
+		if (nextFrame != NULL)
+		{
+			unsigned char* dataToSave;
+
+			ProcessRawFrame(nextFrame);
+
+			delete nextFrame;
+		}
+	}
+	while(nextFrame != NULL);
+}
+
+
+void FrameProcessingThreadProc( void* pContext )
+{
+	while(true)
+	{
+		ProcessBufferedVideoFrame();
+	};
+}
+
+HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+{
+	frameInfo->FrameDiffSignature = 0;
+
+	unsigned char* buf = reinterpret_cast<unsigned char*>(bmpBits);
+
+	RawFrame* frame = new RawFrame(IMAGE_WIDTH, IMAGE_HEIGHT);
+	frame->CurrentUtcDayAsTicks = currentUtcDayAsTicks;
+	memcpy(&frame->BmpBits[0], &buf[0], frame->BmpBitsSize);
+
+	AddFrameToRawFrameBuffer(frame);
 
 	return S_OK;
 }
+
+//HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+//{
+//	frameInfo->FrameDiffSignature = 0;
+//
+//	unsigned char* buf = reinterpret_cast<unsigned char*>(bmpBits);
+//
+//	float diffSignature;
+//
+//	CalculateDiffSignature(buf, &diffSignature);
+//
+//	idxFrameNumber++;
+//
+//	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
+//
+//	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
+//	// When the integration hasn't been 'locked' we output every frame received from the camera
+//	bool showOutputFrame = isNewIntegrationPeriod || !INTEGRATION_LOCKED;
+//
+//	if (showOutputFrame)
+//	{
+//		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks);
+//		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
+//
+//		if (isNewIntegrationPeriod)
+//		{
+//			numberOfIntegratedFrames = 0;
+//
+//			idxFirstFrameNumber = idxFrameNumber;
+//			//idxFirstFrameTimestamp = currentUtcDayAsTicks;
+//			idxLastFrameNumber = 0;
+//			//idxLastFrameTimestamp = 0;
+//		}
+//	}
+//
+//	frameInfo->FrameDiffSignature  = diffSignature;
+//	frameInfo->CurrentSignatureRatio  = currentSignatureRatio;
+//
+//	long stride = 3 * IMAGE_WIDTH;
+//	unsigned char* ptrPixelItt = buf + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;
+//
+//	double* ptrPixels = integratedPixels;
+//
+//	unsigned char* ptrFirstOrLastFrameCopy = numberOfIntegratedFrames == 0 ? firstIntegratedFramePixels : lastIntegratedFramePixels;
+//	
+//	for (int y = 0; y < IMAGE_HEIGHT; y++)
+//	{
+//		for (int x = 0; x < IMAGE_WIDTH; x++)
+//		{
+//			unsigned char thisPixel;
+//
+//			if (MONOCHROME_CONVERSION_MODE == 0)
+//				thisPixel= *(ptrPixelItt + 2); //R
+//			else if (MONOCHROME_CONVERSION_MODE == 1)
+//				thisPixel= *(ptrPixelItt + 1); //G
+//			else if (MONOCHROME_CONVERSION_MODE == 2)
+//				thisPixel = *(ptrPixelItt); //B
+//			else if (MONOCHROME_CONVERSION_MODE == 3)
+//			{
+//				// YUV Conversion (PAL & NTSC)
+//				// Luma = 0.299 R + 0.587 G + 0.114 B
+//				double luma = 0.299* *(ptrPixelItt) + 0.587* *(ptrPixelItt + 1) + 0.114* *(ptrPixelItt + 2);
+//
+//				if (luma < 0)
+//					thisPixel = 0;
+//				else if (luma > 255)
+//					thisPixel = 255;
+//				else
+//					thisPixel = (unsigned char)luma;
+//			}
+//
+//			// Saving the first/last frame raw pixels for OCR-ing
+//			*ptrFirstOrLastFrameCopy = thisPixel;
+//		    *ptrPixels += thisPixel;
+//
+//			ptrPixels++;
+//			ptrFirstOrLastFrameCopy++;
+//			ptrPixelItt+=3;
+//		}
+//
+//		ptrPixelItt = ptrPixelItt - 2 * IMAGE_STRIDE;
+//	}
+//
+//	numberOfIntegratedFrames++;
+//
+//	idxLastFrameNumber = idxFrameNumber;
+//	//idxLastFrameTimestamp = currentUtcDayAsTicks;
+//
+//	frameInfo->CameraFrameNo = idxFrameNumber;
+//	frameInfo->IntegratedFrameNo = idxIntegratedFrameNumber;
+//	frameInfo->IntegratedFramesSoFar = numberOfIntegratedFrames;
+//
+//	return S_OK;
+//}
 
 void ProcessCurrentFrame(IntegratedFrame* nextFrame)
 {
@@ -1183,3 +1310,6 @@ HRESULT DisableOcrProcessing()
 
 	return S_OK;
 }
+
+
+HANDLE hFrameProcessingThread = (HANDLE)_beginthread(FrameProcessingThreadProc, 0, NULL);
