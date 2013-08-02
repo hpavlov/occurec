@@ -72,7 +72,9 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 		{
 			try
 			{
+                Trace.Write("SetupGraphInternal ... ");
 				SetupGraphInternal(dev, compressor, ref iFrameRate, ref iWidth, ref iHeight, fileName);
+                Trace.WriteLine("done.");
 
 				latestBitmap = new Bitmap(iWidth, iHeight, PixelFormat.Format24bppRgb);
 				fullRect = new Rectangle(0, 0, latestBitmap.Width, latestBitmap.Height);
@@ -131,7 +133,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
 		public Bitmap GetNextFrame(out long frameId)
 		{
-			if (latestBitmap == null)
+            if (latestBitmap == null || isShuttingDown)
 			{
 				frameId = -1;
 				return null;
@@ -690,27 +692,34 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
 		private void CloseInterfaces()
 		{
+		    isShuttingDown = true;
 			try
 			{
-				if (mediaCtrl != null)
-				{
-                    NonBlockingLock.ExclusiveLock(
-                        NonBlockingLock.LOCK_ID_CloseInterfaces, 
-                        () =>
-				            {
-				                Application.DoEvents();
+                Thread.Sleep(250);
 
-				                // Stop the graph
-				                int hr = mediaCtrl.Stop();
-				            });
+			    if (mediaCtrl != null)
+			    {
+			        NonBlockingLock.ExclusiveLock(
+			            NonBlockingLock.LOCK_ID_CloseInterfaces,
+			            () =>
+			                {
+			                    Application.DoEvents();
 
-					mediaCtrl = null;
-					isRunning = false;
-				}
+			                    // Stop the graph
+			                    int hr = mediaCtrl.Stop();
+			                });
+
+			        mediaCtrl = null;
+			        isRunning = false;
+			    }
 			}
 			catch (Exception ex)
 			{
-				Debug.WriteLine(ex);
+			    Debug.WriteLine(ex);
+			}
+			finally
+			{
+			    isShuttingDown = false;
 			}
 
 			if (filterGraph != null)
@@ -734,10 +743,14 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 		}
 
 	    private int lockedStatus = 0;
+	    private bool isShuttingDown = false;
 
 		/// <summary> buffer callback, COULD BE FROM FOREIGN THREAD. </summary>
 		int ISampleGrabberCB.BufferCB(double SampleTime, IntPtr pBuffer, int BufferLen)
 		{
+		    if (isShuttingDown)
+		        return 0;
+
             NonBlockingLock.Lock(
                 NonBlockingLock.LOCK_ID_BufferCB,
                 () =>

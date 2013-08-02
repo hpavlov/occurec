@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -22,8 +23,11 @@ namespace AAVRec.Helpers
                 var spinWait = new SpinWait();
                 while (true)
                 {
-                    int updVal = Interlocked.CompareExchange(ref currentlyHeldLockId, lockId, 0);
-                    if (0 !=  updVal && !exclusiveLockActive) break;
+                    if (!exclusiveLockActive)
+                    {
+                        int updVal = Interlocked.CompareExchange(ref currentlyHeldLockId, lockId, 0);
+                        if (0 != updVal) break;
+                    }
                     spinWait.SpinOnce();
                 }
 
@@ -48,7 +52,6 @@ namespace AAVRec.Helpers
                     if (0 != updVal) break;
                     spinWait.SpinOnce();
                 }
-
                 exclusiveLockActive = true;
 
                 if (currentlyHeldLockId == lockId)
