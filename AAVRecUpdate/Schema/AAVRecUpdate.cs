@@ -39,7 +39,7 @@ namespace AAVRecUpdate.Schema
 
                     if (base.Version > currVersionAsInt)
                     {
-                        Trace.WriteLine(string.Format("Update required for '{0}': local version: {1}; server version: {2}", File, currVersionAsInt, Version));
+                        Trace.WriteLine(string.Format("Update required for 'AAVRecUpdate.exe': local version: {0}; server version: {1}", currVersionAsInt, Version));
                         return true;
                     }
                 }

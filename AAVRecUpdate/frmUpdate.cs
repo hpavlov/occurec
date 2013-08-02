@@ -28,10 +28,20 @@ namespace AAVRecUpdate
 
 	        string[] args = Environment.GetCommandLineArgs();
 
-	        aavRecPath = args[0];
-			acceptBetaUpdates = args[1] == "beta";
+            aavRecPath = AppDomain.CurrentDomain.BaseDirectory;
 
-			updater = new Updater(aavRecPath, acceptBetaUpdates);
+            if (args.Length == 1)
+            {
+                acceptBetaUpdates = false;
+            }
+            else if (args.Length == 2)
+            {
+                acceptBetaUpdates = args[1] == "beta";
+            }
+
+            Trace.WriteLine(string.Format("Accept Beta Updates: {0}", acceptBetaUpdates), "AAVRecUpdate");
+
+            updater = new Updater(aavRecPath, acceptBetaUpdates);
 			Config.Instance.Load(aavRecPath, acceptBetaUpdates);
 
             SetMiniLayout();
@@ -230,7 +240,7 @@ namespace AAVRecUpdate
         private void SetMiniLayout()
         {
             this.Width = 392;
-            this.Height = 98;
+            this.Height = 111;
             lblStatus.Visible = true;
             pbUpdate.Left = 12;
             pbUpdate.Top = 30;
@@ -238,12 +248,13 @@ namespace AAVRecUpdate
             lblInfo.Top = 56;
             lbModulesToUpdate.Left = 12;
             lbModulesToUpdate.Top = 81;
+            lbModulesToUpdate.Visible = false;
         }
 
         private void SetMaxiLayout()
         {
             this.Width = 392;
-            this.Height = 150; 
+            this.Height = 163; 
             lblStatus.Visible = true;
             pbUpdate.Left = 12;
             pbUpdate.Top = 77;
@@ -251,6 +262,7 @@ namespace AAVRecUpdate
             lblInfo.Top = 103;
             lbModulesToUpdate.Left = 12;
             lbModulesToUpdate.Top = 28;
+            lbModulesToUpdate.Visible = true;
         }
 
 	    internal delegate void ReceieveMessageDelegate(int messageId, object message, object argument);

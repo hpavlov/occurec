@@ -34,7 +34,7 @@ namespace AAVRecUpdate
         public void Load(string aavRecPath, bool acceptBetaUpdates)
         {
             UpdateLocation = "http://www.hristopavlov.net/AAVRec/";
-            UpdatesXmlFileName = "/Updates.xml";
+            UpdatesXmlFileName = acceptBetaUpdates ? "/Beta.xml" : "/Updates.xml";
 
             RegistryKey key = null;
 
@@ -222,14 +222,23 @@ namespace AAVRecUpdate
         public int VersionStringToVersion(string versionString)
         {
             string[] tokens = versionString.Split('.');
-            int version = 1000000 * int.Parse(tokens[0]) + 100000 * int.Parse(tokens[1]) + 10000 * int.Parse(tokens[2]) + int.Parse(tokens[3]);
+            int version =
+                10000 * int.Parse(tokens[0]) +
+                1000 * int.Parse(tokens[1]) +
+                (tokens.Length > 2 ? 100 * int.Parse(tokens[2]) : 0) + 
+                (tokens.Length > 3 ? int.Parse(tokens[3]) : 0);
             return version;
         }
 
         public int AAVRecUpdateVersionStringToVersion(string versionString)
         {
             string[] tokens = versionString.Split('.');
-            int version = 10000 * int.Parse(tokens[0]) + 1000 * int.Parse(tokens[1]) + 100 * int.Parse(tokens[2]) + int.Parse(tokens[3]);
+            int version = 
+                10000 * int.Parse(tokens[0]) + 
+                1000 * int.Parse(tokens[1]) +
+                (tokens.Length > 2 ? 100 * int.Parse(tokens[2]) : 0) + 
+                (tokens.Length > 2 ? int.Parse(tokens[3]) : 0);
+
             return version;
         }
     }

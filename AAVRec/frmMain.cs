@@ -59,9 +59,17 @@ namespace AAVRec
             var att = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
 		    appVersion = att.Version;
 
-		    Text = string.Format("AAVRec v{0}", appVersion);
+#if BETA
+            appVersion = string.Concat(att.Version, " [BETA]");
+#else
+            appVersion = att.Version;
+#endif
 
-			CheckForUpdates(false);
+            Text = string.Format("AAVRec v{0}", appVersion);
+
+            CheckForUpdates(false);
+
+		    UpdateState();
 		}
 
 		/// <summary>
@@ -95,6 +103,15 @@ namespace AAVRec
 
             if (overlayManager != null)
                 overlayManager.OnEvent(eventId, eventData);
+        }
+
+
+        private void tsbConnectDisconnect_Click(object sender, EventArgs e)
+        {
+            if (videoObject == null)
+                ConnectToCamera();
+            else
+                DisconnectFromCamera();
         }
 
 		private void ConnectToCamera()
@@ -507,6 +524,10 @@ namespace AAVRec
 
 		private void UpdateState()
 		{
+		    if (IsDisposed)
+                // It is possible this method to be called during Disposing and we don't need to do anything in that case
+		        return;
+
 			if (videoObject == null)
 			{
 				tssCameraState.Text = "Disconnected";
@@ -514,6 +535,9 @@ namespace AAVRec
 				tssDisplayRate.Text = string.Empty;
 				tssFrameNo.Visible = false;
 				tssDisplayRate.Visible = false;
+
+			    tsbConnectDisconnect.ToolTipText = "Connect";
+			    tsbConnectDisconnect.Image = imageListToolbar.Images[0];
 			}
 			else
 			{
@@ -575,6 +599,9 @@ namespace AAVRec
                     UpdateApplicationStateFromCameraState();
                     gbxSchedules.Enabled = true;
                 }
+
+                tsbConnectDisconnect.ToolTipText = "Disconnect";
+                tsbConnectDisconnect.Image = imageListToolbar.Images[1];
 			}
 		}
 
@@ -1057,6 +1084,7 @@ namespace AAVRec
 						processInfo.Verb = "runas";
 
 					processInfo.FileName = updaterFileName;
+                    processInfo.Arguments = string.Format("{0}", Settings.Default.AcceptBetaUpdates ? "beta" : "full");
 					Process.Start(processInfo);
 				}
 			}

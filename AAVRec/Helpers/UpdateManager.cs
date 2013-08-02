@@ -18,7 +18,7 @@ namespace AAVRec.Helpers
 			{
 				Assembly asm = Assembly.GetExecutingAssembly();
 				Version owVer = asm.GetName().Version;
-				return 1000000 * owVer.Major + 100000 * owVer.Minor + 10000 * owVer.Build + owVer.Revision;
+				return 10000 * owVer.Major + 1000 * owVer.Minor + 100 * owVer.Build + owVer.Revision;
 			}
 			catch
 			{ }
@@ -94,7 +94,7 @@ namespace AAVRec.Helpers
 		{
 			get
 			{
-				return UpdateLocation + (Settings.Default.AcceptBetaUpdates ? "/Updates.xml" : "/Beta.xml");
+                return UpdateLocation + (Settings.Default.AcceptBetaUpdates ? "/Beta.xml" : "/Updates.xml");
 			}
 		}
 	}
