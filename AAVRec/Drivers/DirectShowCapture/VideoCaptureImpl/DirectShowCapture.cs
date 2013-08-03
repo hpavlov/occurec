@@ -72,9 +72,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 		{
 			try
 			{
-                Trace.Write("SetupGraphInternal ... ");
 				SetupGraphInternal(dev, compressor, ref iFrameRate, ref iWidth, ref iHeight, fileName);
-                Trace.WriteLine("done.");
 
 				latestBitmap = new Bitmap(iWidth, iHeight, PixelFormat.Format24bppRgb);
 				fullRect = new Rectangle(0, 0, latestBitmap.Width, latestBitmap.Height);
@@ -370,7 +368,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				DsError.ThrowExceptionForHR(hr);
 
 				// Connect the video device output to the splitter
-				IPin videoCaptureOutputPin = FindPin(capFilter, PinDirection.Output, MediaType.Video, "Capture");
+                IPin videoCaptureOutputPin = FindPin(capFilter, PinDirection.Output, MediaType.Video, PinCategory.Capture, "Capture");
 				IPin smartTeeInputPin = DsFindPin.ByDirection(smartTeeFilter, PinDirection.Input, 0);
 				hr = filterGraph.Connect(videoCaptureOutputPin, smartTeeInputPin);
 				DsError.ThrowExceptionForHR(hr);
@@ -378,7 +376,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				Marshal.ReleaseComObject(smartTeeInputPin);
 
 				// Connect the splitter Preview pin to the sample grabber
-				IPin smartTeePreviewPin = DsFindPin.ByName(smartTeeFilter, "Preview");
+                IPin smartTeePreviewPin = FindPin(smartTeeFilter, PinDirection.Output, MediaType.Video, PinCategory.Preview, "Preview");
 				IPin grabberInputPin = DsFindPin.ByDirection(baseGrabFlt, PinDirection.Input, 0);
 				hr = filterGraph.Connect(smartTeePreviewPin, grabberInputPin);
 				DsError.ThrowExceptionForHR(hr);
@@ -404,7 +402,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				DsError.ThrowExceptionForHR(hr);
 
 				// Connect the splitter Capture pin to the compressor
-				IPin smartTeeCapturePin = DsFindPin.ByName(smartTeeFilter, "Capture");
+                IPin smartTeeCapturePin = FindPin(smartTeeFilter, PinDirection.Output, MediaType.Video, PinCategory.Capture, "Capture");
 				IPin compressorInputPin = DsFindPin.ByDirection(compressorFilter, PinDirection.Input, 0);
 				hr = filterGraph.Connect(smartTeeCapturePin, compressorInputPin);
 				DsError.ThrowExceptionForHR(hr);
@@ -444,15 +442,81 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 			}
 		}
 
-		private IPin FindPin(IBaseFilter filter, PinDirection direction, Guid mediaType, string preferredName)
+        private IPin PrintInfoAndReturnPin(IBaseFilter filter, IPin pin, PinDirection direction, Guid mediaType, Guid pinCategory, string debugInfo)
+        {
+            FilterInfo fInfo;
+            int hr = filter.QueryFilterInfo(out fInfo);
+            DsError.ThrowExceptionForHR(hr);
+
+            string vendorInfo = null;
+            hr = filter.QueryVendorInfo(out vendorInfo);
+            if ((uint)hr != 0x80004001) /* Not Implemented*/
+                DsError.ThrowExceptionForHR(hr);
+
+            string mediaTypeStr = "N/A";
+            if (mediaType == MediaType.AnalogVideo)
+                mediaTypeStr = "AnalogVideo";
+            else if (mediaType == MediaType.Video)
+                mediaTypeStr = "Video";
+            else if (mediaType == MediaType.Null)
+                mediaTypeStr = "Null";
+
+            string categoryStr = "N/A";
+            if (pinCategory == PinCategory.Capture)
+                categoryStr = "Capture";
+            else if (pinCategory == PinCategory.Preview)
+                categoryStr = "Preview";
+            else if (pinCategory == PinCategory.AnalogVideoIn)
+                categoryStr = "AnalogVideoIn";
+            else if (pinCategory == PinCategory.CC)
+                categoryStr = "CC";
+            
+            PinInfo pinInfo;
+            hr = pin.QueryPinInfo(out pinInfo);
+            DsError.ThrowExceptionForHR(hr);
+
+            Trace.WriteLine(string.Format("Using {0} pin '{1}' of media type '{2}' and category '{3}' {4} ({5}::{6})", 
+                direction == PinDirection.Input ? "input" : "output", 
+                pinInfo.name,
+                mediaTypeStr,
+                categoryStr, 
+                debugInfo,
+                vendorInfo, fInfo.achName));
+
+            return pin;
+        }
+
+		private IPin FindPin(IBaseFilter filter, PinDirection direction, Guid mediaType, Guid pinCategory, string preferredName)
 		{
+            if (Guid.Empty != pinCategory)
+            {
+                int idx = 0;
+
+                do
+                {
+                    IPin pinByCategory = DsFindPin.ByCategory(filter, pinCategory, idx);
+
+                    if (pinByCategory != null)
+                    {
+                        if (IsMatchingPin(pinByCategory, direction, mediaType))
+                            return PrintInfoAndReturnPin(filter, pinByCategory, direction, mediaType, pinCategory, "found by category");
+
+                        Marshal.ReleaseComObject(pinByCategory);
+                    }
+                    else
+                        break;
+
+                    idx++;
+                }
+                while (true);
+            }
+
 			if (!string.IsNullOrEmpty(preferredName))
 			{
 				IPin pinByName = DsFindPin.ByName(filter, preferredName);
-
-				if (IsMatchingPin(pinByName, direction, mediaType))
-					return pinByName;
-
+				if (pinByName != null && IsMatchingPin(pinByName, direction, mediaType))
+                    return PrintInfoAndReturnPin(filter, pinByName, direction, mediaType, pinCategory, "found by name");
+ 
 				Marshal.ReleaseComObject(pinByName);
 			}
 
@@ -468,7 +532,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				if (pin != null)
 				{
 					if (IsMatchingPin(pin, direction, mediaType))
-						return pin;
+                        return PrintInfoAndReturnPin(filter, pin, direction, mediaType, pinCategory, "found by direction and media type");
 
 					Marshal.ReleaseComObject(pin);
 				}

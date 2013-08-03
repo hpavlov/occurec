@@ -349,6 +349,7 @@ namespace AAVRec.Drivers.DirectShowCapture
 			}
 			catch (Exception ex)
 			{
+                Trace.WriteLine(ex.GetFullErrorDescription());
 				throw new DriverException("Error starting the recording: " + ex.Message, ex);
 			}
 		}
@@ -370,6 +371,7 @@ namespace AAVRec.Drivers.DirectShowCapture
 			}
 			catch (Exception ex)
 			{
+                Trace.WriteLine(ex.GetFullErrorDescription());
 				throw new DriverException("Error stopping the recording: " + ex.Message, ex);
 			}
 		}

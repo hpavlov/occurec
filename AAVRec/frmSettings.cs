@@ -56,6 +56,9 @@ namespace AAVRec
 
             cbxImageLayoutMode.SelectedIndex = cbxImageLayoutMode.Items.IndexOf(Settings.Default.AavImageLayout);
 
+		    cbxFrameProcessingMode.SelectedIndex = Settings.Default.UsesBufferedFrameProcessing ? 0 : 1;
+            cbDebugIntegration.Checked = Settings.Default.IntegrationDetectionTuning;
+
             UpdateControls();
 		}
 
@@ -103,6 +106,9 @@ namespace AAVRec
             Settings.Default.IotaVtiOcrEnabled = cbxEnableAAVIOTAVTIOCR.Checked;
 			Settings.Default.PreserveTSTopLine = (int)nudPreserveTSTop.Value;
 			Settings.Default.PreserveTSHeight = (int)nudPreserveTSHeight.Value;
+
+            Settings.Default.UsesBufferedFrameProcessing = cbxFrameProcessingMode.SelectedIndex == 0;
+            Settings.Default.IntegrationDetectionTuning = cbDebugIntegration.Checked;
 
             Settings.Default.Save();
 

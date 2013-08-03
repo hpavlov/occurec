@@ -43,7 +43,7 @@ namespace AAVRec.Drivers.AAVTimer
 					if (value)
 					{
 						if (camera.LocateCaptureDevice())
-							camera.EnsureConnected();						
+							camera.EnsureConnected();
 					}
 					else
 						camera.EnsureDisconnected();
@@ -374,6 +374,7 @@ namespace AAVRec.Drivers.AAVTimer
 			}
 			catch (Exception ex)
 			{
+                Trace.WriteLine(ex.GetFullErrorDescription());
 				throw new DriverException("Error starting the recording: " + ex.Message, ex);
 			}
 		}
@@ -394,6 +395,7 @@ namespace AAVRec.Drivers.AAVTimer
 			}
 			catch (Exception ex)
 			{
+                Trace.WriteLine(ex.GetFullErrorDescription());
 				throw new DriverException("Error stopping the recording: " + ex.Message, ex);
 			}
 		}

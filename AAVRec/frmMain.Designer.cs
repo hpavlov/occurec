@@ -566,6 +566,7 @@
             this.tsbCrosshair.Name = "tsbCrosshair";
             this.tsbCrosshair.Size = new System.Drawing.Size(23, 22);
             this.tsbCrosshair.ToolTipText = "Crosshair";
+            this.tsbCrosshair.Visible = false;
             // 
             // pnlControlArea
             // 

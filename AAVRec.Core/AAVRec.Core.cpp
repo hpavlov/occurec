@@ -19,13 +19,11 @@
 #include "IotaVtiOcr.h"
 #include "AAVRec.Ocr.h"
 
-//#define INTDET_DEBUG
-
 using namespace AavOcr;
 
 #define MAX_INTEGRATION 256
 #define LOW_INTEGRATION_CHECK_POOL_SIZE 12 // 0.5 sec @ PAL
-#define LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY 24
+#define LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY (MAX_INTEGRATION + 1)
 #define MEDIAN_CALC_ROWS_FROM 10
 #define MEDIAN_CALC_ROWS_TO 11
 
@@ -35,6 +33,8 @@ long IMAGE_STRIDE;
 long IMAGE_TOTAL_PIXELS;
 long MONOCHROME_CONVERSION_MODE;
 long USE_IMAGE_LAYOUT = 4;
+bool USE_BUFFERED_FRAME_PROCESSING = true;
+bool INTEGRATION_DETECTION_TUNING = false;
 
 
 bool OCR_IS_SETUP = false;
@@ -147,9 +147,8 @@ void RecalculateLowIntegrationMetrics()
 		else
 			oddSignSum += signaturesHistory[i];
 
-#ifdef INTDET_DEBUG
+	if (INTEGRATION_DETECTION_TUNING)
 		DebugViewPrint(L"LIF:%2d %.3f (EVN:%.3f ODD:%.3f)\r\n", i, signaturesHistory[i], evenSignSum, oddSignSum);
-#endif
 	}
 
 	evenLowFrameSignAverage = evenSignSum * 2 / LOW_INTEGRATION_CHECK_POOL_SIZE;
@@ -188,12 +187,11 @@ void RecalculateLowIntegrationMetrics()
 	oddLowFrameSignSigma = sqrt(oddSignResidualSquareSum) * 2  / LOW_INTEGRATION_CHECK_POOL_SIZE;
 	allLowFrameSignSigma = sqrt(allSignResidualSquareSum) * 2  / LOW_INTEGRATION_CHECK_POOL_SIZE;
 
-#ifdef INTDET_DEBUG
-	DebugViewPrint(L"LowIntData Even:%.3f +/- %.3f (MAX: %.3f); Odd:%.3f +/- %.3f(MAX: %.3f); All:%.3f +/- %.3f (MAX: %.3f)\n", 
-		evenLowFrameSignAverage, evenLowFrameSignSigma, evenSignMaxResidual, 
-		oddLowFrameSignAverage, oddLowFrameSignSigma, oddSignMaxResidual,
-		allLowFrameSignAverage, allLowFrameSignSigma, allSignMaxResidual); 
-#endif
+	if (INTEGRATION_DETECTION_TUNING)
+		DebugViewPrint(L"LowIntData Even:%.3f +/- %.3f (MAX: %.3f); Odd:%.3f +/- %.3f(MAX: %.3f); All:%.3f +/- %.3f (MAX: %.3f)\n", 
+			evenLowFrameSignAverage, evenLowFrameSignSigma, evenSignMaxResidual, 
+			oddLowFrameSignAverage, oddLowFrameSignSigma, oddSignMaxResidual,
+			allLowFrameSignAverage, allLowFrameSignSigma, allSignMaxResidual); 
 }
 
 bool IsNewIntegrationPeriodOfLockedIntegration(float diffSignature)
@@ -241,9 +239,8 @@ bool IsNewIntegrationPeriod(float diffSignature)
 			// Looks like the the 1-frame integration has ended. So enter in normal mode
 			lowFrameIntegrationMode = 0;
 
-#ifdef INTDET_DEBUG
-		DebugViewPrint(L"LFM-1: lowFrameIntegrationMode = %d; diff = %.3f; 10-Sigma = %.3f; 3-MaxVal = %.3f; NEW = %d\n", lowFrameIntegrationMode, diff, 10 * allLowFrameSignSigma, 3 * allSignMaxResidual, isNewIntegrationPeriod);
-#endif
+		if (INTEGRATION_DETECTION_TUNING)
+			DebugViewPrint(L"LFM-1: lowFrameIntegrationMode = %d; diff = %.3f; 10-Sigma = %.3f; 3-MaxVal = %.3f; NEW = %d\n", lowFrameIntegrationMode, diff, 10 * allLowFrameSignSigma, 3 * allSignMaxResidual, isNewIntegrationPeriod);
 	}
 	else if (lowFrameIntegrationMode == 2)
 	{
@@ -273,10 +270,9 @@ bool IsNewIntegrationPeriod(float diffSignature)
 			lowFrameIntegrationMode = 0;
 		}
 
-#ifdef INTDET_DEBUG
-		DebugViewPrint(L"LFM-2: lowFrameIntegrationMode = %d; evenDiff = %.3f; oddDiff = %.3f; 10-sigmaEven = %.3f; 10-sigmaOdd = %.3f; 3-MaxValEven = %.3f; 3-MaxValOdd = %.3f; NEW = %d\n", 
-			lowFrameIntegrationMode, evenDiff, oddDiff, 10 * evenLowFrameSignSigma, 10 * oddLowFrameSignSigma, 3 * evenSignMaxResidual, 3 * oddSignMaxResidual, isNewIntegrationPeriod);
-#endif
+		if (INTEGRATION_DETECTION_TUNING)
+			DebugViewPrint(L"LFM-2: lowFrameIntegrationMode = %d; evenDiff = %.3f; oddDiff = %.3f; 10-sigmaEven = %.3f; 10-sigmaOdd = %.3f; 3-MaxValEven = %.3f; 3-MaxValOdd = %.3f; NEW = %d\n", 
+				lowFrameIntegrationMode, evenDiff, oddDiff, 10 * evenLowFrameSignSigma, 10 * oddLowFrameSignSigma, 3 * evenSignMaxResidual, 3 * oddSignMaxResidual, isNewIntegrationPeriod);
 	}
 
 	if (lowFrameIntegrationMode == 0)
@@ -326,12 +322,10 @@ bool IsNewIntegrationPeriod(float diffSignature)
 
 	}
 
-#ifdef INTDET_DEBUG
-	DebugViewPrint(L"FRID:%I64d PSC:%d DF:%.5f (%.5f) D:%.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f CSI:%d LFIM: %d\n", 
-		idxFrameNumber, pastSignaturesCount, diffSignature, diffSignature2, diff, SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma, 
-		pastSignaturesSum, pastSignaturesAverage, pastSignaturesResidualSquareSum, pastSignaturesSigma, currSignaturesHistoryIndex, lowFrameIntegrationMode); 
-#endif
-
+	if (INTEGRATION_DETECTION_TUNING)
+		DebugViewPrint(L"FRID:%I64d PSC:%d DF:%.5f D:%.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f CSI:%d LFIM: %d\n", 
+			idxFrameNumber, pastSignaturesCount, diffSignature, diff, SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma, 
+			pastSignaturesSum, pastSignaturesAverage, pastSignaturesResidualSquareSum, pastSignaturesSigma, currSignaturesHistoryIndex, lowFrameIntegrationMode); 
 
 	if (pastSignaturesCount < MAX_INTEGRATION && pastSignaturesCount > 1)
 		currentSignatureRatio = diff / (SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
@@ -371,15 +365,17 @@ bool IsNewIntegrationPeriod(float diffSignature)
 }
 
 
-HRESULT SetupAav(long useImageLayout, LPCTSTR szAavRecVersion)
+HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szAavRecVersion)
 {
 	OCR_IS_SETUP = false;
 	USE_IMAGE_LAYOUT = useImageLayout;
+	USE_BUFFERED_FRAME_PROCESSING = usesBufferedMode == 1;
+	INTEGRATION_DETECTION_TUNING = integrationDetectionTuning == 1;
 
 	
 	strcpy(&aavRecVersion[0], (char *)szAavRecVersion);
 
-	DebugViewPrint(L"AAVRec - using Image Layout = %d)\n", USE_IMAGE_LAYOUT); 
+	DebugViewPrint(L"AAVSetup: ImageLayout = %d; BufferedMode = %d; IntegrationTuning: %d\n", USE_IMAGE_LAYOUT, USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? 1:0); 
 
 	return S_OK;
 }
@@ -1057,7 +1053,7 @@ void FrameProcessingThreadProc( void* pContext )
 	};
 }
 
-HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1072,99 +1068,107 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 	return S_OK;
 }
 
-//HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
-//{
-//	frameInfo->FrameDiffSignature = 0;
-//
-//	unsigned char* buf = reinterpret_cast<unsigned char*>(bmpBits);
-//
-//	float diffSignature;
-//
-//	CalculateDiffSignature(buf, &diffSignature);
-//
-//	idxFrameNumber++;
-//
-//	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
-//
-//	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
-//	// When the integration hasn't been 'locked' we output every frame received from the camera
-//	bool showOutputFrame = isNewIntegrationPeriod || !INTEGRATION_LOCKED;
-//
-//	if (showOutputFrame)
-//	{
-//		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks);
-//		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
-//
-//		if (isNewIntegrationPeriod)
-//		{
-//			numberOfIntegratedFrames = 0;
-//
-//			idxFirstFrameNumber = idxFrameNumber;
-//			//idxFirstFrameTimestamp = currentUtcDayAsTicks;
-//			idxLastFrameNumber = 0;
-//			//idxLastFrameTimestamp = 0;
-//		}
-//	}
-//
-//	frameInfo->FrameDiffSignature  = diffSignature;
-//	frameInfo->CurrentSignatureRatio  = currentSignatureRatio;
-//
-//	long stride = 3 * IMAGE_WIDTH;
-//	unsigned char* ptrPixelItt = buf + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;
-//
-//	double* ptrPixels = integratedPixels;
-//
-//	unsigned char* ptrFirstOrLastFrameCopy = numberOfIntegratedFrames == 0 ? firstIntegratedFramePixels : lastIntegratedFramePixels;
-//	
-//	for (int y = 0; y < IMAGE_HEIGHT; y++)
-//	{
-//		for (int x = 0; x < IMAGE_WIDTH; x++)
-//		{
-//			unsigned char thisPixel;
-//
-//			if (MONOCHROME_CONVERSION_MODE == 0)
-//				thisPixel= *(ptrPixelItt + 2); //R
-//			else if (MONOCHROME_CONVERSION_MODE == 1)
-//				thisPixel= *(ptrPixelItt + 1); //G
-//			else if (MONOCHROME_CONVERSION_MODE == 2)
-//				thisPixel = *(ptrPixelItt); //B
-//			else if (MONOCHROME_CONVERSION_MODE == 3)
-//			{
-//				// YUV Conversion (PAL & NTSC)
-//				// Luma = 0.299 R + 0.587 G + 0.114 B
-//				double luma = 0.299* *(ptrPixelItt) + 0.587* *(ptrPixelItt + 1) + 0.114* *(ptrPixelItt + 2);
-//
-//				if (luma < 0)
-//					thisPixel = 0;
-//				else if (luma > 255)
-//					thisPixel = 255;
-//				else
-//					thisPixel = (unsigned char)luma;
-//			}
-//
-//			// Saving the first/last frame raw pixels for OCR-ing
-//			*ptrFirstOrLastFrameCopy = thisPixel;
-//		    *ptrPixels += thisPixel;
-//
-//			ptrPixels++;
-//			ptrFirstOrLastFrameCopy++;
-//			ptrPixelItt+=3;
-//		}
-//
-//		ptrPixelItt = ptrPixelItt - 2 * IMAGE_STRIDE;
-//	}
-//
-//	numberOfIntegratedFrames++;
-//
-//	idxLastFrameNumber = idxFrameNumber;
-//	//idxLastFrameTimestamp = currentUtcDayAsTicks;
-//
-//	frameInfo->CameraFrameNo = idxFrameNumber;
-//	frameInfo->IntegratedFrameNo = idxIntegratedFrameNumber;
-//	frameInfo->IntegratedFramesSoFar = numberOfIntegratedFrames;
-//
-//	return S_OK;
-//}
+HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+{
+	frameInfo->FrameDiffSignature = 0;
+
+	unsigned char* buf = reinterpret_cast<unsigned char*>(bmpBits);
+
+	float diffSignature;
+
+	CalculateDiffSignature(buf, &diffSignature);
+
+	idxFrameNumber++;
+
+	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
+
+	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
+	// When the integration hasn't been 'locked' we output every frame received from the camera
+	bool showOutputFrame = isNewIntegrationPeriod || !INTEGRATION_LOCKED;
+
+	if (showOutputFrame)
+	{
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks);
+		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
+
+		if (isNewIntegrationPeriod)
+		{
+			numberOfIntegratedFrames = 0;
+
+			idxFirstFrameNumber = idxFrameNumber;
+			//idxFirstFrameTimestamp = currentUtcDayAsTicks;
+			idxLastFrameNumber = 0;
+			//idxLastFrameTimestamp = 0;
+		}
+	}
+
+	frameInfo->FrameDiffSignature  = diffSignature;
+	frameInfo->CurrentSignatureRatio  = currentSignatureRatio;
+
+	long stride = 3 * IMAGE_WIDTH;
+	unsigned char* ptrPixelItt = buf + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;
+
+	double* ptrPixels = integratedPixels;
+
+	unsigned char* ptrFirstOrLastFrameCopy = numberOfIntegratedFrames == 0 ? firstIntegratedFramePixels : lastIntegratedFramePixels;
+	
+	for (int y = 0; y < IMAGE_HEIGHT; y++)
+	{
+		for (int x = 0; x < IMAGE_WIDTH; x++)
+		{
+			unsigned char thisPixel;
+
+			if (MONOCHROME_CONVERSION_MODE == 0)
+				thisPixel= *(ptrPixelItt + 2); //R
+			else if (MONOCHROME_CONVERSION_MODE == 1)
+				thisPixel= *(ptrPixelItt + 1); //G
+			else if (MONOCHROME_CONVERSION_MODE == 2)
+				thisPixel = *(ptrPixelItt); //B
+			else if (MONOCHROME_CONVERSION_MODE == 3)
+			{
+				// YUV Conversion (PAL & NTSC)
+				// Luma = 0.299 R + 0.587 G + 0.114 B
+				double luma = 0.299* *(ptrPixelItt) + 0.587* *(ptrPixelItt + 1) + 0.114* *(ptrPixelItt + 2);
+
+				if (luma < 0)
+					thisPixel = 0;
+				else if (luma > 255)
+					thisPixel = 255;
+				else
+					thisPixel = (unsigned char)luma;
+			}
+
+			// Saving the first/last frame raw pixels for OCR-ing
+			*ptrFirstOrLastFrameCopy = thisPixel;
+		    *ptrPixels += thisPixel;
+
+			ptrPixels++;
+			ptrFirstOrLastFrameCopy++;
+			ptrPixelItt+=3;
+		}
+
+		ptrPixelItt = ptrPixelItt - 2 * IMAGE_STRIDE;
+	}
+
+	numberOfIntegratedFrames++;
+
+	idxLastFrameNumber = idxFrameNumber;
+	//idxLastFrameTimestamp = currentUtcDayAsTicks;
+
+	frameInfo->CameraFrameNo = idxFrameNumber;
+	frameInfo->IntegratedFrameNo = idxIntegratedFrameNumber;
+	frameInfo->IntegratedFramesSoFar = numberOfIntegratedFrames;
+
+	return S_OK;
+}
+
+HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+{
+	if (USE_BUFFERED_FRAME_PROCESSING)
+		return ProcessVideoFrameBuffered(bmpBits, currentUtcDayAsTicks, frameInfo);
+	else
+		return ProcessVideoFrameSynchronous(bmpBits, currentUtcDayAsTicks, frameInfo);
+}
 
 void ProcessCurrentFrame(IntegratedFrame* nextFrame)
 {

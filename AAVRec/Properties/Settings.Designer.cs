@@ -205,7 +205,7 @@ namespace AAVRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool DisplayTimeInUT {
             get {
                 return ((bool)(this["DisplayTimeInUT"]));
@@ -428,6 +428,30 @@ namespace AAVRec.Properties {
             }
             set {
                 this["LastCheckedForUpdates"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UsesBufferedFrameProcessing {
+            get {
+                return ((bool)(this["UsesBufferedFrameProcessing"]));
+            }
+            set {
+                this["UsesBufferedFrameProcessing"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IntegrationDetectionTuning {
+            get {
+                return ((bool)(this["IntegrationDetectionTuning"]));
+            }
+            set {
+                this["IntegrationDetectionTuning"] = value;
             }
         }
     }

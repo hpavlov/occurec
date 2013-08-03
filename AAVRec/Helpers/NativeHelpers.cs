@@ -176,7 +176,7 @@ namespace AAVRec.Helpers
             float minSignDiff);
 
 	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int SetupAav(int imageLayout, string aavRecVersion);
+        private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string aavRecVersion);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
@@ -392,7 +392,11 @@ namespace AAVRec.Helpers
 
         public static void SetupAav(AavImageLayout imageLayout)
         {
-			SetupAav((int)imageLayout, string.Format("AAVRec v{0}", ASSEMBLY_FILE_VERSION.Version));
+            SetupAav(
+                (int)imageLayout, 
+                Settings.Default.UsesBufferedFrameProcessing ? 1 : 0,
+                Settings.Default.IntegrationDetectionTuning ? 1 : 0,
+                string.Format("AAVRec v{0}", ASSEMBLY_FILE_VERSION.Version));
         }
 
 		public static string SetupTimestampPreservation(int width, int height)

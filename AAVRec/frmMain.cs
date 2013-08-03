@@ -195,6 +195,22 @@ namespace AAVRec
 		    stateManager.CameraDisconnected();
 		}
 
+        private bool CanRecordNow(bool connected)
+        {
+            return connected && 
+                videoObject != null && 
+                (videoObject.State == VideoCameraState.videoCameraRunning || Settings.Default.IntegrationDetectionTuning)&& 
+                lbSchedule.Items.Count == 0;
+        }
+
+        private bool CanStopRecordingNow(bool connected)
+        {
+            return connected && 
+                videoObject != null && 
+                videoObject.State == VideoCameraState.videoCameraRecording && 
+                lbSchedule.Items.Count == 0;
+        }
+
 		private void UpdateCameraState(bool connected)
 		{
 			pnlVideoControls.Enabled = connected;
@@ -205,8 +221,8 @@ namespace AAVRec
 			UpdateState();
 
 			pnlVideoControls.Enabled = connected;
-			btnRecord.Enabled = connected && videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning && lbSchedule.Items.Count == 0;
-            btnStopRecording.Enabled = connected && videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording && lbSchedule.Items.Count == 0;
+		    btnRecord.Enabled = CanRecordNow(connected);
+            btnStopRecording.Enabled = CanStopRecordingNow(connected);
 			btnImageSettings.Enabled = connected && videoObject != null && videoObject.CanConfigureImage;
 
 		    
@@ -546,6 +562,7 @@ namespace AAVRec
 				if (!tssFrameNo.Visible) tssFrameNo.Visible = true;				
 
 				tssFrameNo.Text = currentFrameNo.ToString("Current Frame: 0", CultureInfo.InvariantCulture);
+#if DEBUG
 				if (!double.IsNaN(renderFps))
 				{
 					if (!tssDisplayRate.Visible) tssDisplayRate.Visible = true;
@@ -553,7 +570,7 @@ namespace AAVRec
 				}
 				else
 					tssDisplayRate.Text = "Display Rate: N/A";
-
+#endif
 				if (videoObject.State == VideoCameraState.videoCameraRecording && File.Exists(recordingfileName))
 				{
 					var fi = new FileInfo(recordingfileName);
@@ -567,7 +584,7 @@ namespace AAVRec
                     videoObject.State == VideoCameraState.videoCameraRunning && 
                     lbSchedule.Items.Count == 0 && 
                     !stateManager.IsTestingIotaVtiOcr &&
-                    stateManager.CanStartRecording)
+                    (stateManager.CanStartRecording || Settings.Default.IntegrationDetectionTuning))
                 {
                     tssRecordingFile.Visible = false;
                     btnStopRecording.Enabled = false;

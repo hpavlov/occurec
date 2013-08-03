@@ -464,14 +464,18 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 		/// <summary> buffer callback, COULD BE FROM FOREIGN THREAD. </summary>
 		int ISampleGrabberCB.BufferCB(double SampleTime, IntPtr pBuffer, int BufferLen)
 		{
-		    NonBlockingLock.Lock(
-		        NonBlockingLock.LOCK_ID_BufferCB,
-		        () =>
-		            {
-                        NativeHelpers.ProcessVideoFrame(pBuffer);
+            //NonBlockingLock.Lock(
+            //    NonBlockingLock.LOCK_ID_BufferCB,
+            //    () =>
+            //        {
+            //            NativeHelpers.ProcessVideoFrame(pBuffer);
 
-                        frameCounter++;
-		            });
+            //            frameCounter++;
+            //        });
+
+            NativeHelpers.ProcessVideoFrame(pBuffer);
+
+            frameCounter++;
 
 			return 0;
 		}
