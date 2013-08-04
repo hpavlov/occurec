@@ -145,7 +145,7 @@ namespace AAVRec.Helpers
 
                             callback(entry);
 
-                            Trace.WriteLine(string.Format("Supported Format: {0}", entry.ToString()));
+                            Trace.WriteLine(string.Format("Supported Format: {0} x {1} @{2} fps ({3} bpp)", entry.Width, entry.Height, entry.FrameRate.ToString("0.00"), entry.BitCount));
                         }
                     }
 

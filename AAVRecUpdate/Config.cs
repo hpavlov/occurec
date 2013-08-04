@@ -159,7 +159,7 @@ namespace AAVRecUpdate
                     {
                         AssemblyName an = AssemblyName.GetAssemblyName(owExeFilePath);
                         Version owVer = an.Version;
-                        return 1000000 * owVer.Major + 100000 * owVer.Minor + 10000 * owVer.Build + owVer.Revision;
+                        return 10000 * owVer.Major + 1000 * owVer.Minor + 100 * owVer.Build + owVer.Revision;
                     }
                     catch
                     { }
@@ -186,7 +186,7 @@ namespace AAVRecUpdate
                     {
                         AssemblyName an = AssemblyName.GetAssemblyName(owExeFilePath);
                         Version owVer = an.Version;
-                        return 1000000 * owVer.Major + 100000 * owVer.Minor + 10000 * owVer.Build + owVer.Revision;
+                        return 10000 * owVer.Major + 1000 * owVer.Minor + 100 * owVer.Build + owVer.Revision;
                     }
                     catch
                     { }
@@ -202,19 +202,18 @@ namespace AAVRecUpdate
 
         public string VersionToVersionString(int version)
         {
-            //  1000000 * owVer.Major + 100000 * owVer.Minor + 10000 * owVer.Build + owVer.Revision
-            StringBuilder outVer = new StringBuilder();
-            outVer.Append(Convert.ToString(version / 1000000));
-            outVer.Append(".");
-
-            version = version % 1000000;
-            outVer.Append(Convert.ToString(version / 100000));
-            outVer.Append(".");
-
-            version = version % 100000;
+            var outVer = new StringBuilder();
             outVer.Append(Convert.ToString(version / 10000));
             outVer.Append(".");
-            outVer.Append(Convert.ToString(version % 10000));
+
+            version = version % 10000;
+            outVer.Append(Convert.ToString(version / 1000));
+            outVer.Append(".");
+
+            version = version % 1000;
+            outVer.Append(Convert.ToString(version / 100));
+            outVer.Append(".");
+            outVer.Append(Convert.ToString(version % 100));
 
             return outVer.ToString();
         }

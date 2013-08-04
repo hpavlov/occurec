@@ -310,8 +310,9 @@ unsigned char* AavImageLayout::GetDataBytes(unsigned char* currFramePixels, enum
 		// compress and write result 
 		size_t len2 = qlz_compress(bytesToCompress, m_CompressedPixels, *bytesCount, m_StateCompress); 		
 
+#if _DEBUG
 		DebugViewPrint(L"Compressed to %d %%\r\n",  100 * len2 / *bytesCount);
-
+#endif
 		*bytesCount = len2;
 		
 		return (unsigned char*)(m_CompressedPixels);

@@ -92,7 +92,7 @@ namespace AAVRecUpdate
             this.MinimizeBox = false;
             this.Name = "frmUpdate";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "AAVRec Updater, ver. 2.0";
+            this.Text = "AAVRec Updater, ver. 2.1";
             this.Load += new System.EventHandler(this.frmUpdate_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

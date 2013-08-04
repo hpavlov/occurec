@@ -69,6 +69,7 @@
             this.pnlControlArea = new System.Windows.Forms.Panel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
+            this.tssDroppedFrames = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -91,6 +92,7 @@
             this.tssCameraState,
             this.tssFrameNo,
             this.tssOcrErr,
+            this.tssDroppedFrames,
             this.tssDisplayRate,
             this.tssIntegrationRate,
             this.tssRecordingFile,
@@ -590,6 +592,17 @@
             this.imageListToolbar.Images.SetKeyName(0, "Camera-Transparent-32x32.png");
             this.imageListToolbar.Images.SetKeyName(1, "Camera-Transparent-32x32-Disc.png");
             // 
+            // tssDroppedFrames
+            // 
+            this.tssDroppedFrames.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tssDroppedFrames.ForeColor = System.Drawing.Color.OrangeRed;
+            this.tssDroppedFrames.Name = "tssDroppedFrames";
+            this.tssDroppedFrames.Size = new System.Drawing.Size(66, 19);
+            this.tssDroppedFrames.Text = "0 Dropped";
+            this.tssDroppedFrames.Visible = false;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -685,6 +698,7 @@
 		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
 		private System.Windows.Forms.ToolStripStatusLabel pnlNewVersionAvailable;
         private System.Windows.Forms.ImageList imageListToolbar;
+        private System.Windows.Forms.ToolStripStatusLabel tssDroppedFrames;
 
 	}
 }

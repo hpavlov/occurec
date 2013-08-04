@@ -393,9 +393,9 @@ namespace AAVRec
                     tssIntegrationRate.Text = "Integration Rate: ...";
             }
 
-            if (stateManager.OcrErors > 0)
+            if (stateManager.OcrErrors > 0)
             {
-                tssOcrErr.Text = string.Format("OCR ERR {0}", stateManager.OcrErors);
+                tssOcrErr.Text = string.Format("OCR ERR {0}", stateManager.OcrErrors);
 
                 if (!tssOcrErr.Visible)
                     tssOcrErr.Visible = true;
@@ -405,6 +405,20 @@ namespace AAVRec
                 if (tssOcrErr.Visible)
                     tssOcrErr.Visible = false;
             }
+
+            if (stateManager.DroppedFrames > 0)
+            {
+                tssDroppedFrames.Text = string.Format("{0} Dropped", stateManager.DroppedFrames);
+
+                if (!tssDroppedFrames.Visible)
+                    tssDroppedFrames.Visible = true;
+            }
+            else
+            {
+                if (tssDroppedFrames.Visible)
+                    tssDroppedFrames.Visible = false;
+            }
+            
 		}
 		
 		internal class FakeFrame : IVideoFrame

@@ -18,9 +18,9 @@ EASY:
 V) AAV should be usable without OCR i.e. add setting to turn on OCR (turned off by default)
 V) Make it possible to run in AAV mode using a simmulated video rather than live images from the camera
 - Print the failed OCR chars in red, rather than yellow, on the error image
-- AAVRec should be usable without IOTA-VTI-OCR-Settings.xml. Add parameters for TimestampTop and TimestampHeight  
-- Allow the user to modify the image size (if possible at all at DirectShow level !)
-- Display the framerate supported by the capture hardware 
+V) AAVRec should be usable without IOTA-VTI-OCR-Settings.xml. Add parameters for TimestampTop and TimestampHeight  
+V) Allow the user to modify the image size (if possible at all at DirectShow level !)
+V) Display the framerate supported by the capture hardware 
 
 HARDER:
 
@@ -29,7 +29,9 @@ V) Implement Differential Coding Compression for AAV 8 bit format
 V) Ensure that the start/end timestamps are not overwritten in the process of stacking images.
 V) When recording an AAV file always save one extra single frame after the last integration period, in order to solve any timestamp ambiguity issues
 - Implement sub-pixel positioning for the OCRed chracter configutaion
-- The saved settings are forgotten after releasing a new version. This will need to be fixed.
+V) The saved settings are forgotten after releasing a new version. This will need to be fixed.
+- Remove the x1 integration (or make it lockable in a different way). Then if no integration is detected for a long time for cameras that are selected as "Integrating" then
+try to analyze the signatures and make suggestions (e.g. "Try to increase the gain" in a case where the sigantures are too small or "AAV mode is designed for recording star fields." if they appear to be day light signatures)
 
 OCR Implemntation:
 
