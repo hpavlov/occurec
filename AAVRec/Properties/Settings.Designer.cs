@@ -454,5 +454,41 @@ namespace AAVRec.Properties {
                 this["IntegrationDetectionTuning"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SelectedVideoFormat {
+            get {
+                return ((string)(this["SelectedVideoFormat"]));
+            }
+            set {
+                this["SelectedVideoFormat"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SelectedCrossbarInputPin {
+            get {
+                return ((string)(this["SelectedCrossbarInputPin"]));
+            }
+            set {
+                this["SelectedCrossbarInputPin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ApplicationVersion {
+            get {
+                return ((string)(this["ApplicationVersion"]));
+            }
+            set {
+                this["ApplicationVersion"] = value;
+            }
+        }
     }
 }

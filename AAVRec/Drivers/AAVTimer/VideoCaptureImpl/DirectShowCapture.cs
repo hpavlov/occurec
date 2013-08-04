@@ -57,11 +57,11 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
 	    internal IVideoCallbacks callbacksObject;
 
-		public void SetupGraph(DsDevice dev, bool runOCR, ref float iFrameRate, ref int iWidth, ref int iHeight)
+        public void SetupGraph(DsDevice dev, bool runOCR, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight)
 		{
 			try
 			{
-				SetupGraphInternal(dev, ref iFrameRate, ref iWidth, ref iHeight);
+				SetupGraphInternal(dev, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
 
 				latestBitmap = new Bitmap(iWidth, iHeight, PixelFormat.Format24bppRgb);
 				fullRect = new Rectangle(0, 0, latestBitmap.Width, latestBitmap.Height);
@@ -147,35 +147,23 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 				return null;
 			}
 
-            Bitmap rv = null;
-            ImageStatus anonStatus = null;
-
-            NonBlockingLock.Lock(
-                NonBlockingLock.LOCK_ID_GetNextFrame,
-                () =>
+            try
+            {
+                Bitmap bmp = NativeHelpers.GetCurrentImage(out status);
+                if (bmp != null)
                 {
-                    try
-                    {
-                        Bitmap bmp = NativeHelpers.GetCurrentImage(out anonStatus);
-                        if (bmp != null)
-                        {
-                            rv = bmp;
-                            return;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine(ex);
-                    }
+                    return (Bitmap)bmp.Clone();
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex);
+            }
 
-                    rv = (Bitmap)latestBitmap.Clone();
-                });
-
-            status = anonStatus;
-            return rv;
+            return (Bitmap)latestBitmap.Clone();
 		}
 
-		private void SetupGraphInternal(DsDevice dev, ref float iFrameRate, ref int iWidth, ref int iHeight)
+        private void SetupGraphInternal(DsDevice dev, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight)
 		{
 			filterGraph = (IFilterGraph2)new FilterGraph();
 			mediaCtrl = filterGraph as IMediaControl;
@@ -204,6 +192,10 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 				hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
 				DsError.ThrowExceptionForHR(hr);
 
+                if (capFilter != null)
+                    // If any of the default config items are set
+                    SetConfigParms(capBuilder, capFilter, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
+
 				IBaseFilter baseGrabFlt = (IBaseFilter)samplGrabber;
 				ConfigureSampleGrabber(samplGrabber);
 
@@ -219,10 +211,6 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 				// Connect everything together
 				hr = capBuilder.RenderStream(PinCategory.Preview, MediaType.Video, capFilter, baseGrabFlt, nullRendered);
 				DsError.ThrowExceptionForHR(hr);
-				
-				if (capFilter != null)
-					// If any of the default config items are set
-					SetConfigParms(capBuilder, capFilter, ref iFrameRate, ref iWidth, ref iHeight);
 
 				// Now that sizes are fixed/known, store the sizes
 				SaveSizeInfo(samplGrabber);
@@ -259,7 +247,7 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 			DsUtils.FreeAMMediaType(media);
 		}
 
-		private void SetConfigParms(ICaptureGraphBuilder2 capBuilder, IBaseFilter capFilter, ref float iFrameRate, ref int iWidth, ref int iHeight)
+        private void SetConfigParms(ICaptureGraphBuilder2 capBuilder, IBaseFilter capFilter, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight)
 		{
 			object o;
 			AMMediaType media;
@@ -276,76 +264,112 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 					throw new Exception("Failed to get IAMStreamConfig");
 				}
 
-				hr = videoStreamConfig.GetFormat(out media);
-				DsError.ThrowExceptionForHR(hr);
+                int iCount = 0, iSize = 0;
+                hr = videoStreamConfig.GetNumberOfCapabilities(out iCount, out iSize);
+                DsError.ThrowExceptionForHR(hr);
 
-				// Copy out the videoinfoheader
-				VideoInfoHeader v = new VideoInfoHeader();
-				Marshal.PtrToStructure(media.formatPtr, v);
+                VideoInfoHeader vMatching = null;
+                VideoFormatHelper.SupportedVideoFormat entry = null;
 
-				// If overriding the framerate, set the frame rate
-				if (iFrameRate > 0)
-				{
-					v.AvgTimePerFrame = (int)Math.Round(10000000 / iFrameRate);
-				}
-				else
-					iFrameRate = 10000000 / v.AvgTimePerFrame;
+                IntPtr taskMemPointer = Marshal.AllocCoTaskMem(iSize);
 
-				// If overriding the width, set the width
-				if (iWidth > 0)
-				{
-					v.BmiHeader.Width = iWidth;
-				}
-				else
-					iWidth = v.BmiHeader.Width;
+                AMMediaType pmtConfig = null;
+                for (int iFormat = 0; iFormat < iCount; iFormat++)
+                {
+                    IntPtr ptr = IntPtr.Zero;
 
-				// If overriding the Height, set the Height
-				if (iHeight > 0)
-				{
-					v.BmiHeader.Height = iHeight;
-				}
-				else
-					iHeight = v.BmiHeader.Height;
+                    hr = videoStreamConfig.GetStreamCaps(iFormat, out pmtConfig, taskMemPointer);
+                    DsError.ThrowExceptionForHR(hr);
 
-				// Copy the media structure back
-				Marshal.StructureToPtr(v, media.formatPtr, false);
+                    vMatching = (VideoInfoHeader)Marshal.PtrToStructure(pmtConfig.formatPtr, typeof(VideoInfoHeader));
 
-				// Set the new format
-				hr = videoStreamConfig.SetFormat(media);
-				DsError.ThrowExceptionForHR(hr);
+                    if (vMatching.BmiHeader.BitCount > 0)
+                    {
+                        entry = new VideoFormatHelper.SupportedVideoFormat()
+                        {
+                            Width = vMatching.BmiHeader.Width,
+                            Height = vMatching.BmiHeader.Height,
+                            BitCount = vMatching.BmiHeader.BitCount,
+                            FrameRate = 10000000.0 / vMatching.AvgTimePerFrame
+                        };
 
-				DsUtils.FreeAMMediaType(media);
-				media = null;
+                        if (entry.Matches(selectedFormat))
+                        {
+                            // WE FOUND IT !!!
+                            break;
+                        }
+                    }
+
+                    vMatching = null;
+                }
+
+                if (vMatching != null)
+                {
+                    hr = videoStreamConfig.SetFormat(pmtConfig);
+                    DsError.ThrowExceptionForHR(hr);
+
+                    iFrameRate = 10000000/vMatching.AvgTimePerFrame;
+                    iWidth = vMatching.BmiHeader.Width;
+                    iHeight = vMatching.BmiHeader.Height;
+                }
+                else
+                {
+                    hr = videoStreamConfig.GetFormat(out media);
+                    DsError.ThrowExceptionForHR(hr);
+
+                    // Copy out the videoinfoheader
+                    VideoInfoHeader v = new VideoInfoHeader();
+                    Marshal.PtrToStructure(media.formatPtr, v);
+
+                    // If overriding the framerate, set the frame rate
+                    if (iFrameRate > 0)
+                    {
+                        v.AvgTimePerFrame = (int)Math.Round(10000000 / iFrameRate);
+                    }
+                    else
+                        iFrameRate = 10000000 / v.AvgTimePerFrame;
+
+                    // If overriding the width, set the width
+                    if (iWidth > 0)
+                    {
+                        v.BmiHeader.Width = iWidth;
+                    }
+                    else
+                        iWidth = v.BmiHeader.Width;
+
+                    // If overriding the Height, set the Height
+                    if (iHeight > 0)
+                    {
+                        v.BmiHeader.Height = iHeight;
+                    }
+                    else
+                        iHeight = v.BmiHeader.Height;
+
+                    // Copy the media structure back
+                    Marshal.StructureToPtr(v, media.formatPtr, false);
+
+                    // Set the new format
+                    hr = videoStreamConfig.SetFormat(media);
+                    DsError.ThrowExceptionForHR(hr);
+
+                    DsUtils.FreeAMMediaType(media);
+                    media = null;
+                }
+
+                Marshal.FreeCoTaskMem(taskMemPointer);
+                DsUtils.FreeAMMediaType(pmtConfig);
+                pmtConfig = null;
 
 				// Fix upsidedown video
 				if (videoControl != null)
 				{
-					VideoControlFlags pCapsFlags;
+                    // NOTE: Flipping detection and fixing doesn't seem to work!
 
-					IPin pPin = DsFindPin.ByCategory(capFilter, PinCategory.Capture, 0);
-					hr = videoControl.GetCaps(pPin, out pCapsFlags);
-					DsError.ThrowExceptionForHR(hr);
+                    //IPin pPin = DsFindPin.ByCategory(capFilter, PinCategory.Capture, 0);
+                    //VideoFormatHelper.FixFlippedVideo(videoControl, pPin);
 
-					if ((pCapsFlags & VideoControlFlags.FlipVertical) > 0)
-					{
-						hr = videoControl.GetMode(pPin, out pCapsFlags);
-						DsError.ThrowExceptionForHR(hr);
-
-						hr = videoControl.SetMode(pPin, pCapsFlags & ~VideoControlFlags.FlipVertical);
-						DsError.ThrowExceptionForHR(hr);
-					}
-
-                    if (Settings.Default.FlipHorizontally)
-                    {
-                        if ((pCapsFlags & VideoControlFlags.FlipHorizontal) == 0)
-                        {
-                            hr = videoControl.GetMode(pPin, out pCapsFlags);
-                            DsError.ThrowExceptionForHR(hr);
-
-                            hr = videoControl.SetMode(pPin, pCapsFlags | VideoControlFlags.FlipHorizontal);
-                            DsError.ThrowExceptionForHR(hr);
-                        }                        
-                    }
+                    //pPin = DsFindPin.ByCategory(capFilter, PinCategory.Preview, 0);
+                    //VideoFormatHelper.FixFlippedVideo(videoControl, pPin);
 				}
 			}
 			finally
@@ -464,15 +488,6 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 		/// <summary> buffer callback, COULD BE FROM FOREIGN THREAD. </summary>
 		int ISampleGrabberCB.BufferCB(double SampleTime, IntPtr pBuffer, int BufferLen)
 		{
-            //NonBlockingLock.Lock(
-            //    NonBlockingLock.LOCK_ID_BufferCB,
-            //    () =>
-            //        {
-            //            NativeHelpers.ProcessVideoFrame(pBuffer);
-
-            //            frameCounter++;
-            //        });
-
             NativeHelpers.ProcessVideoFrame(pBuffer);
 
             frameCounter++;

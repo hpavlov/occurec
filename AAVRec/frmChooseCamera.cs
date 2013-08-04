@@ -188,11 +188,14 @@ namespace AAVRec
                     try
                     {
                         CrossbarHelper.ConnectToCrossbarSource(deviceName, selectedItem.PinIndex);
+
+                        Settings.Default.SelectedCrossbarInputPin = selectedItem.PinName;
+                        Settings.Default.Save();
                     }
                     finally
                     {
                         Cursor = Cursors.Default;
-                    }   
+                    }
                 }
             }
         }
@@ -218,7 +221,52 @@ namespace AAVRec
                     cbxCrossbarInput.SelectedIndexChanged += new EventHandler(cbxCrossbarInput_SelectedIndexChanged);
                     Cursor = Cursors.Default;
                 }
+
+                CrossbarHelper.CrossbarPinEntry selectedEntry = null;
+                foreach (CrossbarHelper.CrossbarPinEntry entry in cbxCrossbarInput.Items)
+                {
+                    if (entry.PinName == Settings.Default.SelectedCrossbarInputPin)
+                    {
+                        selectedEntry = entry;
+                        break;
+                    }
+                }
+                if (selectedEntry != null)
+                    cbxCrossbarInput.SelectedItem = selectedEntry;
+
+                cbxVideoFormats.Items.Clear();
+                cbxVideoFormats.SelectedIndexChanged -= new EventHandler(cbxVideoFormats_SelectedIndexChanged);
+                try
+                {
+                    VideoFormatHelper.LoadSupportedVideoFormats(deviceName, cbxVideoFormats);
+                }
+                finally
+                {
+                    cbxVideoFormats.SelectedIndexChanged += new EventHandler(cbxVideoFormats_SelectedIndexChanged);
+                    Cursor = Cursors.Default;
+                }
+
+                VideoFormatHelper.SupportedVideoFormat selectedVideoFormat = null;
+                foreach (VideoFormatHelper.SupportedVideoFormat format in cbxVideoFormats.Items)
+                {
+                    if (Settings.Default.SelectedVideoFormat == format.ToString())
+                    {
+                        selectedVideoFormat = format;
+                        break;
+                    }
+                }
+
+                if (selectedVideoFormat != null)
+                    cbxVideoFormats.SelectedItem = selectedVideoFormat;
+                else
+                    cbxVideoFormats.SelectedIndex = 0;
             }
+        }
+
+        private void cbxVideoFormats_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.Default.SelectedVideoFormat = ((VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem).ToString();
+            Settings.Default.Save();
         }
     }
 }

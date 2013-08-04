@@ -77,8 +77,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 				dsCapture.CloseResources();
 
 				// TODO: Set a preferred frameRate and image size stored in the configuration
-
-				dsCapture.SetupPreviewOnlyGraph(videoInputDevice, ref frameRate, ref imageWidth, ref imageHeight);
+                dsCapture.SetupPreviewOnlyGraph(videoInputDevice, new VideoFormatHelper.SupportedVideoFormat(Settings.Default.SelectedVideoFormat), ref frameRate, ref imageWidth, ref imageHeight);
 
 				dsCapture.Start();
 
@@ -190,7 +189,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 			if (dsCapture.IsRunning)
 				dsCapture.CloseResources();
 
-			dsCapture.SetupFileRecorderGraph(videoInputDevice, videoCompressor, ref frameRate, ref imageWidth, ref imageHeight, preferredFileName);
+            dsCapture.SetupFileRecorderGraph(videoInputDevice, videoCompressor, new VideoFormatHelper.SupportedVideoFormat(Settings.Default.SelectedVideoFormat), ref frameRate, ref imageWidth, ref imageHeight, preferredFileName);
 
 			dsCapture.Start();
 

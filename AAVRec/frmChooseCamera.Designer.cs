@@ -43,6 +43,7 @@
             this.rbCodecXviD = new System.Windows.Forms.RadioButton();
             this.rbCodecUncompressed = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cbFileSIM = new System.Windows.Forms.CheckBox();
             this.rbFileAVI = new System.Windows.Forms.RadioButton();
             this.rbFileAAV = new System.Windows.Forms.RadioButton();
             this.cbxIsIntegrating = new System.Windows.Forms.CheckBox();
@@ -52,7 +53,8 @@
             this.label5 = new System.Windows.Forms.Label();
             this.cbxFlipHorizontally = new System.Windows.Forms.CheckBox();
             this.cbxFlipVertically = new System.Windows.Forms.CheckBox();
-            this.cbFileSIM = new System.Windows.Forms.CheckBox();
+            this.cbxVideoFormats = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.gbxCodecs.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gbxAAVSettings.SuspendLayout();
@@ -61,7 +63,7 @@
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(237, 227);
+            this.btnOK.Location = new System.Drawing.Point(259, 270);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 7;
@@ -72,7 +74,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(318, 227);
+            this.btnCancel.Location = new System.Drawing.Point(340, 270);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 6;
@@ -148,7 +150,7 @@
             this.gbxCodecs.Controls.Add(this.rbCodecHuffyuv);
             this.gbxCodecs.Controls.Add(this.rbCodecXviD);
             this.gbxCodecs.Controls.Add(this.rbCodecUncompressed);
-            this.gbxCodecs.Location = new System.Drawing.Point(131, 89);
+            this.gbxCodecs.Location = new System.Drawing.Point(131, 135);
             this.gbxCodecs.Name = "gbxCodecs";
             this.gbxCodecs.Size = new System.Drawing.Size(262, 115);
             this.gbxCodecs.TabIndex = 21;
@@ -202,12 +204,22 @@
             this.groupBox2.Controls.Add(this.cbFileSIM);
             this.groupBox2.Controls.Add(this.rbFileAVI);
             this.groupBox2.Controls.Add(this.rbFileAAV);
-            this.groupBox2.Location = new System.Drawing.Point(15, 89);
+            this.groupBox2.Location = new System.Drawing.Point(15, 135);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(110, 115);
             this.groupBox2.TabIndex = 22;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Format";
+            // 
+            // cbFileSIM
+            // 
+            this.cbFileSIM.AutoSize = true;
+            this.cbFileSIM.Location = new System.Drawing.Point(22, 85);
+            this.cbFileSIM.Name = "cbFileSIM";
+            this.cbFileSIM.Size = new System.Drawing.Size(45, 17);
+            this.cbFileSIM.TabIndex = 27;
+            this.cbFileSIM.Text = "SIM";
+            this.cbFileSIM.UseVisualStyleBackColor = true;
             // 
             // rbFileAVI
             // 
@@ -252,9 +264,9 @@
             this.gbxAAVSettings.Controls.Add(this.cbxCameraModel);
             this.gbxAAVSettings.Controls.Add(this.label3);
             this.gbxAAVSettings.Controls.Add(this.cbxMonochromeConversion);
-            this.gbxAAVSettings.Location = new System.Drawing.Point(131, 90);
+            this.gbxAAVSettings.Location = new System.Drawing.Point(131, 136);
             this.gbxAAVSettings.Name = "gbxAAVSettings";
-            this.gbxAAVSettings.Size = new System.Drawing.Size(262, 115);
+            this.gbxAAVSettings.Size = new System.Drawing.Size(287, 115);
             this.gbxAAVSettings.TabIndex = 22;
             this.gbxAAVSettings.TabStop = false;
             this.gbxAAVSettings.Text = "AAV settings";
@@ -263,9 +275,9 @@
             // 
             this.pnlCrossbar.Controls.Add(this.cbxCrossbarInput);
             this.pnlCrossbar.Controls.Add(this.label5);
-            this.pnlCrossbar.Location = new System.Drawing.Point(228, 2);
+            this.pnlCrossbar.Location = new System.Drawing.Point(228, 59);
             this.pnlCrossbar.Name = "pnlCrossbar";
-            this.pnlCrossbar.Size = new System.Drawing.Size(178, 56);
+            this.pnlCrossbar.Size = new System.Drawing.Size(199, 56);
             this.pnlCrossbar.TabIndex = 23;
             this.pnlCrossbar.Visible = false;
             // 
@@ -275,7 +287,7 @@
             this.cbxCrossbarInput.FormattingEnabled = true;
             this.cbxCrossbarInput.Location = new System.Drawing.Point(7, 25);
             this.cbxCrossbarInput.Name = "cbxCrossbarInput";
-            this.cbxCrossbarInput.Size = new System.Drawing.Size(158, 21);
+            this.cbxCrossbarInput.Size = new System.Drawing.Size(183, 21);
             this.cbxCrossbarInput.TabIndex = 18;
             this.cbxCrossbarInput.SelectedIndexChanged += new System.EventHandler(this.cbxCrossbarInput_SelectedIndexChanged);
             // 
@@ -291,7 +303,7 @@
             // cbxFlipHorizontally
             // 
             this.cbxFlipHorizontally.AutoSize = true;
-            this.cbxFlipHorizontally.Location = new System.Drawing.Point(15, 60);
+            this.cbxFlipHorizontally.Location = new System.Drawing.Point(235, 29);
             this.cbxFlipHorizontally.Name = "cbxFlipHorizontally";
             this.cbxFlipHorizontally.Size = new System.Drawing.Size(99, 17);
             this.cbxFlipHorizontally.TabIndex = 24;
@@ -301,28 +313,39 @@
             // cbxFlipVertically
             // 
             this.cbxFlipVertically.AutoSize = true;
-            this.cbxFlipVertically.Location = new System.Drawing.Point(124, 60);
+            this.cbxFlipVertically.Location = new System.Drawing.Point(340, 29);
             this.cbxFlipVertically.Name = "cbxFlipVertically";
             this.cbxFlipVertically.Size = new System.Drawing.Size(87, 17);
             this.cbxFlipVertically.TabIndex = 25;
             this.cbxFlipVertically.Text = "Flip Vertically";
             this.cbxFlipVertically.UseVisualStyleBackColor = true;
             // 
-            // cbFileSIM
+            // cbxVideoFormats
             // 
-            this.cbFileSIM.AutoSize = true;
-            this.cbFileSIM.Location = new System.Drawing.Point(22, 85);
-            this.cbFileSIM.Name = "cbFileSIM";
-            this.cbFileSIM.Size = new System.Drawing.Size(45, 17);
-            this.cbFileSIM.TabIndex = 27;
-            this.cbFileSIM.Text = "SIM";
-            this.cbFileSIM.UseVisualStyleBackColor = true;
+            this.cbxVideoFormats.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxVideoFormats.FormattingEnabled = true;
+            this.cbxVideoFormats.Location = new System.Drawing.Point(12, 84);
+            this.cbxVideoFormats.Name = "cbxVideoFormats";
+            this.cbxVideoFormats.Size = new System.Drawing.Size(210, 21);
+            this.cbxVideoFormats.TabIndex = 26;
+            this.cbxVideoFormats.SelectedIndexChanged += new System.EventHandler(this.cbxVideoFormats_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 66);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(166, 13);
+            this.label1.TabIndex = 27;
+            this.label1.Text = "Video Resolution and Frame Rate";
             // 
             // frmChooseCamera
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(410, 264);
+            this.ClientSize = new System.Drawing.Size(430, 306);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.cbxVideoFormats);
             this.Controls.Add(this.cbxFlipVertically);
             this.Controls.Add(this.cbxFlipHorizontally);
             this.Controls.Add(this.pnlCrossbar);
@@ -378,5 +401,7 @@
         private System.Windows.Forms.CheckBox cbxFlipHorizontally;
         private System.Windows.Forms.CheckBox cbxFlipVertically;
         private System.Windows.Forms.CheckBox cbFileSIM;
+        private System.Windows.Forms.ComboBox cbxVideoFormats;
+        private System.Windows.Forms.Label label1;
     }
 }

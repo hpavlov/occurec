@@ -63,6 +63,7 @@
     <Compile Include="Helpers\NonBlockingLock.cs" />
     <Compile Include="Helpers\NTPClient.cs" />
     <Compile Include="Helpers\OverlayManager.cs" />
+    <Compile Include="Helpers\VideoFormatHelper.cs" />
     <Compile Include="OCR\ManagedOcrTester.cs" />
     <Compile Include="OCR\OcrCharRecognizer.cs" />
     <Compile Include="OCR\OcredChar.cs" />
