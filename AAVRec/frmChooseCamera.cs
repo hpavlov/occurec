@@ -249,7 +249,7 @@ namespace AAVRec
                 VideoFormatHelper.SupportedVideoFormat selectedVideoFormat = null;
                 foreach (VideoFormatHelper.SupportedVideoFormat format in cbxVideoFormats.Items)
                 {
-                    if (Settings.Default.SelectedVideoFormat == format.ToString())
+                    if (Settings.Default.SelectedVideoFormat == format.AsSerialized())
                     {
                         selectedVideoFormat = format;
                         break;
@@ -265,7 +265,7 @@ namespace AAVRec
 
         private void cbxVideoFormats_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Settings.Default.SelectedVideoFormat = ((VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem).ToString();
+            Settings.Default.SelectedVideoFormat = ((VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem).AsSerialized();
             Settings.Default.Save();
         }
     }

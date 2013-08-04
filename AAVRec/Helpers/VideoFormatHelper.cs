@@ -20,7 +20,7 @@ namespace AAVRec.Helpers
             public SupportedVideoFormat()
             { }
 
-            private static Regex REGEX_FORMATTER = new Regex("^(\\d+) x (\\d+) @([\\d\\.]+) fps$");
+			private static Regex REGEX_FORMATTER = new Regex("^(\\d+) x (\\d+) @([\\d\\.]+) fps \\((\\d+) bpp\\)$");
 
             public SupportedVideoFormat(string stringRep)
             {
@@ -32,16 +32,18 @@ namespace AAVRec.Helpers
                         Width = int.Parse(regexMatch.Groups[1].Value);
                         Height = int.Parse(regexMatch.Groups[2].Value);
                         FrameRate = double.Parse(regexMatch.Groups[3].Value, CultureInfo.InvariantCulture);
+						BitCount = int.Parse(regexMatch.Groups[4].Value);
                     }
                 }
             }
 
             public bool Matches(SupportedVideoFormat compareTo)
             {
-                return
-                    Width == compareTo.Width &&
-                    Height == compareTo.Height &&
-                    Math.Abs(FrameRate - compareTo.FrameRate) < 0.01;
+	            return
+		            Width == compareTo.Width &&
+		            Height == compareTo.Height &&
+		            Math.Abs(FrameRate - compareTo.FrameRate) < 0.01 &&
+					BitCount  == compareTo.BitCount;
             }
 
             public int Width;
@@ -53,16 +55,44 @@ namespace AAVRec.Helpers
             {
                 return string.Format("{0} x {1} @{2} fps", Width, Height, FrameRate.ToString("0.00"));
             }
+
+			public string AsSerialized()
+			{
+				return string.Format("{0} x {1} @{2} fps ({3} bpp)", Width, Height, FrameRate.ToString("0.00"), BitCount);
+			}
         }
 
         public static void LoadSupportedVideoFormats(string deviceName, ComboBox cbxCrossbarInput)
         {
-            DoSupportedVideoFormatsOperation(
+	        var allFormatsDict = new Dictionary<string, SupportedVideoFormat>();
+			DoSupportedVideoFormatsOperation(
                 deviceName,
                 delegate(SupportedVideoFormat format)
                 {
-                    cbxCrossbarInput.Items.Add(format);
+					string key = format.ToString();
+	                SupportedVideoFormat exusting;
+	                allFormatsDict.TryGetValue(key, out exusting);
+					if (exusting != null)
+					{
+						if (exusting.BitCount < format.BitCount)
+							allFormatsDict[key] = format;
+					}
+					else
+						allFormatsDict.Add(key, format);                    
                 });
+
+			List<SupportedVideoFormat> uniqueFormats = allFormatsDict.Values.ToList();
+	        uniqueFormats.Sort(
+		        delegate(SupportedVideoFormat x, SupportedVideoFormat y)
+			    {
+				    int compareByFrameRate = x.FrameRate.CompareTo(y.FrameRate);
+				    if (compareByFrameRate == 0)
+					    return (x.Width + x.Height).CompareTo(y.Width + y.Height);
+				    else
+					    return compareByFrameRate;
+			    });
+
+	        uniqueFormats.ForEach(x => cbxCrossbarInput.Items.Add(x));
         }
 
         private static IBaseFilter CreateFilter(Guid category, string friendlyname)
@@ -145,7 +175,7 @@ namespace AAVRec.Helpers
 
                             callback(entry);
 
-                            Trace.WriteLine(string.Format("Supported Format: {0} x {1} @{2} fps ({3} bpp)", entry.Width, entry.Height, entry.FrameRate.ToString("0.00"), entry.BitCount));
+                            Trace.WriteLine(entry.AsSerialized());
                         }
                     }
 
