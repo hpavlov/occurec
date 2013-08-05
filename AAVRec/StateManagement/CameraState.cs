@@ -15,7 +15,9 @@ namespace AAVRec.StateManagement
     public abstract class CameraState
     {
         private long lastIntegratedFrameNumber;
-        private int lastIntegratedFrameIntegration;
+        protected int lastIntegratedFrameIntegration;
+		protected int numberOfDroppedFrames = 0;
+
         private long numberConsequtiveSameIntegrationIntegratedFrames;
 
         public virtual void InitialiseState()
@@ -29,6 +31,11 @@ namespace AAVRec.StateManagement
             lastIntegratedFrameIntegration = -1;
             numberConsequtiveSameIntegrationIntegratedFrames = 0;            
         }
+
+		internal int GetNumberOfDroppedFrames()
+		{
+			return numberOfDroppedFrames;
+		}
 
         public virtual void FinaliseState()
         { }

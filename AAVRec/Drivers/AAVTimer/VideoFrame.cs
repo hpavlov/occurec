@@ -106,7 +106,13 @@ namespace AAVRec.Drivers.AAVTimer
 			rv.frameNumber = cameraFrame.FrameNumber;
             rv.exposureStartTime = new DateTime(cameraFrame.ImageStatus.StartExposureSystemTime).ToString("HH:mm:ss.fff");
 			rv.exposureDuration = null;
-            rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4}", cameraFrame.ImageStatus.CountedFrames, cameraFrame.ImageStatus.StartExposureFrameNo, cameraFrame.ImageStatus.EndExposureFrameNo, cameraFrame.ImageStatus.CutOffRatio, cameraFrame.ImageStatus.UniqueFrameNo);
+			rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4};IFID:{5}", 
+				cameraFrame.ImageStatus.CountedFrames, 
+				cameraFrame.ImageStatus.StartExposureFrameNo, 
+				cameraFrame.ImageStatus.EndExposureFrameNo, 
+				cameraFrame.ImageStatus.CutOffRatio, 
+				cameraFrame.ImageStatus.UniqueFrameNo,
+				cameraFrame.ImageStatus.IntegratedFrameNo);
 
 			return rv;
 		}

@@ -14,7 +14,7 @@ V) Refactor the AAV native code and remove all unused 12 and 16 bit stuff
 EASY:
 
 ?) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
-- Implement integration frame "Unlock-ing". Reconsider renaming the button to something else
+v) Implement integration frame "Unlock-ing". Reconsider renaming the button to something else
 V) AAV should be usable without OCR i.e. add setting to turn on OCR (turned off by default)
 V) Make it possible to run in AAV mode using a simmulated video rather than live images from the camera
 - Print the failed OCR chars in red, rather than yellow, on the error image
@@ -24,7 +24,7 @@ V) Display the framerate supported by the capture hardware
 
 HARDER:
 
-?) Implement 1x and x2 integration frame recognition
+V) Implement 1x and x2 integration frame recognition
 V) Implement Differential Coding Compression for AAV 8 bit format
 V) Ensure that the start/end timestamps are not overwritten in the process of stacking images.
 V) When recording an AAV file always save one extra single frame after the last integration period, in order to solve any timestamp ambiguity issues

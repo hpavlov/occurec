@@ -137,43 +137,49 @@ namespace AAVRec
                     else
                         throw new NotSupportedException();
 
-                    videoObject = new VideoWrapper(driverInstance, this);
-
-                    try
-                    {
-                        Cursor = Cursors.WaitCursor;
-                        initializationErrorMessages.Clear();
-
-                        videoObject.Connected = true;
-
-                        if (videoObject.Connected)
-                        {
-                            imageWidth = videoObject.Width;
-                            imageHeight = videoObject.Height;
-                            pictureBox.Image = new Bitmap(imageWidth, imageHeight);
-
-                            ResizeVideoFrameTo(imageWidth, imageHeight);
-                            tssIntegrationRate.Visible = Settings.Default.IsIntegrating && Settings.Default.FileFormat == "AAV";
-                            pnlAAV.Visible = Settings.Default.FileFormat == "AAV";
-
-                            overlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages);
-                        }
-
-                        stateManager.CameraConnected(driverInstance, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");
-                        UpdateScheduleDisplay();
-                    }
-                    finally
-                    {
-                        Cursor = Cursors.Default;
-                    }
-
-
-                    pictureBox.Width = videoObject.Width;
-                    pictureBox.Height = videoObject.Height;
-
-                    UpdateCameraState(true);
+	                ConnectToDriver(driverInstance);
                 }                
             }
+		}
+
+		private void ConnectToDriver(IVideo driverInstance)
+		{
+			videoObject = new VideoWrapper(driverInstance, this);
+
+			try
+			{
+				Cursor = Cursors.WaitCursor;
+				initializationErrorMessages.Clear();
+
+				videoObject.Connected = true;
+
+				if (videoObject.Connected)
+				{
+					imageWidth = videoObject.Width;
+					imageHeight = videoObject.Height;
+					pictureBox.Image = new Bitmap(imageWidth, imageHeight);
+
+					ResizeVideoFrameTo(imageWidth, imageHeight);
+					tssIntegrationRate.Visible = Settings.Default.IsIntegrating && Settings.Default.FileFormat == "AAV";
+					pnlAAV.Visible = Settings.Default.FileFormat == "AAV";
+
+					overlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages);
+				}
+
+				stateManager.CameraConnected(driverInstance, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");
+				UpdateScheduleDisplay();
+			}
+			finally
+			{
+				Cursor = Cursors.Default;
+			}
+
+
+			pictureBox.Width = videoObject.Width;
+			pictureBox.Height = videoObject.Height;
+
+			UpdateCameraState(true);
+			
 		}
 
 		private void DisconnectFromCamera()
@@ -1136,6 +1142,22 @@ namespace AAVRec
 		{
 			Process.Start("http://tech.groups.yahoo.com/group/AAVRec");
 		}
+
+		private void miOpenFile_Click(object sender, EventArgs e)
+		{
+			if (videoObject == null)
+			{
+				if (openFileDialog.ShowDialog(this) == DialogResult.OK)
+				{
+					Settings.Default.SimulatorFilePath = openFileDialog.FileName;
+					Settings.Default.Save();
+
+					IVideo driverInstance = new Drivers.AVISimulator.Video(true); 
+
+	                ConnectToDriver(driverInstance);
+				}
+			}
+        }
 
 	}
 }

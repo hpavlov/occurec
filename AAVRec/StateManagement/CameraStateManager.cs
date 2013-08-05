@@ -18,7 +18,6 @@ namespace AAVRec.StateManagement
         private List<string> driverInstanceSupportedActions;
 
         private int ocrErrors;
-        private int droppedFrames;
         private bool ocrMayBeRunning;
 
         public void ProcessFrame(VideoFrameWrapper frame)
@@ -31,7 +30,6 @@ namespace AAVRec.StateManagement
         {
             this.driverInstance = driverInstance;
             ocrErrors = 0;
-            droppedFrames = 0;
             MAX_ORC_ERRORS_PER_RUN = maxOcrErrorsPerRun;
 
             driverInstanceSupportedActions = driverInstance.SupportedActions.Cast<string>().ToList();
@@ -77,8 +75,6 @@ namespace AAVRec.StateManagement
             {
                 ChangeState(LockedIntegrationCameraState.Instance);
 
-                droppedFrames = 0;
-
                 return true;
             }
             else
@@ -95,8 +91,6 @@ namespace AAVRec.StateManagement
             if (boolResult)
             {
                 ChangeState(UndeterminedIntegrationCameraState.Instance);
-
-                droppedFrames = 0;
 
                 return true;
             }
@@ -200,7 +194,12 @@ namespace AAVRec.StateManagement
 
         public int DroppedFrames
         {
-            get { return droppedFrames; }
+			get
+			{
+				return currentState != null 
+					? currentState.GetNumberOfDroppedFrames() 
+					: 0;
+			}
         }
 
         public void RegisterOcrError()
@@ -223,11 +222,6 @@ namespace AAVRec.StateManagement
                     }
                 }
             }
-        }
-
-        public void RegisterDroppedFrame()
-        {
-            droppedFrames++;
         }
     }
 }

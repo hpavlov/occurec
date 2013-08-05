@@ -15,6 +15,12 @@ namespace AAVRec
         [STAThread]
         static void Main()
         {
+			System.Reflection.Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
+			Version appVersion = a.GetName().Version;
+			string appVersionString = appVersion.ToString();
+
+			Trace.WriteLine(string.Format("Starting AAVRec v.{0}", appVersionString));
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -22,10 +28,7 @@ namespace AAVRec
 			Application.ThreadException += Application_ThreadException;
 
             #region Make sure the settings are not forgotten between application version updates
-            System.Reflection.Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
 
-            Version appVersion = a.GetName().Version;
-            string appVersionString = appVersion.ToString();
 
             if (Properties.Settings.Default.ApplicationVersion != appVersion.ToString())
             {

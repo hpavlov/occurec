@@ -11,7 +11,8 @@ namespace AAVRec.Helpers
         private IVideoFrame videoFrame;
 
         public long UniqueFrameId { get; private set; }
-        public int? IntegrationRate { get; private set; }
+		public long IntegratedFrameNo { get; private set; }
+		public int? IntegrationRate { get; private set; }		
         public long? StartExposureFrameNo { get; private set; }
         public long? EndExposureFrameNo { get; private set; }
         public float? CutOffRatio { get; private set; }
@@ -45,6 +46,9 @@ namespace AAVRec.Helpers
 
                         if (nvpair[0] == "EFID")
                             EndExposureFrameNo = long.Parse(nvpair[1]);
+
+						if (nvpair[0] == "IFID")
+                            IntegratedFrameNo = long.Parse(nvpair[1]);						
                     }
                 }
             }
