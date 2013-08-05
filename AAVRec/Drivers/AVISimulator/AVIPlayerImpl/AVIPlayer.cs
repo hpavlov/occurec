@@ -99,24 +99,45 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
 
         private void EnsureMediaDet()
         {
-            lock (syncRoot)
-            {
-                if (m_MediaDet != null)
-                    Marshal.ReleaseComObject(m_MediaDet);
-                m_MediaDet = null;
-
-                m_MediaDet = (IMediaDet)new MediaDet();
-                DsError.ThrowExceptionForHR(m_MediaDet.put_Filename(m_FileName));
-
-                // find the video stream in the file
-                int index = 0;
-                Guid type = Guid.Empty;
-                while (type != MediaType.Video)
+            NonBlockingLock.ExclusiveLock(
+                NonBlockingLock.LOCK_ID_CloseInterfaces,
+                () =>
                 {
-                    m_MediaDet.put_CurrentStream(index++);
-                    m_MediaDet.get_StreamType(out type);
-                }
-            }            
+                    if (m_MediaDet != null)
+                        Marshal.ReleaseComObject(m_MediaDet);
+                    m_MediaDet = null;
+
+                    m_MediaDet = (IMediaDet)new MediaDet();
+                    DsError.ThrowExceptionForHR(m_MediaDet.put_Filename(m_FileName));
+
+                    // find the video stream in the file
+                    int index = 0;
+                    Guid type = Guid.Empty;
+                    while (type != MediaType.Video)
+                    {
+                        m_MediaDet.put_CurrentStream(index++);
+                        m_MediaDet.get_StreamType(out type);
+                    }
+                });
+
+            //lock (syncRoot)
+            //{
+            //    if (m_MediaDet != null)
+            //        Marshal.ReleaseComObject(m_MediaDet);
+            //    m_MediaDet = null;
+
+            //    m_MediaDet = (IMediaDet)new MediaDet();
+            //    DsError.ThrowExceptionForHR(m_MediaDet.put_Filename(m_FileName));
+
+            //    // find the video stream in the file
+            //    int index = 0;
+            //    Guid type = Guid.Empty;
+            //    while (type != MediaType.Video)
+            //    {
+            //        m_MediaDet.put_CurrentStream(index++);
+            //        m_MediaDet.get_StreamType(out type);
+            //    }
+            //}            
         }
 
         private void OpenVideoFile()
@@ -226,11 +247,13 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
                     }
                 }
 
-                lock (syncRoot)
-                {
-                    frameCounter = nextFrameCounterValue;
-                    frameStatus = FrameProcessingStatus.Clone(nextFrameStatus);
-                }
+                NonBlockingLock.Lock(
+                    NonBlockingLock.LOCK_ID_BufferCB,
+                    () =>
+                    {
+                        frameCounter = nextFrameCounterValue;
+                        frameStatus = FrameProcessingStatus.Clone(nextFrameStatus);
+                    });
             }
         }
 
@@ -245,18 +268,35 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
                 return false;
             }
 
-            long frameNo;            ;
+            long frameNo = 0;
+            var sts = new FrameProcessingStatus();
 
-            lock (syncRoot)
-            {
-                frameNo = 0 + (frameCounter % m_FrameCount);
-                status = FrameProcessingStatus.Clone(frameStatus);
-            }
+            NonBlockingLock.Lock(
+                NonBlockingLock.LOCK_ID_GetNextFrame,
+                () =>
+                {
+                    frameNo = 0 + (frameCounter % m_FrameCount);
+                    sts = FrameProcessingStatus.Clone(frameStatus);
+                });
 
             frameNumber = (int)frameNo;
-            double frameTime = ConvertFrameNumberToSeconds(frameNumber);
+            status = sts;
 
-            cameraFrame = GetImageAtTime(frameTime);
+            if (fullAAVSimulation)
+            {
+                ImageStatus imgStatus;
+                cameraFrame = NativeHelpers.GetCurrentImage(out imgStatus);
+                status.CameraFrameNo = imgStatus.UniqueFrameNo;
+                status.CurrentSignatureRatio = imgStatus.CutOffRatio;
+                status.IntegratedFrameNo = imgStatus.IntegratedFrameNo;
+                status.IntegratedFramesSoFar = imgStatus.CountedFrames;
+            }
+            else
+            {
+                double frameTime = ConvertFrameNumberToSeconds(frameNumber);
+                cameraFrame = GetImageAtTime(frameTime);
+            }
+            
 
             return true;
         }
@@ -276,21 +316,23 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
                         for (int i = 0; i < 2; i++)
                         {
 
-                            lock (syncRoot)
-                            {
-                                try
+                            NonBlockingLock.Lock(
+                                NonBlockingLock.LOCK_ID_GetNextFrame,
+                                () =>
                                 {
-                                    m_MediaDet.GetBitmapBits(seconds, out m_BufferSize, m_BufferPtr, ImageWidth, ImageHeight);
-                                    recreateMediaDet = false;
-                                }
-                                catch (InvalidCastException)
-                                {
-                                    if (recreateMediaDet)
-                                        throw;
-                                    else
-                                        recreateMediaDet = true;
-                                }                                
-                            }
+                                    try
+                                    {
+                                        m_MediaDet.GetBitmapBits(seconds, out m_BufferSize, m_BufferPtr, ImageWidth, ImageHeight);
+                                        recreateMediaDet = false;
+                                    }
+                                    catch (InvalidCastException)
+                                    {
+                                        if (recreateMediaDet)
+                                            throw;
+                                        else
+                                            recreateMediaDet = true;
+                                    } 
+                                });
 
                             if (recreateMediaDet)
                             {

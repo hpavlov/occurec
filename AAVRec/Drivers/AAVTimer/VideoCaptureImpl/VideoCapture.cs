@@ -167,7 +167,7 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
                         ImageStatus = status,
 						Pixels = pixels,                        
 						ImageLayout = VideoFrameLayout.Monochrome
-					};					
+					};
 				}
 
 				return true;

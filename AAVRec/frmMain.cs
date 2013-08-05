@@ -222,6 +222,8 @@ namespace AAVRec
 			pnlVideoControls.Enabled = connected;
 			miConnect.Enabled = !connected;
 			miDisconnect.Enabled = connected;
+            miOpenFile.Enabled = !connected;
+
             pnlOcrTesting.Visible = false;
 
 			UpdateState();
@@ -515,8 +517,8 @@ namespace AAVRec
 						Bitmap errorBmp = new Bitmap(pictureBox.Width, pictureBox.Height);
 						using (Graphics g = Graphics.FromImage(errorBmp))
 						{
-							g.Clear(Color.Tomato);
-							g.DrawString(ex.Message, debugTextFont, Brushes.Black, 10, 10);
+							g.Clear(Color.MidnightBlue);
+							//g.DrawString(ex.Message, debugTextFont, Brushes.Black, 10, 10);
 							g.Save();
 						}
 						try
@@ -1150,6 +1152,10 @@ namespace AAVRec
 				if (openFileDialog.ShowDialog(this) == DialogResult.OK)
 				{
 					Settings.Default.SimulatorFilePath = openFileDialog.FileName;
+				    Settings.Default.OcrSimulatorTestMode = false;
+                    Settings.Default.OcrCameraTestModeAvi = false;
+                    Settings.Default.OcrCameraTestModeAav = false;
+                    Settings.Default.SimulatorRunOCR = false;
 					Settings.Default.Save();
 
 					IVideo driverInstance = new Drivers.AVISimulator.Video(true); 

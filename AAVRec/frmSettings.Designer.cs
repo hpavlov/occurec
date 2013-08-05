@@ -39,7 +39,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.tbxOutputLocation = new System.Windows.Forms.TextBox();
             this.tabAAVSettings = new System.Windows.Forms.TabPage();
-            this.cbxEnableAAVIOTAVTIOCR = new System.Windows.Forms.CheckBox();
+            this.cbDebugIntegration = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label10 = new System.Windows.Forms.Label();
             this.nudPreserveTSTop = new System.Windows.Forms.NumericUpDown();
@@ -49,6 +49,10 @@
             this.nudSignDiffFactor = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
             this.nudMinSignDiff = new System.Windows.Forms.NumericUpDown();
+            this.cbxFrameProcessingMode = new System.Windows.Forms.ComboBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.tabOCR = new System.Windows.Forms.TabPage();
+            this.cbxEnableAAVIOTAVTIOCR = new System.Windows.Forms.CheckBox();
             this.tabDebug = new System.Windows.Forms.TabPage();
             this.cbxOcrCameraTestModeAav = new System.Windows.Forms.CheckBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -72,10 +76,6 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.openAavFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.cbxFrameProcessingMode = new System.Windows.Forms.ComboBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.cbDebugIntegration = new System.Windows.Forms.CheckBox();
-            this.tabOCR = new System.Windows.Forms.TabPage();
             this.tabControl.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.tabAAVSettings.SuspendLayout();
@@ -84,10 +84,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveTSHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSignDiffFactor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).BeginInit();
+            this.tabOCR.SuspendLayout();
             this.tabDebug.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxErrorsPerTestRun)).BeginInit();
             this.gbxOcrTesting.SuspendLayout();
-            this.tabOCR.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnCancel
@@ -194,15 +194,15 @@
             this.tabAAVSettings.Text = "AAV";
             this.tabAAVSettings.UseVisualStyleBackColor = true;
             // 
-            // cbxEnableAAVIOTAVTIOCR
+            // cbDebugIntegration
             // 
-            this.cbxEnableAAVIOTAVTIOCR.AutoSize = true;
-            this.cbxEnableAAVIOTAVTIOCR.Location = new System.Drawing.Point(17, 34);
-            this.cbxEnableAAVIOTAVTIOCR.Name = "cbxEnableAAVIOTAVTIOCR";
-            this.cbxEnableAAVIOTAVTIOCR.Size = new System.Drawing.Size(187, 17);
-            this.cbxEnableAAVIOTAVTIOCR.TabIndex = 22;
-            this.cbxEnableAAVIOTAVTIOCR.Text = "Enable IOTA-VTI Timestamp OCR";
-            this.cbxEnableAAVIOTAVTIOCR.UseVisualStyleBackColor = true;
+            this.cbDebugIntegration.AutoSize = true;
+            this.cbDebugIntegration.Location = new System.Drawing.Point(216, 194);
+            this.cbDebugIntegration.Name = "cbDebugIntegration";
+            this.cbDebugIntegration.Size = new System.Drawing.Size(161, 17);
+            this.cbDebugIntegration.TabIndex = 20;
+            this.cbDebugIntegration.Text = "Integration Detection Tuning";
+            this.cbDebugIntegration.UseVisualStyleBackColor = true;
             // 
             // groupBox1
             // 
@@ -341,6 +341,48 @@
             0,
             65536});
             // 
+            // cbxFrameProcessingMode
+            // 
+            this.cbxFrameProcessingMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxFrameProcessingMode.FormattingEnabled = true;
+            this.cbxFrameProcessingMode.Items.AddRange(new object[] {
+            "Buffered",
+            "Synchronous"});
+            this.cbxFrameProcessingMode.Location = new System.Drawing.Point(17, 192);
+            this.cbxFrameProcessingMode.Name = "cbxFrameProcessingMode";
+            this.cbxFrameProcessingMode.Size = new System.Drawing.Size(144, 21);
+            this.cbxFrameProcessingMode.TabIndex = 18;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(14, 176);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(91, 13);
+            this.label12.TabIndex = 19;
+            this.label12.Text = "Frame Processing";
+            // 
+            // tabOCR
+            // 
+            this.tabOCR.Controls.Add(this.cbxEnableAAVIOTAVTIOCR);
+            this.tabOCR.Location = new System.Drawing.Point(4, 22);
+            this.tabOCR.Name = "tabOCR";
+            this.tabOCR.Padding = new System.Windows.Forms.Padding(3);
+            this.tabOCR.Size = new System.Drawing.Size(396, 225);
+            this.tabOCR.TabIndex = 3;
+            this.tabOCR.Text = "OCR";
+            this.tabOCR.UseVisualStyleBackColor = true;
+            // 
+            // cbxEnableAAVIOTAVTIOCR
+            // 
+            this.cbxEnableAAVIOTAVTIOCR.AutoSize = true;
+            this.cbxEnableAAVIOTAVTIOCR.Location = new System.Drawing.Point(17, 34);
+            this.cbxEnableAAVIOTAVTIOCR.Name = "cbxEnableAAVIOTAVTIOCR";
+            this.cbxEnableAAVIOTAVTIOCR.Size = new System.Drawing.Size(187, 17);
+            this.cbxEnableAAVIOTAVTIOCR.TabIndex = 22;
+            this.cbxEnableAAVIOTAVTIOCR.Text = "Enable IOTA-VTI Timestamp OCR";
+            this.cbxEnableAAVIOTAVTIOCR.UseVisualStyleBackColor = true;
+            // 
             // tabDebug
             // 
             this.tabDebug.Controls.Add(this.cbxOcrCameraTestModeAav);
@@ -348,7 +390,6 @@
             this.tabDebug.Controls.Add(this.cbxImageLayoutMode);
             this.tabDebug.Controls.Add(this.label8);
             this.tabDebug.Controls.Add(this.nudMaxErrorsPerTestRun);
-            this.tabDebug.Controls.Add(this.cbxGraphDebugMode);
             this.tabDebug.Controls.Add(this.cbxOcrCameraTestModeAvi);
             this.tabDebug.Controls.Add(this.btnBrowseDebugFolder);
             this.tabDebug.Controls.Add(this.label1);
@@ -419,7 +460,7 @@
             // cbxGraphDebugMode
             // 
             this.cbxGraphDebugMode.AutoSize = true;
-            this.cbxGraphDebugMode.Location = new System.Drawing.Point(17, 199);
+            this.cbxGraphDebugMode.Location = new System.Drawing.Point(23, 269);
             this.cbxGraphDebugMode.Name = "cbxGraphDebugMode";
             this.cbxGraphDebugMode.Size = new System.Drawing.Size(150, 17);
             this.cbxGraphDebugMode.TabIndex = 0;
@@ -576,48 +617,6 @@
             this.openAavFileDialog.FileName = "Open AAV/AVI File";
             this.openAavFileDialog.Filter = "Supported Video Files (*.aav;*.avi)|*.aav;*.avi";
             // 
-            // cbxFrameProcessingMode
-            // 
-            this.cbxFrameProcessingMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbxFrameProcessingMode.FormattingEnabled = true;
-            this.cbxFrameProcessingMode.Items.AddRange(new object[] {
-            "Buffered",
-            "Synchronous"});
-            this.cbxFrameProcessingMode.Location = new System.Drawing.Point(17, 192);
-            this.cbxFrameProcessingMode.Name = "cbxFrameProcessingMode";
-            this.cbxFrameProcessingMode.Size = new System.Drawing.Size(144, 21);
-            this.cbxFrameProcessingMode.TabIndex = 18;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(14, 176);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(91, 13);
-            this.label12.TabIndex = 19;
-            this.label12.Text = "Frame Processing";
-            // 
-            // cbDebugIntegration
-            // 
-            this.cbDebugIntegration.AutoSize = true;
-            this.cbDebugIntegration.Location = new System.Drawing.Point(216, 194);
-            this.cbDebugIntegration.Name = "cbDebugIntegration";
-            this.cbDebugIntegration.Size = new System.Drawing.Size(161, 17);
-            this.cbDebugIntegration.TabIndex = 20;
-            this.cbDebugIntegration.Text = "Integration Detection Tuning";
-            this.cbDebugIntegration.UseVisualStyleBackColor = true;
-            // 
-            // tabOCR
-            // 
-            this.tabOCR.Controls.Add(this.cbxEnableAAVIOTAVTIOCR);
-            this.tabOCR.Location = new System.Drawing.Point(4, 22);
-            this.tabOCR.Name = "tabOCR";
-            this.tabOCR.Padding = new System.Windows.Forms.Padding(3);
-            this.tabOCR.Size = new System.Drawing.Size(396, 225);
-            this.tabOCR.TabIndex = 3;
-            this.tabOCR.Text = "OCR";
-            this.tabOCR.UseVisualStyleBackColor = true;
-            // 
             // frmSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -626,6 +625,7 @@
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.cbxGraphDebugMode);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
@@ -645,14 +645,15 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveTSHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSignDiffFactor)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).EndInit();
+            this.tabOCR.ResumeLayout(false);
+            this.tabOCR.PerformLayout();
             this.tabDebug.ResumeLayout(false);
             this.tabDebug.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxErrorsPerTestRun)).EndInit();
             this.gbxOcrTesting.ResumeLayout(false);
             this.gbxOcrTesting.PerformLayout();
-            this.tabOCR.ResumeLayout(false);
-            this.tabOCR.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
 		}
 
