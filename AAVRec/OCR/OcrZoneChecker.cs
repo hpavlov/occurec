@@ -16,14 +16,17 @@ namespace AAVRec.OCR
         private int height;
 
         public int[,] OcrPixelMap;
+	    private OcrConfiguration ocrConfig;
 
-        public OcrZoneChecker(int width, int height, List<OcrZone> zones, List<int> leftCharPositions)
+        public OcrZoneChecker(OcrConfiguration ocrConfig, int width, int height, List<OcrZone> zones, List<int> leftCharPositions)
         {
+	        this.ocrConfig = ocrConfig;
+
             for (int i = 0; i < leftCharPositions.Count; i++)
             {
-                int leftPos = OcrSettings.Instance.Alignment.CharPositions[i];
-                ocredCharsOdd.Add(new OcredChar(i, leftPos, OcrSettings.Instance.Alignment.CharWidth, OcrSettings.Instance.Alignment.CharHeight));
-                ocredCharsEven.Add(new OcredChar(i, leftPos, OcrSettings.Instance.Alignment.CharWidth, OcrSettings.Instance.Alignment.CharHeight));
+				int leftPos = ocrConfig.Alignment.CharPositions[i];
+				ocredCharsOdd.Add(new OcredChar(i, leftPos, ocrConfig.Alignment.CharWidth, ocrConfig.Alignment.CharHeight));
+				ocredCharsEven.Add(new OcredChar(i, leftPos, ocrConfig.Alignment.CharWidth, ocrConfig.Alignment.CharHeight));
             }
 
             this.zones.AddRange(zones);
@@ -56,8 +59,8 @@ namespace AAVRec.OCR
 
         private void BuildOcrPixelMap()
         {
-            int OCR_LINES_FROM = OcrSettings.Instance.Alignment.FrameTopOdd;
-            int OCR_LINES_TO = OcrSettings.Instance.Alignment.FrameTopEven + 2 * OcrSettings.Instance.Alignment.CharHeight;
+			int OCR_LINES_FROM = ocrConfig.Alignment.FrameTopOdd;
+			int OCR_LINES_TO = ocrConfig.Alignment.FrameTopEven + 2 * ocrConfig.Alignment.CharHeight;
 
             for(int y = 0; y < height; y++)
             {

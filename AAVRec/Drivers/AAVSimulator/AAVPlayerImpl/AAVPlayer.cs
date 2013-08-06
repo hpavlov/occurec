@@ -59,7 +59,7 @@ namespace AAVRec.Drivers.AAVSimulator.AAVPlayerImpl
             else
                 ocrTester = new ManagedOcrTester();
 
-            string errorMessage = ocrTester.Initialize(ImageWidth, ImageHeight);
+            string errorMessage = ocrTester.Initialize(OcrSettings.Instance[Settings.Default.SelectedOcrConfiguration], ImageWidth, ImageHeight);
 
             if (errorMessage != null && callbacksObject != null)
                 callbacksObject.OnError(-1, errorMessage);

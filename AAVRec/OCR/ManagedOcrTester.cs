@@ -15,7 +15,7 @@ namespace AAVRec.OCR
 {
     internal interface IOcrTester
     {
-        string Initialize(int imageWidth, int imageHeight);
+        string Initialize(OcrConfiguration ocrConfig, int imageWidth, int imageHeight);
         void Reset();
         OsdFrameInfo ProcessFrame(int[,] pixels, long frameNo);
         void DisableOcr();
@@ -24,11 +24,11 @@ namespace AAVRec.OCR
 
     internal class NativeOcrTester : IOcrTester
     {
-        public string Initialize(int imageWidth, int imageHeight)
+		public string Initialize(OcrConfiguration ocrConfig, int imageWidth, int imageHeight)
         {
-            string initMsg = NativeHelpers.SetupBasicOcrMetrix();
+			string initMsg = NativeHelpers.SetupBasicOcrMetrix(ocrConfig);
             if (initMsg == null)
-                NativeHelpers.SetupOcr();
+				NativeHelpers.SetupOcr(ocrConfig);
 
             return initMsg;
         }
@@ -67,30 +67,34 @@ namespace AAVRec.OCR
         private bool generateDebugImages;
         private bool ocrEnabled = false;
         private bool ocrErrorReporting = false;
+	    private OcrConfiguration ocrConfig;
 
-        public string Initialize(int imageWidth, int imageHeight)
+        public string Initialize(OcrConfiguration ocrConfig, int imageWidth, int imageHeight)
         {
-            for (int i = 0; i < OcrSettings.Instance.Alignment.CharPositions.Count; i++)
+	        this.ocrConfig = ocrConfig;
+
+			for (int i = 0; i < ocrConfig.Alignment.CharPositions.Count; i++)
             {
-                int leftPos = OcrSettings.Instance.Alignment.CharPositions[i];
-                var ocredChar = new OcredChar(i, leftPos, OcrSettings.Instance.Alignment.CharWidth, OcrSettings.Instance.Alignment.CharHeight);
-                ocredChar.PopulateZones(OcrSettings.Instance.Zones);
+				int leftPos = ocrConfig.Alignment.CharPositions[i];
+				var ocredChar = new OcredChar(i, leftPos, ocrConfig.Alignment.CharWidth, ocrConfig.Alignment.CharHeight);
+				ocredChar.PopulateZones(ocrConfig.Zones);
                 ocredCharsOdd.Add(ocredChar);
 
-                ocredChar = new OcredChar(i, leftPos, OcrSettings.Instance.Alignment.CharWidth, OcrSettings.Instance.Alignment.CharHeight);
-                ocredChar.PopulateZones(OcrSettings.Instance.Zones);
+				ocredChar = new OcredChar(i, leftPos, ocrConfig.Alignment.CharWidth, ocrConfig.Alignment.CharHeight);
+				ocredChar.PopulateZones(ocrConfig.Zones);
                 ocredCharsEven.Add(ocredChar);
             }
 
             zoneChecker = new OcrZoneChecker(
-                OcrSettings.Instance.Alignment.Width,
-                OcrSettings.Instance.Alignment.Height,
-                OcrSettings.Instance.Zones,
-                OcrSettings.Instance.Alignment.CharPositions);
+				ocrConfig,
+				ocrConfig.Alignment.Width,
+				ocrConfig.Alignment.Height,
+				ocrConfig.Zones,
+				ocrConfig.Alignment.CharPositions);
 
             charRecognizer = new OcrCharRecognizer(
-                OcrSettings.Instance.Zones,
-                OcrSettings.Instance.CharDefinitions);
+				ocrConfig.Zones,
+				ocrConfig.CharDefinitions);
 
             cameraImage = new CameraImage();
             testContext = new StateContext();
@@ -107,11 +111,16 @@ namespace AAVRec.OCR
             testContext.Reset();
 
             outputDebugFolder = Path.GetFullPath(string.Format("{0}\\{1}-{2}", Settings.Default.OcrDebugOutputFolder, DateTime.Now.ToString("dd-MMM-HHmm-"), Guid.NewGuid()));
-            Directory.CreateDirectory(outputDebugFolder);
+            
             outputDebugFileCounter = 0;
             ocrEnabled = true;
             ocrErrorReporting = true;
         }
+
+		private void EnsureOutputDirectory()
+		{
+			Directory.CreateDirectory(outputDebugFolder);
+		}
 
         private static Font s_DebugFont = new Font(FontFamily.GenericMonospace, 14, FontStyle.Bold, GraphicsUnit.Pixel);
 
@@ -126,8 +135,8 @@ namespace AAVRec.OCR
 			int[,] tsPixelsOdd = new int[42, IMAGE_WIDTH];
 			int[,] tsPixelsEven = new int[42, IMAGE_WIDTH];
 
-	        int OCR_LINES_FROM = OcrSettings.Instance.Alignment.FrameTopOdd;
-	        int OCR_LINES_TO = OcrSettings.Instance.Alignment.FrameTopEven + 2 * OcrSettings.Instance.Alignment.CharHeight;
+			int OCR_LINES_FROM = ocrConfig.Alignment.FrameTopOdd;
+			int OCR_LINES_TO = ocrConfig.Alignment.FrameTopEven + 2 * ocrConfig.Alignment.CharHeight;
 
             List<int> medianArray = new List<int>();
 
@@ -206,14 +215,25 @@ namespace AAVRec.OCR
                 ocredChar.RecognizedChar = charRecognizer.RecognizeChar(computedZones, median, i);
             }
 
-            OsdFieldInfo oddFieldInfo = OsdFieldInfoExtractor.ExtractFieldInfo(ocredCharsOdd);
-            OsdFieldInfo evenFieldInfo = OsdFieldInfoExtractor.ExtractFieldInfo(ocredCharsEven);
+	        OsdFieldInfo oddFieldInfo = null;
+			OsdFieldInfo evenFieldInfo = null;
+
+			try
+			{
+				oddFieldInfo = OsdFieldInfoExtractor.ExtractFieldInfo(ocredCharsOdd);
+				evenFieldInfo = OsdFieldInfoExtractor.ExtractFieldInfo(ocredCharsEven);
+			}
+			catch (Exception)
+			{
+				oddFieldInfo = new OsdFieldInfo() { FieldNumber = 1 };
+				evenFieldInfo = new OsdFieldInfo() { FieldNumber = 2 };
+			}
 
             var frameInfo = new OsdFrameInfo(oddFieldInfo, evenFieldInfo);
 
             TestFrameResult testResult = testContext.TestTimeStamp(frameInfo);
 
-            if (ocrErrorReporting && testResult == TestFrameResult.ErrorSaveScreenShotImages && oddFieldInfo.FieldNumber > 0 && evenFieldInfo.FieldNumber > 0)
+            if (ocrErrorReporting && testResult == TestFrameResult.ErrorSaveScreenShotImages && oddFieldInfo.FieldNumber >= 0 && evenFieldInfo.FieldNumber >= 0)
             {
                 Bitmap bmpOdd = CreateBitmapFromPixels(tsPixelsOdd);
                 Bitmap bmpEven = CreateBitmapFromPixels(tsPixelsEven);
@@ -267,6 +287,7 @@ namespace AAVRec.OCR
                 }
 
                 outputDebugFileCounter++;
+	            EnsureOutputDirectory();
                 bmpOdd.Save(Path.GetFullPath(string.Format("{0}\\{1}-odd-ts({2}).bmp", outputDebugFolder, frameNo, outputDebugFileCounter)));
                 bmpEven.Save(Path.GetFullPath(string.Format("{0}\\{1}-even-ts({2}).bmp", outputDebugFolder, frameNo, outputDebugFileCounter)));                   
             }

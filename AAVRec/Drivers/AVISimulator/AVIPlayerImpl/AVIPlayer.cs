@@ -53,6 +53,8 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
             IsRunning = false;
             string errorMessage;
 
+	        OcrConfiguration ocrConfig = OcrSettings.Instance[Settings.Default.SelectedOcrConfiguration];
+
             if (fullAAVSimulation)
             {
                 NativeHelpers.SetupCamera(
@@ -67,7 +69,7 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 
 				if (Settings.Default.SimulatorRunOCR)
-					errorMessage = NativeHelpers.SetupBasicOcrMetrix();
+					errorMessage = NativeHelpers.SetupBasicOcrMetrix(ocrConfig);
 				else
 					errorMessage = NativeHelpers.SetupTimestampPreservation(ImageWidth, ImageHeight);
 
@@ -82,7 +84,7 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
 				else
 					ocrTester = new ManagedOcrTester();
 
-				errorMessage = ocrTester.Initialize(ImageWidth, ImageHeight);
+				errorMessage = ocrTester.Initialize(ocrConfig, ImageWidth, ImageHeight);
 
 				if (errorMessage != null && callbacksObject != null)
 					callbacksObject.OnError(-1, errorMessage);

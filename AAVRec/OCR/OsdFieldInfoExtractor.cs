@@ -172,8 +172,11 @@ namespace AAVRec.OCR
             else
                 rv.TimeStamp = rv.TimeStamp.AddMilliseconds(ms2 / 10);
 
-            long.TryParse(charsOnly.Substring(17).Trim(), out rv.FieldNumber);
-
+	        string fieldNoStr = charsOnly.Substring(17).Trim();
+	        if (string.IsNullOrEmpty(fieldNoStr))
+		        rv.FieldNumber = -1;
+			else
+				long.TryParse(fieldNoStr, out rv.FieldNumber);
             
             Trace.WriteLine(string.Format("{0}{1}{2}|{3}{4}:{5}{6}:{7}{8} {9}{10}{11}{12}{13}{14}{15}{16}|{17}{18}{19}{20}{21}{22}",
                 charsOnly[0], charsOnly[1], charsOnly[2],

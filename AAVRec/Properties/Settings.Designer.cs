@@ -490,5 +490,17 @@ namespace AAVRec.Properties {
                 this["ApplicationVersion"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("720x576 PAL")]
+        public string SelectedOcrConfiguration {
+            get {
+                return ((string)(this["SelectedOcrConfiguration"]));
+            }
+            set {
+                this["SelectedOcrConfiguration"] = value;
+            }
+        }
     }
 }

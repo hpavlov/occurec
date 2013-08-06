@@ -416,17 +416,17 @@ namespace AAVRec.Helpers
 				return null;
 		}
 
-		public static string SetupBasicOcrMetrix()
+		public static string SetupBasicOcrMetrix(OcrConfiguration ocrConfig)
 	    {
             int hr = SetupOcrAlignment(
-                 OcrSettings.Instance.Alignment.Width,
-                 OcrSettings.Instance.Alignment.Height,
-                 OcrSettings.Instance.Alignment.FrameTopOdd,
-                 OcrSettings.Instance.Alignment.FrameTopEven,
-                 OcrSettings.Instance.Alignment.CharWidth,
-                 OcrSettings.Instance.Alignment.CharHeight,
-				 OcrSettings.Instance.Zones.Any() 
-					? OcrSettings.Instance.Zones.Max(x => x.ZoneId) - 1
+				 ocrConfig.Alignment.Width,
+				 ocrConfig.Alignment.Height,
+				 ocrConfig.Alignment.FrameTopOdd,
+				 ocrConfig.Alignment.FrameTopEven,
+				 ocrConfig.Alignment.CharWidth,
+				 ocrConfig.Alignment.CharHeight,
+				 ocrConfig.Zones.Any()
+					? ocrConfig.Zones.Max(x => x.ZoneId) - 1
 					: 0);
 
 	        if (hr != 0)
@@ -435,24 +435,25 @@ namespace AAVRec.Helpers
 	            return null;
 	    }
 
-	    public static void SetupOcr()
+		public static void SetupOcr(OcrConfiguration ocrConfig)
         {
             // Build the ocr zone matrix in managed world using the OcrZoneChecker
             var zoneChecker = new OcrZoneChecker(
-                OcrSettings.Instance.Alignment.Width,
-                OcrSettings.Instance.Alignment.Height,
-                OcrSettings.Instance.Zones,
-                OcrSettings.Instance.Alignment.CharPositions);
+				ocrConfig,
+				ocrConfig.Alignment.Width,
+				ocrConfig.Alignment.Height,
+				ocrConfig.Zones,
+				ocrConfig.Alignment.CharPositions);
 
             SetupOcrZoneMatrix(zoneChecker.OcrPixelMap);
-            
-            foreach (CharDefinition charDef in OcrSettings.Instance.CharDefinitions)
+
+			foreach (CharDefinition charDef in ocrConfig.CharDefinitions)
             {
                 SetupOcrChar(charDef.Character[0], charDef.FixedPosition.HasValue ? charDef.FixedPosition.Value : -1);
 
                 foreach (ZoneSignature zoneSignt in charDef.ZoneSignatures)
                 {
-                    int pixelsInZone = OcrSettings.Instance.Zones.Single(z => z.ZoneId == zoneSignt.ZoneId).Pixels.Count;
+					int pixelsInZone = ocrConfig.Zones.Single(z => z.ZoneId == zoneSignt.ZoneId).Pixels.Count;
                     SetupOcrCharDefinitionZone(charDef.Character[0], zoneSignt.ZoneId, (int)zoneSignt.ZoneValue, pixelsInZone);
                 }
             }

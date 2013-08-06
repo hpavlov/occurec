@@ -147,7 +147,33 @@ namespace AAVRec.OCR
         }
     }
 
-    public class OcrSettings
+	public class OcrConfiguration
+	{
+		public OcrConfiguration(bool populateDefault)
+        {
+            Alignment = AlignmentConfig.GetDefault();
+            Zones = OcrZone.GetDefaultZones();
+            CharDefinitions = CharDefinition.GetDefault();
+        }
+
+		public OcrConfiguration()
+        {
+            Alignment = new AlignmentConfig();
+            Zones = new List<OcrZone>();
+            CharDefinitions = new List<CharDefinition>();
+        }
+
+		[XmlAttribute]
+		public string Name { get; set; }
+
+		public AlignmentConfig Alignment { get; set; }
+
+        public List<OcrZone> Zones { get; set; }
+
+        public List<CharDefinition> CharDefinitions { get; set; }
+	}
+
+	public class OcrSettings
     {
         private static OcrSettings s_OCRSettings = null;
 
@@ -177,6 +203,18 @@ namespace AAVRec.OCR
             }            
         }
 
+		public OcrConfiguration this[string configName]
+		{
+			get
+			{
+				OcrConfiguration rv = Configurations.SingleOrDefault(x => x.Name == configName);
+				if (rv == null)
+					rv = new OcrConfiguration(true);
+
+				return rv;
+			}
+		}
+
         public string ToXml()
         {
             var ser = new XmlSerializer(typeof(OcrSettings));
@@ -191,24 +229,12 @@ namespace AAVRec.OCR
             return output.ToString();
         }
 
-        public OcrSettings(bool populateDefault)
-        {
-            Alignment = AlignmentConfig.GetDefault();
-            Zones = OcrZone.GetDefaultZones();
-            CharDefinitions = CharDefinition.GetDefault();
-        }
+		public OcrSettings()
+		{
+			Configurations = new List<OcrConfiguration>();
+		}
 
-        public OcrSettings()
-        {
-            Alignment = new AlignmentConfig();
-            Zones = new List<OcrZone>();
-            CharDefinitions = new List<CharDefinition>();
-        }
-
-        public AlignmentConfig Alignment { get; set; }
-
-        public List<OcrZone> Zones { get; set; }
-
-        public List<CharDefinition> CharDefinitions { get; set; }
+		[XmlElement("Configuration")]
+		public List<OcrConfiguration> Configurations { get; set; }
     }
 }

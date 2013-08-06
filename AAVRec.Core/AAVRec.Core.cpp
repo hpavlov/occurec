@@ -1050,6 +1050,8 @@ void FrameProcessingThreadProc( void* pContext )
 	while(true)
 	{
 		ProcessBufferedVideoFrame();
+
+		Sleep(0);
 	};
 }
 
@@ -1225,6 +1227,8 @@ void RecorderThreadProc( void* pContext )
 	while(recording)
 	{
 		RecordAllbufferedFrames();
+
+		Sleep(0);
 	};
 
 	// Record all remaining frames, after 'recording' has been set to false

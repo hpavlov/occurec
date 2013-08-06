@@ -930,6 +930,8 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                     }
                 });
 
+	        Thread.Sleep(1);
+
             return 0;
         }
 

@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using AAVRec.Helpers;
+using AAVRec.OCR;
 using AAVRec.Properties;
 using DirectShowLib;
 
@@ -82,12 +83,14 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 
 				if (runOCR)
 				{
-					errorMessage = NativeHelpers.SetupBasicOcrMetrix();
+					OcrConfiguration ocrConfig = OcrSettings.Instance[Settings.Default.SelectedOcrConfiguration];
+
+					errorMessage = NativeHelpers.SetupBasicOcrMetrix(ocrConfig);
 					if (errorMessage != null && callbacksObject != null)
 						callbacksObject.OnError(-1, errorMessage);
 					else
 					{
-						NativeHelpers.SetupOcr();
+						NativeHelpers.SetupOcr(ocrConfig);
 						ocrEnabled = true;
 					}
 
