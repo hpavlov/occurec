@@ -43,8 +43,9 @@ namespace AAVRec
             cbxSimulatorRunOCR.Checked = Settings.Default.SimulatorRunOCR;
             tbxNTPServer.Text = Settings.Default.NTPServer;
 		    rbNativeOCR.Checked = Settings.Default.OcrSimulatorNativeCode;
-			nudPreserveTSTop.Value = Settings.Default.PreserveTSTopLine;
-			nudPreserveTSHeight.Value = Settings.Default.PreserveTSHeight;
+			nudPreserveTSTop.Value = Settings.Default.PreserveTSLineTop;
+			nudPreserveTSHeight.Value = Settings.Default.PreserveTSAreaHeight;
+			nudGammaDiff.Value = (decimal)Settings.Default.GammaDiff;
 
 		    cbxImageLayoutMode.Items.Clear();
             cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedRaw);
@@ -77,6 +78,7 @@ namespace AAVRec
             Settings.Default.VideoGraphDebugMode = cbxGraphDebugMode.Checked;
             Settings.Default.SignatureDiffFactorEx2 = (double) nudSignDiffFactor.Value;
             Settings.Default.MinSignatureDiff = (float)nudMinSignDiff.Value;
+			Settings.Default.GammaDiff = (float)nudGammaDiff.Value;
 
             if (!Directory.Exists(tbxOutputLocation.Text))
             {
@@ -108,8 +110,8 @@ namespace AAVRec
             Settings.Default.OcrSimulatorNativeCode = rbNativeOCR.Checked;
             Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
             Settings.Default.IotaVtiOcrEnabled = cbxEnableAAVIOTAVTIOCR.Checked;
-			Settings.Default.PreserveTSTopLine = (int)nudPreserveTSTop.Value;
-			Settings.Default.PreserveTSHeight = (int)nudPreserveTSHeight.Value;
+			Settings.Default.PreserveTSLineTop = (int)nudPreserveTSTop.Value;
+			Settings.Default.PreserveTSAreaHeight = (int)nudPreserveTSHeight.Value;			
 
             Settings.Default.UsesBufferedFrameProcessing = cbxFrameProcessingMode.SelectedIndex == 0;
             Settings.Default.IntegrationDetectionTuning = cbDebugIntegration.Checked;

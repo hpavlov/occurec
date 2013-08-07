@@ -92,11 +92,11 @@
     <Setting Name="FileSimulation" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="PreserveTSTopLine" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">452</Value>
+    <Setting Name="PreserveTSLineTop" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">542</Value>
     </Setting>
-    <Setting Name="PreserveTSHeight" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">24</Value>
+    <Setting Name="PreserveTSAreaHeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">32</Value>
     </Setting>
     <Setting Name="AcceptBetaUpdates" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -121,6 +121,9 @@
     </Setting>
     <Setting Name="SelectedOcrConfiguration" Type="System.String" Scope="User">
       <Value Profile="(Default)">720x576 PAL</Value>
+    </Setting>
+    <Setting Name="GammaDiff" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">1</Value>
     </Setting>
   </Settings>
 </SettingsFile>

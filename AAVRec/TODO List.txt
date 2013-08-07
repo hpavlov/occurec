@@ -31,6 +31,7 @@ V) When recording an AAV file always save one extra single frame after the last 
 V) The saved settings are forgotten after releasing a new version. This will need to be fixed.
 - Remove the x1 integration (or make it lockable in a different way). Then if no integration is detected for a long time for cameras that are selected as "Integrating" then
 try to analyze the signatures and make suggestions (e.g. "Try to increase the gain" in a case where the sigantures are too small or "AAV mode is designed for recording star fields." if they appear to be day light signatures)
+- Make it so GetNextFrame() returns a bitmap image bytes so no time is wasted converting bitmaps to arrays and back to bitmaps. May be define another generic output format [24bpp bitmap]
 
 OCR Implemntation:
 

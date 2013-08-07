@@ -78,3 +78,4 @@ HRESULT StartRecording(LPCTSTR szFileName);
 HRESULT StopRecording(long* pixels);
 bool IsNewIntegrationPeriod(float diffSignature);
 HRESULT LockIntegration(bool lock);
+HRESULT ControlIntegrationCalibration(long operation);

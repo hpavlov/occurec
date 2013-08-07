@@ -74,7 +74,8 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
                     Settings.Default.FlipVertically,
                     Settings.Default.IsIntegrating,
                     (float)Settings.Default.SignatureDiffFactorEx2,
-                    (float)Settings.Default.MinSignatureDiff);
+                    (float)Settings.Default.MinSignatureDiff,
+					Settings.Default.GammaDiff);
 
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 

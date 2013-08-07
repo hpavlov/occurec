@@ -173,7 +173,8 @@ namespace AAVRec.Helpers
             bool flipVertically,
             bool isIntegrating,
             float signDiffFactor, 
-            float minSignDiff);
+            float minSignDiff,
+			float gammaDiff);
 
 	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string aavRecVersion);
@@ -198,6 +199,9 @@ namespace AAVRec.Helpers
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int LockIntegration(bool doLock);
+
+		[DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		private static extern int ControlIntegrationCalibration(int operation);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetTimeStampArea1(int top, int left, int width, int height);
@@ -380,12 +384,14 @@ namespace AAVRec.Helpers
         private static int imageHeight;
 	    private static Font s_ErrorFont = new Font(FontFamily.GenericMonospace, 9f, GraphicsUnit.Pixel);
 
-        public static void SetupCamera(string cameraModel, int width, int height, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff)
+        public static void SetupCamera(string cameraModel, int width, int height, 
+			bool flipHorizontally, bool flipVertically,
+			bool isIntegrating, float signDiffFactor, float minSignDiff, float gammaDiff)
         {
             imageWidth = width;
             imageHeight = height;
 
-            SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating, signDiffFactor, minSignDiff);
+			SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating, signDiffFactor, minSignDiff, gammaDiff);
         }
 
 		private static AssemblyFileVersionAttribute ASSEMBLY_FILE_VERSION = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
@@ -404,10 +410,10 @@ namespace AAVRec.Helpers
 			int hr = SetupOcrAlignment(
 				width,
 				height,
-				Settings.Default.PreserveTSTopLine,
-				Settings.Default.PreserveTSTopLine + 1,
+				Settings.Default.PreserveTSLineTop,
+				Settings.Default.PreserveTSLineTop + 1,
 				0,
-				Settings.Default.PreserveTSHeight,
+				Settings.Default.PreserveTSAreaHeight,
 				0);
 
 			if (hr != 0)
@@ -506,5 +512,17 @@ namespace AAVRec.Helpers
             int hr = LockIntegration(false);
             return hr >= 0;
         }
+
+		public static bool StartIntegrationCalibration()
+		{
+			int hr = ControlIntegrationCalibration(0);
+			return hr >= 0;		
+		}
+
+		public static bool StopIntegrationCalibration()
+		{
+			int hr = ControlIntegrationCalibration(1);
+			return hr >= 0;
+		}
 	}
 }

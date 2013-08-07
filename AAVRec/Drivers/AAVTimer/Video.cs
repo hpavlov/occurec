@@ -133,7 +133,17 @@ namespace AAVRec.Drivers.AAVTimer
             {
                 AssertConnected();
                 return camera.DisableOcr().ToString(CultureInfo.InvariantCulture);
-            }            
+            }
+			else if (string.Compare(ActionName, "IntegrationCalibration", StringComparison.InvariantCultureIgnoreCase) == 0)
+			{
+				AssertConnected();
+				return camera.StartIntegrationCalibration().ToString(CultureInfo.InvariantCulture);
+			}
+			else if (string.Compare(ActionName, "CancelIntegrationCalibration", StringComparison.InvariantCultureIgnoreCase) == 0)
+			{
+				AssertConnected();
+				return camera.StopIntegrationCalibration().ToString(CultureInfo.InvariantCulture);
+			}
 
 		    return null;
 		}
@@ -142,7 +152,7 @@ namespace AAVRec.Drivers.AAVTimer
 		{
 			get
 			{
-                return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "StartIotaVtiOcrTesting", "StopIotaVtiOcrTesting", "DisableOcr" });
+				return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "StartIotaVtiOcrTesting", "StopIotaVtiOcrTesting", "DisableOcr", "IntegrationCalibration", "CancelIntegrationCalibration" });
 			}
 		}
 

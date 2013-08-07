@@ -57,6 +57,8 @@ bool FLIP_HORIZONTALLY;
 bool IS_INTEGRATING_CAMERA;
 float SIGNATURE_DIFFERENCE_FACTOR;
 float MINIMUM_SIGNATURE_DIFFERENCE;
+bool USES_DIFF_GAMMA;
+unsigned char GAMMA[256];
 
 bool INTEGRATION_LOCKED;
 
@@ -120,6 +122,11 @@ HRESULT LockIntegration(bool lock)
 {
 	INTEGRATION_LOCKED = lock;
 
+	return S_OK;
+}
+
+HRESULT ControlIntegrationCalibration(long operation)
+{
 	return S_OK;
 }
 
@@ -461,7 +468,10 @@ HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue, 
 	return E_FAIL;
 }
 
-HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff)
+HRESULT SetupCamera(
+	long width, long height, LPCTSTR szCameraModel, 
+	long monochromeConversionMode, bool flipHorizontally, bool flipVertically, 
+	bool isIntegrating, float signDiffFactor, float minSignDiff, float diffGamma)
 {
 	IMAGE_WIDTH = width;
 	IMAGE_HEIGHT = height;
@@ -475,7 +485,27 @@ HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochr
 
 	IS_INTEGRATING_CAMERA = isIntegrating;
 	SIGNATURE_DIFFERENCE_FACTOR = signDiffFactor;
-	MINIMUM_SIGNATURE_DIFFERENCE= minSignDiff;
+	MINIMUM_SIGNATURE_DIFFERENCE = minSignDiff;
+	if (diffGamma < 0.95 && diffGamma > 1.05)
+	{
+		USES_DIFF_GAMMA = true;
+		float gammaAmpl = 255 / pow(255, diffGamma);
+		for (int i = 0; i < 256; i++)
+		{
+			int gammaVal = (int)(gammaAmpl * pow(i, diffGamma));
+			if (gammaVal <= 0)
+				GAMMA[i] = 0;
+			else if (gammaVal >= 255)
+				GAMMA[i] = 255;
+			else
+				GAMMA[i] = (unsigned char)gammaVal;
+		}
+	}
+	else
+	{
+		USES_DIFF_GAMMA = false;
+	}
+
 
 	INTEGRATION_LOCKED = false;
 
@@ -660,7 +690,10 @@ void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev)
 		{
 			*ptrThisPixels = *ptrBuf;
 
-			*signatureThisPrev += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
+			if (USES_DIFF_GAMMA)
+				*signatureThisPrev += abs((float)GAMMA[*ptrThisPixels] - (float)GAMMA[*ptrPrevPixels]) / 2.0;
+			else
+				*signatureThisPrev += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
 
 			ptrThisPixels++;
 			ptrPrevPixels++;
@@ -703,7 +736,10 @@ void CalculateDiffSignature2(long* pixels, float* signatureThisPrev)
 		{
 			*ptrThisPixels = *ptrLongBuf & 0xFF;
 
-			*signatureThisPrev += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
+			if (USES_DIFF_GAMMA)
+				*signatureThisPrev += abs((float)GAMMA[*ptrThisPixels] - (float)GAMMA[*ptrPrevPixels]) / 2.0;
+			else
+				*signatureThisPrev += abs((float)*ptrThisPixels - (float)*ptrPrevPixels) / 2.0;
 
 			ptrThisPixels++;
 			ptrPrevPixels++;

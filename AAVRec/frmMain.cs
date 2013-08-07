@@ -639,6 +639,19 @@ namespace AAVRec
                     gbxSchedules.Enabled = true;
                 }
 
+				if (stateManager.IsCalibratingIntegration)
+				{
+					btnCalibrateIntegration.Text = "Cancel Calibration";
+					tssCameraState.Text = "Calibrating";
+					gbxSchedules.Enabled = false;
+				}
+				else
+				{
+					btnCalibrateIntegration.Text = "Calibrate";
+					UpdateApplicationStateFromCameraState();
+					gbxSchedules.Enabled = true;
+				}
+
                 tsbConnectDisconnect.ToolTipText = "Disconnect";
                 tsbConnectDisconnect.Image = imageListToolbar.Images[1];
 			}
@@ -1179,6 +1192,24 @@ namespace AAVRec
 				}
 			}
         }
+
+		private void btnCalibrateIntegration_Click(object sender, EventArgs e)
+		{
+			if (stateManager.IsCalibratingIntegration)
+			{
+				stateManager.CancelIntegrationCalibration();
+			}
+			else if (
+				videoObject != null &&
+				MessageBox.Show(
+					this, 
+					"Put your integrating camera in x4 integraton mode and press 'OK' to start the calibration process.", 
+					"Integration Detection Calibration", 
+					MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK)
+			{
+				stateManager.BeginIntegrationCalibration(4);
+			}
+		}
 
 	}
 }

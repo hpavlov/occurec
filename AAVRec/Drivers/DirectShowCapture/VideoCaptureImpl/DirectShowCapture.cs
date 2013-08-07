@@ -175,7 +175,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                 Settings.Default.FlipHorizontally,
                 Settings.Default.FlipVertically,
                 false,
-                0, 0);
+                0, 0, 1);
 
             NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 

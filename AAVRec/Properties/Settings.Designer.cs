@@ -385,25 +385,25 @@ namespace AAVRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("452")]
-        public int PreserveTSTopLine {
+        [global::System.Configuration.DefaultSettingValueAttribute("542")]
+        public int PreserveTSLineTop {
             get {
-                return ((int)(this["PreserveTSTopLine"]));
+                return ((int)(this["PreserveTSLineTop"]));
             }
             set {
-                this["PreserveTSTopLine"] = value;
+                this["PreserveTSLineTop"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("24")]
-        public int PreserveTSHeight {
+        [global::System.Configuration.DefaultSettingValueAttribute("32")]
+        public int PreserveTSAreaHeight {
             get {
-                return ((int)(this["PreserveTSHeight"]));
+                return ((int)(this["PreserveTSAreaHeight"]));
             }
             set {
-                this["PreserveTSHeight"] = value;
+                this["PreserveTSAreaHeight"] = value;
             }
         }
         
@@ -500,6 +500,18 @@ namespace AAVRec.Properties {
             }
             set {
                 this["SelectedOcrConfiguration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public float GammaDiff {
+            get {
+                return ((float)(this["GammaDiff"]));
+            }
+            set {
+                this["GammaDiff"] = value;
             }
         }
     }

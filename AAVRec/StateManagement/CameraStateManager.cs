@@ -20,6 +20,8 @@ namespace AAVRec.StateManagement
         private int ocrErrors;
         private bool ocrMayBeRunning;
 
+	    private bool isIntegratingCamera;
+
         public void ProcessFrame(VideoFrameWrapper frame)
         {
             if (currentState != null)
@@ -29,6 +31,8 @@ namespace AAVRec.StateManagement
         public void CameraConnected(IVideo driverInstance, int maxOcrErrorsPerRun, bool isIntegrating)
         {
             this.driverInstance = driverInstance;
+	        isIntegratingCamera = isIntegrating;
+
             ocrErrors = 0;
             MAX_ORC_ERRORS_PER_RUN = maxOcrErrorsPerRun;
 
@@ -187,6 +191,11 @@ namespace AAVRec.StateManagement
             get { return currentState is IotaVtiOcrTestingState; }
         }
 
+		public bool IsCalibratingIntegration
+		{
+			get { return currentState is IntegrationCalibrationState; }
+		}
+
         public int OcrErrors
         {
             get { return ocrErrors; }
@@ -201,6 +210,34 @@ namespace AAVRec.StateManagement
 					: 0;
 			}
         }
+
+		public void BeginIntegrationCalibration(int cameraIntegration)
+		{
+			if (isIntegratingCamera && !IsTestingIotaVtiOcr && !IsIntegrationLocked && !IsCalibratingIntegration)
+			{
+				string resultStr = driverInstance.Action("IntegrationCalibration", cameraIntegration.ToString());
+				bool result;
+				if (bool.TryParse(resultStr, out result) &&
+					result)
+				{
+					ChangeState(IntegrationCalibrationState.Instance);
+				}
+			}
+		}
+
+		public void CancelIntegrationCalibration()
+		{
+			if (IsCalibratingIntegration)
+			{
+				string resultStr = driverInstance.Action("CancelIntegrationCalibration", string.Empty);
+				bool result;
+				if (bool.TryParse(resultStr, out result) &&
+				    result)
+				{
+					ChangeState(UndeterminedIntegrationCameraState.Instance);	
+				}
+			}
+		}
 
         public void RegisterOcrError()
         {
