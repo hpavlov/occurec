@@ -18,6 +18,7 @@ namespace AAVRec.OCR
             this.left = left;
             this.charWidth = charWidth;
             this.charHeight = charHeight;
+	        this.FailedToRecognizeCorrectly = false;
         }
 
         internal void PopulateZones(List<OcrZone> zones)
@@ -37,6 +38,8 @@ namespace AAVRec.OCR
         public int LeftTo { get { return left + charWidth - 1; } }
 
         public char RecognizedChar { get; set; }
+
+		public bool FailedToRecognizeCorrectly { get; set; }
 
         public bool IsInsideChar(int left, int charTop)
         {

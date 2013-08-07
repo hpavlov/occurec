@@ -18,6 +18,7 @@ namespace AAVRec.Helpers
 
         private int imageWidth;
         private int imageHeight;
+	    private int framesWithoutTimestams;
 
         private object syncRoot = new object();
 
@@ -53,19 +54,30 @@ namespace AAVRec.Helpers
             }
         }
 
+	    private SizeF timestampMeasurement = SizeF.Empty;
+
         public void ProcessFrame(Graphics g)
         {
             ProcessErrorMessages(g);
 
             string ocrStampToDisplay = currentOcrStamp;
             currentOcrStamp = null;
-            if (ocrStampToDisplay != null)
-            {
-                SizeF msgMeasurement = g.MeasureString(ocrStampToDisplay, overlayMessagesFont);
+			if (ocrStampToDisplay != null)
+			{
+				framesWithoutTimestams = 0;
+				timestampMeasurement = g.MeasureString(ocrStampToDisplay, overlayMessagesFont);
 
-                g.FillRectangle(Brushes.DarkSlateGray, imageWidth - msgMeasurement.Width - 9, imageHeight - msgMeasurement.Height - 39, msgMeasurement.Width + 6, msgMeasurement.Height + 6);
-                g.DrawString(ocrStampToDisplay, overlayMessagesFont, Brushes.Lime, imageWidth - msgMeasurement.Width - 6, imageHeight - msgMeasurement.Height - 36);
-            }
+				g.FillRectangle(Brushes.DarkSlateGray, imageWidth - timestampMeasurement.Width - 9, imageHeight - timestampMeasurement.Height - 39, timestampMeasurement.Width + 6, timestampMeasurement.Height + 6);
+				g.DrawString(ocrStampToDisplay, overlayMessagesFont, Brushes.Lime, imageWidth - timestampMeasurement.Width - 6, imageHeight - timestampMeasurement.Height - 36);
+			}
+			else
+			{
+				framesWithoutTimestams++;
+				if (framesWithoutTimestams < 100)
+					g.FillRectangle(Brushes.DarkSlateGray, imageWidth - timestampMeasurement.Width - 9, imageHeight - timestampMeasurement.Height - 39, timestampMeasurement.Width + 6, timestampMeasurement.Height + 6);				
+				else
+					timestampMeasurement = SizeF.Empty;
+			}
         }
 
         private void PrintCurrentErrorMessage(Graphics g)
@@ -73,7 +85,7 @@ namespace AAVRec.Helpers
             SizeF msgMeasurement = g.MeasureString(currMessageToDisplay, overlayMessagesFont);
 
             g.FillRectangle(Brushes.DarkSlateGray, imageWidth - msgMeasurement.Width - 9, 3, msgMeasurement.Width + 6, msgMeasurement.Height + 6);
-            g.DrawString(currMessageToDisplay, overlayMessagesFont, Brushes.Yellow, imageWidth - msgMeasurement.Width - 6, 6);
+            g.DrawString(currMessageToDisplay, overlayMessagesFont, Brushes.OrangeRed, imageWidth - msgMeasurement.Width - 6, 6);
         }
 
         private void ProcessErrorMessages(Graphics g)
@@ -95,7 +107,7 @@ namespace AAVRec.Helpers
                     if (errorMessagesQueue.Count > 0)
                     {
                         currMessageToDisplay = errorMessagesQueue.Dequeue();
-                        displayMessageUntil = DateTime.Now.AddSeconds(5);
+                        displayMessageUntil = DateTime.Now.AddSeconds(10);
                         PrintCurrentErrorMessage(g);
                     }                    
                 }

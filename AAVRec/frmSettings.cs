@@ -59,6 +59,10 @@ namespace AAVRec
 		    cbxFrameProcessingMode.SelectedIndex = Settings.Default.UsesBufferedFrameProcessing ? 0 : 1;
             cbDebugIntegration.Checked = Settings.Default.IntegrationDetectionTuning;
 
+			OcrSettings.Instance.Configurations.ForEach(x => cbxOCRConfigurations.Items.Add(x.Name));
+			int selectedIndex = cbxOCRConfigurations.Items.IndexOf(Settings.Default.SelectedOcrConfiguration);
+			cbxOCRConfigurations.SelectedIndex = selectedIndex;
+
             UpdateControls();
 		}
 
@@ -109,6 +113,8 @@ namespace AAVRec
 
             Settings.Default.UsesBufferedFrameProcessing = cbxFrameProcessingMode.SelectedIndex == 0;
             Settings.Default.IntegrationDetectionTuning = cbDebugIntegration.Checked;
+
+			Settings.Default.SelectedOcrConfiguration = (string)cbxOCRConfigurations.SelectedItem;
 
             Settings.Default.Save();
 

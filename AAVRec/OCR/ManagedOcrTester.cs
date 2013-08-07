@@ -244,19 +244,23 @@ namespace AAVRec.OCR
                 {
                     foreach (OcredChar ocredChar in ocredCharsOdd)
                     {
-                        g.DrawString(ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Yellow, ocredChar.LeftFrom + 4, 26);
+						if (ocredChar.FailedToRecognizeCorrectly)
+							g.DrawString(ocredChar.RecognizedChar == '\0' ? "?" : ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Tomato, ocredChar.LeftFrom + 4, 26);
+						else
+							g.DrawString(ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Yellow, ocredChar.LeftFrom + 4, 26);
+
                         double[] zoneValues = ocredChar.ComputeZones();
                         for (int i = 0; i < zoneValues.Length; i++)
                         {
                             int left = ocredChar.LeftFrom + 7 + i;
-                            g.DrawLine(i % 2 == 0 ? Pens.Blue : Pens.Red, left, 39, left, 42);
+							g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 39, left, 42);
                             Pen zonePen = Pens.Black;
                             if (zoneValues[i] >= OcrCharRecognizer.MIN_ON_VALUE)
                                 zonePen = Pens.White;
                             else if (zoneValues[i] > MAX_OFF_VALUE)
                                 zonePen = Pens.LightSalmon;
                             g.DrawLine(zonePen, left, 40, left, 42);
-                            g.DrawLine(i % 2 == 0 ? Pens.Blue : Pens.Red, left, 41, left, 42);
+							g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 41, left, 42);
                         }
                     }
 
@@ -267,19 +271,23 @@ namespace AAVRec.OCR
                 {
                     foreach (OcredChar ocredChar in ocredCharsEven)
                     {
-                        g.DrawString(ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Yellow, ocredChar.LeftFrom + 4, 26);
+						if (ocredChar.FailedToRecognizeCorrectly)
+							g.DrawString(ocredChar.RecognizedChar == '\0' ? "?" : ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Tomato, ocredChar.LeftFrom + 4, 26);
+						else
+							g.DrawString(ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Yellow, ocredChar.LeftFrom + 4, 26);
+
                         double[] zoneValues = ocredChar.ComputeZones();
                         for (int i = 0; i < zoneValues.Length; i++)
                         {
                             int left = ocredChar.LeftFrom + 7 + i;
-                            g.DrawLine(i % 2 == 0 ? Pens.Blue : Pens.Red, left, 39, left, 42);
+                            g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 39, left, 42);
                             Pen zonePen = Pens.Black;
                             if (zoneValues[i] >= OcrCharRecognizer.MIN_ON_VALUE)
                                 zonePen = Pens.White;
                             else if (zoneValues[i] > MAX_OFF_VALUE)
                                 zonePen = Pens.LightSalmon;
                             g.DrawLine(zonePen, left, 40, left, 42);
-                            g.DrawLine(i % 2 == 0 ? Pens.Blue : Pens.Red, left, 41, left, 42);
+							g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 41, left, 42);
                         }
                     }
 

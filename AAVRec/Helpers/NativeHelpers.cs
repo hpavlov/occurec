@@ -495,15 +495,7 @@ namespace AAVRec.Helpers
             return videoFrame;
         }
 
-        public static void SetupOcrConfig()
-        {
-            OcrSettings config = OcrSettings.Instance;
-
-            //SetTimeStampArea1(config.TimeStampArea1.Top, config.TimeStampArea1.Left, config.TimeStampArea1.Width, config.TimeStampArea1. Height);
-            //SetTimeStampArea2(config.TimeStampArea2.Top, config.TimeStampArea2.Left, config.TimeStampArea2.Width, config.TimeStampArea2.Height);
-        }
-
-        public static bool LockIntegration()
+		public static bool LockIntegration()
         {
             int hr = LockIntegration(true);
             return hr >= 0;

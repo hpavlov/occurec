@@ -68,12 +68,20 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
 
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 
-				if (Settings.Default.SimulatorRunOCR)
-					errorMessage = NativeHelpers.SetupBasicOcrMetrix(ocrConfig);
-				else
-					errorMessage = NativeHelpers.SetupTimestampPreservation(ImageWidth, ImageHeight);
+	            if (Settings.Default.SimulatorRunOCR)
+	            {
+					if (ocrConfig.Alignment.Width == ImageWidth && ocrConfig.Alignment.Height == ImageHeight)
+						errorMessage = NativeHelpers.SetupBasicOcrMetrix(ocrConfig);
+					else
+					{
+						errorMessage = "Video file incompatible with OCR configuration.";
+						Settings.Default.SimulatorRunOCR = false;
+					}
+	            }
+	            else
+		            errorMessage = NativeHelpers.SetupTimestampPreservation(ImageWidth, ImageHeight);
 
-                if (errorMessage != null && callbacksObject != null)
+	            if (errorMessage != null && callbacksObject != null)
                     callbacksObject.OnError(-1, errorMessage);                
             }
 

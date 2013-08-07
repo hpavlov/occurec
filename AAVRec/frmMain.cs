@@ -739,9 +739,24 @@ namespace AAVRec
                     case ScheduledAction.StartRecording:
                         if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning)
                         {
-                            string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
-                            recordingfileName = videoObject.StartRecording(fileName);
-                            UpdateState();
+							if (Settings.Default.FileFormat == "AAV" && !stateManager.IsIntegrationLocked)
+							{
+								// NOTE: If the integration hasn't been locked then don't start recording
+
+								ScheduleEntry nextEntry = Scheduler.GetNextEntry();
+								if (nextEntry != null && nextEntry.Action == ScheduledAction.StopRecording)
+									Scheduler.RemoveOperation(nextEntry.OperaionId);
+
+								overlayManager.OnError(100, "Failed to start AAV recording. Integration is not locked.");
+
+								UpdateState();
+							}
+							else
+							{
+								string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
+								recordingfileName = videoObject.StartRecording(fileName);
+								UpdateState();								
+							}
                         }
                         break;
 

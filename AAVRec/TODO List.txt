@@ -28,7 +28,6 @@ V) Implement 1x and x2 integration frame recognition
 V) Implement Differential Coding Compression for AAV 8 bit format
 V) Ensure that the start/end timestamps are not overwritten in the process of stacking images.
 V) When recording an AAV file always save one extra single frame after the last integration period, in order to solve any timestamp ambiguity issues
-- Implement sub-pixel positioning for the OCRed chracter configutaion
 V) The saved settings are forgotten after releasing a new version. This will need to be fixed.
 - Remove the x1 integration (or make it lockable in a different way). Then if no integration is detected for a long time for cameras that are selected as "Integrating" then
 try to analyze the signatures and make suggestions (e.g. "Try to increase the gain" in a case where the sigantures are too small or "AAV mode is designed for recording star fields." if they appear to be day light signatures)

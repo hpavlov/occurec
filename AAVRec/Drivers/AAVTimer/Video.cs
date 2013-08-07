@@ -28,8 +28,6 @@ namespace AAVRec.Drivers.AAVTimer
 		{
 			Properties.Settings.Default.Reload();
 
-		    NativeHelpers.SetupOcrConfig();
-
 			camera = new VideoCaptureImpl.VideoCapture();
 		}
 
