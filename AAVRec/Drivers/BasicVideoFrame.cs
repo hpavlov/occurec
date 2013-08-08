@@ -75,12 +75,17 @@ namespace AAVRec.Drivers
                 {
                     if (lastIntergatedFramesSoFar != status.IntegratedFramesSoFar - 1)
                         lastIntegrationRate = lastIntergatedFramesSoFar;
-                    lastIntergatedFramesSoFar = status.IntegratedFramesSoFar;                    
+                    lastIntergatedFramesSoFar = status.IntegratedFramesSoFar;
                 }
 
                 rv.exposureStartTime = null;
                 rv.exposureDuration = null;
-                rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4}", lastIntegrationRate, 0, 0, status.CurrentSignatureRatio, status.CameraFrameNo);                
+                rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4}", lastIntegrationRate, 0, 0, status.CurrentSignatureRatio, status.CameraFrameNo);
+
+                if (status.PerformedAction > 0)
+                {
+                    rv.imageInfo += string.Format(";ACT:{0};ACT%:{1}", status.PerformedAction, status.PerformedActionProgress);
+                }
             }
 
             return rv;

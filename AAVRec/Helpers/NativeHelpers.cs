@@ -100,6 +100,8 @@ namespace AAVRec.Helpers
         public float CutOffRatio;
         public long IntegratedFrameNo;
         public long UniqueFrameNo;
+        public int PerformedAction;
+        public float PerformedActionProgress;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -112,6 +114,8 @@ namespace AAVRec.Helpers
         public int IntegratedFramesSoFar;
         public float FrameDiffSignature;
         public float CurrentSignatureRatio;
+        public int PerformedAction;
+        public float PerformedActionProgress;
 
         public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
         {
@@ -121,6 +125,8 @@ namespace AAVRec.Helpers
             rv.IntegratedFramesSoFar = cloneFrom.IntegratedFramesSoFar;
             rv.FrameDiffSignature = cloneFrom.FrameDiffSignature;
             rv.CurrentSignatureRatio = cloneFrom.CurrentSignatureRatio;
+            rv.PerformedAction = cloneFrom.PerformedAction;
+            rv.PerformedActionProgress = cloneFrom.PerformedActionProgress;
             return rv;
         }
     };
@@ -183,7 +189,7 @@ namespace AAVRec.Helpers
         private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);        
+        private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetCurrentImage([In, Out] byte[] bitmapPixels);
@@ -204,10 +210,10 @@ namespace AAVRec.Helpers
 		private static extern int ControlIntegrationCalibration(int cameraIntegration);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetTimeStampArea1(int top, int left, int width, int height);
+        private static extern int GetIntegrationCalibrationDataConfig([In, Out] ref int gammasLength, [In, Out] ref int signaturesPerCycle);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetTimeStampArea2(int top, int left, int width, int height);
+        private static extern int GetIntegrationCalibrationData([In, MarshalAs(UnmanagedType.LPArray)] float[] rawSignatures, [In, MarshalAs(UnmanagedType.LPArray)] float[] gammas);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupOcrAlignment(int width, int height, int frameTopOdd, int frameTopEven, int charWidth, int charHeight, int numberOfZones);
@@ -524,5 +530,28 @@ namespace AAVRec.Helpers
 			int hr = ControlIntegrationCalibration(0);
 			return hr >= 0;
 		}
+
+        public static Dictionary<float, List<float>> GetIntegrationCalibrationData()
+        {
+            var rv = new Dictionary<float, List<float>>();
+
+            int gammasLength = 0;
+            int signaturesPerCycle = 0;
+
+            GetIntegrationCalibrationDataConfig(ref gammasLength, ref signaturesPerCycle);
+
+            var rawSignatures = new float[signaturesPerCycle * gammasLength];
+            var gammas = new float[gammasLength];
+
+            GetIntegrationCalibrationData(rawSignatures, gammas);
+
+            for (int i = 0; i < gammasLength; i++)
+            {
+                List<float> signatures = rawSignatures.Skip(i * signaturesPerCycle).Take(signaturesPerCycle).ToList();
+                rv.Add(gammas[i], signatures);
+            }
+
+            return rv;
+        }
 	}
 }

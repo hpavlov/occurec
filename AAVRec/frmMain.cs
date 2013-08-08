@@ -426,7 +426,15 @@ namespace AAVRec
                 if (tssDroppedFrames.Visible)
                     tssDroppedFrames.Visible = false;
             }
-            
+
+            if (frame.PerformedAction.HasValue && frame.PerformedAction.Value > 0 &&
+                frame.PerformedActionProgress.HasValue)
+            {
+                ttsProgressBar.Value = (int) Math.Max(0, Math.Min(100, 100*frame.PerformedActionProgress.Value));
+                ttsProgressBar.Visible = true;
+            }
+            else
+                ttsProgressBar.Visible = false;
 		}
 		
 		internal class FakeFrame : IVideoFrame
@@ -483,7 +491,7 @@ namespace AAVRec
 								? videoObject.LastVideoFrameVariant 
 								: videoObject.LastVideoFrame;
 
-						if (frame != null)                            
+						if (frame != null)
 						{
                             var frameWrapper = new VideoFrameWrapper(frame);
 

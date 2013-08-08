@@ -301,6 +301,8 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
                 status.CurrentSignatureRatio = imgStatus.CutOffRatio;
                 status.IntegratedFrameNo = imgStatus.IntegratedFrameNo;
                 status.IntegratedFramesSoFar = imgStatus.CountedFrames;
+                status.PerformedAction = imgStatus.PerformedAction;
+                status.PerformedActionProgress = imgStatus.PerformedActionProgress;
             }
             else
             {

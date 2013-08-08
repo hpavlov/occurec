@@ -16,6 +16,8 @@ namespace AAVRec.Helpers
         public long? StartExposureFrameNo { get; private set; }
         public long? EndExposureFrameNo { get; private set; }
         public float? CutOffRatio { get; private set; }
+        public int? PerformedAction { get; private set; }
+        public float? PerformedActionProgress { get; private set; }
 
         public VideoFrameWrapper(IVideoFrame videoFrame)
         {
@@ -48,7 +50,13 @@ namespace AAVRec.Helpers
                             EndExposureFrameNo = long.Parse(nvpair[1]);
 
 						if (nvpair[0] == "IFID")
-                            IntegratedFrameNo = long.Parse(nvpair[1]);						
+                            IntegratedFrameNo = long.Parse(nvpair[1]);
+
+                        if (nvpair[0] == "ACT")
+                            PerformedAction = int.Parse(nvpair[1]);
+
+                        if (nvpair[0] == "ACT%")
+                            PerformedActionProgress = float.Parse(nvpair[1]);
                     }
                 }
             }

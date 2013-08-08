@@ -24,6 +24,8 @@ struct ImageStatus
 	float CutOffRatio;
 	__int64 IntegratedFrameNo;
 	__int64 UniqueFrameNo;
+	long PerformedAction;
+	float PerformedActionProgress;
 };
 
 struct FrameProcessingStatus
@@ -79,3 +81,5 @@ HRESULT StopRecording(long* pixels);
 bool IsNewIntegrationPeriod(float diffSignature);
 HRESULT LockIntegration(bool lock);
 HRESULT ControlIntegrationCalibration(long operation);
+HRESULT GetIntegrationCalibrationDataConfig(long* gammasLength, long* signaturesPerCycle);
+HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas);

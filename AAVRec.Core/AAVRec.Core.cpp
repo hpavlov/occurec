@@ -146,11 +146,11 @@ HRESULT ControlIntegrationCalibration(long cameraIntegrationRate)
 	else if (cameraIntegrationRate > 0)
 	{
 		// NOTE: There is surely a better place to do this
-		GAMMA_PROBES[0] = 0.25;
-		GAMMA_PROBES[1] = 0.35;
-		GAMMA_PROBES[2] = 0.45;
-		GAMMA_PROBES[3] = 0.55;
-		GAMMA_PROBES[4] = 0.65;
+		GAMMA_PROBES[0] = 0.10;
+		GAMMA_PROBES[1] = 0.15;
+		GAMMA_PROBES[2] = 0.25;
+		GAMMA_PROBES[3] = 0.35;
+		GAMMA_PROBES[4] = 0.55;
 		GAMMA_PROBES[5] = 0.75;
 		GAMMA_PROBES[6] = 1.0;
 		GAMMA_PROBES[7] = 2.0;
@@ -160,6 +160,35 @@ HRESULT ControlIntegrationCalibration(long cameraIntegrationRate)
 		INTEGRATION_CALIBRATION = true;
 		INTEGRATION_CALIBRATION_TOTAL_PASSES = INTEGRATION_CALIBRATION_CYCLES * GAMMA_PROBES_COUNT * cameraIntegrationRate;
 		INTEGRATION_CALIBRATION_PASSES = 0;
+	}
+
+	return S_OK;
+}
+
+HRESULT GetIntegrationCalibrationDataConfig(long* gammasLength, long* signaturesPerCycle)
+{
+	*gammasLength = GAMMA_PROBES_COUNT;
+	*signaturesPerCycle = INTEGRATION_CALIBRATION_TOTAL_PASSES / GAMMA_PROBES_COUNT;
+
+	return S_OK;
+}
+
+HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas)
+{
+	*gammas = 0.10; *gammas++;
+	*gammas = 0.15; *gammas++;
+	*gammas = 0.25; *gammas++;
+	*gammas = 0.35; *gammas++;
+	*gammas = 0.55; *gammas++;
+	*gammas = 0.75; *gammas++;
+	*gammas = 1.0; *gammas++;
+	*gammas = 2.0; *gammas++;
+	*gammas = 3.0; *gammas++;
+	*gammas = 4.0;
+
+	for (int i = 0; i < INTEGRATION_CALIBRATION_TOTAL_PASSES; i++)
+	{
+		*(rawSignatures + i) = CALIBRATION_SIGNATURES[i];
 	}
 
 	return S_OK;
@@ -618,6 +647,8 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->IntegratedFrameNo = latestImageStatus.IntegratedFrameNo;
 	imageStatus->CutOffRatio = latestImageStatus.CutOffRatio;
 	imageStatus->UniqueFrameNo = latestImageStatus.UniqueFrameNo;
+	imageStatus->PerformedAction = latestImageStatus.PerformedAction;
+	imageStatus->PerformedActionProgress = latestImageStatus.PerformedActionProgress;
 
 	return S_OK;
 }
@@ -962,6 +993,20 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			latestImageStatus.EndExposureTicks = latestDetectedIntegrationFrameImageStatus.EndExposureTicks;
 			latestImageStatus.CutOffRatio = latestDetectedIntegrationFrameImageStatus.CutOffRatio;
 			latestImageStatus.IntegratedFrameNo = latestDetectedIntegrationFrameImageStatus.IntegratedFrameNo;
+		}
+
+		if (INTEGRATION_CALIBRATION)
+		{
+			latestImageStatus.PerformedAction = 1;
+			if (INTEGRATION_CALIBRATION_PASSES >= INTEGRATION_CALIBRATION_TOTAL_PASSES)
+				latestImageStatus.PerformedActionProgress = 1;
+			else
+				latestImageStatus.PerformedActionProgress = 1.0 * INTEGRATION_CALIBRATION_PASSES / INTEGRATION_CALIBRATION_TOTAL_PASSES;
+		}
+		else
+		{
+			latestImageStatus.PerformedAction = 0;
+			latestImageStatus.PerformedActionProgress = 0;
 		}
 
 		latestImageStatus.UniqueFrameNo++;
