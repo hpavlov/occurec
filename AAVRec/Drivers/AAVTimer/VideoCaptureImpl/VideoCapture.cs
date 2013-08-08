@@ -250,9 +250,9 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
             return dsCapture.DisableOcr();
         }
 
-		public bool StartIntegrationCalibration()
+		public bool StartIntegrationCalibration(int cameraIntegration)
 		{
-			return NativeHelpers.StartIntegrationCalibration();
+			return NativeHelpers.StartIntegrationCalibration(cameraIntegration);
 		}
 
 		public bool StopIntegrationCalibration()

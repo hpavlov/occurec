@@ -137,7 +137,8 @@ namespace AAVRec.Drivers.AAVTimer
 			else if (string.Compare(ActionName, "IntegrationCalibration", StringComparison.InvariantCultureIgnoreCase) == 0)
 			{
 				AssertConnected();
-				return camera.StartIntegrationCalibration().ToString(CultureInfo.InvariantCulture);
+				int cameraIntegration = int.Parse(ActionParameters);
+				return camera.StartIntegrationCalibration(cameraIntegration).ToString(CultureInfo.InvariantCulture);
 			}
 			else if (string.Compare(ActionName, "CancelIntegrationCalibration", StringComparison.InvariantCultureIgnoreCase) == 0)
 			{

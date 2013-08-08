@@ -419,5 +419,25 @@ namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
             else
                 return false;
         }
+
+		public bool StartIntegrationCalibration(int cameraIntegration)
+		{
+			if (fullAAVSimulation)
+			{
+				return NativeHelpers.StartIntegrationCalibration(cameraIntegration);
+			}
+			else
+				return false; 
+		}
+
+		public bool StopIntegrationCalibration()
+		{
+			if (fullAAVSimulation)
+			{
+				return NativeHelpers.StopIntegrationCalibration();
+			}
+			else
+				return false; 			
+		}
     }
 }

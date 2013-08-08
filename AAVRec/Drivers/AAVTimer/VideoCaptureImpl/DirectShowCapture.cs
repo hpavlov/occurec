@@ -94,7 +94,6 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 						NativeHelpers.SetupOcr(ocrConfig);
 						ocrEnabled = true;
 					}
-
 				}
 				else
 				{

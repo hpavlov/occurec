@@ -123,7 +123,18 @@ namespace AAVRec.Drivers.AVISimulator
                 {
                     AssertConnected();
                     return player.UnlockIntegration().ToString(CultureInfo.InvariantCulture);
-                }                
+                }
+				if (string.Compare(ActionName, "IntegrationCalibration", StringComparison.InvariantCultureIgnoreCase) == 0)
+				{
+					AssertConnected();
+					int cameraIntegration = int.Parse(ActionParameters);
+					return player.StartIntegrationCalibration(cameraIntegration).ToString(CultureInfo.InvariantCulture);
+				}
+				else if (string.Compare(ActionName, "CancelIntegrationCalibration", StringComparison.InvariantCultureIgnoreCase) == 0)
+				{
+					AssertConnected();
+					return player.StopIntegrationCalibration().ToString(CultureInfo.InvariantCulture);
+				}
             }
             
             throw new NotImplementedException();
@@ -134,7 +145,7 @@ namespace AAVRec.Drivers.AVISimulator
             get
             {
                 if (fullAAVSimulation)
-                    return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "DisableOcr" });
+					return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "DisableOcr", "IntegrationCalibration", "CancelIntegrationCalibration" });
                 else
                     return new ArrayList(new string[] { "DisableOcr" });
             }

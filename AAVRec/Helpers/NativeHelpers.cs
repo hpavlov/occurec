@@ -201,7 +201,7 @@ namespace AAVRec.Helpers
         private static extern int LockIntegration(bool doLock);
 
 		[DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int ControlIntegrationCalibration(int operation);
+		private static extern int ControlIntegrationCalibration(int cameraIntegration);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetTimeStampArea1(int top, int left, int width, int height);
@@ -513,15 +513,15 @@ namespace AAVRec.Helpers
             return hr >= 0;
         }
 
-		public static bool StartIntegrationCalibration()
+		public static bool StartIntegrationCalibration(int cameraIntegration)
 		{
-			int hr = ControlIntegrationCalibration(0);
+			int hr = ControlIntegrationCalibration(cameraIntegration);
 			return hr >= 0;		
 		}
 
 		public static bool StopIntegrationCalibration()
 		{
-			int hr = ControlIntegrationCalibration(1);
+			int hr = ControlIntegrationCalibration(0);
 			return hr >= 0;
 		}
 	}

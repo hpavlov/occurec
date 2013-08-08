@@ -62,6 +62,18 @@ unsigned char GAMMA[256];
 
 bool INTEGRATION_LOCKED;
 
+#define INTEGRATION_CALIBRATION_CYCLES 6
+#define GAMMA_PROBES_COUNT 10
+#define MAX_CALIBRATION_SIGNATURES_SIZE 256 * GAMMA_PROBES_COUNT * INTEGRATION_CALIBRATION_CYCLES
+
+float GAMMA_PROBES[GAMMA_PROBES_COUNT];
+
+bool INTEGRATION_CALIBRATION;
+long INTEGRATION_CALIBRATION_TOTAL_PASSES;
+long INTEGRATION_CALIBRATION_PASSES;
+
+float CALIBRATION_SIGNATURES[MAX_CALIBRATION_SIGNATURES_SIZE];
+
 unsigned char* prtPreviousDiffArea = NULL;
 __int64 numberOfDiffSignaturesCalculated; 
 long numberOfIntegratedFrames;
@@ -125,8 +137,31 @@ HRESULT LockIntegration(bool lock)
 	return S_OK;
 }
 
-HRESULT ControlIntegrationCalibration(long operation)
+HRESULT ControlIntegrationCalibration(long cameraIntegrationRate)
 {
+	if (cameraIntegrationRate == 0)
+	{
+		INTEGRATION_CALIBRATION = false;
+	}
+	else if (cameraIntegrationRate > 0)
+	{
+		// NOTE: There is surely a better place to do this
+		GAMMA_PROBES[0] = 0.25;
+		GAMMA_PROBES[1] = 0.35;
+		GAMMA_PROBES[2] = 0.45;
+		GAMMA_PROBES[3] = 0.55;
+		GAMMA_PROBES[4] = 0.65;
+		GAMMA_PROBES[5] = 0.75;
+		GAMMA_PROBES[6] = 1.0;
+		GAMMA_PROBES[7] = 2.0;
+		GAMMA_PROBES[8] = 3.0;
+		GAMMA_PROBES[9] = 4.0;
+
+		INTEGRATION_CALIBRATION = true;
+		INTEGRATION_CALIBRATION_TOTAL_PASSES = INTEGRATION_CALIBRATION_CYCLES * GAMMA_PROBES_COUNT * cameraIntegrationRate;
+		INTEGRATION_CALIBRATION_PASSES = 0;
+	}
+
 	return S_OK;
 }
 
@@ -468,24 +503,8 @@ HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue, 
 	return E_FAIL;
 }
 
-HRESULT SetupCamera(
-	long width, long height, LPCTSTR szCameraModel, 
-	long monochromeConversionMode, bool flipHorizontally, bool flipVertically, 
-	bool isIntegrating, float signDiffFactor, float minSignDiff, float diffGamma)
+void SetupDiffGammaMemoryTable(float diffGamma)
 {
-	IMAGE_WIDTH = width;
-	IMAGE_HEIGHT = height;
-	IMAGE_TOTAL_PIXELS = width * height;
-	IMAGE_STRIDE = width * 3;
-
-	MONOCHROME_CONVERSION_MODE = monochromeConversionMode;
-
-	FLIP_VERTICALLY = flipVertically;
-	FLIP_HORIZONTALLY = flipHorizontally;
-
-	IS_INTEGRATING_CAMERA = isIntegrating;
-	SIGNATURE_DIFFERENCE_FACTOR = signDiffFactor;
-	MINIMUM_SIGNATURE_DIFFERENCE = minSignDiff;
 	if (diffGamma < 0.95 && diffGamma > 1.05)
 	{
 		USES_DIFF_GAMMA = true;
@@ -505,7 +524,27 @@ HRESULT SetupCamera(
 	{
 		USES_DIFF_GAMMA = false;
 	}
+}
 
+HRESULT SetupCamera(
+	long width, long height, LPCTSTR szCameraModel, 
+	long monochromeConversionMode, bool flipHorizontally, bool flipVertically, 
+	bool isIntegrating, float signDiffFactor, float minSignDiff, float diffGamma)
+{
+	IMAGE_WIDTH = width;
+	IMAGE_HEIGHT = height;
+	IMAGE_TOTAL_PIXELS = width * height;
+	IMAGE_STRIDE = width * 3;
+
+	MONOCHROME_CONVERSION_MODE = monochromeConversionMode;
+
+	FLIP_VERTICALLY = flipVertically;
+	FLIP_HORIZONTALLY = flipHorizontally;
+
+	IS_INTEGRATING_CAMERA = isIntegrating;
+	SIGNATURE_DIFFERENCE_FACTOR = signDiffFactor;
+	MINIMUM_SIGNATURE_DIFFERENCE = minSignDiff;
+    SetupDiffGammaMemoryTable(diffGamma);
 
 	INTEGRATION_LOCKED = false;
 
@@ -660,8 +699,41 @@ HRESULT GetCurrentImage(BYTE* bitmapPixels)
 	return S_OK;
 }
 
+void HandleCalibrationBeforeSignatureCalc()
+{
+	if (INTEGRATION_CALIBRATION)
+	{
+		if (INTEGRATION_CALIBRATION_PASSES <= INTEGRATION_CALIBRATION_TOTAL_PASSES)
+		{
+			if (INTEGRATION_CALIBRATION_PASSES % INTEGRATION_CALIBRATION_CYCLES == 0)
+			{
+				// GammaDiff should change 
+				float newGamma = GAMMA_PROBES[(INTEGRATION_CALIBRATION_PASSES / INTEGRATION_CALIBRATION_CYCLES) - 1];
+				SetupDiffGammaMemoryTable(newGamma);
+			}
+
+			if (INTEGRATION_CALIBRATION_PASSES == INTEGRATION_CALIBRATION_TOTAL_PASSES)
+				SetupDiffGammaMemoryTable(1);			
+		}
+	}
+}
+
+void HandleCalibrationAfterSignatureCalc(float signature)
+{
+	if (INTEGRATION_CALIBRATION)
+	{
+		if (INTEGRATION_CALIBRATION_PASSES <= INTEGRATION_CALIBRATION_TOTAL_PASSES)
+		{
+			CALIBRATION_SIGNATURES[INTEGRATION_CALIBRATION_PASSES] = signature;
+			INTEGRATION_CALIBRATION_PASSES++;
+		}
+	}
+}
+
 void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev)
 {
+	HandleCalibrationBeforeSignatureCalc();
+
 	numberOfDiffSignaturesCalculated++;
 
 	unsigned char* ptrBuf = bmpBits + IMAGE_STRIDE * (IMAGE_HEIGHT / 2 - 1) + (3 * (IMAGE_WIDTH / 2));
@@ -704,10 +776,14 @@ void CalculateDiffSignature(unsigned char* bmpBits, float* signatureThisPrev)
 	}
 
 	*signatureThisPrev = *signatureThisPrev / 1024.0;
+
+	HandleCalibrationAfterSignatureCalc(*signatureThisPrev);
 }
 
 void CalculateDiffSignature2(long* pixels, float* signatureThisPrev)
 {
+	HandleCalibrationBeforeSignatureCalc();
+
 	numberOfDiffSignaturesCalculated++;
 
 	long* ptrLongBuf = pixels + (IMAGE_WIDTH * (IMAGE_HEIGHT / 2 - 1) + (3 * (IMAGE_WIDTH / 2)));
@@ -748,6 +824,8 @@ void CalculateDiffSignature2(long* pixels, float* signatureThisPrev)
 	}
 
 	*signatureThisPrev = *signatureThisPrev / 1024.0;
+
+	HandleCalibrationAfterSignatureCalc(*signatureThisPrev);
 }
 
 long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks)
@@ -823,21 +901,6 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				*ptrFramePixels = averageValue;
 			}
 
-			if (runOCR)
-			{
-
-				firstFrameOcrProcessor->Ocr(currentUtcDayAsTicks);
-				lastFrameOcrProcessor->Ocr(currentUtcDayAsTicks);
-
-				if (firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success)
-				{
-					idxFirstFrameNumber = firstFrameOcrProcessor->GetOcredStartFrameNumber();
-					idxLastFrameNumber = lastFrameOcrProcessor->GetOcredEndFrameNumber();
-					idxFirstFrameTimestamp = firstFrameOcrProcessor->GetOcredStartFrameTimeStamp();
-					idxLastFrameTimestamp = firstFrameOcrProcessor->GetOcredEndFrameTimeStamp();
-				}
-			}
-
 			if (pixY >= OCR_FRAME_TOP_ODD && pixY < OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT)
 			{
 				restoredPixels++;
@@ -862,8 +925,22 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 		// TODO: The OCR logic will run here and will set the values of: idxFirstFrameNumber, idxFirstFrameTimestamp, idxLastFrameNumber and idxLastFrameTimestamp
 		//		 Run the OCR logic on firstIntegratedFramePixels and lastIntegratedFramePixels
+		if (runOCR)
+		{
 
-		MarkTimeStampAreas(latestIntegratedFrame);
+			firstFrameOcrProcessor->Ocr(currentUtcDayAsTicks);
+			lastFrameOcrProcessor->Ocr(currentUtcDayAsTicks);
+
+			if (firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success)
+			{
+				idxFirstFrameNumber = firstFrameOcrProcessor->GetOcredStartFrameNumber();
+				idxLastFrameNumber = lastFrameOcrProcessor->GetOcredEndFrameNumber();
+				idxFirstFrameTimestamp = firstFrameOcrProcessor->GetOcredStartFrameTimeStamp();
+				idxLastFrameTimestamp = firstFrameOcrProcessor->GetOcredEndFrameTimeStamp();
+			}
+		}
+
+		//MarkTimeStampAreas(latestIntegratedFrame);
 
 		if (INTEGRATION_LOCKED || isNewIntegrationPeriod)
 		{

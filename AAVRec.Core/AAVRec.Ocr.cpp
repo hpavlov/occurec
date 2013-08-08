@@ -215,9 +215,12 @@ void OcrFrameProcessor::ProcessZonePixel(long packedInfo, long pixX, long pixY, 
 	long zonePixelId;
 	UnpackValue(packedInfo, &charId, &isOddField, &zoneId, &zonePixelId);
 
-    OcrCharProcessor* ocredChar = isOddField ? OddFieldChars[charId] : EvenFieldChars[charId];
+	if (charId >= 0 && EvenFieldChars.size() > charId)
+	{
+		OcrCharProcessor* ocredChar = isOddField ? OddFieldChars[charId] : EvenFieldChars[charId];
 
-    ocredChar->Zones[zoneId]->ZonePixels[zonePixelId] = pixelValue;
+		ocredChar->Zones[zoneId]->ZonePixels[zonePixelId] = pixelValue;
+	}
 }
 
 void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
