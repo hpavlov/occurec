@@ -17,7 +17,7 @@ EASY:
 v) Implement integration frame "Unlock-ing". Reconsider renaming the button to something else
 V) AAV should be usable without OCR i.e. add setting to turn on OCR (turned off by default)
 V) Make it possible to run in AAV mode using a simmulated video rather than live images from the camera
-- Print the failed OCR chars in red, rather than yellow, on the error image
+V) Print the failed OCR chars in red, rather than yellow, on the error image
 V) AAVRec should be usable without IOTA-VTI-OCR-Settings.xml. Add parameters for TimestampTop and TimestampHeight  
 V) Allow the user to modify the image size (if possible at all at DirectShow level !)
 V) Display the framerate supported by the capture hardware 
@@ -36,7 +36,7 @@ try to analyze the signatures and make suggestions (e.g. "Try to increase the ga
 OCR Implemntation:
 
 V) Implement an AVI simulator (that plays an AVI file rather than AAV)
-- Complete the OCR tuning using simulated videos
+V) Complete the OCR tuning using simulated videos
 - Implement the OCR in unmanaged code
 - Implement a 'live' OCR testing without crashing and with logging of all errors
 - Successfully run a live test for 24 hours without any errors

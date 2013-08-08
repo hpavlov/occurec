@@ -61,8 +61,11 @@ namespace AAVRec
             cbDebugIntegration.Checked = Settings.Default.IntegrationDetectionTuning;
 
 			OcrSettings.Instance.Configurations.ForEach(x => cbxOCRConfigurations.Items.Add(x.Name));
-			int selectedIndex = cbxOCRConfigurations.Items.IndexOf(Settings.Default.SelectedOcrConfiguration);
-			cbxOCRConfigurations.SelectedIndex = selectedIndex;
+            if (!string.IsNullOrEmpty(Settings.Default.SelectedOcrConfiguration))
+            {
+                int selectedIndex = cbxOCRConfigurations.Items.IndexOf(Settings.Default.SelectedOcrConfiguration);
+                cbxOCRConfigurations.SelectedIndex = selectedIndex;
+            }
 
             UpdateControls();
 		}
