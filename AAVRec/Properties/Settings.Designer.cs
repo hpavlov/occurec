@@ -514,5 +514,17 @@ namespace AAVRec.Properties {
                 this["GammaDiff"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int CalibrationIntegrationRate {
+            get {
+                return ((int)(this["CalibrationIntegrationRate"]));
+            }
+            set {
+                this["CalibrationIntegrationRate"] = value;
+            }
+        }
     }
 }

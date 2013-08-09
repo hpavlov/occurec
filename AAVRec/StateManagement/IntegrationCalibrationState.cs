@@ -64,6 +64,9 @@ namespace AAVRec.StateManagement
                 {
                     Trace.WriteLine(string.Format("{0}: {1}", gamma, string.Join(",", calibrationData[gamma].Select(x => x.ToString(CultureInfo.InvariantCulture)))));
                 }
+
+				var calibrator = new IntegrationDetectionCalibrator(calibrationData);
+	            calibrator.Calibrate();
             }
 
             status = CalibrationStatus.Finished;

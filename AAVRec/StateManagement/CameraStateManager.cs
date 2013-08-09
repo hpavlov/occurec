@@ -68,6 +68,30 @@ namespace AAVRec.StateManagement
             driverInstance = null;
         }
 
+	    public bool IsValidIntegrationRate
+	    {
+		    get
+		    {
+			    // Must be factorizable by 1, 2 and 3 ONLY
+			    int factRate = IntegrationRate;
+			    do
+			    {
+				    if (factRate <= 3)
+					    return true;
+				
+					bool isDivisibleBy2 = factRate % 2 == 0;
+				    bool isDivisibleBy3 = factRate % 3 == 0;
+
+				    if (!isDivisibleBy2 && !isDivisibleBy3)
+					    return false;
+
+				    if (isDivisibleBy2) factRate /= 2;
+					if (isDivisibleBy3) factRate /= 3;
+			    }
+				while (true);
+		    }
+	    }
+
         public bool LockIntegration()
         {
             string result = driverInstance.Action("LockIntegration", null);

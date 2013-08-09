@@ -349,7 +349,7 @@ bool IsNewIntegrationPeriod(float diffSignature)
 	if (lowFrameIntegrationMode == 0)
 	{
 		diff = abs(pastSignaturesAverage - diffSignature);
-
+	
 		isNewIntegrationPeriod = 
 			pastSignaturesCount >= MAX_INTEGRATION || 
 			(pastSignaturesCount > 1 && diff > MINIMUM_SIGNATURE_DIFFERENCE && diff > SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);

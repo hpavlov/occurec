@@ -41,6 +41,8 @@
 			this.tabAAVSettings = new System.Windows.Forms.TabPage();
 			this.cbDebugIntegration = new System.Windows.Forms.CheckBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.label14 = new System.Windows.Forms.Label();
+			this.nudGammaDiff = new System.Windows.Forms.NumericUpDown();
 			this.label10 = new System.Windows.Forms.Label();
 			this.nudPreserveTSTop = new System.Windows.Forms.NumericUpDown();
 			this.label11 = new System.Windows.Forms.Label();
@@ -52,6 +54,8 @@
 			this.cbxFrameProcessingMode = new System.Windows.Forms.ComboBox();
 			this.label12 = new System.Windows.Forms.Label();
 			this.tabOCR = new System.Windows.Forms.TabPage();
+			this.cbxOCRConfigurations = new System.Windows.Forms.ComboBox();
+			this.label13 = new System.Windows.Forms.Label();
 			this.cbxEnableAAVIOTAVTIOCR = new System.Windows.Forms.CheckBox();
 			this.tabDebug = new System.Windows.Forms.TabPage();
 			this.cbxOcrCameraTestModeAav = new System.Windows.Forms.CheckBox();
@@ -76,14 +80,13 @@
 			this.btnSave = new System.Windows.Forms.Button();
 			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
 			this.openAavFileDialog = new System.Windows.Forms.OpenFileDialog();
-			this.cbxOCRConfigurations = new System.Windows.Forms.ComboBox();
-			this.label13 = new System.Windows.Forms.Label();
-			this.label14 = new System.Windows.Forms.Label();
-			this.nudGammaDiff = new System.Windows.Forms.NumericUpDown();
+			this.label15 = new System.Windows.Forms.Label();
+			this.nudCalibrIntegrRate = new System.Windows.Forms.NumericUpDown();
 			this.tabControl.SuspendLayout();
 			this.tabGeneral.SuspendLayout();
 			this.tabAAVSettings.SuspendLayout();
 			this.groupBox1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveTSTop)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveTSHeight)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudSignDiffFactor)).BeginInit();
@@ -92,7 +95,7 @@
 			this.tabDebug.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxErrorsPerTestRun)).BeginInit();
 			this.gbxOcrTesting.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// btnCancel
@@ -211,6 +214,8 @@
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.label15);
+			this.groupBox1.Controls.Add(this.nudCalibrIntegrRate);
 			this.groupBox1.Controls.Add(this.label14);
 			this.groupBox1.Controls.Add(this.nudGammaDiff);
 			this.groupBox1.Controls.Add(this.label10);
@@ -229,11 +234,45 @@
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Integration Detection";
 			// 
+			// label14
+			// 
+			this.label14.AutoSize = true;
+			this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label14.Location = new System.Drawing.Point(212, 32);
+			this.label14.Name = "label14";
+			this.label14.Size = new System.Drawing.Size(79, 13);
+			this.label14.TabIndex = 12;
+			this.label14.Text = "Gamma Factor:";
+			// 
+			// nudGammaDiff
+			// 
+			this.nudGammaDiff.DecimalPlaces = 2;
+			this.nudGammaDiff.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.nudGammaDiff.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            65536});
+			this.nudGammaDiff.Location = new System.Drawing.Point(296, 28);
+			this.nudGammaDiff.Maximum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+			this.nudGammaDiff.Name = "nudGammaDiff";
+			this.nudGammaDiff.Size = new System.Drawing.Size(49, 20);
+			this.nudGammaDiff.TabIndex = 13;
+			this.nudGammaDiff.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            131072});
+			// 
 			// label10
 			// 
 			this.label10.AutoSize = true;
 			this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label10.Location = new System.Drawing.Point(18, 94);
+			this.label10.Location = new System.Drawing.Point(10, 126);
 			this.label10.Name = "label10";
 			this.label10.Size = new System.Drawing.Size(173, 13);
 			this.label10.TabIndex = 8;
@@ -242,7 +281,7 @@
 			// nudPreserveTSTop
 			// 
 			this.nudPreserveTSTop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.nudPreserveTSTop.Location = new System.Drawing.Point(199, 92);
+			this.nudPreserveTSTop.Location = new System.Drawing.Point(191, 124);
 			this.nudPreserveTSTop.Maximum = new decimal(new int[] {
             4096,
             0,
@@ -261,16 +300,16 @@
 			// 
 			this.label11.AutoSize = true;
 			this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label11.Location = new System.Drawing.Point(19, 126);
+			this.label11.Location = new System.Drawing.Point(247, 126);
 			this.label11.Name = "label11";
-			this.label11.Size = new System.Drawing.Size(165, 13);
+			this.label11.Size = new System.Drawing.Size(41, 13);
 			this.label11.TabIndex = 10;
-			this.label11.Text = "Preserve Timestamp Area Height:";
+			this.label11.Text = "Height:";
 			// 
 			// nudPreserveTSHeight
 			// 
 			this.nudPreserveTSHeight.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.nudPreserveTSHeight.Location = new System.Drawing.Point(199, 124);
+			this.nudPreserveTSHeight.Location = new System.Drawing.Point(296, 124);
 			this.nudPreserveTSHeight.Maximum = new decimal(new int[] {
             256,
             0,
@@ -289,7 +328,7 @@
 			// 
 			this.label3.AutoSize = true;
 			this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label3.Location = new System.Drawing.Point(20, 31);
+			this.label3.Location = new System.Drawing.Point(12, 31);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(88, 13);
 			this.label3.TabIndex = 4;
@@ -299,7 +338,7 @@
 			// 
 			this.nudSignDiffFactor.DecimalPlaces = 1;
 			this.nudSignDiffFactor.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.nudSignDiffFactor.Location = new System.Drawing.Point(119, 28);
+			this.nudSignDiffFactor.Location = new System.Drawing.Point(111, 28);
 			this.nudSignDiffFactor.Maximum = new decimal(new int[] {
             50,
             0,
@@ -323,7 +362,7 @@
 			// 
 			this.label4.AutoSize = true;
 			this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label4.Location = new System.Drawing.Point(19, 63);
+			this.label4.Location = new System.Drawing.Point(11, 63);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(145, 13);
 			this.label4.TabIndex = 6;
@@ -333,7 +372,7 @@
 			// 
 			this.nudMinSignDiff.DecimalPlaces = 2;
 			this.nudMinSignDiff.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.nudMinSignDiff.Location = new System.Drawing.Point(199, 60);
+			this.nudMinSignDiff.Location = new System.Drawing.Point(191, 60);
 			this.nudMinSignDiff.Maximum = new decimal(new int[] {
             10,
             0,
@@ -381,6 +420,24 @@
 			this.tabOCR.TabIndex = 3;
 			this.tabOCR.Text = "OCR";
 			this.tabOCR.UseVisualStyleBackColor = true;
+			// 
+			// cbxOCRConfigurations
+			// 
+			this.cbxOCRConfigurations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cbxOCRConfigurations.FormattingEnabled = true;
+			this.cbxOCRConfigurations.Location = new System.Drawing.Point(123, 63);
+			this.cbxOCRConfigurations.Name = "cbxOCRConfigurations";
+			this.cbxOCRConfigurations.Size = new System.Drawing.Size(162, 21);
+			this.cbxOCRConfigurations.TabIndex = 23;
+			// 
+			// label13
+			// 
+			this.label13.AutoSize = true;
+			this.label13.Location = new System.Drawing.Point(48, 67);
+			this.label13.Name = "label13";
+			this.label13.Size = new System.Drawing.Size(72, 13);
+			this.label13.TabIndex = 24;
+			this.label13.Text = "Configuration:";
 			// 
 			// cbxEnableAAVIOTAVTIOCR
 			// 
@@ -626,57 +683,38 @@
 			this.openAavFileDialog.FileName = "Open AAV/AVI File";
 			this.openAavFileDialog.Filter = "Supported Video Files (*.aav;*.avi)|*.aav;*.avi";
 			// 
-			// cbxOCRConfigurations
+			// label15
 			// 
-			this.cbxOCRConfigurations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cbxOCRConfigurations.FormattingEnabled = true;
-			this.cbxOCRConfigurations.Location = new System.Drawing.Point(123, 63);
-			this.cbxOCRConfigurations.Name = "cbxOCRConfigurations";
-			this.cbxOCRConfigurations.Size = new System.Drawing.Size(162, 21);
-			this.cbxOCRConfigurations.TabIndex = 23;
+			this.label15.AutoSize = true;
+			this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label15.Location = new System.Drawing.Point(12, 94);
+			this.label15.Name = "label15";
+			this.label15.Size = new System.Drawing.Size(138, 13);
+			this.label15.TabIndex = 14;
+			this.label15.Text = "Calibration Integration Rate:";
 			// 
-			// label13
+			// nudCalibrIntegrRate
 			// 
-			this.label13.AutoSize = true;
-			this.label13.Location = new System.Drawing.Point(48, 67);
-			this.label13.Name = "label13";
-			this.label13.Size = new System.Drawing.Size(72, 13);
-			this.label13.TabIndex = 24;
-			this.label13.Text = "Configuration:";
-			// 
-			// label14
-			// 
-			this.label14.AutoSize = true;
-			this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label14.Location = new System.Drawing.Point(197, 32);
-			this.label14.Name = "label14";
-			this.label14.Size = new System.Drawing.Size(79, 13);
-			this.label14.TabIndex = 12;
-			this.label14.Text = "Gamma Factor:";
-			// 
-			// nudGammaDiff
-			// 
-			this.nudGammaDiff.DecimalPlaces = 2;
-			this.nudGammaDiff.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.nudGammaDiff.Increment = new decimal(new int[] {
-            5,
-            0,
-            0,
-            65536});
-			this.nudGammaDiff.Location = new System.Drawing.Point(288, 28);
-			this.nudGammaDiff.Maximum = new decimal(new int[] {
-            5,
+			this.nudCalibrIntegrRate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.nudCalibrIntegrRate.Location = new System.Drawing.Point(192, 91);
+			this.nudCalibrIntegrRate.Maximum = new decimal(new int[] {
+            16,
             0,
             0,
             0});
-			this.nudGammaDiff.Name = "nudGammaDiff";
-			this.nudGammaDiff.Size = new System.Drawing.Size(49, 20);
-			this.nudGammaDiff.TabIndex = 13;
-			this.nudGammaDiff.Value = new decimal(new int[] {
-            100,
+			this.nudCalibrIntegrRate.Minimum = new decimal(new int[] {
+            4,
             0,
             0,
-            131072});
+            0});
+			this.nudCalibrIntegrRate.Name = "nudCalibrIntegrRate";
+			this.nudCalibrIntegrRate.Size = new System.Drawing.Size(49, 20);
+			this.nudCalibrIntegrRate.TabIndex = 15;
+			this.nudCalibrIntegrRate.Value = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
 			// 
 			// frmSettings
 			// 
@@ -702,6 +740,7 @@
 			this.tabAAVSettings.PerformLayout();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveTSTop)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveTSHeight)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudSignDiffFactor)).EndInit();
@@ -713,7 +752,7 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxErrorsPerTestRun)).EndInit();
 			this.gbxOcrTesting.ResumeLayout(false);
 			this.gbxOcrTesting.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -772,5 +811,7 @@
 		private System.Windows.Forms.Label label13;
 		private System.Windows.Forms.Label label14;
 		private System.Windows.Forms.NumericUpDown nudGammaDiff;
+		private System.Windows.Forms.Label label15;
+		private System.Windows.Forms.NumericUpDown nudCalibrIntegrRate;
 	}
 }
