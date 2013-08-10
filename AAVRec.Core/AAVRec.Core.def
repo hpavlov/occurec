@@ -20,11 +20,12 @@ EXPORTS
 	StartRecording
 	StopRecording
 
-	IsNewIntegrationPeriod
 	LockIntegration
 	ControlIntegrationCalibration
 	GetIntegrationCalibrationDataConfig
 	GetIntegrationCalibrationData
+	InitNewIntegrationPeriodTesting
+	TestNewIntegrationPeriod
 
 	SetTimeStampArea1
 	SetTimeStampArea2

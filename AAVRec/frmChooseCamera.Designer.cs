@@ -136,9 +136,12 @@
             // 
             this.cbxCameraModel.FormattingEnabled = true;
             this.cbxCameraModel.Items.AddRange(new object[] {
-            "WAT-910HX",
+            "G-Star",
             "WAT-120N",
-            "MINTRON 12V1C-EX"});
+            "WAT-910HX",
+            "Mintron 12V1C-EX",
+            "Samsung SCB-2000",
+            "PC165-DNR"});
             this.cbxCameraModel.Location = new System.Drawing.Point(16, 34);
             this.cbxCameraModel.Name = "cbxCameraModel";
             this.cbxCameraModel.Size = new System.Drawing.Size(150, 21);

@@ -78,8 +78,9 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo);
 HRESULT StartRecording(LPCTSTR szFileName);
 HRESULT StopRecording(long* pixels);
-bool IsNewIntegrationPeriod(float diffSignature);
 HRESULT LockIntegration(bool lock);
 HRESULT ControlIntegrationCalibration(long operation);
 HRESULT GetIntegrationCalibrationDataConfig(long* gammasLength, long* signaturesPerCycle);
 HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas);
+HRESULT InitNewIntegrationPeriodTesting(float differenceFactor, float minimumDifference);
+HRESULT TestNewIntegrationPeriod(__int64 frameNo, float diffSignature, bool* isNew);

@@ -18,12 +18,10 @@
 
 #include "IotaVtiOcr.h"
 #include "AAVRec.Ocr.h"
+#include "AAVRec.IntegrationChecker.h"
 
 using namespace AavOcr;
 
-#define MAX_INTEGRATION 256
-#define LOW_INTEGRATION_CHECK_POOL_SIZE 12 // 0.5 sec @ PAL
-#define LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY (MAX_INTEGRATION + 1)
 #define MEDIAN_CALC_ROWS_FROM 10
 #define MEDIAN_CALC_ROWS_TO 11
 
@@ -99,21 +97,13 @@ bool recording = false;
 char cameraModel[128];
 char aavRecVersion[32];
 
-float pastSignaturesAverage = 0;
-float pastSignaturesSum = 0;
-float pastSignaturesResidualSquareSum = 0;
-float pastSignaturesSigma = 0;
-int pastSignaturesCount = 0;
-float pastSignatures[MAX_INTEGRATION];
-float signaturesHistory[LOW_INTEGRATION_CHECK_POOL_SIZE];
-float newIntegrationPeriodCutOffRatio;
-float currentSignatureRatio;
-
 unsigned int STATUS_TAG_NUMBER_INTEGRATED_FRAMES;
 unsigned int STATUS_TAG_START_FRAME_ID;
 unsigned int STATUS_TAG_END_FRAME_ID;
 unsigned int STATUS_TAG_START_TIMESTAMP;
 unsigned int STATUS_TAG_END_TIMESTAMP;
+
+AAVRec::IntegrationChecker* integrationChecker;
 
 void ClearResourses()
 {
@@ -127,6 +117,12 @@ void ClearResourses()
 	{
 		delete integratedPixels;
 		integratedPixels = NULL;
+	}
+
+	if (NULL != integrationChecker)
+	{
+		delete integrationChecker;
+		integrationChecker = NULL;
 	}
 }
 
@@ -194,88 +190,31 @@ HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas)
 	return S_OK;
 }
 
+AAVRec::IntegrationChecker* testChecker = NULL;
 
-float evenLowFrameSignSigma = 0;
-float oddLowFrameSignSigma = 0;
-float allLowFrameSignSigma = 0;
-float evenLowFrameSignAverage = 0;
-float oddLowFrameSignAverage = 0;
-float allLowFrameSignAverage = 0;
-int lowFrameIntegrationMode = 0;
-float evenSignMaxResidual = 0;
-float oddSignMaxResidual = 0;
-float allSignMaxResidual = 0;
-
-void RecalculateLowIntegrationMetrics()
+HRESULT InitNewIntegrationPeriodTesting(float differenceFactor, float minimumDifference)
 {
-	float evenSignSum = 0;
-	float oddSignSum = 0;
-	for (int i = 0; i < LOW_INTEGRATION_CHECK_POOL_SIZE; i++)
+	if (NULL != testChecker)
 	{
-		bool isEvenValue = i % 2 == 0;
-		if (isEvenValue)
-			evenSignSum += signaturesHistory[i];
-		else
-			oddSignSum += signaturesHistory[i];
-
-	if (INTEGRATION_DETECTION_TUNING)
-		DebugViewPrint(L"LIF:%2d %.3f (EVN:%.3f ODD:%.3f)\r\n", i, signaturesHistory[i], evenSignSum, oddSignSum);
+		delete testChecker;
+		testChecker = NULL;
 	}
 
-	evenLowFrameSignAverage = evenSignSum * 2 / LOW_INTEGRATION_CHECK_POOL_SIZE;
-	oddLowFrameSignAverage = oddSignSum * 2 / LOW_INTEGRATION_CHECK_POOL_SIZE;
-	allLowFrameSignAverage = (evenSignSum + oddSignSum) / LOW_INTEGRATION_CHECK_POOL_SIZE;
+	testChecker = new AAVRec::IntegrationChecker(differenceFactor, minimumDifference);
+	testChecker->ControlIntegrationDetectionTuning(true);
 
-	float evenSignResidualSquareSum = 0;
-	float oddSignResidualSquareSum = 0;
-	float allSignResidualSquareSum = 0;
-	evenSignMaxResidual = 0;
-	oddSignMaxResidual = 0;
-	allSignMaxResidual = 0;
-
-	for (int i = 0; i < LOW_INTEGRATION_CHECK_POOL_SIZE; i++)
-	{
-		float residual = abs(allLowFrameSignAverage - signaturesHistory[i]);
-		if (residual > allSignMaxResidual) allSignMaxResidual = residual;
-
-		allSignResidualSquareSum += (allLowFrameSignAverage - signaturesHistory[i]) * (allLowFrameSignAverage - signaturesHistory[i]);
-		bool isEvenValue = i % 2 == 0;
-		if (isEvenValue)
-		{
-			residual = abs(evenLowFrameSignAverage - signaturesHistory[i]);
-			if (residual > evenSignMaxResidual) evenSignMaxResidual = residual;
-			evenSignResidualSquareSum += (evenLowFrameSignAverage - signaturesHistory[i]) * (evenLowFrameSignAverage - signaturesHistory[i]);
-		}
-		else
-		{
-			residual = abs(oddLowFrameSignAverage - signaturesHistory[i]);
-			if (residual > oddSignMaxResidual) oddSignMaxResidual = residual;
-			oddSignResidualSquareSum += (oddLowFrameSignAverage - signaturesHistory[i]) * (oddLowFrameSignAverage - signaturesHistory[i]);			
-		}
-	}
-		
-	evenLowFrameSignSigma = sqrt(evenSignResidualSquareSum) * 2 / LOW_INTEGRATION_CHECK_POOL_SIZE;
-	oddLowFrameSignSigma = sqrt(oddSignResidualSquareSum) * 2  / LOW_INTEGRATION_CHECK_POOL_SIZE;
-	allLowFrameSignSigma = sqrt(allSignResidualSquareSum) * 2  / LOW_INTEGRATION_CHECK_POOL_SIZE;
-
-	if (INTEGRATION_DETECTION_TUNING)
-		DebugViewPrint(L"LowIntData Even:%.3f +/- %.3f (MAX: %.3f); Odd:%.3f +/- %.3f(MAX: %.3f); All:%.3f +/- %.3f (MAX: %.3f)\n", 
-			evenLowFrameSignAverage, evenLowFrameSignSigma, evenSignMaxResidual, 
-			oddLowFrameSignAverage, oddLowFrameSignSigma, oddSignMaxResidual,
-			allLowFrameSignAverage, allLowFrameSignSigma, allSignMaxResidual); 
+	return S_OK;
 }
 
-bool IsNewIntegrationPeriodOfLockedIntegration(float diffSignature)
+HRESULT TestNewIntegrationPeriod(__int64 frameNo, float diffSignature, bool* isNew)
 {
-	// TODO: If the integration has been 'locked' then the user is not going to change it
-	//       so in this mode any inconsistencies between the locked integration and 'observed' integration
-	//       should be contributed to 'dropped frame'. May be count and report drop frames?
-
-	// TODO: After the integration has been locked (on LockIntegration()) we also need to copy accross current stats
-	//       We need to wait until the end of the current integration period before we can transition to using IsNewIntegrationPeriodOfLockedIntegration()
-	//       after the integration has been loacked.
-
-	return false;
+	if (NULL != testChecker)
+	{
+		*isNew = testChecker->IsNewIntegrationPeriod(frameNo, diffSignature);
+		return S_OK;
+	}
+	else
+		return E_HANDLE;
 }
 
 bool IsNewIntegrationPeriod(float diffSignature)
@@ -289,150 +228,10 @@ bool IsNewIntegrationPeriod(float diffSignature)
 		//return IsNewIntegrationPeriodOfLockedIntegration(diffSignature, diffSignature2);
 	}
 
-	float diff = 0;
-	bool isNewIntegrationPeriod = false;
-	
-	if (idxFrameNumber % 128 == 0)
-		RecalculateLowIntegrationMetrics();
-
-	if (lowFrameIntegrationMode == 1)
-	{
-		// NOTE: This code is still 'IN TESTING' and may not work
-		diff = abs(allLowFrameSignAverage - diffSignature);
-
-		// TODO: Consider using "10 times sigma" rather than "3-times max value". Use is as a configuration parameter
-		// "10-times sigma" will be more sensitive to integration changess and less tolerant to slewing and field movement
-		// "3-times max value" will be less sensitive to integration changess and more tolerant to slewing and field movement
-
-		if (diff <= 3 * allSignMaxResidual)
-			isNewIntegrationPeriod = true;
-		else
-			// Looks like the the 1-frame integration has ended. So enter in normal mode
-			lowFrameIntegrationMode = 0;
-
-		if (INTEGRATION_DETECTION_TUNING)
-			DebugViewPrint(L"LFM-1: lowFrameIntegrationMode = %d; diff = %.3f; 10-Sigma = %.3f; 3-MaxVal = %.3f; NEW = %d\n", lowFrameIntegrationMode, diff, 10 * allLowFrameSignSigma, 3 * allSignMaxResidual, isNewIntegrationPeriod);
-	}
-	else if (lowFrameIntegrationMode == 2)
-	{
-		float evenDiff = abs(evenLowFrameSignAverage - diffSignature);
-		float oddDiff = abs(oddLowFrameSignAverage - diffSignature);
-
-		bool isEvenFrame = evenDiff <= 5 * evenSignMaxResidual;
-		bool isOddFrame = oddDiff <= 5 * oddSignMaxResidual;
-
-		if (isEvenFrame && !isOddFrame)
-		{
-			// Correctly recognized even frame of a x2 integration 
-			
-			// This is a new frame if a new 2-Frame period starts on an even frame
-			isNewIntegrationPeriod = evenLowFrameSignAverage > oddLowFrameSignAverage; 
-		}
-		else if (isOddFrame && !isEvenFrame)
-		{
-			// Correctly recognized odd frame of a x2 integration 
-
-			// This is a new frame if a new 2-Frame period starts on an odd frame
-			isNewIntegrationPeriod = oddLowFrameSignAverage > evenLowFrameSignAverage; 
-		}
-		else
-		{
-			// Looks like the the 2-frame integration cannot be recognized further, so enter normal mode
-			lowFrameIntegrationMode = 0;
-		}
-
-		if (INTEGRATION_DETECTION_TUNING)
-			DebugViewPrint(L"LFM-2: lowFrameIntegrationMode = %d; evenDiff = %.3f; oddDiff = %.3f; 10-sigmaEven = %.3f; 10-sigmaOdd = %.3f; 3-MaxValEven = %.3f; 3-MaxValOdd = %.3f; NEW = %d\n", 
-				lowFrameIntegrationMode, evenDiff, oddDiff, 10 * evenLowFrameSignSigma, 10 * oddLowFrameSignSigma, 3 * evenSignMaxResidual, 3 * oddSignMaxResidual, isNewIntegrationPeriod);
-	}
-
-	if (lowFrameIntegrationMode == 0)
-	{
-		diff = abs(pastSignaturesAverage - diffSignature);
-	
-		isNewIntegrationPeriod = 
-			pastSignaturesCount >= MAX_INTEGRATION || 
-			(pastSignaturesCount > 1 && diff > MINIMUM_SIGNATURE_DIFFERENCE && diff > SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
-	}
-
-	long currSignaturesHistoryIndex = (long)((idxFrameNumber % (long long)LOW_INTEGRATION_CHECK_POOL_SIZE) & 0xFFFF);
-	signaturesHistory[currSignaturesHistoryIndex] = diffSignature;
-
-	if (!isNewIntegrationPeriod && lowFrameIntegrationMode == 0 && pastSignaturesCount > 0 && pastSignaturesCount % LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY == 0)
-	{
-		// After having collected history for LOW_INTEGRATION_CHECK_POOL_SIZE frames, without recognizing a new integration period larger than 2-frame integration
-		// we can try to recognize a 1-frame and 2-frame signatures in order to enter lowFrameIntegrationMode
-
-		RecalculateLowIntegrationMetrics();
-
-		float allLowFrameDiff = abs(allLowFrameSignAverage - diffSignature);
-		float MAX_LOW_INT_SAMEFRAME_SIGMA = 3 * MINIMUM_SIGNATURE_DIFFERENCE / SIGNATURE_DIFFERENCE_FACTOR;
-
-		// NOTE: This code is still 'IN TESTING' and may not work
-		if (evenLowFrameSignSigma <= MAX_LOW_INT_SAMEFRAME_SIGMA && oddLowFrameSignSigma <= MAX_LOW_INT_SAMEFRAME_SIGMA && allLowFrameSignSigma > MAX_LOW_INT_SAMEFRAME_SIGMA)
-		{
-			// 2-Frame integration
-			lowFrameIntegrationMode = 2;
-			isNewIntegrationPeriod = false; // will be checked on the next frame in the lowFrameIntegrationMode specific code
-		}
-		else if (allLowFrameSignSigma <= MAX_LOW_INT_SAMEFRAME_SIGMA)
-		{
-			// 1-Frame integration (No integration)
-			lowFrameIntegrationMode = 1;
-			isNewIntegrationPeriod = false; // will be checked on the next frame in the lowFrameIntegrationMode specific code
-		}
-		else
-		{
-			// Low frame integration not found. Could be more than 64-frame integration
-			lowFrameIntegrationMode = 0;
-		}
-
-#if _DEBUG
-		DebugViewPrint(L"lowFrameIntegrationMode = %d; MAX_LOW_INT_SAMEFRAME_SIGMA = %.5f\n", lowFrameIntegrationMode, MAX_LOW_INT_SAMEFRAME_SIGMA);
-#endif
-
-	}
-
-	if (INTEGRATION_DETECTION_TUNING)
-		DebugViewPrint(L"FRID:%I64d PSC:%d DF:%.5f D:%.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f CSI:%d LFIM: %d\n", 
-			idxFrameNumber, pastSignaturesCount, diffSignature, diff, SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma, 
-			pastSignaturesSum, pastSignaturesAverage, pastSignaturesResidualSquareSum, pastSignaturesSigma, currSignaturesHistoryIndex, lowFrameIntegrationMode); 
-
-	if (pastSignaturesCount < MAX_INTEGRATION && pastSignaturesCount > 1)
-		currentSignatureRatio = diff / (SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
+	if (NULL != integrationChecker)
+		return integrationChecker->IsNewIntegrationPeriod(idxFrameNumber, diffSignature);
 	else
-		currentSignatureRatio = 0;
-
-	if (isNewIntegrationPeriod)
-	{
-		pastSignaturesAverage = 0;
-		pastSignaturesCount = 0;
-		pastSignaturesSum = 0;
-		pastSignaturesResidualSquareSum = 0;
-		pastSignaturesSigma = 0;
-
-		newIntegrationPeriodCutOffRatio = diff / (SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma);
-
-		return true;
-	}
-	else
-	{
-		pastSignaturesSum+=diffSignature;
-		pastSignaturesCount++;
-		pastSignatures[pastSignaturesCount - 1] = diffSignature;
-		pastSignaturesAverage = pastSignaturesSum / pastSignaturesCount;
-
-		pastSignaturesResidualSquareSum = 0;
-
-		for (int i=0; i<pastSignaturesCount; i++)
-		{
-			pastSignaturesResidualSquareSum += (pastSignaturesAverage - pastSignatures[i]) * (pastSignaturesAverage - pastSignatures[i]);
-		}
-		
-		pastSignaturesSigma = sqrt(pastSignaturesResidualSquareSum) / pastSignaturesCount;
-
 		return false;
-	}
 }
 
 
@@ -443,6 +242,8 @@ HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDet
 	USE_BUFFERED_FRAME_PROCESSING = usesBufferedMode == 1;
 	INTEGRATION_DETECTION_TUNING = integrationDetectionTuning == 1;
 
+	if (NULL != integrationChecker)
+		integrationChecker->ControlIntegrationDetectionTuning(INTEGRATION_DETECTION_TUNING);
 	
 	strcpy(&aavRecVersion[0], (char *)szAavRecVersion);
 
@@ -627,6 +428,8 @@ HRESULT SetupCamera(
 	strcpy(&cameraModel[0], (char *)szCameraModel);
 
 	recording = false;
+	integrationChecker = new AAVRec::IntegrationChecker(SIGNATURE_DIFFERENCE_FACTOR, MINIMUM_SIGNATURE_DIFFERENCE);
+	integrationChecker->ControlIntegrationDetectionTuning(INTEGRATION_DETECTION_TUNING);
 
 	ghMutex = CreateMutex( NULL, FALSE, NULL); 
 	
@@ -980,7 +783,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			latestImageStatus.StartExposureTicks = latestDetectedIntegrationFrameImageStatus.StartExposureTicks = idxFirstFrameTimestamp;
 			latestImageStatus.EndExposureFrameNo = latestDetectedIntegrationFrameImageStatus.EndExposureFrameNo = idxLastFrameNumber;
 			latestImageStatus.EndExposureTicks = latestDetectedIntegrationFrameImageStatus.EndExposureTicks = idxLastFrameTimestamp;
-			latestImageStatus.CutOffRatio = latestDetectedIntegrationFrameImageStatus.CutOffRatio = newIntegrationPeriodCutOffRatio;
+			latestImageStatus.CutOffRatio = latestDetectedIntegrationFrameImageStatus.CutOffRatio = 0; // NULL != integrationChecker ? integrationChecker->NewIntegrationPeriodCutOffRatio : 0;
 			latestImageStatus.IntegratedFrameNo = latestDetectedIntegrationFrameImageStatus.IntegratedFrameNo = idxIntegratedFrameNumber;
 		}
 		else
@@ -1064,7 +867,7 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProc
 	}
 
 	frameInfo->FrameDiffSignature  = diffSignature;
-	frameInfo->CurrentSignatureRatio  = currentSignatureRatio;
+	//frameInfo->CurrentSignatureRatio  =  NULL != integrationChecker ? integrationChecker->CurrentSignatureRatio : 0;
 
 	long stride = 3 * IMAGE_WIDTH;
 	long* ptrPixelItt = pixels;
@@ -1263,7 +1066,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	}
 
 	frameInfo->FrameDiffSignature  = diffSignature;
-	frameInfo->CurrentSignatureRatio  = currentSignatureRatio;
+	//frameInfo->CurrentSignatureRatio  = NULL != integrationChecker ? integrationChecker->CurrentSignatureRatio : 0;
 
 	long stride = 3 * IMAGE_WIDTH;
 	unsigned char* ptrPixelItt = buf + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;

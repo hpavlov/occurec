@@ -25,6 +25,7 @@ namespace AAVRec.Helpers
 			public float GammaRate;
 			public float LowAverageSignature;
 			public float HighAverageSignature;
+		    public int[] NewFrameIndices;
 		}
 
 		public void Calibrate()
@@ -38,17 +39,20 @@ namespace AAVRec.Helpers
 				float highAverageSignature;
 				float lowSignatureSigma;
 				float highAverageSigma;
+			    var newFrameIndices = new List<int>();
 
 				if (FindLowAndHightSignatures(data[gammaRate], out lowAverageSignature, out highAverageSignature))
 				{
-					if (MatchesUsedCameraIntegration(data[gammaRate], lowAverageSignature, highAverageSignature))
+
+                    if (MatchesUsedCameraIntegration(data[gammaRate], lowAverageSignature, highAverageSignature, newFrameIndices))
 					{
 						signaturesRatio[(highAverageSignature - lowAverageSignature) / highAverageSignature] = 
 							new SignatureCycleEntry()
 							{
 								GammaRate = gammaRate,
 								LowAverageSignature = lowAverageSignature,
-								HighAverageSignature = highAverageSignature
+								HighAverageSignature = highAverageSignature,
+                                NewFrameIndices = newFrameIndices.ToArray()
 							};
 					}
 					else
@@ -65,6 +69,7 @@ namespace AAVRec.Helpers
 
 			if (signaturesRatio.Count > 0)
 			{
+                // diff = abs(pastSignaturesAverage - diffSignature);
 				// isNewIntegrationPeriod = 
 				//			pastSignaturesCount >= MAX_INTEGRATION || 
 				//			(pastSignaturesCount > 1 && diff > MINIMUM_SIGNATURE_DIFFERENCE && diff > SIGNATURE_DIFFERENCE_FACTOR * pastSignaturesSigma)
@@ -74,30 +79,40 @@ namespace AAVRec.Helpers
 				SignatureCycleEntry bestCycle = signaturesRatio[maxRatio];
 
 				float pastSignaturesAverage = data[bestCycle.GammaRate].Average();
-				float pastSignaturesSigma = OneSigmaFromAverage(data[bestCycle.GammaRate]);
+				float pastSignaturesSigma = AverageOneSigmaForIntegrationPeriods(data[bestCycle.GammaRate], bestCycle.NewFrameIndices);
 
 				float absoluteNewFrameMinSignDiff = data[bestCycle.GammaRate]
-					.Where(x => x > pastSignaturesAverage) // Test all "new frame" signatures only
-					.Min(x => Math.Abs(pastSignaturesAverage - x)); // Find the maxium difference
+                    .Where(x => Math.Abs(x - bestCycle.HighAverageSignature) < Math.Abs(x - bestCycle.LowAverageSignature)) // Test all "new frame" signatures only
+					.Select(x => Math.Abs(pastSignaturesAverage - x))
+                    .Min(); // Find the minimum difference from HI value
 
 				float absoluteSameFrameMaxSignDiff = data[bestCycle.GammaRate]
-					.Where(x => x < pastSignaturesAverage) // Test all "same frame" signatures only
-					.Max(x => Math.Abs(pastSignaturesAverage - x)); // Find the maxium difference
+                    .Where(x => Math.Abs(x - bestCycle.HighAverageSignature) > Math.Abs(x - bestCycle.LowAverageSignature)) // Test all "same frame" signatures only
+                    .Select(x => Math.Abs(pastSignaturesAverage - x))
+                    .Max(); // Find the maxium difference from LOW value
 
 				float absoluteMinSignDiff = (absoluteSameFrameMaxSignDiff + absoluteNewFrameMinSignDiff) / 2.0f;
-				float absoluteMaxDiffFact = absoluteMinSignDiff / pastSignaturesSigma;
+                float absoluteMaxDiffFact = absoluteMinSignDiff / pastSignaturesSigma;
 
-				Trace.WriteLine(string.Format("{0}/{1}", absoluteMinSignDiff, absoluteMaxDiffFact));
+                Trace.WriteLine(string.Format("{0}|{1}|{2}", bestCycle.GammaRate, absoluteMinSignDiff, absoluteMaxDiffFact));
 
+			    NativeHelpers.InitIntegrationDetectionTesting(absoluteMaxDiffFact, absoluteMinSignDiff);
+
+			    List<float> testData = data[bestCycle.GammaRate];
+                for (int i = 0; i < testData.Count; i++)
+                {
+                    NativeHelpers.IntegrationDetectionTestNextFrame(i, testData[i]);
+                }
 				//Settings.Default.MinSignatureDiff
 				//Settings.Default.SignatureDiffFactorEx2
 			}
 		}
 
-		private bool MatchesUsedCameraIntegration(List<float> signatures, float lowSignature, float highSignature)
+		private bool MatchesUsedCameraIntegration(List<float> signatures, float lowSignature, float highSignature, List<int> newFrameIndices)
 		{
 			int lastIntegrationPeriod = -1;
 			int detectedIntegrationPeriods = 0;
+		    newFrameIndices.Clear();
 
 			for (int i = 0; i < signatures.Count; i++)
 			{
@@ -106,10 +121,13 @@ namespace AAVRec.Helpers
 				{
 					if (lastIntegrationPeriod != -1)
 					{
-						if (Settings.Default.CalibrationIntegrationRate != lastIntegrationPeriod)
-							return false;
-						else
-							detectedIntegrationPeriods++;
+					    if (Settings.Default.CalibrationIntegrationRate != lastIntegrationPeriod)
+					        return false;
+					    else
+					    {
+					        detectedIntegrationPeriods++;
+					        newFrameIndices.Add(i);
+					    }
 					}
 
 					lastIntegrationPeriod = 0;
@@ -148,7 +166,7 @@ namespace AAVRec.Helpers
 			return lowAverageSignature + 3 * lowSignatureSigma < highAverageSignature - 3 * highAverageSigma; 
 		}
 
-		private float OneSigmaFromAverage(List<float> data)
+		private float OneSigmaFromAverage(IList<float> data)
 		{
 			float average = data.Average();
 			float sumSquares = 0;
@@ -158,5 +176,26 @@ namespace AAVRec.Helpers
 			}
 			return data.Count > 1 ? (float) (Math.Sqrt(sumSquares)/(data.Count - 1)) : float.NaN;
 		}
+
+        private float AverageOneSigmaForIntegrationPeriods(List<float> data, int[] newFrameIndices)
+        {
+            var sigmas = new List<float>();
+
+            foreach (int newFrameIndex in newFrameIndices)
+            {
+                if (newFrameIndex >= Settings.Default.CalibrationIntegrationRate - 1)
+                {
+                    List<float> nextPeriodDataWithOutHi = data
+                        .Skip(newFrameIndex + 1 - Settings.Default.CalibrationIntegrationRate)
+                        .Take(Settings.Default.CalibrationIntegrationRate - 1)
+                        .ToList();
+
+                    float nextPeriodSigma = OneSigmaFromAverage(nextPeriodDataWithOutHi);
+                    sigmas.Add(nextPeriodSigma);
+                }
+            }
+
+            return sigmas.Average();
+        }
     }
 }

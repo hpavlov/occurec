@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AAVRec.Core.h" />
+    <ClInclude Include="AAVRec.IntegrationChecker.h" />
     <ClInclude Include="AAVRec.Ocr.h" />
     <ClInclude Include="aav_file.h" />
     <ClInclude Include="aav_frames_index.h" />
@@ -102,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AAVRec.Core.cpp" />
+    <ClCompile Include="AAVRec.IntegrationChecker.cpp" />
     <ClCompile Include="AAVRec.Ocr.cpp" />
     <ClCompile Include="aav_file.cpp" />
     <ClCompile Include="aav_frames_index.cpp" />

@@ -216,6 +216,12 @@ namespace AAVRec.Helpers
         private static extern int GetIntegrationCalibrationData([In, MarshalAs(UnmanagedType.LPArray)] float[] rawSignatures, [In, MarshalAs(UnmanagedType.LPArray)] float[] gammas);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int InitNewIntegrationPeriodTesting(float differenceFactor, float minimumDifference);
+
+        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int TestNewIntegrationPeriod(long frameNo, float diffSignature, [In, Out] ref bool isNew);
+
+        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupOcrAlignment(int width, int height, int frameTopOdd, int frameTopEven, int charWidth, int charHeight, int numberOfZones);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
@@ -553,5 +559,18 @@ namespace AAVRec.Helpers
 
             return rv;
         }
+
+        public static bool InitIntegrationDetectionTesting(float differenceFactor, float minimumDifference)
+        {
+            int rv = InitNewIntegrationPeriodTesting(differenceFactor, minimumDifference);
+            return rv >= 0;
+        }
+
+	    public static bool IntegrationDetectionTestNextFrame(long frameNo, float diffSignature)
+	    {
+	        bool isNew = false;
+            TestNewIntegrationPeriod(frameNo, diffSignature, ref isNew);
+	        return isNew;
+	    }
 	}
 }

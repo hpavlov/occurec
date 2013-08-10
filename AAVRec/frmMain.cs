@@ -628,7 +628,7 @@ namespace AAVRec
 
                 btnLockIntegration.Enabled = (stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0) || stateManager.IsIntegrationLocked;
                 if (stateManager.IntegrationRate > 0 && stateManager.IsValidIntegrationRate && !stateManager.IsIntegrationLocked)
-                    btnLockIntegration.Text = string.Format("Lock at x{0} frames", stateManager.IntegrationRate);
+                    btnLockIntegration.Text = string.Format("Lock at x{0} Frames", stateManager.IntegrationRate);
                 else if (stateManager.IsIntegrationLocked)
                     btnLockIntegration.Text = "Unlock";
                 else
