@@ -28,7 +28,7 @@ namespace AAVRec.Helpers
 		    public int[] NewFrameIndices;
 		}
 
-		public void Calibrate()
+		public bool Calibrate()
 		{
 			cyclesWithDropFrames = 0;
 			var signaturesRatio = new Dictionary<float, SignatureCycleEntry>();
@@ -97,15 +97,46 @@ namespace AAVRec.Helpers
                 Trace.WriteLine(string.Format("{0}|{1}|{2}", bestCycle.GammaRate, absoluteMinSignDiff, absoluteMaxDiffFact));
 
 			    NativeHelpers.InitIntegrationDetectionTesting(absoluteMaxDiffFact, absoluteMinSignDiff);
-
+			    int lastDetectedPeriodRate = -1;
 			    List<float> testData = data[bestCycle.GammaRate];
+			    bool calibrationIsSuccessul = true;
                 for (int i = 0; i < testData.Count; i++)
                 {
-                    NativeHelpers.IntegrationDetectionTestNextFrame(i, testData[i]);
+                    if (NativeHelpers.IntegrationDetectionTestNextFrame(i, testData[i]))
+                    {
+                        if (lastDetectedPeriodRate != -1)
+                        {
+                            if (lastDetectedPeriodRate != Settings.Default.CalibrationIntegrationRate)
+                            {
+                                calibrationIsSuccessul = false;
+                                break;
+                            }
+                            lastDetectedPeriodRate = 0;
+                        }
+                        else
+                            lastDetectedPeriodRate = 0;
+                    }
+                    else
+                    {
+                        if (lastDetectedPeriodRate != -1)
+                            lastDetectedPeriodRate++;
+                    }
+
                 }
-				//Settings.Default.MinSignatureDiff
-				//Settings.Default.SignatureDiffFactorEx2
+
+                if (calibrationIsSuccessul)
+                {
+                    Settings.Default.MinSignatureDiff = absoluteMaxDiffFact;
+                    Settings.Default.SignatureDiffFactorEx2 = absoluteMinSignDiff;
+                    Settings.Default.GammaDiff = bestCycle.GammaRate;
+                    Settings.Default.Save();
+
+                    NativeHelpers.ReconfigureIntegrationDetection((float)Settings.Default.SignatureDiffFactorEx2, (float)Settings.Default.MinSignatureDiff, (float)Settings.Default.GammaDiff);
+                    return true;
+                }
 			}
+
+		    return false;
 		}
 
 		private bool MatchesUsedCameraIntegration(List<float> signatures, float lowSignature, float highSignature, List<int> newFrameIndices)

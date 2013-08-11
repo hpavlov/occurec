@@ -12,6 +12,7 @@ EXPORTS
 
 
 	SetupCamera
+	SetupIntegrationDetection
 	SetupAav
 	GetCurrentImage
 	GetCurrentImageStatus

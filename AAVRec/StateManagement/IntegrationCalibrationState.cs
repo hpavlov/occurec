@@ -22,6 +22,7 @@ namespace AAVRec.StateManagement
 		public static IntegrationCalibrationState Instance = new IntegrationCalibrationState();
 
         private CalibrationStatus status = CalibrationStatus.Unknown;
+	    private bool calibrationSuccessful = false;
 
 		private IntegrationCalibrationState()
         { }
@@ -29,6 +30,7 @@ namespace AAVRec.StateManagement
         public override void InitialiseState()
         {
             status = CalibrationStatus.CollectingData;
+            calibrationSuccessful = false;
         }
 
 		public override void ProcessFrame(CameraStateManager stateManager, Helpers.VideoFrameWrapper frame)
@@ -50,7 +52,7 @@ namespace AAVRec.StateManagement
             }
             else if (status == CalibrationStatus.Finished)
             {
-                stateManager.CancelIntegrationCalibration();
+                stateManager.CancelIntegrationCalibration(calibrationSuccessful);
             }
 		}
 
@@ -65,8 +67,8 @@ namespace AAVRec.StateManagement
                     Trace.WriteLine(string.Format("{0}: {1}", gamma, string.Join(",", calibrationData[gamma].Select(x => x.ToString(CultureInfo.InvariantCulture)))));
                 }
 
-				var calibrator = new IntegrationDetectionCalibrator(calibrationData);
-	            calibrator.Calibrate();
+                var calibrator = new IntegrationDetectionCalibrator(calibrationData);
+                calibrationSuccessful = calibrator.Calibrate();
             }
 
             status = CalibrationStatus.Finished;

@@ -118,12 +118,6 @@ void ClearResourses()
 		delete integratedPixels;
 		integratedPixels = NULL;
 	}
-
-	if (NULL != integrationChecker)
-	{
-		delete integrationChecker;
-		integrationChecker = NULL;
-	}
 }
 
 HRESULT LockIntegration(bool lock)
@@ -357,9 +351,7 @@ void SetupDiffGammaMemoryTable(float diffGamma)
 }
 
 HRESULT SetupCamera(
-	long width, long height, LPCTSTR szCameraModel, 
-	long monochromeConversionMode, bool flipHorizontally, bool flipVertically, 
-	bool isIntegrating, float signDiffFactor, float minSignDiff, float diffGamma)
+	long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating)
 {
 	IMAGE_WIDTH = width;
 	IMAGE_HEIGHT = height;
@@ -372,9 +364,6 @@ HRESULT SetupCamera(
 	FLIP_HORIZONTALLY = flipHorizontally;
 
 	IS_INTEGRATING_CAMERA = isIntegrating;
-	SIGNATURE_DIFFERENCE_FACTOR = signDiffFactor;
-	MINIMUM_SIGNATURE_DIFFERENCE = minSignDiff;
-    SetupDiffGammaMemoryTable(diffGamma);
 
 	INTEGRATION_LOCKED = false;
 
@@ -428,11 +417,25 @@ HRESULT SetupCamera(
 	strcpy(&cameraModel[0], (char *)szCameraModel);
 
 	recording = false;
+
+	return S_OK;
+}
+
+HRESULT SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float diffGamma)
+{
+	SIGNATURE_DIFFERENCE_FACTOR = signDiffFactor;
+	MINIMUM_SIGNATURE_DIFFERENCE = minSignDiff;
+    SetupDiffGammaMemoryTable(diffGamma);
+
+	if (NULL != integrationChecker)
+	{
+		delete integrationChecker;
+		integrationChecker = NULL;
+	}
+
 	integrationChecker = new AAVRec::IntegrationChecker(SIGNATURE_DIFFERENCE_FACTOR, MINIMUM_SIGNATURE_DIFFERENCE);
 	integrationChecker->ControlIntegrationDetectionTuning(INTEGRATION_DETECTION_TUNING);
 
-	ghMutex = CreateMutex( NULL, FALSE, NULL); 
-	
 #if _DEBUG
 	DebugViewPrint(L"SetupCamera(SIGNATURE_DIFFERENCE_FACTOR = %.2f; INTEGRATION_LOCKED = %d)\n", SIGNATURE_DIFFERENCE_FACTOR, INTEGRATION_LOCKED); 
 #endif
@@ -1279,6 +1282,5 @@ HRESULT DisableOcrProcessing()
 
 	return S_OK;
 }
-
 
 HANDLE hFrameProcessingThread = (HANDLE)_beginthread(FrameProcessingThreadProc, 0, NULL);

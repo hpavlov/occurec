@@ -16,6 +16,7 @@ namespace AAVRec.StateManagement
         private CameraState currentState;
         private IVideo driverInstance;
         private List<string> driverInstanceSupportedActions;
+        private OverlayManager overlayManager;
 
         private int ocrErrors;
         private bool ocrMayBeRunning;
@@ -28,9 +29,10 @@ namespace AAVRec.StateManagement
                 currentState.ProcessFrame(this, frame);
         }
 
-        public void CameraConnected(IVideo driverInstance, int maxOcrErrorsPerRun, bool isIntegrating)
+        public void CameraConnected(IVideo driverInstance, OverlayManager overlayManager, int maxOcrErrorsPerRun, bool isIntegrating)
         {
             this.driverInstance = driverInstance;
+            this.overlayManager = overlayManager;
 	        isIntegratingCamera = isIntegrating;
 
             ocrErrors = 0;
@@ -66,6 +68,7 @@ namespace AAVRec.StateManagement
         {
             currentState = null;
             driverInstance = null;
+            overlayManager = null;
         }
 
 	    public bool IsValidIntegrationRate
@@ -249,7 +252,7 @@ namespace AAVRec.StateManagement
 			}
 		}
 
-		public void CancelIntegrationCalibration()
+        public void CancelIntegrationCalibration(bool calibrationSuccessful)
 		{
 			if (IsCalibratingIntegration)
 			{
@@ -258,8 +261,11 @@ namespace AAVRec.StateManagement
 				if (bool.TryParse(resultStr, out result) &&
 				    result)
 				{
-					ChangeState(UndeterminedIntegrationCameraState.Instance);	
+					ChangeState(UndeterminedIntegrationCameraState.Instance);
 				}
+
+                if (!calibrationSuccessful)
+                    overlayManager.OnError(200, "Calibration was not successful.");
 			}
 		}
 

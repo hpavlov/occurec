@@ -166,7 +166,7 @@ namespace AAVRec
 					overlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages);
 				}
 
-				stateManager.CameraConnected(driverInstance, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");
+                stateManager.CameraConnected(driverInstance, overlayManager, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");
 				UpdateScheduleDisplay();
 			}
 			finally
@@ -190,15 +190,15 @@ namespace AAVRec
 				videoObject = null;
 			}
 
+			UpdateCameraState(false);
+		    tssIntegrationRate.Visible = false;
+		    stateManager.CameraDisconnected();
+
             if (overlayManager != null)
             {
                 overlayManager.Finalise();
                 overlayManager = null;
             }
-
-			UpdateCameraState(false);
-		    tssIntegrationRate.Visible = false;
-		    stateManager.CameraDisconnected();
 		}
 
         private bool CanRecordNow(bool connected)
@@ -1205,7 +1205,7 @@ namespace AAVRec
 		{
 			if (stateManager.IsCalibratingIntegration)
 			{
-				stateManager.CancelIntegrationCalibration();
+				stateManager.CancelIntegrationCalibration(true);
 			}
 			else if (
 				videoObject != null &&

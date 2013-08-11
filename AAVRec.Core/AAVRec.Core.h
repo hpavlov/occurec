@@ -65,7 +65,8 @@ extern OcrFrameProcessor* firstFrameOcrProcessor;
 extern OcrFrameProcessor* lastFrameOcrProcessor;
 
 
-HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating, float signDiffFactor, float minSignDiff);
+HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating);
+HRESULT SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float diffGamma);
 HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight);
 HRESULT SetupOcrZoneMatrix(long* matrix);
 HRESULT SetupOcrChar(char character, long fixedPosition);

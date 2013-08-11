@@ -91,12 +91,14 @@
     <ClInclude Include="aav_profiling.h" />
     <ClInclude Include="aav_status_section.h" />
     <ClInclude Include="BitmapUtils.h" />
+    <ClInclude Include="Helpers.h" />
     <ClInclude Include="IntegratedFrame.h" />
     <ClInclude Include="IotaVtiOcr.h" />
     <ClInclude Include="quicklz.h" />
     <ClInclude Include="RawFrame.h" />
     <ClInclude Include="raw_frame_buffer.h" />
     <ClInclude Include="recording_buffer.h" />
+    <ClInclude Include="SpinLock.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="utils.h" />
@@ -125,6 +127,7 @@
     <ClCompile Include="IotaVtiOcr.cpp" />
     <ClCompile Include="quicklz.cpp" />
     <ClCompile Include="RawFrame.cpp" />
+    <ClCompile Include="SpinLock.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

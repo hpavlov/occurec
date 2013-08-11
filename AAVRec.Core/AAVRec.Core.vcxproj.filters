@@ -81,6 +81,12 @@
     <ClInclude Include="AAVRec.IntegrationChecker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SpinLock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -135,6 +141,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AAVRec.IntegrationChecker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpinLock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

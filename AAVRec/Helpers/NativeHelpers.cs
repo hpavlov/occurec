@@ -177,10 +177,10 @@ namespace AAVRec.Helpers
             int monochromeConversionMode,
             bool flipHorizontally, 
             bool flipVertically,
-            bool isIntegrating,
-            float signDiffFactor, 
-            float minSignDiff,
-			float gammaDiff);
+            bool isIntegrating);
+
+	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+	    private static extern int SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float diffGamma);
 
 	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string aavRecVersion);
@@ -374,8 +374,6 @@ namespace AAVRec.Helpers
 
             ProcessVideoFrame2(pixels, currentUtcDayAsTicks, ref frameInfo);
 
-            Debug.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1}; IntegratedFrameNo: {2}; CurrentSignatureRatio: {3})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo, frameInfo.IntegratedFrameNo, frameInfo.CurrentSignatureRatio));
-
             return frameInfo;
         }
 
@@ -386,8 +384,6 @@ namespace AAVRec.Helpers
             long currentUtcDayAsTicks = DateTime.UtcNow.Ticks;
 
             ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, ref frameInfo);
-
-            Debug.WriteLine(string.Format("Diff Signature: {0} (CameraFrameNo: {1}; IntegratedFrameNo: {2}; CurrentSignatureRatio: {3})", frameInfo.FrameDiffSignature, frameInfo.CameraFrameNo, frameInfo.IntegratedFrameNo, frameInfo.CurrentSignatureRatio));
 
             return frameInfo;
         }
@@ -403,7 +399,13 @@ namespace AAVRec.Helpers
             imageWidth = width;
             imageHeight = height;
 
-			SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating, signDiffFactor, minSignDiff, gammaDiff);
+			SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating);
+            SetupIntegrationDetection(signDiffFactor, minSignDiff, gammaDiff);
+        }
+
+        public static void ReconfigureIntegrationDetection(float signDiffFactor, float minSignDiff, float gammaDiff)
+        {
+            SetupIntegrationDetection(signDiffFactor, minSignDiff, gammaDiff);
         }
 
 		private static AssemblyFileVersionAttribute ASSEMBLY_FILE_VERSION = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
