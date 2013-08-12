@@ -165,5 +165,10 @@ namespace AAVRec
             rbManagedSim.Enabled = cbxSimulatorRunOCR.Checked;
             rbNativeOCR.Enabled = cbxSimulatorRunOCR.Checked;            
         }
+
+		private void cbxEnableAAVIOTAVTIOCR_CheckedChanged(object sender, EventArgs e)
+		{
+			pnlSelectOCRConfig.Enabled = cbxEnableAAVIOTAVTIOCR.Checked;
+		}
 	}
 }

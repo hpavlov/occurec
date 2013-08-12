@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SyncLock.h"
+#include "SpinLock.h"
 
 namespace SyncLock
 {
@@ -11,7 +12,7 @@ enum LockTech
 	CompExch
 };
 
-#define LOCK_TECH LockTech::CriticalSection
+#define LOCK_TECH LockTech::Mutex
 
 CRITICAL_SECTION syncVideo;
 CRITICAL_SECTION syncIntDet;
@@ -19,6 +20,10 @@ CRITICAL_SECTION syncRawFrame;
 HANDLE mutexVideo;
 HANDLE mutexRawFrame;
 HANDLE mutexIntDet;
+LockFree::tSpinLock lockVideo;
+LockFree::tSpinLock lockIntDet;
+LockFree::tSpinLock lockRawFrame;
+LockFree::tSpinWait spinWait;
 
 void Initialise()
 {
@@ -46,6 +51,8 @@ void LockVideo()
 		EnterCriticalSection(&syncVideo);
 	else if (LOCK_TECH == LockTech::Mutex)
 		WaitForSingleObject(mutexVideo, INFINITE);
+	else if (LOCK_TECH == LockTech::CompExch)
+		spinWait.Lock(lockVideo);
 };
 
 void UnlockVideo()
@@ -54,6 +61,8 @@ void UnlockVideo()
 		LeaveCriticalSection(&syncVideo);
 	else if (LOCK_TECH == LockTech::Mutex)
 		ReleaseMutex(mutexVideo);
+	else if (LOCK_TECH == LockTech::CompExch)
+		spinWait.Unlock(lockVideo);
 };
 
 void LockRawFrame()
@@ -62,6 +71,8 @@ void LockRawFrame()
 		EnterCriticalSection(&syncRawFrame);
 	else if (LOCK_TECH == LockTech::Mutex)
 		WaitForSingleObject(mutexRawFrame, INFINITE);
+	else if (LOCK_TECH == LockTech::CompExch)
+		spinWait.Lock(lockRawFrame);
 };
 
 void UnlockRawFrame()
@@ -70,6 +81,8 @@ void UnlockRawFrame()
 		LeaveCriticalSection(&syncRawFrame);
 	else if (LOCK_TECH == LockTech::Mutex)
 		ReleaseMutex(mutexRawFrame);
+	else if (LOCK_TECH == LockTech::CompExch)
+		spinWait.Unlock(lockRawFrame);
 };
 
 void LockIntDet()
@@ -78,6 +91,8 @@ void LockIntDet()
 		EnterCriticalSection(&syncIntDet);
 	else if (LOCK_TECH == LockTech::Mutex)
 		WaitForSingleObject(mutexIntDet, INFINITE);
+	else if (LOCK_TECH == LockTech::CompExch)
+		spinWait.Lock(lockIntDet);
 };
 
 void UnlockIntDet()
@@ -86,6 +101,8 @@ void UnlockIntDet()
 		LeaveCriticalSection(&syncIntDet);
 	else if (LOCK_TECH == LockTech::Mutex)
 		ReleaseMutex(mutexIntDet);
+	else if (LOCK_TECH == LockTech::CompExch)
+		spinWait.Unlock(lockIntDet);
 };
 
 }

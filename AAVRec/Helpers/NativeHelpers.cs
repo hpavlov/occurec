@@ -465,18 +465,19 @@ namespace AAVRec.Helpers
 				ocrConfig.Zones,
 				ocrConfig.Alignment.CharPositions);
 
-            SetupOcrZoneMatrix(zoneChecker.OcrPixelMap);
-
 			foreach (CharDefinition charDef in ocrConfig.CharDefinitions)
             {
                 SetupOcrChar(charDef.Character[0], charDef.FixedPosition.HasValue ? charDef.FixedPosition.Value : -1);
 
                 foreach (ZoneSignature zoneSignt in charDef.ZoneSignatures)
                 {
-					int pixelsInZone = ocrConfig.Zones.Single(z => z.ZoneId == zoneSignt.ZoneId).Pixels.Count;
+	                OcrZone zone = ocrConfig.Zones.Single(z => z.ZoneId == zoneSignt.ZoneId);
+					int pixelsInZone = zone.Pixels.Count;
                     SetupOcrCharDefinitionZone(charDef.Character[0], zoneSignt.ZoneId, (int)zoneSignt.ZoneValue, pixelsInZone);
                 }
             }
+
+			SetupOcrZoneMatrix(zoneChecker.OcrPixelMap);
         }
 
         public static void DisableOcr()

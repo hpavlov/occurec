@@ -100,6 +100,7 @@ char OcrCharProcessor::Ocr(long frameMedian)
 		if ((*itCharDef)->FixedPosition > -1 &&
 			(*itCharDef)->FixedPosition != m_CharPosition)
 		{
+			itCharDef++;
 			continue;
 		}
 
@@ -109,41 +110,52 @@ char OcrCharProcessor::Ocr(long frameMedian)
 		while(itZoneConfig != (*itCharDef)->ZoneEntries.end())
 		{
 			long zoneBEhaviour = (*itZoneConfig)->ZoneBehaviour;
-			unsigned char zoneValue = Zones[(*itZoneConfig)->ZoneId]->ZoneMean;
-
-			if (zoneBEhaviour == ZoneBehaviour::On && zoneValue < MIN_ON_VALUE)
+			// TODO: Are we looking in the correct place for our zone ?? Zone 0 is nowhere to be found!
+			map<long, OcrZoneProcessor*>::iterator itZoneById = Zones.find((*itZoneConfig)->ZoneId);
+			if (itZoneById != Zones.end())
 			{
-				isMatch = false;
-				break;
-			}
+				unsigned char zoneValue = itZoneById->second->ZoneMean;
 
-			if (zoneBEhaviour == ZoneBehaviour::Off && zoneValue >= MAX_OFF_VALUE)
-			{
-				isMatch = false;
-				break;                        
-			}
+				if (zoneBEhaviour == ZoneBehaviour::On && zoneValue < MIN_ON_VALUE)
+				{
+					isMatch = false;
+					break;
+				}
 
-			if (zoneBEhaviour == ZoneBehaviour::Gray && (zoneValue < MAX_OFF_VALUE || zoneValue > MIN_ON_VALUE))
-			{
-				isMatch = false;
-				break;
-			}
+				if (zoneBEhaviour == ZoneBehaviour::Off && zoneValue >= MAX_OFF_VALUE)
+				{
+					isMatch = false;
+					break;
+				}
 
-			if (zoneBEhaviour == ZoneBehaviour::NotOn && zoneValue > MIN_ON_VALUE)
-			{
-				isMatch = false;
-				break;
-			}
+				if (zoneBEhaviour == ZoneBehaviour::Gray && (zoneValue < MAX_OFF_VALUE || zoneValue > MIN_ON_VALUE))
+				{
+					isMatch = false;
+					break;
+				}
 
-			if ((*itZoneConfig)->ZoneBehaviour == ZoneBehaviour::NotOff && zoneValue < MAX_OFF_VALUE)
-			{
-				isMatch = false;
-				break;
+				if (zoneBEhaviour == ZoneBehaviour::NotOn && zoneValue > MIN_ON_VALUE)
+				{
+					isMatch = false;
+					break;
+				}
+
+				if ((*itZoneConfig)->ZoneBehaviour == ZoneBehaviour::NotOff && zoneValue < MAX_OFF_VALUE)
+				{
+					isMatch = false;
+					break;
+				}
 			}
+			else
+				DebugViewPrint(L"ZoneId %d not found among OCRed?? zones", (*itZoneConfig)->ZoneId);
+
+			itZoneConfig++;
 		}
 
 		if (isMatch)
 			return (*itCharDef)->Character;
+
+		itCharDef++;
 	}
 	
 	return 0;

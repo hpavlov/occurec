@@ -96,13 +96,12 @@
 			this.statusStrip.BackColor = System.Drawing.SystemColors.Control;
 			this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ttsProgressBar,
-            this.tssCameraState,
-            this.tssDisplayRate,
-            this.tssFrameNo,
-            this.tssDroppedFrames,
-            this.tssOcrErr,
-            this.tssRecordingFile,
-            this.pnlNewVersionAvailable});
+			this.tssCameraState,
+			this.tssFrameNo,
+			this.tssDroppedFrames,
+			this.tssOcrErr,
+			this.tssRecordingFile,
+			this.pnlNewVersionAvailable});
 			this.statusStrip.Location = new System.Drawing.Point(0, 543);
 			this.statusStrip.Name = "statusStrip";
 			this.statusStrip.Size = new System.Drawing.Size(903, 22);
@@ -112,7 +111,7 @@
 			// ttsProgressBar
 			// 
 			this.ttsProgressBar.Name = "ttsProgressBar";
-			this.ttsProgressBar.Size = new System.Drawing.Size(100, 18);
+			this.ttsProgressBar.Size = new System.Drawing.Size(100, 16);
 			this.ttsProgressBar.Step = 5;
 			this.ttsProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
 			this.ttsProgressBar.Visible = false;
@@ -629,6 +628,7 @@
 			this.tbsAddTarget.Name = "tbsAddTarget";
 			this.tbsAddTarget.Size = new System.Drawing.Size(23, 22);
 			this.tbsAddTarget.ToolTipText = "Select Target";
+			this.tbsAddTarget.Visible = false;
 			this.tbsAddTarget.Click += new System.EventHandler(this.tbsAddTarget_Click);
 			// 
 			// tsbAddTrackingStar
@@ -639,6 +639,7 @@
 			this.tsbAddTrackingStar.Name = "tsbAddTrackingStar";
 			this.tsbAddTrackingStar.Size = new System.Drawing.Size(23, 22);
 			this.tsbAddTrackingStar.ToolTipText = "Select Tracking Star";
+			this.tsbAddTrackingStar.Visible = false;
 			// 
 			// pnlControlArea
 			// 
@@ -741,13 +742,13 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.Panel pnlControlArea;
         private System.Windows.Forms.ToolStripButton tsbCrosshair;
-        private System.Windows.Forms.ToolStripStatusLabel tssFrameNo;
-        private System.Windows.Forms.ToolStripStatusLabel tssCameraState;
-        private System.Windows.Forms.ToolStripStatusLabel tssRecordingFile;
-        private System.Windows.Forms.ToolStripStatusLabel tssOcrErr;
+		private System.Windows.Forms.ToolStripProgressBar ttsProgressBar;
+		private System.Windows.Forms.ToolStripStatusLabel tssCameraState;
+		private System.Windows.Forms.ToolStripStatusLabel tssFrameNo;              
+		private System.Windows.Forms.ToolStripStatusLabel tssDroppedFrames;
+		private System.Windows.Forms.ToolStripStatusLabel tssOcrErr;
+		private System.Windows.Forms.ToolStripStatusLabel tssRecordingFile;
         private System.Windows.Forms.ToolStripStatusLabel pnlNewVersionAvailable;
-        private System.Windows.Forms.ToolStripStatusLabel tssDroppedFrames;
-        private System.Windows.Forms.ToolStripProgressBar ttsProgressBar;
         private System.Windows.Forms.ToolStripMenuItem miHelp;
         private System.Windows.Forms.ToolStripMenuItem miHelpIndex;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;

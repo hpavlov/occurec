@@ -275,21 +275,6 @@ HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameT
 	OCR_ZONE_MATRIX = (long*)malloc(IMAGE_TOTAL_PIXELS * sizeof(long));
 
 	::ZeroMemory(OCR_ZONE_MATRIX, IMAGE_TOTAL_PIXELS);
-
-	if (NULL != firstFrameOcrProcessor)
-	{
-		delete firstFrameOcrProcessor;
-		firstFrameOcrProcessor = NULL;
-	}
-	if (NULL != lastFrameOcrProcessor)
-	{
-		delete lastFrameOcrProcessor;
-		lastFrameOcrProcessor = NULL;
-	}
-
-	firstFrameOcrProcessor = new OcrFrameProcessor();
-	lastFrameOcrProcessor = new OcrFrameProcessor();
-
 	
 	MEDIAN_CALC_INDEX_FROM = MEDIAN_CALC_ROWS_FROM * IMAGE_WIDTH;
 	MEDIAN_CALC_INDEX_TO = MEDIAN_CALC_ROWS_TO * IMAGE_WIDTH;
@@ -304,6 +289,20 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 
 	memcpy(OCR_ZONE_MATRIX, matrix, IMAGE_TOTAL_PIXELS);
 	
+	if (NULL != firstFrameOcrProcessor)
+	{
+		delete firstFrameOcrProcessor;
+		firstFrameOcrProcessor = NULL;
+	}
+	if (NULL != lastFrameOcrProcessor)
+	{
+		delete lastFrameOcrProcessor;
+		lastFrameOcrProcessor = NULL;
+	}
+
+	firstFrameOcrProcessor = new OcrFrameProcessor();
+	lastFrameOcrProcessor = new OcrFrameProcessor();
+
 	OCR_IS_SETUP = true;
 	return S_OK;
 }

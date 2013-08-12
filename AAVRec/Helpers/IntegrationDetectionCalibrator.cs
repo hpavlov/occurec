@@ -111,10 +111,10 @@ namespace AAVRec.Helpers
                                 calibrationIsSuccessul = false;
                                 break;
                             }
-                            lastDetectedPeriodRate = 0;
+                            lastDetectedPeriodRate = 1;
                         }
                         else
-                            lastDetectedPeriodRate = 0;
+                            lastDetectedPeriodRate = 1;
                     }
                     else
                     {
@@ -126,8 +126,8 @@ namespace AAVRec.Helpers
 
                 if (calibrationIsSuccessul)
                 {
-                    Settings.Default.MinSignatureDiff = absoluteMaxDiffFact;
-                    Settings.Default.SignatureDiffFactorEx2 = absoluteMinSignDiff;
+                    Settings.Default.MinSignatureDiff = absoluteMinSignDiff;
+					Settings.Default.SignatureDiffFactorEx2 = absoluteMaxDiffFact;
                     Settings.Default.GammaDiff = bestCycle.GammaRate;
                     Settings.Default.Save();
 

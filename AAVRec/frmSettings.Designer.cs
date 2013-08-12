@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSettings));
 			this.btnCancel = new System.Windows.Forms.Button();
 			this.tabControl = new System.Windows.Forms.TabControl();
@@ -41,6 +42,8 @@
 			this.tabAAVSettings = new System.Windows.Forms.TabPage();
 			this.cbDebugIntegration = new System.Windows.Forms.CheckBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.label15 = new System.Windows.Forms.Label();
+			this.nudCalibrIntegrRate = new System.Windows.Forms.NumericUpDown();
 			this.label14 = new System.Windows.Forms.Label();
 			this.nudGammaDiff = new System.Windows.Forms.NumericUpDown();
 			this.label10 = new System.Windows.Forms.Label();
@@ -54,10 +57,9 @@
 			this.cbxFrameProcessingMode = new System.Windows.Forms.ComboBox();
 			this.label12 = new System.Windows.Forms.Label();
 			this.tabOCR = new System.Windows.Forms.TabPage();
-			this.cbxOCRConfigurations = new System.Windows.Forms.ComboBox();
-			this.label13 = new System.Windows.Forms.Label();
 			this.cbxEnableAAVIOTAVTIOCR = new System.Windows.Forms.CheckBox();
 			this.tabDebug = new System.Windows.Forms.TabPage();
+			this.cbxGraphDebugMode = new System.Windows.Forms.CheckBox();
 			this.cbxOcrCameraTestModeAav = new System.Windows.Forms.CheckBox();
 			this.label5 = new System.Windows.Forms.Label();
 			this.cbxImageLayoutMode = new System.Windows.Forms.ComboBox();
@@ -76,16 +78,18 @@
 			this.label7 = new System.Windows.Forms.Label();
 			this.tbxSimlatorFilePath = new System.Windows.Forms.TextBox();
 			this.btnBrowseSimulatorFile = new System.Windows.Forms.Button();
-			this.cbxGraphDebugMode = new System.Windows.Forms.CheckBox();
 			this.btnSave = new System.Windows.Forms.Button();
 			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
 			this.openAavFileDialog = new System.Windows.Forms.OpenFileDialog();
-			this.label15 = new System.Windows.Forms.Label();
-			this.nudCalibrIntegrRate = new System.Windows.Forms.NumericUpDown();
+			this.pnlSelectOCRConfig = new System.Windows.Forms.Panel();
+			this.cbxOCRConfigurations = new System.Windows.Forms.ComboBox();
+			this.label13 = new System.Windows.Forms.Label();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.tabControl.SuspendLayout();
 			this.tabGeneral.SuspendLayout();
 			this.tabAAVSettings.SuspendLayout();
 			this.groupBox1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveTSTop)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveTSHeight)).BeginInit();
@@ -95,7 +99,7 @@
 			this.tabDebug.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxErrorsPerTestRun)).BeginInit();
 			this.gbxOcrTesting.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).BeginInit();
+			this.pnlSelectOCRConfig.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// btnCancel
@@ -143,6 +147,8 @@
 			this.tbxNTPServer.Size = new System.Drawing.Size(155, 20);
 			this.tbxNTPServer.TabIndex = 17;
 			this.tbxNTPServer.Text = "time.windows.com";
+			this.toolTip1.SetToolTip(this.tbxNTPServer, "NTP Server is used to adjust the Windows clock used by the scheduler to start/sto" +
+        "p recording.");
 			// 
 			// label2
 			// 
@@ -233,6 +239,39 @@
 			this.groupBox1.TabIndex = 21;
 			this.groupBox1.TabStop = false;
 			this.groupBox1.Text = "Integration Detection";
+			// 
+			// label15
+			// 
+			this.label15.AutoSize = true;
+			this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label15.Location = new System.Drawing.Point(12, 94);
+			this.label15.Name = "label15";
+			this.label15.Size = new System.Drawing.Size(138, 13);
+			this.label15.TabIndex = 14;
+			this.label15.Text = "Calibration Integration Rate:";
+			// 
+			// nudCalibrIntegrRate
+			// 
+			this.nudCalibrIntegrRate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.nudCalibrIntegrRate.Location = new System.Drawing.Point(192, 91);
+			this.nudCalibrIntegrRate.Maximum = new decimal(new int[] {
+            16,
+            0,
+            0,
+            0});
+			this.nudCalibrIntegrRate.Minimum = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+			this.nudCalibrIntegrRate.Name = "nudCalibrIntegrRate";
+			this.nudCalibrIntegrRate.Size = new System.Drawing.Size(49, 20);
+			this.nudCalibrIntegrRate.TabIndex = 15;
+			this.nudCalibrIntegrRate.Value = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
 			// 
 			// label14
 			// 
@@ -410,8 +449,7 @@
 			// 
 			// tabOCR
 			// 
-			this.tabOCR.Controls.Add(this.cbxOCRConfigurations);
-			this.tabOCR.Controls.Add(this.label13);
+			this.tabOCR.Controls.Add(this.pnlSelectOCRConfig);
 			this.tabOCR.Controls.Add(this.cbxEnableAAVIOTAVTIOCR);
 			this.tabOCR.Location = new System.Drawing.Point(4, 22);
 			this.tabOCR.Name = "tabOCR";
@@ -420,24 +458,6 @@
 			this.tabOCR.TabIndex = 3;
 			this.tabOCR.Text = "OCR";
 			this.tabOCR.UseVisualStyleBackColor = true;
-			// 
-			// cbxOCRConfigurations
-			// 
-			this.cbxOCRConfigurations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cbxOCRConfigurations.FormattingEnabled = true;
-			this.cbxOCRConfigurations.Location = new System.Drawing.Point(123, 63);
-			this.cbxOCRConfigurations.Name = "cbxOCRConfigurations";
-			this.cbxOCRConfigurations.Size = new System.Drawing.Size(162, 21);
-			this.cbxOCRConfigurations.TabIndex = 23;
-			// 
-			// label13
-			// 
-			this.label13.AutoSize = true;
-			this.label13.Location = new System.Drawing.Point(48, 67);
-			this.label13.Name = "label13";
-			this.label13.Size = new System.Drawing.Size(72, 13);
-			this.label13.TabIndex = 24;
-			this.label13.Text = "Configuration:";
 			// 
 			// cbxEnableAAVIOTAVTIOCR
 			// 
@@ -448,9 +468,11 @@
 			this.cbxEnableAAVIOTAVTIOCR.TabIndex = 22;
 			this.cbxEnableAAVIOTAVTIOCR.Text = "Enable Timestamp OCR";
 			this.cbxEnableAAVIOTAVTIOCR.UseVisualStyleBackColor = true;
+			this.cbxEnableAAVIOTAVTIOCR.CheckedChanged += new System.EventHandler(this.cbxEnableAAVIOTAVTIOCR_CheckedChanged);
 			// 
 			// tabDebug
 			// 
+			this.tabDebug.Controls.Add(this.cbxGraphDebugMode);
 			this.tabDebug.Controls.Add(this.cbxOcrCameraTestModeAav);
 			this.tabDebug.Controls.Add(this.label5);
 			this.tabDebug.Controls.Add(this.cbxImageLayoutMode);
@@ -468,6 +490,16 @@
 			this.tabDebug.TabIndex = 0;
 			this.tabDebug.Text = "Debug";
 			this.tabDebug.UseVisualStyleBackColor = true;
+			// 
+			// cbxGraphDebugMode
+			// 
+			this.cbxGraphDebugMode.AutoSize = true;
+			this.cbxGraphDebugMode.Location = new System.Drawing.Point(16, 198);
+			this.cbxGraphDebugMode.Name = "cbxGraphDebugMode";
+			this.cbxGraphDebugMode.Size = new System.Drawing.Size(150, 17);
+			this.cbxGraphDebugMode.TabIndex = 28;
+			this.cbxGraphDebugMode.Text = "Video Graph Debug Mode";
+			this.cbxGraphDebugMode.UseVisualStyleBackColor = true;
 			// 
 			// cbxOcrCameraTestModeAav
 			// 
@@ -656,16 +688,6 @@
 			this.btnBrowseSimulatorFile.UseVisualStyleBackColor = true;
 			this.btnBrowseSimulatorFile.Click += new System.EventHandler(this.btnBrowseSimulatorFile_Click);
 			// 
-			// cbxGraphDebugMode
-			// 
-			this.cbxGraphDebugMode.AutoSize = true;
-			this.cbxGraphDebugMode.Location = new System.Drawing.Point(23, 269);
-			this.cbxGraphDebugMode.Name = "cbxGraphDebugMode";
-			this.cbxGraphDebugMode.Size = new System.Drawing.Size(150, 17);
-			this.cbxGraphDebugMode.TabIndex = 0;
-			this.cbxGraphDebugMode.Text = "Video Graph Debug Mode";
-			this.cbxGraphDebugMode.UseVisualStyleBackColor = true;
-			// 
 			// btnSave
 			// 
 			this.btnSave.DialogResult = System.Windows.Forms.DialogResult.Cancel;
@@ -683,38 +705,33 @@
 			this.openAavFileDialog.FileName = "Open AAV/AVI File";
 			this.openAavFileDialog.Filter = "Supported Video Files (*.aav;*.avi)|*.aav;*.avi";
 			// 
-			// label15
+			// pnlSelectOCRConfig
 			// 
-			this.label15.AutoSize = true;
-			this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.label15.Location = new System.Drawing.Point(12, 94);
-			this.label15.Name = "label15";
-			this.label15.Size = new System.Drawing.Size(138, 13);
-			this.label15.TabIndex = 14;
-			this.label15.Text = "Calibration Integration Rate:";
+			this.pnlSelectOCRConfig.Controls.Add(this.cbxOCRConfigurations);
+			this.pnlSelectOCRConfig.Controls.Add(this.label13);
+			this.pnlSelectOCRConfig.Enabled = false;
+			this.pnlSelectOCRConfig.Location = new System.Drawing.Point(36, 55);
+			this.pnlSelectOCRConfig.Name = "pnlSelectOCRConfig";
+			this.pnlSelectOCRConfig.Size = new System.Drawing.Size(263, 54);
+			this.pnlSelectOCRConfig.TabIndex = 25;
 			// 
-			// nudCalibrIntegrRate
+			// cbxOCRConfigurations
 			// 
-			this.nudCalibrIntegrRate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.nudCalibrIntegrRate.Location = new System.Drawing.Point(192, 91);
-			this.nudCalibrIntegrRate.Maximum = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-			this.nudCalibrIntegrRate.Minimum = new decimal(new int[] {
-            4,
-            0,
-            0,
-            0});
-			this.nudCalibrIntegrRate.Name = "nudCalibrIntegrRate";
-			this.nudCalibrIntegrRate.Size = new System.Drawing.Size(49, 20);
-			this.nudCalibrIntegrRate.TabIndex = 15;
-			this.nudCalibrIntegrRate.Value = new decimal(new int[] {
-            4,
-            0,
-            0,
-            0});
+			this.cbxOCRConfigurations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cbxOCRConfigurations.FormattingEnabled = true;
+			this.cbxOCRConfigurations.Location = new System.Drawing.Point(88, 17);
+			this.cbxOCRConfigurations.Name = "cbxOCRConfigurations";
+			this.cbxOCRConfigurations.Size = new System.Drawing.Size(162, 21);
+			this.cbxOCRConfigurations.TabIndex = 25;
+			// 
+			// label13
+			// 
+			this.label13.AutoSize = true;
+			this.label13.Location = new System.Drawing.Point(13, 21);
+			this.label13.Name = "label13";
+			this.label13.Size = new System.Drawing.Size(72, 13);
+			this.label13.TabIndex = 26;
+			this.label13.Text = "Configuration:";
 			// 
 			// frmSettings
 			// 
@@ -724,7 +741,6 @@
 			this.Controls.Add(this.btnSave);
 			this.Controls.Add(this.tabControl);
 			this.Controls.Add(this.btnCancel);
-			this.Controls.Add(this.cbxGraphDebugMode);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
@@ -740,6 +756,7 @@
 			this.tabAAVSettings.PerformLayout();
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveTSTop)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveTSHeight)).EndInit();
@@ -752,9 +769,9 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxErrorsPerTestRun)).EndInit();
 			this.gbxOcrTesting.ResumeLayout(false);
 			this.gbxOcrTesting.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).EndInit();
+			this.pnlSelectOCRConfig.ResumeLayout(false);
+			this.pnlSelectOCRConfig.PerformLayout();
 			this.ResumeLayout(false);
-			this.PerformLayout();
 
 		}
 
@@ -767,8 +784,7 @@
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.TabPage tabAAVSettings;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.NumericUpDown nudSignDiffFactor;
-        private System.Windows.Forms.CheckBox cbxGraphDebugMode;
+		private System.Windows.Forms.NumericUpDown nudSignDiffFactor;
         private System.Windows.Forms.NumericUpDown nudMinSignDiff;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button btnBrowseOutputFolder;
@@ -806,12 +822,15 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.ComboBox cbxFrameProcessingMode;
         private System.Windows.Forms.CheckBox cbDebugIntegration;
-        private System.Windows.Forms.TabPage tabOCR;
-		private System.Windows.Forms.ComboBox cbxOCRConfigurations;
-		private System.Windows.Forms.Label label13;
+		private System.Windows.Forms.TabPage tabOCR;
 		private System.Windows.Forms.Label label14;
 		private System.Windows.Forms.NumericUpDown nudGammaDiff;
 		private System.Windows.Forms.Label label15;
 		private System.Windows.Forms.NumericUpDown nudCalibrIntegrRate;
+		private System.Windows.Forms.CheckBox cbxGraphDebugMode;
+		private System.Windows.Forms.Panel pnlSelectOCRConfig;
+		private System.Windows.Forms.ComboBox cbxOCRConfigurations;
+		private System.Windows.Forms.Label label13;
+		private System.Windows.Forms.ToolTip toolTip1;
 	}
 }
