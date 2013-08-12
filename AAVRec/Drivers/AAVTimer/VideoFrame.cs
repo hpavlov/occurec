@@ -114,6 +114,11 @@ namespace AAVRec.Drivers.AAVTimer
 				cameraFrame.ImageStatus.UniqueFrameNo,
 				cameraFrame.ImageStatus.IntegratedFrameNo);
 
+			if (cameraFrame.ImageStatus.PerformedAction > 0)
+			{
+				rv.imageInfo += string.Format(";ACT:{0};ACT%:{1}", cameraFrame.ImageStatus.PerformedAction, cameraFrame.ImageStatus.PerformedActionProgress);
+			}
+
 			return rv;
 		}
 

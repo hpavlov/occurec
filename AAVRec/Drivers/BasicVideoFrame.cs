@@ -51,6 +51,8 @@ namespace AAVRec.Drivers
 
         private static int lastIntergatedFramesSoFar = 0;
         private static int lastIntegrationRate = 1;
+	    private static long lastFrameId = -1;
+
         private static BasicVideoFrame InternalCreateFrame(int width, int height, Bitmap cameraFrame, int fameNumber, bool variant, FrameProcessingStatus status)
         {
             var rv = new BasicVideoFrame();
@@ -71,14 +73,20 @@ namespace AAVRec.Drivers
             }
             else
             {
-                if (lastIntergatedFramesSoFar != status.IntegratedFramesSoFar)
-                {
-                    if (lastIntergatedFramesSoFar != status.IntegratedFramesSoFar - 1)
-                        lastIntegrationRate = lastIntergatedFramesSoFar;
-                    lastIntergatedFramesSoFar = status.IntegratedFramesSoFar;
-                }
+	            if (lastIntergatedFramesSoFar != status.IntegratedFramesSoFar)
+	            {
+		            if (lastIntergatedFramesSoFar != status.IntegratedFramesSoFar - 1)
+			            lastIntegrationRate = lastIntergatedFramesSoFar;
+		            lastIntergatedFramesSoFar = status.IntegratedFramesSoFar;
+	            }
+				else if (lastFrameId + 1 == status.IntegratedFrameNo)
+				{
+					lastIntegrationRate = status.IntegratedFramesSoFar;					
+				}
 
-                rv.exposureStartTime = null;
+	            lastFrameId = status.IntegratedFrameNo;
+
+	            rv.exposureStartTime = null;
                 rv.exposureDuration = null;
                 rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4}", lastIntegrationRate, 0, 0, status.CurrentSignatureRatio, status.CameraFrameNo);
 

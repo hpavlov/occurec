@@ -414,7 +414,7 @@ namespace AAVRec
                     tssOcrErr.Visible = false;
             }
 
-            if (stateManager.DroppedFrames > 0)
+            if (stateManager.DroppedFrames != 0)
             {
                 tssDroppedFrames.Text = string.Format("{0} Dropped", stateManager.DroppedFrames);
 
@@ -555,7 +555,10 @@ namespace AAVRec
                     break;
 
                 case VideoCameraState.videoCameraRunning:
-                    tssCameraState.Text = "Running";
+					if (stateManager.IsIntegrationLocked)
+						tssCameraState.Text = string.Concat("Running (x", stateManager.IntegrationRate, ")");
+					else
+						tssCameraState.Text = "Running";
                     break;
 
                 case VideoCameraState.videoCameraRecording:
@@ -581,6 +584,9 @@ namespace AAVRec
 				tssDisplayRate.Text = string.Empty;
 				tssFrameNo.Visible = false;
 				tssDisplayRate.Visible = false;
+				tssIntegrationRate.Visible = false;
+				tssDroppedFrames.Visible = false;
+				tssOcrErr.Visible = false;
 
 			    tsbConnectDisconnect.ToolTipText = "Connect";
 			    tsbConnectDisconnect.Image = imageListToolbar.Images[0];

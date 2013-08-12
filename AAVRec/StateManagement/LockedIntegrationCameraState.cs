@@ -5,7 +5,7 @@ using System.Text;
 
 namespace AAVRec.StateManagement
 {
-    public class LockedIntegrationCameraState : CameraState
+	public class LockedIntegrationCameraState : CameraState, IKnowsIntegrationRate
     {
         public static LockedIntegrationCameraState Instance = new LockedIntegrationCameraState();
 
@@ -25,22 +25,15 @@ namespace AAVRec.StateManagement
 
 		public override void ProcessFrame(CameraStateManager stateManager, Helpers.VideoFrameWrapper frame)
 		{
-			base.ProcessFrame(stateManager, frame);
-
 			if (frame.IntegrationRate.HasValue && frame.IntegrationRate.Value > 1)
 			{
-				if (lastIntegratedFrameId != -1)
+				if (lastIntegratedFrameIntegration != frame.IntegrationRate.Value)
 				{
-					if (lastIntegratedFrameId + 1 == frame.IntegratedFrameNo)
-					{
-						int droppedFrames = lockedIntegrationRate - frame.IntegrationRate.Value;
-						numberOfDroppedFrames += droppedFrames;
-					}
+					int droppedFrames = lockedIntegrationRate - frame.IntegrationRate.Value;
+					numberOfDroppedFrames += droppedFrames;
 				}
-				else
-				{
-					lastIntegratedFrameId = frame.IntegratedFrameNo;
-				}
+
+				lastIntegratedFrameIntegration = frame.IntegrationRate.Value;
 			}			
 		}
     }

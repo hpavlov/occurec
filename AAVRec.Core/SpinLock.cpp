@@ -33,7 +33,7 @@ void tSpinWait::Lock(tSpinLock &LockObj)
 			if(HasThreasholdReached())
 			{
 				if(m_iterations + YIELD_ITERATION >= MAX_SLEEP_ITERATION)
-					Sleep(0);
+					Sleep(1);
 				
 				if(m_iterations >= YIELD_ITERATION && m_iterations < MAX_SLEEP_ITERATION)
 				{

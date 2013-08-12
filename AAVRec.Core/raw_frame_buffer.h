@@ -6,18 +6,16 @@
 #include "RawFrame.h";
 
 #include <windows.h>
-#include <process.h>
-
+#include "SyncLock.h"
 
 using namespace std;
 
 list<RawFrame*> rawFrameBuffer;
-HANDLE ghRawFrameMutex;
 
 
 void ClearRawFrameBuffer()
 {
-	WaitForSingleObject(ghRawFrameMutex, INFINITE);
+	SyncLock::LockRawFrame();
 
 	list<RawFrame*>::iterator currFrame = rawFrameBuffer.begin();
 	while (currFrame != rawFrameBuffer.end()) 
@@ -29,17 +27,17 @@ void ClearRawFrameBuffer()
 	}
 	rawFrameBuffer.empty();
 
-	ReleaseMutex(ghRawFrameMutex);
+	SyncLock::UnlockRawFrame();
 }
 
 long AddFrameToRawFrameBuffer(RawFrame* frameToAdd)
 {
-	WaitForSingleObject(ghRawFrameMutex, INFINITE);
+	SyncLock::LockRawFrame();
 
 	rawFrameBuffer.push_back(frameToAdd);
 	long numItems = rawFrameBuffer.size();
 
-	ReleaseMutex(ghRawFrameMutex);
+	SyncLock::UnlockRawFrame();
 
 	return numItems;
 }
@@ -48,7 +46,7 @@ RawFrame* FetchFrameFromRawFrameBuffer()
 {
 	RawFrame* rv = NULL;
 
-	WaitForSingleObject(ghRawFrameMutex, INFINITE);
+	SyncLock::LockRawFrame();
 
 	if (rawFrameBuffer.size() > 0)
 	{
@@ -56,7 +54,7 @@ RawFrame* FetchFrameFromRawFrameBuffer()
 		rawFrameBuffer.pop_front();
 	}
 
-	ReleaseMutex(ghRawFrameMutex);
+	SyncLock::UnlockRawFrame();
 
 	return rv;
 }

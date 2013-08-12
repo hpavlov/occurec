@@ -64,6 +64,7 @@ extern long MEDIAN_CALC_INDEX_TO;
 extern OcrFrameProcessor* firstFrameOcrProcessor;
 extern OcrFrameProcessor* lastFrameOcrProcessor;
 
+void FrameProcessingThreadProc(void* pContext);
 
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating);
 HRESULT SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float diffGamma);

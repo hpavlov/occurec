@@ -7,17 +7,17 @@
 
 #include <windows.h>
 #include <process.h>
+#include "SyncLock.h"
 
 
 using namespace std;
 
 list<IntegratedFrame*> recordingBuffer;
-HANDLE ghMutex;
 
 
 void ClearRecordingBuffer()
 {
-	WaitForSingleObject(ghMutex, INFINITE);
+	SyncLock::LockVideo();
 
 	list<IntegratedFrame*>::iterator currFrame = recordingBuffer.begin();
 	while (currFrame != recordingBuffer.end()) 
@@ -29,17 +29,17 @@ void ClearRecordingBuffer()
 	}
 	recordingBuffer.empty();
 
-	ReleaseMutex(ghMutex);
+	SyncLock::UnlockVideo();
 }
 
 long AddFrameToRecordingBuffer(IntegratedFrame* frameToAdd)
 {
-	WaitForSingleObject(ghMutex, INFINITE);
+	SyncLock::LockVideo();
 
 	recordingBuffer.push_back(frameToAdd);
 	long numItems = recordingBuffer.size();
 
-	ReleaseMutex(ghMutex);
+	SyncLock::UnlockVideo();
 
 	return numItems;
 }
@@ -48,7 +48,7 @@ IntegratedFrame* FetchFrameFromRecordingBuffer()
 {
 	IntegratedFrame* rv = NULL;
 
-	WaitForSingleObject(ghMutex, INFINITE);
+	SyncLock::LockVideo();
 
 	if (recordingBuffer.size() > 0)
 	{
@@ -56,7 +56,7 @@ IntegratedFrame* FetchFrameFromRecordingBuffer()
 		recordingBuffer.pop_front();
 	}
 
-	ReleaseMutex(ghMutex);
+	SyncLock::UnlockVideo();
 
 	return rv;
 }

@@ -14,7 +14,6 @@
 #include "IntegratedFrame.h";
 #include "aav_lib.h"
 #include <windows.h>
-#include <process.h>
 
 #include "IotaVtiOcr.h"
 #include "AAVRec.Ocr.h"
@@ -223,7 +222,11 @@ bool IsNewIntegrationPeriod(float diffSignature)
 	}
 
 	if (NULL != integrationChecker)
+	{
+		SyncLock::LockIntDet();
 		return integrationChecker->IsNewIntegrationPeriod(idxFrameNumber, diffSignature);
+		SyncLock::UnlockIntDet();
+	}
 	else
 		return false;
 }
@@ -237,7 +240,11 @@ HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDet
 	INTEGRATION_DETECTION_TUNING = integrationDetectionTuning == 1;
 
 	if (NULL != integrationChecker)
+	{
+		SyncLock::LockIntDet();
 		integrationChecker->ControlIntegrationDetectionTuning(INTEGRATION_DETECTION_TUNING);
+		SyncLock::UnlockIntDet();
+	}
 	
 	strcpy(&aavRecVersion[0], (char *)szAavRecVersion);
 
@@ -423,6 +430,8 @@ HRESULT SetupCamera(
 
 HRESULT SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float diffGamma)
 {
+	SyncLock::LockIntDet();
+
 	SIGNATURE_DIFFERENCE_FACTOR = signDiffFactor;
 	MINIMUM_SIGNATURE_DIFFERENCE = minSignDiff;
     SetupDiffGammaMemoryTable(diffGamma);
@@ -435,6 +444,8 @@ HRESULT SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float
 
 	integrationChecker = new AAVRec::IntegrationChecker(SIGNATURE_DIFFERENCE_FACTOR, MINIMUM_SIGNATURE_DIFFERENCE);
 	integrationChecker->ControlIntegrationDetectionTuning(INTEGRATION_DETECTION_TUNING);
+
+	SyncLock::UnlockIntDet();
 
 #if _DEBUG
 	DebugViewPrint(L"SetupCamera(SIGNATURE_DIFFERENCE_FACTOR = %.2f; INTEGRATION_LOCKED = %d)\n", SIGNATURE_DIFFERENCE_FACTOR, INTEGRATION_LOCKED); 
@@ -777,29 +788,14 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			}
 		}
 
-		//MarkTimeStampAreas(latestIntegratedFrame);
+		latestImageStatus.CountedFrames = numberOfIntegratedFrames;
+		latestImageStatus.CutOffRatio = 0; // NULL != integrationChecker ? integrationChecker->NewIntegrationPeriodCutOffRatio : 0;
+		latestImageStatus.IntegratedFrameNo = idxIntegratedFrameNumber;
+		latestImageStatus.StartExposureFrameNo = idxFirstFrameNumber;
+		latestImageStatus.StartExposureTicks = idxFirstFrameTimestamp;
+		latestImageStatus.EndExposureFrameNo = idxLastFrameNumber;
+		latestImageStatus.EndExposureTicks = idxLastFrameTimestamp;
 
-		if (INTEGRATION_LOCKED || isNewIntegrationPeriod)
-		{
-			latestImageStatus.CountedFrames = latestDetectedIntegrationFrameImageStatus.CountedFrames = numberOfIntegratedFrames;
-			latestImageStatus.StartExposureFrameNo = latestDetectedIntegrationFrameImageStatus.StartExposureFrameNo = idxFirstFrameNumber;
-			latestImageStatus.StartExposureTicks = latestDetectedIntegrationFrameImageStatus.StartExposureTicks = idxFirstFrameTimestamp;
-			latestImageStatus.EndExposureFrameNo = latestDetectedIntegrationFrameImageStatus.EndExposureFrameNo = idxLastFrameNumber;
-			latestImageStatus.EndExposureTicks = latestDetectedIntegrationFrameImageStatus.EndExposureTicks = idxLastFrameTimestamp;
-			latestImageStatus.CutOffRatio = latestDetectedIntegrationFrameImageStatus.CutOffRatio = 0; // NULL != integrationChecker ? integrationChecker->NewIntegrationPeriodCutOffRatio : 0;
-			latestImageStatus.IntegratedFrameNo = latestDetectedIntegrationFrameImageStatus.IntegratedFrameNo = idxIntegratedFrameNumber;
-		}
-		else
-		{
-			// Copy the values from the previous 'REAL' detected integration frame			
-			latestImageStatus.CountedFrames = latestDetectedIntegrationFrameImageStatus.CountedFrames;
-			latestImageStatus.StartExposureFrameNo = latestDetectedIntegrationFrameImageStatus.StartExposureFrameNo;
-			latestImageStatus.StartExposureTicks = latestDetectedIntegrationFrameImageStatus.StartExposureTicks;
-			latestImageStatus.EndExposureFrameNo = latestDetectedIntegrationFrameImageStatus.EndExposureFrameNo;
-			latestImageStatus.EndExposureTicks = latestDetectedIntegrationFrameImageStatus.EndExposureTicks;
-			latestImageStatus.CutOffRatio = latestDetectedIntegrationFrameImageStatus.CutOffRatio;
-			latestImageStatus.IntegratedFrameNo = latestDetectedIntegrationFrameImageStatus.IntegratedFrameNo;
-		}
 
 		if (INTEGRATION_CALIBRATION)
 		{
@@ -1015,7 +1011,7 @@ void FrameProcessingThreadProc( void* pContext )
 	{
 		ProcessBufferedVideoFrame();
 
-		Sleep(0);
+		Sleep(1);
 	};
 }
 
@@ -1192,7 +1188,7 @@ void RecorderThreadProc( void* pContext )
 	{
 		RecordAllbufferedFrames();
 
-		Sleep(0);
+		Sleep(1);
 	};
 
 	// Record all remaining frames, after 'recording' has been set to false
@@ -1282,5 +1278,3 @@ HRESULT DisableOcrProcessing()
 
 	return S_OK;
 }
-
-HANDLE hFrameProcessingThread = (HANDLE)_beginthread(FrameProcessingThreadProc, 0, NULL);

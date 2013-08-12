@@ -21,6 +21,7 @@ V) Print the failed OCR chars in red, rather than yellow, on the error image
 V) AAVRec should be usable without IOTA-VTI-OCR-Settings.xml. Add parameters for TimestampTop and TimestampHeight  
 V) Allow the user to modify the image size (if possible at all at DirectShow level !)
 V) Display the framerate supported by the capture hardware 
+- Test the integration detection algorithm without the [signatureDifferenceFactor * pastSignaturesSigma] factor. Find out the reasoning behind using this factor and document it as needed	
 - Complete the integration detection calibration, make it find the best settings. Use this test data:
 
 0.1: 0.2133789,0.8325195,0.1630859,0.1635742,0.1586914,0.168457,0.1582031,0.1347656,0.140625,0.862793,0.1201172,0.1386719,0.140625,0.1342773,0.1293945,0.1245117,0.1333008,0.8041992,0.1240234,0.1176758,0.1254883,0.1333008,0.1269531,0.137207
