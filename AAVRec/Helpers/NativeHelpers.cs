@@ -221,8 +221,11 @@ namespace AAVRec.Helpers
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int TestNewIntegrationPeriod(long frameNo, float diffSignature, [In, Out] ref bool isNew);
 
+		[DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		private static extern int SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int areaHeight);
+
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetupOcrAlignment(int width, int height, int frameTopOdd, int frameTopEven, int charWidth, int charHeight, int numberOfZones);
+		private static extern int SetupOcrAlignment(int width, int height, int frameTopOdd, int frameTopEven, int charWidth, int charHeight, int numberOfCharPositions, int numberOfZones, [In, MarshalAs(UnmanagedType.LPArray)] int[] pixelsInZones);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 	    private static extern int SetupOcrZoneMatrix([In, MarshalAs(UnmanagedType.LPArray)] int[,] matrix);
@@ -421,14 +424,10 @@ namespace AAVRec.Helpers
 
 		public static string SetupTimestampPreservation(int width, int height)
 		{
-			int hr = SetupOcrAlignment(
-				width,
-				height,
+			int hr = SetupIntegrationPreservationArea(
 				Settings.Default.PreserveTSLineTop,
 				Settings.Default.PreserveTSLineTop + 1,
-				0,
-				Settings.Default.PreserveTSAreaHeight,
-				0);
+				Settings.Default.PreserveTSAreaHeight);
 
 			if (hr != 0)
 				return "Could not configure the timestamp preservation.";
@@ -437,7 +436,22 @@ namespace AAVRec.Helpers
 		}
 
 		public static string SetupBasicOcrMetrix(OcrConfiguration ocrConfig)
-	    {
+		{
+			int[] zonePixels = ocrConfig.Zones.Any()
+				? ocrConfig.Zones.Select(x => x.Pixels.Count).ToArray()
+				: new int[0];
+
+			if (ocrConfig.Zones.Any(x => x.ZoneId < 0))
+				return "ZoneIds must be greater or equal than zero.";
+
+			if (ocrConfig.Zones.Any(x => x.ZoneId >= ocrConfig.Zones.Count))
+				return "Each ZoneId must equal the index of the zone in the zone list.";
+
+			SetupIntegrationPreservationArea(
+				ocrConfig.Alignment.FrameTopOdd,
+				ocrConfig.Alignment.FrameTopEven,
+				ocrConfig.Alignment.CharHeight);
+
             int hr = SetupOcrAlignment(
 				 ocrConfig.Alignment.Width,
 				 ocrConfig.Alignment.Height,
@@ -445,9 +459,9 @@ namespace AAVRec.Helpers
 				 ocrConfig.Alignment.FrameTopEven,
 				 ocrConfig.Alignment.CharWidth,
 				 ocrConfig.Alignment.CharHeight,
-				 ocrConfig.Zones.Any()
-					? ocrConfig.Zones.Max(x => x.ZoneId) - 1
-					: 0);
+				 ocrConfig.Alignment.CharPositions.Count,
+				 ocrConfig.Zones.Count,
+				 zonePixels);
 
 	        if (hr != 0)
 	            return "OCR config is incompatible with the current device.";
@@ -476,6 +490,23 @@ namespace AAVRec.Helpers
                     SetupOcrCharDefinitionZone(charDef.Character[0], zoneSignt.ZoneId, (int)zoneSignt.ZoneValue, pixelsInZone);
                 }
             }
+
+			//for (int y = 0; y < ocrConfig.Alignment.Height; y++) 
+			//{
+			//	for (int x = 0; x < ocrConfig.Alignment.Width; x++)
+			//	{
+			//		if (zoneChecker.OcrPixelMap[y, x] != 0)
+			//		{
+			//			int charId;
+			//			bool isOddField;
+			//			int zoneId;
+			//			int zonePixelId;
+
+			//			OcrZoneChecker.UnpackValue(zoneChecker.OcrPixelMap[y, x], out charId, out isOddField, out zoneId, out zonePixelId);
+			//			Trace.WriteLine(string.Format("[{0},{1}] = {2}|({3},{4},{5},{6})", x, y, zoneChecker.OcrPixelMap[y, x], charId, isOddField ? "O" : "E", zoneId, zonePixelId));
+			//		}
+			//	}
+			//}
 
 			SetupOcrZoneMatrix(zoneChecker.OcrPixelMap);
         }

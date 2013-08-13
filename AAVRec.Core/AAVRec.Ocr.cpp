@@ -14,6 +14,9 @@ namespace AavOcr
 
 	
 vector<OcrCharDefinition*> OCR_CHAR_DEFS;
+long OCR_NUMBER_OF_CHAR_POSITIONS;
+long OCR_NUMBER_OF_ZONES;
+long OCR_ZONE_PIXEL_COUNTS[MAX_ZONE_COUNT];
 
 OcrCharDefinition::OcrCharDefinition(char character, long fixedPosition)
 {
@@ -36,59 +39,90 @@ void OcrCharDefinition::AddZoneEntry(long zoneId, long zoneBehaviour, long numPi
 	ZoneEntries.push_back(entry);
 }
 
-OcrZoneProcessor::OcrZoneProcessor(OcrZoneEntry* zoneConfig)
+Zone::Zone(long zonePixelsCount)
 {
-	ZoneConfig = zoneConfig;
+	ZonePixelsCount = zonePixelsCount;
+
+	if (zonePixelsCount > MAX_PIXELS_IN_ZONE_COUNT)
+		throw std::exception("Zone can only have up to MAX_PIXELS_IN_ZONE_COUNT pixels");
+
+	for (int i = 0; i < MAX_PIXELS_IN_ZONE_COUNT; i++)
+	{
+		ZonePixels[i] = 0;
+	}
 }
 
-OcrCharProcessor::OcrCharProcessor(OcrCharDefinition* charDef, long charPosition)
+CharRecognizer::CharRecognizer(long charPosition)
 {
-	vector<OcrZoneEntry*>::iterator itZones = charDef->ZoneEntries.begin();
-	while(itZones != charDef->ZoneEntries.end())
+	for (int i = 0; i < MAX_ZONE_COUNT; i++)
 	{
-		OcrZoneProcessor* zoneProc = new OcrZoneProcessor(*itZones);
-
-		Zones.insert(make_pair((*itZones)->ZoneId, zoneProc));
-
-		for (int i = 0; i < (*itZones)->NumPixels; i++)
-		{
-			zoneProc->ZonePixels.push_back(0);
-		}
-
-		itZones++;
+		Zones[i] = NULL;
 	}
+
+	for (int i = 0; i < OCR_NUMBER_OF_ZONES; i++)
+	{
+		long numPixelsInZone = OCR_ZONE_PIXEL_COUNTS[i];
+		Zone* zoneProc = new Zone(numPixelsInZone);
+
+		Zones[i] = zoneProc;
+
+		for (int i = 0; i < numPixelsInZone; i++)
+		{
+			zoneProc->ZonePixels[i] = 0;
+		}
+	}
+
+	//vector<OcrZoneEntry*>::iterator itZones = charDef->ZoneEntries.begin();
+	//while(itZones != charDef->ZoneEntries.end())
+	//{
+	//	Zone* zoneProc = new Zone(*itZones);
+
+	//	if ((*itZones)->ZoneId < 0 || (*itZones)->ZoneId >= MAX_ZONE_COUNT)
+	//		throw std::exception("ZoneId must be between 0 and MAX_ZONE_COUNT");
+
+	//	Zones[(*itZones)->ZoneId] = zoneProc;
+
+	//	for (int i = 0; i < (*itZones)->NumPixels; i++)
+	//	{
+	//		zoneProc->ZonePixels[i] = 0;
+	//	}
+
+	//	itZones++;
+	//}
 
 	m_CharPosition = charPosition;
 }
 
-void OcrCharProcessor::NewFrame()
+void CharRecognizer::NewFrame()
 {
-	map<long, OcrZoneProcessor*>::iterator itZoneProc = Zones.begin();
-	while (itZoneProc != Zones.end()) 
+	for (int i = 0; i < MAX_ZONE_COUNT; i++)
 	{
-		OcrZoneProcessor* zoneProc = itZoneProc->second;
-
-		for (int i = 0; i < zoneProc->ZonePixels.size(); i++)
+		if (NULL != Zones[i])
 		{
-			zoneProc->ZonePixels[i] = 0;
-		};
-
-		itZoneProc++;
+			for (int j = 0; j < Zones[i]->ZonePixelsCount; j++)
+			{
+				Zones[i]->ZonePixels[j] = 0;
+			}
+		}
 	}
 }
 
-
-char OcrCharProcessor::Ocr(long frameMedian)
+char CharRecognizer::Ocr(long frameMedian)
 {
-	map<long, OcrZoneProcessor*>::iterator itZoneProc = Zones.begin();
-	while (itZoneProc != Zones.end()) 
+	for (int i = 0; i < MAX_ZONE_COUNT; i++)
 	{
-		OcrZoneProcessor* zoneProc = itZoneProc->second;
+		if (NULL != Zones[i])
+		{
+			Zone* zoneProc = Zones[i];
 
-		long sum = std::accumulate(zoneProc->ZonePixels.begin(), zoneProc->ZonePixels.end(), 0.0);
-		zoneProc->ZoneMean = sum / zoneProc->ZonePixels.size();
+			long sum = 0;
+			for (int j = 0; j < zoneProc->ZonePixelsCount; j++)
+			{
+				sum += zoneProc->ZonePixels[j];
+			}
 
-		itZoneProc++;
+			zoneProc->ZoneMean = sum / zoneProc->ZonePixelsCount;
+		}
 	}
 
 	long MIN_ON_VALUE = 220;
@@ -110,11 +144,12 @@ char OcrCharProcessor::Ocr(long frameMedian)
 		while(itZoneConfig != (*itCharDef)->ZoneEntries.end())
 		{
 			long zoneBEhaviour = (*itZoneConfig)->ZoneBehaviour;
-			// TODO: Are we looking in the correct place for our zone ?? Zone 0 is nowhere to be found!
-			map<long, OcrZoneProcessor*>::iterator itZoneById = Zones.find((*itZoneConfig)->ZoneId);
-			if (itZoneById != Zones.end())
+
+			Zone* zoneById = Zones[(*itZoneConfig)->ZoneId];
+
+			if (NULL != zoneById)
 			{
-				unsigned char zoneValue = itZoneById->second->ZoneMean;
+				unsigned char zoneValue = zoneById->ZoneMean;
 
 				if (zoneBEhaviour == ZoneBehaviour::On && zoneValue < MIN_ON_VALUE)
 				{
@@ -146,8 +181,6 @@ char OcrCharProcessor::Ocr(long frameMedian)
 					break;
 				}
 			}
-			else
-				DebugViewPrint(L"ZoneId %d not found among OCRed?? zones", (*itZoneConfig)->ZoneId);
 
 			itZoneConfig++;
 		}
@@ -167,19 +200,13 @@ OcrFrameProcessor::OcrFrameProcessor()
 	OddFieldChars.clear();
 	EvenFieldChars.clear();
 
-	long position = 0;
-
-	vector<OcrCharDefinition*>::iterator itCharDefs = OCR_CHAR_DEFS.begin();
-	while (itCharDefs != OCR_CHAR_DEFS.end())
+	for (int position = 0; position < OCR_NUMBER_OF_CHAR_POSITIONS; position++)
 	{
-		OcrCharProcessor* charProcEven = new OcrCharProcessor(*itCharDefs, position);
-		OcrCharProcessor* charProcOdd = new OcrCharProcessor(*itCharDefs, position);
+		CharRecognizer* charProcEven = new CharRecognizer(position);
+		CharRecognizer* charProcOdd = new CharRecognizer(position);
 
-		EvenFieldChars.insert(make_pair((*itCharDefs)->Character, charProcEven));
-		OddFieldChars.insert(make_pair((*itCharDefs)->Character, charProcOdd));
-
-		itCharDefs++;
-		position++;
+		EvenFieldChars[position] = charProcEven;
+		OddFieldChars[position] = charProcOdd;
 	}
 
 	Success = false;
@@ -189,7 +216,7 @@ void OcrFrameProcessor::NewFrame()
 {
 	m_MedianComputationValues.clear();
 
-	map<char,  OcrCharProcessor*>::iterator itCharProc = OddFieldChars.begin();
+	map<char,  CharRecognizer*>::iterator itCharProc = OddFieldChars.begin();
 	while (itCharProc != OddFieldChars.end()) 
 	{
 		itCharProc->second->NewFrame();
@@ -229,7 +256,8 @@ void OcrFrameProcessor::ProcessZonePixel(long packedInfo, long pixX, long pixY, 
 
 	if (charId >= 0 && EvenFieldChars.size() > charId)
 	{
-		OcrCharProcessor* ocredChar = isOddField ? OddFieldChars[charId] : EvenFieldChars[charId];
+		// OddFieldChars and EvenFieldChars should be an array ??
+		CharRecognizer* ocredChar = isOddField ? OddFieldChars[charId] : EvenFieldChars[charId];
 
 		ocredChar->Zones[zoneId]->ZonePixels[zonePixelId] = pixelValue;
 	}
@@ -243,7 +271,7 @@ void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 		long medianValue = m_MedianComputationValues[m_MedianComputationValues.size() / 2];
 
 		int position = 0;
-		map<char,  OcrCharProcessor*>::iterator itCharProc = OddFieldChars.begin();
+		map<char,  CharRecognizer*>::iterator itCharProc = OddFieldChars.begin();
 		while (itCharProc != OddFieldChars.end()) 
 		{
 			char chr = itCharProc->second->Ocr(medianValue);
@@ -327,10 +355,17 @@ void OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtc
 	::ZeroMemory(fieldNoStr, 7);
 	char* fieldNoPtr = &fieldNoStr[0];
 	bool fieldNoBeginingFound = false;
+	bool gapFound = false;
 	for (int i = 17; i < 23; i++)
 	{
 		if (ocredChars[i] != 0)
 		{
+			if (gapFound)
+			{
+				fieldNoBeginingFound = false;
+				break;
+			}
+
 			*fieldNoPtr = ocredChars[i];
 			fieldNoPtr++;
 			fieldNoBeginingFound = true;
@@ -338,7 +373,7 @@ void OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtc
 		else
 		{
 			if (fieldNoBeginingFound)
-				success = false;
+				gapFound = true;
 		}
 	}
 

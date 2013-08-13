@@ -111,7 +111,7 @@ namespace AAVRec.OCR
             }
         }
 
-        public int GetPackedValue(int charId, bool isOddField, int zoneId, int zonePixelId)
+        public static int GetPackedValue(int charId, bool isOddField, int zoneId, int zonePixelId)
         {
             return
                 (isOddField ? 0x01000000 : 0x02000000) +
@@ -120,7 +120,7 @@ namespace AAVRec.OCR
                 ((zonePixelId & 0xFF));
         }
 
-        public void UnpackValue(int packed, out int charId, out bool isOddField, out int zoneId, out int zonePixelId)
+        public static void UnpackValue(int packed, out int charId, out bool isOddField, out int zoneId, out int zonePixelId)
         {
             isOddField = (packed & 0x01000000) != 0;
             charId = (packed >> 16) & 0xFF;

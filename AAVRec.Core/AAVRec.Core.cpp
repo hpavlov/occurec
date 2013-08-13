@@ -40,7 +40,8 @@ long OCR_FRAME_TOP_EVEN;
 long OCR_CHAR_WIDTH;
 long OCR_CHAR_FIELD_HEIGHT; 
 long* OCR_ZONE_MATRIX = NULL; 
-long OCR_NUMBER_OF_ZONES;
+//long OCR_NUMBER_OF_ZONES;
+//long OCR_NUMBER_OF_CHAR_POSITIONS;
 
 long MEDIAN_CALC_INDEX_FROM;
 long MEDIAN_CALC_INDEX_TO;
@@ -253,7 +254,16 @@ HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDet
 	return S_OK;
 }
 
-HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfZones)
+HRESULT SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int areaHeight)
+{
+	OCR_FRAME_TOP_ODD = areaTopOdd;
+	OCR_FRAME_TOP_EVEN = areaTopEven;
+	OCR_CHAR_FIELD_HEIGHT = areaHeight;
+
+	return S_OK;
+}
+
+HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfCharPositions, long numberOfZones, long* pixelsInZones)
 {
 	if (IMAGE_WIDTH != width || IMAGE_HEIGHT != height)
 	{
@@ -266,6 +276,7 @@ HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameT
 	OCR_CHAR_WIDTH = charWidth;
 	OCR_CHAR_FIELD_HEIGHT = charHeight;
 	OCR_NUMBER_OF_ZONES = numberOfZones;
+	OCR_NUMBER_OF_CHAR_POSITIONS = numberOfCharPositions;
 
 	if (NULL != OCR_ZONE_MATRIX)
 	{
@@ -279,6 +290,15 @@ HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameT
 	MEDIAN_CALC_INDEX_FROM = MEDIAN_CALC_ROWS_FROM * IMAGE_WIDTH;
 	MEDIAN_CALC_INDEX_TO = MEDIAN_CALC_ROWS_TO * IMAGE_WIDTH;
 	
+	for (int i = 0; i < MAX_ZONE_COUNT; i++)
+	{
+		if (i < numberOfZones)
+			OCR_ZONE_PIXEL_COUNTS[i] = pixelsInZones[i];
+		else
+			OCR_ZONE_PIXEL_COUNTS[i] = 0;
+	}
+	
+
 	return S_OK;
 }
 
@@ -287,8 +307,30 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 	if (NULL == OCR_ZONE_MATRIX)
 		OCR_ZONE_MATRIX = (long*)malloc(IMAGE_TOTAL_PIXELS * sizeof(long));
 
-	memcpy(OCR_ZONE_MATRIX, matrix, IMAGE_TOTAL_PIXELS);
+	// memcpy didn't work??
+	// memcpy(&OCR_ZONE_MATRIX[0], &matrix[0], IMAGE_TOTAL_PIXELS);
 	
+	for (long i=0; i < IMAGE_TOTAL_PIXELS; i++)
+	{
+		OCR_ZONE_MATRIX[i] = matrix[i];
+
+/*		long pixX = i % IMAGE_WIDTH;
+		long pixY = i / IMAGE_WIDTH; 
+		long packed = OCR_ZONE_MATRIX[pixY * IMAGE_WIDTH + pixX];
+
+		if (packed != 0)
+		{
+			long charId;
+			bool isOddField;
+			long zoneId;
+			long zonePixelId;
+
+			UnpackValue(packed, &charId, &isOddField, &zoneId, &zonePixelId);
+
+			DebugViewPrint(L"<%d,%d> = %d|(%d,%s,%d,%d)", pixX, pixY, packed, charId, isOddField ? "O" : "E", zoneId, zonePixelId);
+		}*/			
+	}
+
 	if (NULL != firstFrameOcrProcessor)
 	{
 		delete firstFrameOcrProcessor;
@@ -304,6 +346,7 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 	lastFrameOcrProcessor = new OcrFrameProcessor();
 
 	OCR_IS_SETUP = true;
+
 	return S_OK;
 }
 
@@ -706,6 +749,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 		int restoredPixels = 0;
 
+		//DebugViewPrint(L"NEW FRAME");
 		for (long i=0; i < IMAGE_TOTAL_PIXELS; i++)
 		{
 			long pixX = i % IMAGE_WIDTH;
@@ -724,6 +768,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				{
 					firstFrameOcrProcessor->ProcessZonePixel(packedInfo, pixX, pixY, firstIntegratedFramePixels[i]);
 					lastFrameOcrProcessor->ProcessZonePixel(packedInfo,  pixX, pixY, lastIntegratedFramePixels[i]);
+					//DebugViewPrint(L"(%d,%d) = %d", pixX, pixY, packedInfo);
 				}
 			}
 

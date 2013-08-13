@@ -7,9 +7,13 @@
 
 using namespace std;
 
+#define MAX_ZONE_COUNT 16
+#define MAX_PIXELS_IN_ZONE_COUNT 32
+
 namespace AavOcr
 {
 
+// Types of 'values' that a zone can have when matched against a configuration in order to recognize a character
 enum ZoneBehaviour
 {
   On = 0,
@@ -19,6 +23,7 @@ enum ZoneBehaviour
   NotOff = 4
 };
 
+// 
 class OcrZoneEntry
 {
 	public:
@@ -27,6 +32,7 @@ class OcrZoneEntry
 		long NumPixels;
 };
 
+// 
 class OcrZoneValue
 {
 	public:
@@ -34,6 +40,7 @@ class OcrZoneValue
 		long AccumulatedZoneValue;
 };
 
+// Configuration of the zone values that match to a specific character that can be recognized
 class OcrCharDefinition 
 {
 	public:
@@ -47,31 +54,34 @@ class OcrCharDefinition
 		void AddZoneEntry(long zoneId, long zoneBehaviour, long numPixelsInZone);
 };
 
-class OcrZoneProcessor
+// Holds the pixel values for a single zone of a single character position
+class Zone
 {
 	public:
 		unsigned char ZoneMean;
-		OcrZoneEntry* ZoneConfig;
+		long ZonePixelsCount;
 
-		OcrZoneProcessor(OcrZoneEntry* zoneConfig);
+		Zone(long zonePixelsCount);
 
-		vector<unsigned char> ZonePixels;
+		unsigned char ZonePixels[MAX_PIXELS_IN_ZONE_COUNT];
 };
 
-class OcrCharProcessor
+// Recognizes a single character
+class CharRecognizer
 {
 	private:
 		long m_CharPosition;
 
 	public:
-		map<long, OcrZoneProcessor*> Zones;
+		Zone* Zones[MAX_ZONE_COUNT];
 
-		OcrCharProcessor(OcrCharDefinition* charDef, long charPosition);
+		CharRecognizer(long charPosition);
 
 		void NewFrame();
 		char Ocr(long medianValue);
 };
 
+// Holds the OCR-ed information from a video field
 class OcredFieldOsd
 {
 	public:
@@ -82,12 +92,13 @@ class OcredFieldOsd
 		char GpsFixType;
 };
 
+// Processes each video frame and OCRs data from the video fields in the frame
 class OcrFrameProcessor
 {
 	private:
 		vector<unsigned char> m_MedianComputationValues;
-		map<char, OcrCharProcessor*> OddFieldChars;
-		map<char, OcrCharProcessor*> EvenFieldChars;
+		map<char, CharRecognizer*> OddFieldChars;
+		map<char, CharRecognizer*> EvenFieldChars;
 		bool m_IsOddFieldDataFirst;
 
 		char m_OcredCharsOdd[25];
@@ -118,6 +129,11 @@ class OcrFrameProcessor
 };
 
 extern vector<OcrCharDefinition*> OCR_CHAR_DEFS;
+extern long OCR_NUMBER_OF_CHAR_POSITIONS;
+extern long OCR_NUMBER_OF_ZONES;
+extern long OCR_ZONE_PIXEL_COUNTS[MAX_ZONE_COUNT];
+
+void UnpackValue(long packed, long* charId, bool* isOddField, long* zoneId, long* zonePixelId);
 
 }
 

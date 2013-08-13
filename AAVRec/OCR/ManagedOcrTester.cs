@@ -155,7 +155,7 @@ namespace AAVRec.OCR
                         int zoneId;
                         int zonePixelId;
 
-                        zoneChecker.UnpackValue(packedVal, out charId, out isOddField, out zoneId, out zonePixelId);
+						OcrZoneChecker.UnpackValue(packedVal, out charId, out isOddField, out zoneId, out zonePixelId);
 
                         OcredChar ocredChar = isOddField ? ocredCharsOdd[charId] : ocredCharsEven[charId];
 

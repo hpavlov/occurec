@@ -55,8 +55,7 @@ extern long OCR_FRAME_TOP_ODD;
 extern long OCR_FRAME_TOP_EVEN;
 extern long OCR_CHAR_WIDTH;
 extern long OCR_CHAR_FIELD_HEIGHT;
-extern long* OCR_ZONE_MATRIX;
-extern long OCR_NUMBER_OF_ZONES;
+extern long* OCR_ZONE_MATRIX;	
 
 extern long MEDIAN_CALC_INDEX_FROM;
 extern long MEDIAN_CALC_INDEX_TO;
@@ -68,7 +67,8 @@ void FrameProcessingThreadProc(void* pContext);
 
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating);
 HRESULT SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float diffGamma);
-HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight);
+HRESULT SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int areaHeight);
+HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfCharPositions, long numberOfZones, long* pixelsInZones);
 HRESULT SetupOcrZoneMatrix(long* matrix);
 HRESULT SetupOcrChar(char character, long fixedPosition);
 HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue);

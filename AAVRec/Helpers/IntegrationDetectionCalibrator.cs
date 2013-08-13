@@ -132,6 +132,9 @@ namespace AAVRec.Helpers
                     Settings.Default.Save();
 
                     NativeHelpers.ReconfigureIntegrationDetection((float)Settings.Default.SignatureDiffFactorEx2, (float)Settings.Default.MinSignatureDiff, (float)Settings.Default.GammaDiff);
+
+					Trace.WriteLine(string.Format("Successful calibration DiffGamma={0:0.00}; MinDiff={1:0.00}; Factor={2:0.00}", Settings.Default.GammaDiff, Settings.Default.MinSignatureDiff, Settings.Default.SignatureDiffFactorEx2));
+
                     return true;
                 }
 			}
