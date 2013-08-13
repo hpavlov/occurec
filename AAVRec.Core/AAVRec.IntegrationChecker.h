@@ -10,7 +10,7 @@ namespace AAVRec
 	{
 		private:
 			bool integrationDetectionTuning;
-			float signatureDifferenceFactor;
+			float minimumSignatureRatio;
 			float minimumSignatureDifference;
 
 			float pastSignaturesAverage;
@@ -35,7 +35,7 @@ namespace AAVRec
 			void RecalculateLowIntegrationMetrics();
 
 		public:
-			IntegrationChecker(float differenceFactor, float minimumDifference);
+			IntegrationChecker(float differenceRatio, float minimumDifference);
 
 			float NewIntegrationPeriodCutOffRatio;
 			float CurrentSignatureRatio;

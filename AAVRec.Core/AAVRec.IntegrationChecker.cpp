@@ -9,9 +9,9 @@
 
 namespace AAVRec
 {
-	IntegrationChecker::IntegrationChecker(float differenceFactor, float minimumDifference)
+	IntegrationChecker::IntegrationChecker(float differenceRatio, float minimumDifference)
 	{
-		signatureDifferenceFactor = differenceFactor;
+		minimumSignatureRatio = differenceRatio;
 		minimumSignatureDifference = minimumDifference;
 
 		pastSignaturesAverage = 0;
@@ -98,6 +98,7 @@ namespace AAVRec
 	bool IntegrationChecker::IsNewIntegrationPeriod(__int64 idxFrameNumber, float diffSignature)
 	{
 		float diff = 0;
+		float diffRatio = 1;
 		bool isNewIntegrationPeriod = false;
 	
 		if (idxFrameNumber % 128 == 0)
@@ -157,10 +158,11 @@ namespace AAVRec
 		if (lowFrameIntegrationMode == 0)
 		{
 			diff = abs(pastSignaturesAverage - diffSignature);
-	
+			diffRatio = diffSignature / pastSignaturesAverage;
+
 			isNewIntegrationPeriod = 
 				pastSignaturesCount >= MAX_INTEGRATION || 
-				(pastSignaturesCount > 1 && diff > minimumSignatureDifference /*&& diff > signatureDifferenceFactor * pastSignaturesSigma*/);
+				(pastSignaturesCount > 1 && (diff > minimumSignatureDifference || diffRatio > minimumSignatureRatio));
 		}
 
 		long currSignaturesHistoryIndex = (long)((idxFrameNumber % (long long)LOW_INTEGRATION_CHECK_POOL_SIZE) & 0xFFFF);
@@ -173,17 +175,25 @@ namespace AAVRec
 
 			RecalculateLowIntegrationMetrics();
 
-			float allLowFrameDiff = abs(allLowFrameSignAverage - diffSignature);
-			float MAX_LOW_INT_SAMEFRAME_SIGMA = 3 * minimumSignatureDifference / signatureDifferenceFactor;
+			//LowIntData Even:0.144 +/- 0.004 (MAX: 0.020); Odd:0.488 +/- 0.012(MAX: 0.048); All:0.316 +/- 0.100 (MAX: 0.203)	
+			//FRID:6144 PSC:45 DF:0.16211 D:0.18983 0.26929 1.39177 SM:15.837 AVG:0.35194 RSSM:1.56898 SGM:0.02784 CSI:0 LFIM: 0 NEW: 0	
+			// DebugViewPrint(L"LowIntData Even:%.3f +/- %.3f (MAX: %.3f); Odd:%.3f +/- %.3f(MAX: %.3f); All:%.3f +/- %.3f (MAX: %.3f)\n", 
+			//			evenLowFrameSignAverage, evenLowFrameSignSigma, evenSignMaxResidual, 
+			//			oddLowFrameSignAverage, oddLowFrameSignSigma, oddSignMaxResidual,
+			//			allLowFrameSignAverage, allLowFrameSignSigma, allSignMaxResidual); 
+
+			float allEvenFrameDiff = abs(allLowFrameSignAverage - evenLowFrameSignSigma);
+			float allOddFrameDiff = abs(allLowFrameSignAverage - oddLowFrameSignSigma);
+			float evenOddFrameDiff = abs(evenLowFrameSignSigma - oddLowFrameSignSigma);
 
 			// NOTE: This code is still 'IN TESTING' and may not work
-			if (evenLowFrameSignSigma <= MAX_LOW_INT_SAMEFRAME_SIGMA && oddLowFrameSignSigma <= MAX_LOW_INT_SAMEFRAME_SIGMA && allLowFrameSignSigma > MAX_LOW_INT_SAMEFRAME_SIGMA)
+			if (evenOddFrameDiff > minimumSignatureDifference)
 			{
 				// 2-Frame integration
 				lowFrameIntegrationMode = 2;
 				isNewIntegrationPeriod = false; // will be checked on the next frame in the lowFrameIntegrationMode specific code
 			}
-			else if (allLowFrameSignSigma <= MAX_LOW_INT_SAMEFRAME_SIGMA)
+			else if (3 * allEvenFrameDiff < minimumSignatureDifference && 3 * allOddFrameDiff < minimumSignatureDifference)
 			{
 				// 1-Frame integration (No integration)
 				lowFrameIntegrationMode = 1;
@@ -196,18 +206,18 @@ namespace AAVRec
 			}
 
 	#if _DEBUG
-			DebugViewPrint(L"lowFrameIntegrationMode = %d; MAX_LOW_INT_SAMEFRAME_SIGMA = %.5f\n", lowFrameIntegrationMode, MAX_LOW_INT_SAMEFRAME_SIGMA);
+			DebugViewPrint(L"lowFrameIntegrationMode = %d; ALL-EVEN = %.5f; ALL-ODD = %.5f; ODD-EVEN = %.5f; DIFF_SIGN/3 = %.5f\n", lowFrameIntegrationMode, allEvenFrameDiff, allOddFrameDiff, evenOddFrameDiff, minimumSignatureDifference/3);
 	#endif
 
 		}
 
 		if (integrationDetectionTuning)
 			DebugViewPrint(L"FRID:%I64d PSC:%d DF:%.5f D:%.5f %.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f CSI:%d LFIM: %d NEW: %d\n", 
-				idxFrameNumber, pastSignaturesCount, diffSignature, diff, minimumSignatureDifference, signatureDifferenceFactor * pastSignaturesSigma, 
+				idxFrameNumber, pastSignaturesCount, diffSignature, diff, minimumSignatureDifference, minimumSignatureRatio, 
 				pastSignaturesSum, pastSignaturesAverage, pastSignaturesResidualSquareSum, pastSignaturesSigma, currSignaturesHistoryIndex, lowFrameIntegrationMode, isNewIntegrationPeriod); 
 
 		if (pastSignaturesCount < MAX_INTEGRATION && pastSignaturesCount > 1)
-			CurrentSignatureRatio = diff / (signatureDifferenceFactor * pastSignaturesSigma);
+			CurrentSignatureRatio = minimumSignatureRatio;
 		else
 			CurrentSignatureRatio = 0;
 
@@ -219,7 +229,7 @@ namespace AAVRec
 			pastSignaturesResidualSquareSum = 0;
 			pastSignaturesSigma = 0;
 
-			NewIntegrationPeriodCutOffRatio = diff / (signatureDifferenceFactor * pastSignaturesSigma);
+			NewIntegrationPeriodCutOffRatio = minimumSignatureRatio;
 
 			return true;
 		}

@@ -92,11 +92,20 @@ namespace AAVRec.Helpers
                     .Max(); // Find the maxium difference from LOW value
 
 				float absoluteMinSignDiff = (absoluteSameFrameMaxSignDiff + absoluteNewFrameMinSignDiff) / 2.0f;
-                float absoluteMaxDiffFact = absoluteMinSignDiff / pastSignaturesSigma;
 
-                Trace.WriteLine(string.Format("{0}|{1}|{2}", bestCycle.GammaRate, absoluteMinSignDiff, absoluteMaxDiffFact));
+				//          New		Same	Ratio
+				// x4		0.65	0.19	4.32	
+				// x8		1.11	0.27	4.11
+				// x16		1.08	0.30	3.6
+				// x32		1.33	0.15	8.86
+				// x64		1.75	0.3		5.83
+				// x128		2.9		0.3		9.73
 
-			    NativeHelpers.InitIntegrationDetectionTesting(absoluteMaxDiffFact, absoluteMinSignDiff);
+                float absoluteMinDiffRatio = bestCycle.HighAverageSignature / bestCycle.LowAverageSignature;
+
+				Trace.WriteLine(string.Format("{0}|{1}|{2}", bestCycle.GammaRate, absoluteMinSignDiff, absoluteMinDiffRatio));
+
+				NativeHelpers.InitIntegrationDetectionTesting(absoluteMinDiffRatio, absoluteMinSignDiff);
 			    int lastDetectedPeriodRate = -1;
 			    List<float> testData = data[bestCycle.GammaRate];
 			    bool calibrationIsSuccessul = true;
@@ -127,15 +136,15 @@ namespace AAVRec.Helpers
                 if (calibrationIsSuccessul)
                 {
                     Settings.Default.MinSignatureDiff = absoluteMinSignDiff;
-					Settings.Default.SignatureDiffFactorEx2 = absoluteMaxDiffFact;
+					Settings.Default.MinSignatureDiffRatio = absoluteMinDiffRatio;
                     Settings.Default.GammaDiff = bestCycle.GammaRate;
                     Settings.Default.Save();
 
-                    NativeHelpers.ReconfigureIntegrationDetection((float)Settings.Default.SignatureDiffFactorEx2, (float)Settings.Default.MinSignatureDiff, (float)Settings.Default.GammaDiff);
+					Trace.WriteLine(string.Format("Successful calibration DiffGamma={0:0.00}; MinDiff={1:0.00}; Ratio={2:0.00}", Settings.Default.GammaDiff, Settings.Default.MinSignatureDiff, Settings.Default.MinSignatureDiffRatio));
 
-					Trace.WriteLine(string.Format("Successful calibration DiffGamma={0:0.00}; MinDiff={1:0.00}; Factor={2:0.00}", Settings.Default.GammaDiff, Settings.Default.MinSignatureDiff, Settings.Default.SignatureDiffFactorEx2));
+                    NativeHelpers.ReconfigureIntegrationDetection((float)Settings.Default.MinSignatureDiffRatio, (float)Settings.Default.MinSignatureDiff, (float)Settings.Default.GammaDiff);
 
-                    return true;
+					return true;
                 }
 			}
 

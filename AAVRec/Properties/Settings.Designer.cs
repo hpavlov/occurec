@@ -133,18 +133,6 @@ namespace AAVRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("10")]
-        public double SignatureDiffFactorEx2 {
-            get {
-                return ((double)(this["SignatureDiffFactorEx2"]));
-            }
-            set {
-                this["SignatureDiffFactorEx2"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool UsesTunerCrossbar {
             get {
@@ -193,7 +181,7 @@ namespace AAVRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.2")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.3")]
         public float MinSignatureDiff {
             get {
                 return ((float)(this["MinSignatureDiff"]));
@@ -236,18 +224,6 @@ namespace AAVRec.Properties {
             }
             set {
                 this["SimulatorFrameRate"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string OcrDebugOutputFolder {
-            get {
-                return ((string)(this["OcrDebugOutputFolder"]));
-            }
-            set {
-                this["OcrDebugOutputFolder"] = value;
             }
         }
         
@@ -505,7 +481,7 @@ namespace AAVRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.45")]
         public float GammaDiff {
             get {
                 return ((float)(this["GammaDiff"]));
@@ -524,6 +500,18 @@ namespace AAVRec.Properties {
             }
             set {
                 this["CalibrationIntegrationRate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public float MinSignatureDiffRatio {
+            get {
+                return ((float)(this["MinSignatureDiffRatio"]));
+            }
+            set {
+                this["MinSignatureDiffRatio"] = value;
             }
         }
     }

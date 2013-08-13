@@ -53,14 +53,14 @@ bool FLIP_VERTICALLY;
 bool FLIP_HORIZONTALLY;
 
 bool IS_INTEGRATING_CAMERA;
-float SIGNATURE_DIFFERENCE_FACTOR;
+float SIGNATURE_DIFFERENCE_RATIO;
 float MINIMUM_SIGNATURE_DIFFERENCE;
 bool USES_DIFF_GAMMA;
 unsigned char GAMMA[256];
 
 bool INTEGRATION_LOCKED;
 
-#define INTEGRATION_CALIBRATION_CYCLES 6
+#define INTEGRATION_CALIBRATION_CYCLES 10
 #define GAMMA_PROBES_COUNT 10
 #define MAX_CALIBRATION_SIGNATURES_SIZE 256 * GAMMA_PROBES_COUNT * INTEGRATION_CALIBRATION_CYCLES
 
@@ -186,7 +186,7 @@ HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas)
 
 AAVRec::IntegrationChecker* testChecker = NULL;
 
-HRESULT InitNewIntegrationPeriodTesting(float differenceFactor, float minimumDifference)
+HRESULT InitNewIntegrationPeriodTesting(float differenceRatio, float minimumDifference)
 {
 	if (NULL != testChecker)
 	{
@@ -194,7 +194,7 @@ HRESULT InitNewIntegrationPeriodTesting(float differenceFactor, float minimumDif
 		testChecker = NULL;
 	}
 
-	testChecker = new AAVRec::IntegrationChecker(differenceFactor, minimumDifference);
+	testChecker = new AAVRec::IntegrationChecker(differenceRatio, minimumDifference);
 	testChecker->ControlIntegrationDetectionTuning(true);
 
 	return S_OK;
@@ -249,7 +249,24 @@ HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDet
 	
 	strcpy(&aavRecVersion[0], (char *)szAavRecVersion);
 
-	DebugViewPrint(L"AAVSetup: ImageLayout = %d; BufferedMode = %d; IntegrationTuning: %d\n", USE_IMAGE_LAYOUT, USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? 1:0); 
+	switch(USE_IMAGE_LAYOUT)
+	{
+		case 1:
+			DebugViewPrint(L"AAVSetup: ImageLayout = FULL-IMAGE-RAW::UNCOMPRESSED; BufferedMode = %d; IntegrationTuning: %s\n", USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
+			break;
+		case 2:
+			DebugViewPrint(L"AAVSetup: ImageLayout = FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS::QUICKLZ; BufferedMode = %d; IntegrationTuning: %s\n", USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
+			break;
+		case 3:
+			DebugViewPrint(L"AAVSetup: ImageLayout = FULL-IMAGE-DIFFERENTIAL-CODING::QUICKLZ; BufferedMode = %d; IntegrationTuning: %s\n", USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
+			break;
+		case 4:
+			DebugViewPrint(L"AAVSetup: ImageLayout = FULL-IMAGE-RAW::QUICKLZ; BufferedMode = %d; IntegrationTuning: %s\n", USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
+			break;
+		default:
+			DebugViewPrint(L"AAVSetup: ImageLayout = %s; BufferedMode = %d; IntegrationTuning: %s\n", USE_IMAGE_LAYOUT, USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
+			break;
+	}
 
 	return S_OK;
 }
@@ -470,11 +487,11 @@ HRESULT SetupCamera(
 	return S_OK;
 }
 
-HRESULT SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float diffGamma)
+HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float diffGamma)
 {
 	SyncLock::LockIntDet();
 
-	SIGNATURE_DIFFERENCE_FACTOR = signDiffFactor;
+	SIGNATURE_DIFFERENCE_RATIO = minDiffRatio;
 	MINIMUM_SIGNATURE_DIFFERENCE = minSignDiff;
     SetupDiffGammaMemoryTable(diffGamma);
 
@@ -484,13 +501,13 @@ HRESULT SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float
 		integrationChecker = NULL;
 	}
 
-	integrationChecker = new AAVRec::IntegrationChecker(SIGNATURE_DIFFERENCE_FACTOR, MINIMUM_SIGNATURE_DIFFERENCE);
+	integrationChecker = new AAVRec::IntegrationChecker(SIGNATURE_DIFFERENCE_RATIO, MINIMUM_SIGNATURE_DIFFERENCE);
 	integrationChecker->ControlIntegrationDetectionTuning(INTEGRATION_DETECTION_TUNING);
 
 	SyncLock::UnlockIntDet();
 
 #if _DEBUG
-	DebugViewPrint(L"SetupCamera(SIGNATURE_DIFFERENCE_FACTOR = %.2f; INTEGRATION_LOCKED = %d)\n", SIGNATURE_DIFFERENCE_FACTOR, INTEGRATION_LOCKED); 
+	DebugViewPrint(L"SetupIntegrationDetection(SIGNATURE_DIFFERENCE_RATIO = %.2f; MINIMUM_SIGNATURE_DIFFERENCE = %.2f; INTEGRATION_LOCKED = %d)\n", SIGNATURE_DIFFERENCE_RATIO, MINIMUM_SIGNATURE_DIFFERENCE, INTEGRATION_LOCKED); 
 #endif
 
 	return S_OK;
@@ -508,6 +525,7 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->UniqueFrameNo = latestImageStatus.UniqueFrameNo;
 	imageStatus->PerformedAction = latestImageStatus.PerformedAction;
 	imageStatus->PerformedActionProgress = latestImageStatus.PerformedActionProgress;
+	imageStatus->DetectedIntegrationRate = latestImageStatus.DetectedIntegrationRate;
 
 	return S_OK;
 }
@@ -718,6 +736,8 @@ void CalculateDiffSignature2(long* pixels, float* signatureThisPrev)
 	HandleCalibrationAfterSignatureCalc(*signatureThisPrev);
 }
 
+long detectedIntegrationRate = 0;
+
 long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks)
 {
 	// TODO: Prepare a new IntegratedFrame object, copy the averaged integratedPixels, set the start/end frame and timestamp, put in the buffer for recording.
@@ -725,6 +745,10 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 	long numItems = 0;
 
 	idxIntegratedFrameNumber++;
+
+	if (isNewIntegrationPeriod)	
+		detectedIntegrationRate = numberOfIntegratedFrames;
+
 
 	if (numberOfIntegratedFrames == 0)
 	{
@@ -839,7 +863,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		latestImageStatus.StartExposureTicks = idxFirstFrameTimestamp;
 		latestImageStatus.EndExposureFrameNo = idxLastFrameNumber;
 		latestImageStatus.EndExposureTicks = idxLastFrameTimestamp;
-
+		latestImageStatus.DetectedIntegrationRate = detectedIntegrationRate;
 
 		if (INTEGRATION_CALIBRATION)
 		{

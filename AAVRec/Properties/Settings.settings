@@ -29,9 +29,6 @@
     <Setting Name="FlipHorizontally" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="SignatureDiffFactorEx2" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">10</Value>
-    </Setting>
     <Setting Name="UsesTunerCrossbar" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
@@ -45,7 +42,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="MinSignatureDiff" Type="System.Single" Scope="User">
-      <Value Profile="(Default)">0.2</Value>
+      <Value Profile="(Default)">0.3</Value>
     </Setting>
     <Setting Name="DisplayTimeInUT" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -55,9 +52,6 @@
     </Setting>
     <Setting Name="SimulatorFrameRate" Type="System.Single" Scope="User">
       <Value Profile="(Default)">25</Value>
-    </Setting>
-    <Setting Name="OcrDebugOutputFolder" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="OcrCameraTestModeAvi" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -123,10 +117,13 @@
       <Value Profile="(Default)">720x576 PAL</Value>
     </Setting>
     <Setting Name="GammaDiff" Type="System.Single" Scope="User">
-      <Value Profile="(Default)">1</Value>
+      <Value Profile="(Default)">0.45</Value>
     </Setting>
     <Setting Name="CalibrationIntegrationRate" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="MinSignatureDiffRatio" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">5</Value>
     </Setting>
   </Settings>
 </SettingsFile>

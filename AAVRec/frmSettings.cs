@@ -27,14 +27,13 @@ namespace AAVRec
 		    tabControl.TabPages.Remove(tabDebug);
 #endif
 
-		    nudSignDiffFactor.Value = Math.Min(50, Math.Max(1, (decimal)Settings.Default.SignatureDiffFactorEx2));
+			nudSignDiffRatio.Value = Math.Min(50, Math.Max(1, (decimal)Settings.Default.MinSignatureDiffRatio));
             nudMinSignDiff.Value = Math.Min(10, Math.Max(0, (decimal)Settings.Default.MinSignatureDiff));
 		    cbxGraphDebugMode.Checked = Settings.Default.VideoGraphDebugMode;
             tbxOutputLocation.Text = Settings.Default.OutputLocation;
             cbxTimeInUT.Checked = Settings.Default.DisplayTimeInUT;
 
 		    tbxSimlatorFilePath.Text = Settings.Default.SimulatorFilePath;
-            tbxOcrDebugOutputLocation.Text = Settings.Default.OcrDebugOutputFolder;
 
             cbxOcrCameraTestModeAvi.Checked = Settings.Default.OcrCameraTestModeAvi;
             cbxOcrCameraTestModeAav.Checked = Settings.Default.OcrCameraTestModeAav;
@@ -80,7 +79,7 @@ namespace AAVRec
         private void btnOK_Click(object sender, EventArgs e)
         {
             Settings.Default.VideoGraphDebugMode = cbxGraphDebugMode.Checked;
-            Settings.Default.SignatureDiffFactorEx2 = (double) nudSignDiffFactor.Value;
+			Settings.Default.MinSignatureDiffRatio = (float)nudSignDiffRatio.Value;
             Settings.Default.MinSignatureDiff = (float)nudMinSignDiff.Value;
 			Settings.Default.GammaDiff = (float)nudGammaDiff.Value;
 
@@ -91,19 +90,10 @@ namespace AAVRec
                 return;
             }
 
-            if ((cbxOcrCameraTestModeAvi.Checked || cbxOcrSimlatorTestMode.Checked || cbxOcrCameraTestModeAav.Checked) &&
-                !Directory.Exists(tbxOcrDebugOutputLocation.Text))
-            {
-                MessageBox.Show("Debug output location must be an existing directory when using Camera or Simulator OCR testing.");
-                tbxOcrDebugOutputLocation.Focus();
-                return;                
-            }
-
             Settings.Default.OutputLocation = tbxOutputLocation.Text;
             Settings.Default.DisplayTimeInUT = cbxTimeInUT.Checked;
 
             Settings.Default.SimulatorFilePath = tbxSimlatorFilePath.Text;
-            Settings.Default.OcrDebugOutputFolder = tbxOcrDebugOutputLocation.Text;
 
             Settings.Default.OcrCameraTestModeAvi = cbxOcrCameraTestModeAvi.Checked;
             Settings.Default.OcrCameraTestModeAav = cbxOcrCameraTestModeAav.Checked;
@@ -143,16 +133,6 @@ namespace AAVRec
         {
             if (openAavFileDialog.ShowDialog(this) == DialogResult.OK)
                 tbxSimlatorFilePath.Text = openAavFileDialog.FileName;
-        }
-
-        private void btnBrowseDebugFolder_Click(object sender, EventArgs e)
-        {
-            folderBrowserDialog.SelectedPath = tbxOutputLocation.Text;
-
-            if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
-            {
-                tbxOcrDebugOutputLocation.Text = folderBrowserDialog.SelectedPath;
-            }
         }
 
         private void cbxSimulatorRunOCR_CheckedChanged(object sender, EventArgs e)

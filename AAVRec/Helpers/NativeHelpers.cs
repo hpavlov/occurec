@@ -102,6 +102,8 @@ namespace AAVRec.Helpers
         public long UniqueFrameNo;
         public int PerformedAction;
         public float PerformedActionProgress;
+		public int DetectedIntegrationRate;
+	    public int DropedFramesSinceIntegrationLock;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -180,7 +182,7 @@ namespace AAVRec.Helpers
             bool isIntegrating);
 
 	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-	    private static extern int SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float diffGamma);
+		private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma);
 
 	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string aavRecVersion);
@@ -216,7 +218,7 @@ namespace AAVRec.Helpers
         private static extern int GetIntegrationCalibrationData([In, MarshalAs(UnmanagedType.LPArray)] float[] rawSignatures, [In, MarshalAs(UnmanagedType.LPArray)] float[] gammas);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int InitNewIntegrationPeriodTesting(float differenceFactor, float minimumDifference);
+        private static extern int InitNewIntegrationPeriodTesting(float differenceRatio, float minimumDifference);
 
         [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int TestNewIntegrationPeriod(long frameNo, float diffSignature, [In, Out] ref bool isNew);
@@ -397,18 +399,18 @@ namespace AAVRec.Helpers
 
         public static void SetupCamera(string cameraModel, int width, int height, 
 			bool flipHorizontally, bool flipVertically,
-			bool isIntegrating, float signDiffFactor, float minSignDiff, float gammaDiff)
+			bool isIntegrating, float differenceRatio, float minSignDiff, float gammaDiff)
         {
             imageWidth = width;
             imageHeight = height;
 
 			SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating);
-            SetupIntegrationDetection(signDiffFactor, minSignDiff, gammaDiff);
+			SetupIntegrationDetection(differenceRatio, minSignDiff, gammaDiff);
         }
 
-        public static void ReconfigureIntegrationDetection(float signDiffFactor, float minSignDiff, float gammaDiff)
+        public static void ReconfigureIntegrationDetection(float differenceRatio, float minSignDiff, float gammaDiff)
         {
-            SetupIntegrationDetection(signDiffFactor, minSignDiff, gammaDiff);
+			SetupIntegrationDetection(differenceRatio, minSignDiff, gammaDiff);
         }
 
 		private static AssemblyFileVersionAttribute ASSEMBLY_FILE_VERSION = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
@@ -594,9 +596,9 @@ namespace AAVRec.Helpers
             return rv;
         }
 
-        public static bool InitIntegrationDetectionTesting(float differenceFactor, float minimumDifference)
+		public static bool InitIntegrationDetectionTesting(float differenceRatio, float minimumDifference)
         {
-            int rv = InitNewIntegrationPeriodTesting(differenceFactor, minimumDifference);
+			int rv = InitNewIntegrationPeriodTesting(differenceRatio, minimumDifference);
             return rv >= 0;
         }
 

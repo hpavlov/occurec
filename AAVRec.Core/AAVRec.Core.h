@@ -26,6 +26,8 @@ struct ImageStatus
 	__int64 UniqueFrameNo;
 	long PerformedAction;
 	float PerformedActionProgress;
+	long DetectedIntegrationRate;
+	long DropedFramesSinceIntegrationLock;
 };
 
 struct FrameProcessingStatus
@@ -48,7 +50,7 @@ extern bool FLIP_VERTICALLY;
 extern bool FLIP_HORIZONTALLY;
 
 extern bool IS_INTEGRATING_CAMERA;
-extern float SIGNATURE_DIFFERENCE_FACTOR;
+extern float SIGNATURE_DIFFERENCE_RATIO;
 
 extern bool OCR_IS_SETUP;
 extern long OCR_FRAME_TOP_ODD;
@@ -66,7 +68,7 @@ extern OcrFrameProcessor* lastFrameOcrProcessor;
 void FrameProcessingThreadProc(void* pContext);
 
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating);
-HRESULT SetupIntegrationDetection(float signDiffFactor, float minSignDiff, float diffGamma);
+HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float diffGamma);
 HRESULT SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int areaHeight);
 HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfCharPositions, long numberOfZones, long* pixelsInZones);
 HRESULT SetupOcrZoneMatrix(long* matrix);
@@ -84,5 +86,5 @@ HRESULT LockIntegration(bool lock);
 HRESULT ControlIntegrationCalibration(long operation);
 HRESULT GetIntegrationCalibrationDataConfig(long* gammasLength, long* signaturesPerCycle);
 HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas);
-HRESULT InitNewIntegrationPeriodTesting(float differenceFactor, float minimumDifference);
+HRESULT InitNewIntegrationPeriodTesting(float differenceRatio, float minimumDifference);
 HRESULT TestNewIntegrationPeriod(__int64 frameNo, float diffSignature, bool* isNew);

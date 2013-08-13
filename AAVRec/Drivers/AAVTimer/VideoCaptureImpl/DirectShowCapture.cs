@@ -73,7 +73,7 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
                     Settings.Default.FlipHorizontally, 
                     Settings.Default.FlipVertically,
                     Settings.Default.IsIntegrating,
-                    (float)Settings.Default.SignatureDiffFactorEx2,
+                    (float)Settings.Default.MinSignatureDiffRatio,
                     (float)Settings.Default.MinSignatureDiff,
 					Settings.Default.GammaDiff);
 

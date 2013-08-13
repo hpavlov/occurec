@@ -110,7 +110,7 @@ namespace AAVRec.OCR
         {
             testContext.Reset();
 
-            outputDebugFolder = Path.GetFullPath(string.Format("{0}\\{1}-{2}", Settings.Default.OcrDebugOutputFolder, DateTime.Now.ToString("dd-MMM-HHmm-"), Guid.NewGuid()));
+            outputDebugFolder = Path.GetFullPath(string.Format("{0}\\{1}", Settings.Default.OutputLocation, DateTime.Now.ToString("dd-MMM-HHmmss")));
             
             outputDebugFileCounter = 0;
             ocrEnabled = true;
