@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace AAVRec.OCR
+namespace OccuRec.OCR
 {
     public class OcrCharRecognizer
     {

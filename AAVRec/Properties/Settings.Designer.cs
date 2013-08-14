@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AAVRec.Properties {
+namespace OccuRec.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -62,9 +62,9 @@ namespace AAVRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("R")]
-        public global::AAVRec.Helpers.LumaConversionMode MonochromePixelsType {
+        public global::OccuRec.Helpers.LumaConversionMode MonochromePixelsType {
             get {
-                return ((global::AAVRec.Helpers.LumaConversionMode)(this["MonochromePixelsType"]));
+                return ((global::OccuRec.Helpers.LumaConversionMode)(this["MonochromePixelsType"]));
             }
             set {
                 this["MonochromePixelsType"] = value;
@@ -302,9 +302,9 @@ namespace AAVRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("CompressedRaw")]
-        public global::AAVRec.Helpers.AavImageLayout AavImageLayout {
+        public global::OccuRec.Helpers.AavImageLayout AavImageLayout {
             get {
-                return ((global::AAVRec.Helpers.AavImageLayout)(this["AavImageLayout"]));
+                return ((global::OccuRec.Helpers.AavImageLayout)(this["AavImageLayout"]));
             }
             set {
                 this["AavImageLayout"] = value;

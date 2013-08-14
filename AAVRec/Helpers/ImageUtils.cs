@@ -4,9 +4,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
-using AAVRec.Video.AstroDigitalVideo;
+using OccuRec.Video.AstroDigitalVideo;
 
-namespace AAVRec.Helpers
+namespace OccuRec.Helpers
 {
     public class ImageUtils
     {

@@ -1,4 +1,4 @@
-﻿namespace AAVRec
+﻿namespace OccuRec
 {
 	partial class frmMain
 	{
@@ -186,7 +186,7 @@
 			this.pnlNewVersionAvailable.LinkColor = System.Drawing.Color.Lime;
 			this.pnlNewVersionAvailable.Name = "pnlNewVersionAvailable";
 			this.pnlNewVersionAvailable.Size = new System.Drawing.Size(288, 17);
-			this.pnlNewVersionAvailable.Text = "New version of AAVRec is available. Click here to upgrade.";
+			this.pnlNewVersionAvailable.Text = "New version of OccuRec is available. Click here to upgrade.";
 			this.pnlNewVersionAvailable.Visible = false;
 			this.pnlNewVersionAvailable.Click += new System.EventHandler(this.pnlNewVersionAvailable_Click);
 			// 
@@ -295,7 +295,7 @@
 			this.miYahooGroup.Image = ((System.Drawing.Image)(resources.GetObject("miYahooGroup.Image")));
 			this.miYahooGroup.Name = "miYahooGroup";
 			this.miYahooGroup.Size = new System.Drawing.Size(177, 22);
-			this.miYahooGroup.Text = "AAVRec Yahoo Group";
+			this.miYahooGroup.Text = "OccuRec Yahoo Group";
 			this.miYahooGroup.Click += new System.EventHandler(this.miYahooGroup_Click);
 			// 
 			// toolStripMenuItem1
@@ -677,7 +677,7 @@
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "frmMain";
-			this.Text = "AAVRec ";
+			this.Text = "OccuRec ";
 			this.statusStrip.ResumeLayout(false);
 			this.statusStrip.PerformLayout();
 			this.msMain.ResumeLayout(false);

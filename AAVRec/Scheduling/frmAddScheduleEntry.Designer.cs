@@ -1,4 +1,4 @@
-﻿namespace AAVRec.Scheduling
+﻿namespace OccuRec.Scheduling
 {
     partial class frmAddScheduleEntry
     {

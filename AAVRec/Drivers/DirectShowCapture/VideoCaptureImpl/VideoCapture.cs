@@ -6,11 +6,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using AAVRec.Helpers;
-using AAVRec.Properties;
+using OccuRec.Helpers;
+using OccuRec.Properties;
 using DirectShowLib;
 
-namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
+namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
 {
 	internal class VideoCapture
 	{

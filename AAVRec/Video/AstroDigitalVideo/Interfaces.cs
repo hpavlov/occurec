@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace AAVRec.Video.AstroDigitalVideo
+namespace OccuRec.Video.AstroDigitalVideo
 {
     public interface IAdvDataSection
     {

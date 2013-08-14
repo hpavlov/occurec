@@ -15,14 +15,14 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-using AAVRec.Drivers;
-using AAVRec.Helpers;
-using AAVRec.OCR;
-using AAVRec.Properties;
-using AAVRec.Scheduling;
-using AAVRec.StateManagement;
+using OccuRec.Drivers;
+using OccuRec.Helpers;
+using OccuRec.OCR;
+using OccuRec.Properties;
+using OccuRec.Scheduling;
+using OccuRec.StateManagement;
 
-namespace AAVRec
+namespace OccuRec
 {
 	public partial class frmMain : Form, IVideoCallbacks
 	{
@@ -46,6 +46,8 @@ namespace AAVRec
 		{
 			InitializeComponent();
 
+			statusStrip.SizingGrip = false;
+
 			running = true;
 			previewOn = true;
 
@@ -65,7 +67,7 @@ namespace AAVRec
             appVersion = att.Version;
 #endif
 
-            Text = string.Format("AAVRec v{0}", appVersion);
+            Text = string.Format("OccuRec v{0}", appVersion);
 
             CheckForUpdates(false);
 
@@ -238,7 +240,7 @@ namespace AAVRec
 			{
 				lblVideoFormat.Text = videoObject.CameraVideoFormat;
 
-                Text = string.Format("AAVRec v{0} - {1}{2}",
+                Text = string.Format("OccuRec v{0} - {1}{2}",
                         appVersion,
 						videoObject.DeviceName, 
 						videoObject.VideoCaptureDeviceName != null
@@ -270,7 +272,7 @@ namespace AAVRec
 			{
                 pnlCrossbar.Visible = false;
 				lblVideoFormat.Text = "N/A";
-                Text = string.Format("AAVRec v{0}", appVersion);
+                Text = string.Format("OccuRec v{0}", appVersion);
 			}
 		}
 
@@ -301,7 +303,7 @@ namespace AAVRec
 		{
             if (!Directory.Exists(Settings.Default.OutputLocation))
             {
-                MessageBox.Show("Output Video Location is invalid.", "AAVRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Output Video Location is invalid.", "OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 var frmSettings = new frmSettings();
                 frmSettings.ShowDialog(this);
@@ -843,12 +845,12 @@ namespace AAVRec
 
 		internal void OnUpdateEvent(int eventCode)
 		{
-			if (eventCode == MSG_ID_NEW_AAVREC_UPDATE_AVAILABLE)
+			if (eventCode == MSG_ID_NEW_OCCUREC_UPDATE_AVAILABLE)
             {
                 pnlNewVersionAvailable.Visible = true;
                 m_ShowNegativeResultMessage = false;
             }
-			else if (eventCode == MSG_ID_NO_AAVREC_UPDATES_AVAILABLE)
+			else if (eventCode == MSG_ID_NO_OCCUREC_UPDATES_AVAILABLE)
             {
                 if (m_ShowNegativeResultMessage)
                 {
@@ -867,8 +869,8 @@ namespace AAVRec
 		private DateTime m_LastUpdateTime;
 		private Thread m_CheckForUpdatesThread;
 
-		private byte MSG_ID_NEW_AAVREC_UPDATE_AVAILABLE = 13;
-		private byte MSG_ID_NO_AAVREC_UPDATES_AVAILABLE = 14;
+		private byte MSG_ID_NEW_OCCUREC_UPDATE_AVAILABLE = 13;
+		private byte MSG_ID_NO_OCCUREC_UPDATES_AVAILABLE = 14;
 
 		private void miCheckForUpdates_Click(object sender, EventArgs e)
 		{
@@ -900,12 +902,12 @@ namespace AAVRec
 				if (NewUpdatesAvailable(out serverConfigVersion) != null)
 				{
 					Trace.WriteLine("There is a new update.", "Update");
-					Invoke(new OnUpdateEventDelegate(OnUpdateEvent), MSG_ID_NEW_AAVREC_UPDATE_AVAILABLE);
+					Invoke(new OnUpdateEventDelegate(OnUpdateEvent), MSG_ID_NEW_OCCUREC_UPDATE_AVAILABLE);
 				}
 				else
 				{
 					Trace.WriteLine(string.Format("There are no new {0}updates.", Settings.Default.AcceptBetaUpdates ? "beta " : ""), "Update");
-					Invoke(new OnUpdateEventDelegate(OnUpdateEvent), MSG_ID_NO_AAVREC_UPDATES_AVAILABLE); 
+					Invoke(new OnUpdateEventDelegate(OnUpdateEvent), MSG_ID_NO_OCCUREC_UPDATES_AVAILABLE); 
 				}
 
 				Settings.Default.LastCheckedForUpdates = m_LastUpdateTime;
@@ -917,7 +919,7 @@ namespace AAVRec
 			}
 		}
 
-		private string aavRecUpdateServerVersion = null;
+		private string occuRecUpdateServerVersion = null;
 
 		public XmlNode NewUpdatesAvailable(out int configUpdateVersion)
 		{
@@ -955,10 +957,10 @@ namespace AAVRec
 					XmlDocument xmlDoc = new XmlDocument();
 					xmlDoc.LoadXml(updateXml);
 
-					int latestVersion = UpdateManager.CurrentlyInstalledAAVRecVersion();
+					int latestVersion = UpdateManager.CurrentlyInstalledOccuRecVersion();
 					XmlNode latestVersionNode = null;
 
-					foreach (XmlNode updateNode in xmlDoc.SelectNodes("/AAVRec/Update"))
+					foreach (XmlNode updateNode in xmlDoc.SelectNodes("/OccuRec/Update"))
 					{
 						int Version = int.Parse(updateNode.Attributes["Version"].Value);
 						if (latestVersion < Version)
@@ -967,21 +969,21 @@ namespace AAVRec
 							Trace.WriteLine("Current version: " + latestVersion.ToString());
 							Trace.WriteLine("New version: " + Version.ToString());
 
-							XmlNode aavRecUpdateNode = xmlDoc.SelectSingleNode("/AAVRec/AAVRecUpdate");
-							if (aavRecUpdateNode != null)
+							XmlNode occuRecUpdateNode = xmlDoc.SelectSingleNode("/OccuRec/OccuRecUpdate");
+							if (occuRecUpdateNode != null)
 							{
-								aavRecUpdateServerVersion = aavRecUpdateNode.Attributes["Version"].Value;
-								Trace.WriteLine("AAVRecUpdate new version: " + aavRecUpdateServerVersion);
+								occuRecUpdateServerVersion = occuRecUpdateNode.Attributes["Version"].Value;
+								Trace.WriteLine("OccuRecUpdate new version: " + occuRecUpdateServerVersion);
 							}
 							else
-								aavRecUpdateServerVersion = null;
+								occuRecUpdateServerVersion = null;
 
 							latestVersion = Version;
 							latestVersionNode = updateNode;
 						}
 					}
 
-					foreach (XmlNode updateNode in xmlDoc.SelectNodes("/AAVRec/ModuleUpdate[@MustExist = 'false']"))
+					foreach (XmlNode updateNode in xmlDoc.SelectNodes("/OccuRec/ModuleUpdate[@MustExist = 'false']"))
 					{
 						if (updateNode.Attributes["Version"] == null) continue;
 
@@ -995,21 +997,21 @@ namespace AAVRec
 							Trace.WriteLine("Current version: " + latestVersion.ToString());
 							Trace.WriteLine("New version: " + Version.ToString());
 
-							XmlNode aavRecUpdateNode = xmlDoc.SelectSingleNode("/AAVRec/AAVRecUpdate");
-							if (aavRecUpdateNode != null)
+							XmlNode occuRecUpdateNode = xmlDoc.SelectSingleNode("/OccuRec/OccuRecUpdate");
+							if (occuRecUpdateNode != null)
 							{
-								aavRecUpdateServerVersion = aavRecUpdateNode.Attributes["Version"].Value;
-								Trace.WriteLine("AAVRecUpdate new version: " + aavRecUpdateServerVersion);
+								occuRecUpdateServerVersion = occuRecUpdateNode.Attributes["Version"].Value;
+								Trace.WriteLine("OccuRecUpdate new version: " + occuRecUpdateServerVersion);
 							}
 							else
-								aavRecUpdateServerVersion = null;
+								occuRecUpdateServerVersion = null;
 
 							latestVersion = Version;
 							latestVersionNode = updateNode;
 						}
 					}
 
-					XmlNode cfgUpdateNode = xmlDoc.SelectSingleNode("/AAVRec/ConfigurationUpdate");
+					XmlNode cfgUpdateNode = xmlDoc.SelectSingleNode("/OccuRec/ConfigurationUpdate");
 					if (cfgUpdateNode != null)
 					{
 						XmlNode cfgUpdVer = cfgUpdateNode.Attributes["Version"];
@@ -1035,7 +1037,7 @@ namespace AAVRec
 
 		public void ForceUpdateSynchronously()
 		{
-			RunAAVRecUpdater();
+			RunOccuRecUpdater();
 		}
 
 		private void pnlNewVersionAvailable_Click(object sender, EventArgs e)
@@ -1046,30 +1048,30 @@ namespace AAVRec
 			pnlNewVersionAvailable.Text = "Update started ...";
 			statusStrip.Update();
 
-			RunAAVRecUpdater();
+			RunOccuRecUpdater();
 
 			Close();
 		}
 
-		private void RunAAVRecUpdater()
+		private void RunOccuRecUpdater()
 		{
 			try
 			{
 				string currentPath = AppDomain.CurrentDomain.BaseDirectory;
-				string updaterFileName = Path.GetFullPath(currentPath + "\\AAVRecUpdate.zip");
+				string updaterFileName = Path.GetFullPath(currentPath + "\\OccuRecUpdate.zip");
 
-				int currUpdVer = UpdateManager.CurrentlyInstalledAAVRecUpdateVersion();
-				int servUpdVer = int.Parse(aavRecUpdateServerVersion);
-				if (!File.Exists(Path.GetFullPath(currentPath + "\\AAVRecUpdate.exe")) || /* If there is no AAVRecUpdate.exe*/
+				int currUpdVer = UpdateManager.CurrentlyInstalledOccuRecUpdateVersion();
+				int servUpdVer = int.Parse(occuRecUpdateServerVersion);
+				if (!File.Exists(Path.GetFullPath(currentPath + "\\OccuRecUpdate.exe")) || /* If there is no OccuRecUpdate.exe*/
 					(
 						statusStrip.Tag != null &&  /* Or it is an older version ... */
 						servUpdVer > currUpdVer)
 					)
 				{
 					if (servUpdVer > currUpdVer)
-						Trace.WriteLine(string.Format("Update required for 'AAVRecUpdate.exe': local version: {0}; server version: {1}", currUpdVer, servUpdVer));
+						Trace.WriteLine(string.Format("Update required for 'OccuRecUpdate.exe': local version: {0}; server version: {1}", currUpdVer, servUpdVer));
 
-					Uri updateUri = new Uri(UpdateManager.UpdateLocation + "/AAVRecUpdate.zip");
+					Uri updateUri = new Uri(UpdateManager.UpdateLocation + "/OccuRecUpdate.zip");
 
 					HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(updateUri);
 					httpRequest.Method = "GET";
@@ -1106,7 +1108,7 @@ namespace AAVRec
 							}
 							catch (UnauthorizedAccessException uex)
 							{
-								MessageBox.Show(this, uex.Message + "\r\n\r\nYou may need to run AAVRec as administrator to complete the update.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+								MessageBox.Show(this, uex.Message + "\r\n\r\nYou may need to run OccuRec as administrator to complete the update.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 							}
 							catch (Exception ex)
 							{
@@ -1139,7 +1141,7 @@ namespace AAVRec
 					}
 					catch (WebException)
 					{
-						MessageBox.Show("There was an error trying to download the AAVRecUpdate program. Please ensure that you have an active internet connection and try again later.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						MessageBox.Show("There was an error trying to download the OccuRecUpdate program. Please ensure that you have an active internet connection and try again later.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
 					finally
 					{
@@ -1154,7 +1156,7 @@ namespace AAVRec
 				Settings.Default.LastCheckedForUpdates = DateTime.Now.AddDays(-15);
 				Settings.Default.Save();
 
-				updaterFileName = Path.GetFullPath(currentPath + "\\AAVRecUpdate.exe");
+				updaterFileName = Path.GetFullPath(currentPath + "\\OccuRecUpdate.exe");
 
 				if (File.Exists(updaterFileName))
 				{
@@ -1179,12 +1181,12 @@ namespace AAVRec
 
 		private void miHelpIndex_Click(object sender, EventArgs e)
 		{
-			Process.Start("http://www.hristopavlov.net/AAVRec");
+			Process.Start("http://www.hristopavlov.net/OccuRec");
 		}
 
 		private void miYahooGroup_Click(object sender, EventArgs e)
 		{
-			Process.Start("http://tech.groups.yahoo.com/group/AAVRec");
+			Process.Start("http://tech.groups.yahoo.com/group/OccuRec");
 		}
 
 		private void miOpenFile_Click(object sender, EventArgs e)

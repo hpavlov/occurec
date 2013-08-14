@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using DirectShowLib;
 
-namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
+namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
 {
 	public class DsDeviceNameAttribute : Attribute
 	{

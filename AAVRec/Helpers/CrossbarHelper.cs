@@ -5,10 +5,10 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using AAVRec.Properties;
+using OccuRec.Properties;
 using DirectShowLib;
 
-namespace AAVRec.Helpers
+namespace OccuRec.Helpers
 {
     public interface ISupportsCrossbar
     {

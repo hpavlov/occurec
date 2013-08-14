@@ -8,13 +8,13 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl;
-using AAVRec.Helpers;
-using AAVRec.Properties;
+using OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl;
+using OccuRec.Helpers;
+using OccuRec.Properties;
 using DirectShowLib;
 using System.Diagnostics;
 
-namespace AAVRec
+namespace OccuRec
 {
     public partial class frmChooseCamera : Form
     {

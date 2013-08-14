@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "SyncLock.h"
 #include <process.h>
-#include "AAVRec.Core.h"
+#include "OccuRec.Core.h"
 
 HANDLE hFrameProcessingThread;
 

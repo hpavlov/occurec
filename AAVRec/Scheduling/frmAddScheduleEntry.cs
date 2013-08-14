@@ -6,9 +6,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using AAVRec.Properties;
+using OccuRec.Properties;
 
-namespace AAVRec.Scheduling
+namespace OccuRec.Scheduling
 {
     public partial class frmAddScheduleEntry : Form
     {

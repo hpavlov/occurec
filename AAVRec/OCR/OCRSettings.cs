@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace AAVRec.OCR
+namespace OccuRec.OCR
 {
     public class TimeStampArea
     {

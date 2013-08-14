@@ -8,11 +8,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using AAVRec.Drivers.AAVTimer.VideoCaptureImpl;
-using AAVRec.Drivers.AVISimulator.AVIPlayerImpl;
-using AAVRec.Helpers;
+using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
+using OccuRec.Drivers.AVISimulator.AVIPlayerImpl;
+using OccuRec.Helpers;
 
-namespace AAVRec.Drivers.AVISimulator
+namespace OccuRec.Drivers.AVISimulator
 {
     public class Video : IVideo
     {

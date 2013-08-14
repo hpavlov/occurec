@@ -15,8 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
-    <None Include="AAVRec.Core.def">
+    <None Include="OccuRec.Core.def">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
@@ -27,7 +26,7 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AAVRec.Core.h">
+    <ClInclude Include="OccuRec.Core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BitmapUtils.h">
@@ -69,7 +68,7 @@
     <ClInclude Include="IotaVtiOcr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AAVRec.Ocr.h">
+    <ClInclude Include="OccuRec.Ocr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RawFrame.h">
@@ -78,7 +77,7 @@
     <ClInclude Include="raw_frame_buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AAVRec.IntegrationChecker.h">
+    <ClInclude Include="OccuRec.IntegrationChecker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SpinLock.h">
@@ -95,7 +94,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AAVRec.Core.cpp">
+    <ClCompile Include="OccuRec.Core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
@@ -137,13 +136,13 @@
     <ClCompile Include="IotaVtiOcr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AAVRec.Ocr.cpp">
+    <ClCompile Include="OccuRec.Ocr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RawFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AAVRec.IntegrationChecker.cpp">
+    <ClCompile Include="OccuRec.IntegrationChecker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SpinLock.cpp">

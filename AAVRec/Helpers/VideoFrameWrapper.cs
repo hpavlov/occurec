@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using AAVRec.Drivers;
+using OccuRec.Drivers;
 
-namespace AAVRec.Helpers
+namespace OccuRec.Helpers
 {
     public class VideoFrameWrapper
     {

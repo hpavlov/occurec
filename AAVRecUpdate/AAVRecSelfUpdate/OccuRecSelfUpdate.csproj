@@ -8,8 +8,8 @@
     <ProjectGuid>{16959003-A7F6-424A-BB62-7E6914240F9B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AAVRecSelfUpdate</RootNamespace>
-    <AssemblyName>AAVRecSelfUpdate</AssemblyName>
+    <RootNamespace>OccuRecSelfUpdate</RootNamespace>
+    <AssemblyName>OccuRecSelfUpdate</AssemblyName>
     <SccProjectName>
     </SccProjectName>
     <SccLocalPath>

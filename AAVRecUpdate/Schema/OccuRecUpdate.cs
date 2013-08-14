@@ -8,16 +8,16 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Net;
 
-namespace AAVRecUpdate.Schema
+namespace OccuRecUpdate.Schema
 {
-    class AAVRecUpdate : UpdateObject 
+    class OccuRecUpdate : UpdateObject 
     {
-        // <AAVRecUpdate Version="16000" Path="AAVRecUpdate.exe" ArchivedPath="AAVRecUpdate.zip"/>
+		// <OccuRecUpdate Version="16000" Path="OccuRecUpdate.exe" ArchivedPath="OccuRecUpdate.zip"/>
 
         internal readonly string Path = null;
         internal readonly string ArchivedPath = null;
 
-        public AAVRecUpdate(XmlElement node)
+        public OccuRecUpdate(XmlElement node)
             : base(node)
         {
             m_Version = int.Parse(node.Attributes["Version"].Value, CultureInfo.InvariantCulture); ;
@@ -26,20 +26,20 @@ namespace AAVRecUpdate.Schema
                 ArchivedPath = node.Attributes["ArchivedPath"].Value;
         }
 
-        public override bool NewUpdatesAvailable(string aavRecPath)
+        public override bool NewUpdatesAvailable(string occuRecPath)
         {
-            Assembly asm = GetLocalAAVRecUpdateAssembly();
+            Assembly asm = GetLocalOccuRecUpdateAssembly();
             if (asm != null)
             {
                 object[] atts = asm.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true);
                 if (atts.Length == 1)
                 {
                     string currVersionString = ((AssemblyFileVersionAttribute)atts[0]).Version;
-                    int currVersionAsInt = Config.Instance.AAVRecUpdateVersionStringToVersion(currVersionString);
+                    int currVersionAsInt = Config.Instance.OccuRecUpdateVersionStringToVersion(currVersionString);
 
                     if (base.Version > currVersionAsInt)
                     {
-                        Trace.WriteLine(string.Format("Update required for 'AAVRecUpdate.exe': local version: {0}; server version: {1}", currVersionAsInt, Version));
+                        Trace.WriteLine(string.Format("Update required for 'OccuRecUpdate.exe': local version: {0}; server version: {1}", currVersionAsInt, Version));
                         return true;
                     }
                 }
@@ -48,26 +48,26 @@ namespace AAVRecUpdate.Schema
             return false;
         }
         
-        private Assembly GetLocalAAVRecUpdateAssembly()
+        private Assembly GetLocalOccuRecUpdateAssembly()
         {
-            if (Assembly.GetExecutingAssembly().GetName().Name == "AAVRecUpdate")
+            if (Assembly.GetExecutingAssembly().GetName().Name == "OccuRecUpdate")
                 return Assembly.GetExecutingAssembly();
 
-            string probeFile = System.IO.Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory + "\\AAVRecUpdate.exe");
+            string probeFile = System.IO.Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory + "\\OccuRecUpdate.exe");
             if (System.IO.File.Exists(probeFile))
                 return Assembly.ReflectionOnlyLoadFrom(probeFile);            
 
             return null;
         }
 
-        public override void Update(Updater updater, string aavRecPath, bool acceptBetaUpdates, IProgressUpdate progress)
+        public override void Update(Updater updater, string occuRecPath, bool acceptBetaUpdates, IProgressUpdate progress)
         {
-            string newVerFileLocalFileName = System.IO.Path.GetFullPath(System.IO.Path.GetTempPath() + "\\AAVRecUpdate.exe");
+            string newVerFileLocalFileName = System.IO.Path.GetFullPath(System.IO.Path.GetTempPath() + "\\OccuRecUpdate.exe");
 
             if (System.IO.File.Exists(newVerFileLocalFileName))
                 System.IO.File.Delete(newVerFileLocalFileName);
 
-            // Download the new AAVRecUpdate version under newVerFileLocalFileName
+            // Download the new OccuRecUpdate version under newVerFileLocalFileName
             string fileLocation = null;
             if (string.IsNullOrEmpty(ArchivedPath))
                 fileLocation = Path;
@@ -86,9 +86,9 @@ namespace AAVRecUpdate.Schema
                 return;
             }
 
-            string selfUpdaterExecutable = Config.Instance.PrepareAAVRecSelfUpdateTempFile(aavRecPath, acceptBetaUpdates, newVerFileLocalFileName);
+            string selfUpdaterExecutable = Config.Instance.PrepareOccuRecSelfUpdateTempFile(occuRecPath, acceptBetaUpdates, newVerFileLocalFileName);
 
-            using (Stream selfUpdater = Shared.AssemblyHelper.GetEmbededResourceStreamThatClientMustDispose("AAVRecUpdate.SelfUpdate", "AAVRecSelfUpdate.bin"))
+            using (Stream selfUpdater = Shared.AssemblyHelper.GetEmbededResourceStreamThatClientMustDispose("OccuRecUpdate.SelfUpdate", "OccuRecSelfUpdate.bin"))
             {
                 byte[] buffer = new byte[selfUpdater.Length];
                 selfUpdater.Read(buffer, 0, buffer.Length);

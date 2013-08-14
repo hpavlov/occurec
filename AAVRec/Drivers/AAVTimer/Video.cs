@@ -11,11 +11,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using AAVRec.Drivers;
-using AAVRec.Drivers.AAVTimer.VideoCaptureImpl;
-using AAVRec.Helpers;
+using OccuRec.Drivers;
+using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
+using OccuRec.Helpers;
 
-namespace AAVRec.Drivers.AAVTimer
+namespace OccuRec.Drivers.AAVTimer
 {
     public class Video : IVideo, ISupportsCrossbar
 	{

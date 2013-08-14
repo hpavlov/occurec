@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace AAVRec.OCR.TestStates
+namespace OccuRec.OCR.TestStates
 {
     public class UncalibratedState : StateBase
     {

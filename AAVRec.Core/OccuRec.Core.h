@@ -1,16 +1,16 @@
 // The following ifdef block is the standard way of creating macros which make exporting 
-// from a DLL simpler. All files within this DLL are compiled with the AAVRECCORE_EXPORTS
+// from a DLL simpler. All files within this DLL are compiled with the OCCURECCORE_EXPORTS
 // symbol defined on the command line. This symbol should not be defined on any project
 // that uses this DLL. This way any other project whose source files include this file see 
-// AAVRECCORE_API functions as being imported from a DLL, whereas this DLL sees symbols
+// OCCURECCORE_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
-#ifdef AAVRECCORE_EXPORTS
-#define AAVRECCORE_API __declspec(dllexport)
+#ifdef OCCURECCORE_EXPORTS
+#define OCCURECCORE_API __declspec(dllexport)
 #else
-#define AAVRECCORE_API __declspec(dllimport)
+#define OCCURECCORE_API __declspec(dllimport)
 #endif
 
-#include "AAVRec.Ocr.h"
+#include "OccuRec.Ocr.h"
 
 using namespace AavOcr;
 
@@ -75,7 +75,7 @@ HRESULT SetupOcrZoneMatrix(long* matrix);
 HRESULT SetupOcrChar(char character, long fixedPosition);
 HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue);
 HRESULT DisableOcrProcessing();
-HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szAavRecVersion);
+HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* imageStatus);
 HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo);

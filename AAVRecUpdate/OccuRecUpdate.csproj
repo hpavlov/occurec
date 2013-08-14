@@ -8,8 +8,8 @@
     <ProjectGuid>{C4AD98C2-3E0A-4AB2-B7D1-31A5E13F2BDC}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AAVRecUpdate</RootNamespace>
-    <AssemblyName>AAVRecUpdate</AssemblyName>
+    <RootNamespace>OccuRecUpdate</RootNamespace>
+    <AssemblyName>OccuRecUpdate</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ApplicationIcon>
@@ -139,7 +139,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <EmbeddedResource Include="SelfUpdate\AAVRecSelfUpdate.bin" />
+    <EmbeddedResource Include="SelfUpdate\OccuRecSelfUpdate.bin" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -147,15 +147,15 @@
     </Compile>
     <Compile Include="Schema\File.cs" />
     <Compile Include="Schema\ModuleUpdate.cs" />
-    <Compile Include="Schema\AAVRecMainUpdate.cs" />
-    <Compile Include="Schema\AAVRecUpdate.cs" />
+    <Compile Include="Schema\OccuRecMainUpdate.cs" />
+    <Compile Include="Schema\OccuRecUpdate.cs" />
     <Compile Include="Schema\UpdateObject.cs" />
     <Compile Include="Schema\UpdateSchema.cs" />
     <Compile Include="SingleInstance.cs" />
     <Compile Include="Updater.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SelfUpdate\AAVRecSelfUpdate.exe" />
+    <Content Include="SelfUpdate\OccuRecSelfUpdate.exe" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -169,6 +169,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PreBuildEvent>"$(ProjectDir)Lib\ResourceZipper.exe" "$(ProjectDir)SelfUpdate\AAVRecSelfUpdate.exe" "$(ProjectDir)SelfUpdate\AAVRecSelfUpdate.bin"</PreBuildEvent>
+    <PreBuildEvent>"$(ProjectDir)Lib\ResourceZipper.exe" "$(ProjectDir)SelfUpdate\OccuRecSelfUpdate.exe" "$(ProjectDir)SelfUpdate\OccuRecSelfUpdate.bin"</PreBuildEvent>
   </PropertyGroup>
 </Project>

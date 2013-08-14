@@ -10,10 +10,10 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl;
-using AAVRec.Helpers;
+using OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl;
+using OccuRec.Helpers;
 
-namespace AAVRec.Drivers.DirectShowCapture
+namespace OccuRec.Drivers.DirectShowCapture
 {
     public class Video : IVideo, ISupportsCrossbar
 	{

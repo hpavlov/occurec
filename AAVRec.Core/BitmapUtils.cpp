@@ -2,7 +2,7 @@
 #include "BitmapUtils.h"
 #include <stdlib.h>
 #include <math.h>
-#include "AAVRec.Core.h"
+#include "OccuRec.Core.h"
 
 
 HRESULT GetBitmapPixels(long width, long height, long bpp, long* pixels, BYTE* bitmapPixels)

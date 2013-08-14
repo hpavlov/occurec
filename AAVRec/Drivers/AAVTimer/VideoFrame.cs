@@ -5,10 +5,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
-using AAVRec.Drivers.AAVTimer.VideoCaptureImpl;
-using AAVRec.Helpers;
+using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
+using OccuRec.Helpers;
 
-namespace AAVRec.Drivers.AAVTimer
+namespace OccuRec.Drivers.AAVTimer
 {
 	public enum VideoFrameLayout
 	{

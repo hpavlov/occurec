@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 
-#include "AAVRec.Ocr.h"
+#include "OccuRec.Ocr.h"
 #include "stdio.h"
 #include <algorithm>
 #include <functional>

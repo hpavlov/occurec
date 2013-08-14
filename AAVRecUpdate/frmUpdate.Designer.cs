@@ -1,4 +1,4 @@
-namespace AAVRecUpdate
+namespace OccuRecUpdate
 {
     partial class frmUpdate
     {
@@ -92,7 +92,7 @@ namespace AAVRecUpdate
             this.MinimizeBox = false;
             this.Name = "frmUpdate";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "AAVRec Updater, ver. 2.1";
+			this.Text = "OccuRec Updater, ver. 2.1";
             this.Load += new System.EventHandler(this.frmUpdate_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

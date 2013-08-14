@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
+namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
 {
 	internal class VideoCameraFrame
 	{

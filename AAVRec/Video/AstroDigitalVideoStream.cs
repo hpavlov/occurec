@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-using AAVRec.Video.AstroDigitalVideo;
+using OccuRec.Video.AstroDigitalVideo;
 
-namespace AAVRec.Video
+namespace OccuRec.Video
 {
     internal class AstroDigitalVideoStream : IDisposable
     {

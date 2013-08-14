@@ -3,38 +3,38 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace AAVRecUpdate.Schema
+namespace OccuRecUpdate.Schema
 {
     class UpdateSchema
     {
         internal List<UpdateObject> AllUpdateObjects = new List<UpdateObject>();
 
-        internal Schema.AAVRecUpdate AAVRecUpdate;
-        internal Schema.AAVRecMainUpdate AAVRec;
+        internal Schema.OccuRecUpdate OccuRecUpdate;
+        internal Schema.OccuRecMainUpdate OccuRec;
 
         public UpdateSchema(XmlDocument xml)
         {
             foreach(XmlNode el in xml.DocumentElement.ChildNodes)
             {
-                if ("AAVRecUpdate".Equals(el.Name))
+                if ("OccuRecUpdate".Equals(el.Name))
                 {
-                    AAVRecUpdate = new Schema.AAVRecUpdate(el as XmlElement);
-                    AllUpdateObjects.Add(AAVRecUpdate);
+                    OccuRecUpdate = new Schema.OccuRecUpdate(el as XmlElement);
+                    AllUpdateObjects.Add(OccuRecUpdate);
                 }
                 else if ("Update".Equals(el.Name))
                 {
-                    AAVRec = new Schema.AAVRecMainUpdate(el as XmlElement);
-                    AllUpdateObjects.Add(AAVRec);
+                    OccuRec = new Schema.OccuRecMainUpdate(el as XmlElement);
+                    AllUpdateObjects.Add(OccuRec);
                 }
                 else if ("ModuleUpdate".Equals(el.Name))
                     AllUpdateObjects.Add(new Schema.ModuleUpdate(el as XmlElement));
             }
         }
 
-        public bool NewUpdatesAvailable(string aavRecPath)
+        public bool NewUpdatesAvailable(string occuRecPath)
         {
             foreach (UpdateObject obj in AllUpdateObjects)
-				if (obj.NewUpdatesAvailable(aavRecPath)) return true;
+				if (obj.NewUpdatesAvailable(occuRecPath)) return true;
 
             return false;
         }

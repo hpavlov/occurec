@@ -11,12 +11,12 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using AAVRec.Drivers;
-using AAVRec.Drivers.AAVSimulator.AAVPlayerImpl;
-using AAVRec.Drivers.AAVTimer.VideoCaptureImpl;
-using AAVRec.Helpers;
+using OccuRec.Drivers;
+using OccuRec.Drivers.AAVSimulator.AAVPlayerImpl;
+using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
+using OccuRec.Helpers;
 
-namespace AAVRec.Drivers.AAVSimulator
+namespace OccuRec.Drivers.AAVSimulator
 {
     public class Video : IVideo
 	{

@@ -4,7 +4,7 @@ using System.Text;
 using System.Xml;
 using System.Globalization;
 
-namespace AAVRecUpdate.Schema
+namespace OccuRecUpdate.Schema
 {
     class File
     {
@@ -15,12 +15,12 @@ namespace AAVRecUpdate.Schema
 
         internal Dictionary<int, string> LanguageSpecificFiles = new Dictionary<int, string>();
 
-        //    <File Path="/AAVRec_3_0_0_0/AAVRec.zip" LocalPath="AAVRec.exe" Archived="true" />
-        //    <File Path="/AAVRec_3_0_0_0/AAVRec.Core.zip" LocalPath="AAVRec.Core.dll" Archived="true" />
-        //    <File Path="/AAVRec_3_0_0_0/AAVRec.SDK.dll" />
-        //    <File Path="/AAVRec_3_0_0_0/AAVRec.EN.pdf" LocalPath="/Documentation/AAVRec.pdf" Action="ShellExecute">
-        //      <Language Id="1" Path="/AAVRec_3_0_0_0/AAVRec.EN.pdf" />
-        //      <Language Id="2" Path="/AAVRec_3_0_0_0/AAVRec.DE.pdf" />
+		//    <File Path="/OccuRec_3_0_0_0/OccuRec.zip" LocalPath="OccuRec.exe" Archived="true" />
+		//    <File Path="/OccuRec_3_0_0_0/OccuRec.Core.zip" LocalPath="OccuRec.Core.dll" Archived="true" />
+		//    <File Path="/OccuRec_3_0_0_0/OccuRec.SDK.dll" />
+		//    <File Path="/OccuRec_3_0_0_0/OccuRec.EN.pdf" LocalPath="/Documentation/OccuRec.pdf" Action="ShellExecute">
+		//      <Language Id="1" Path="/OccuRec_3_0_0_0/OccuRec.EN.pdf" />
+		//      <Language Id="2" Path="/OccuRec_3_0_0_0/OccuRec.DE.pdf" />
         //    </File>
         internal File(XmlElement node)
         {

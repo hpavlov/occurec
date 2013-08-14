@@ -1,4 +1,4 @@
-// AAVRec.Core.cpp : Defines the exported functions for the DLL application.
+// OccuRec.Core.cpp : Defines the exported functions for the DLL application.
 //
 
 #include "stdafx.h"
@@ -6,7 +6,7 @@
 #include "recording_buffer.h"
 #include "raw_frame_buffer.h"
 
-#include "AAVRec.Core.h"
+#include "OccuRec.Core.h"
 #include "RawFrame.h"
 #include "stdlib.h"
 #include <vector>
@@ -16,8 +16,8 @@
 #include <windows.h>
 
 #include "IotaVtiOcr.h"
-#include "AAVRec.Ocr.h"
-#include "AAVRec.IntegrationChecker.h"
+#include "OccuRec.Ocr.h"
+#include "OccuRec.IntegrationChecker.h"
 
 using namespace AavOcr;
 
@@ -95,7 +95,7 @@ unsigned char* lastIntegratedFramePixels = NULL;
 HANDLE hRecordingThread = NULL;
 bool recording = false;
 char cameraModel[128];
-char aavRecVersion[32];
+char occuRecVersion[32];
 
 unsigned int STATUS_TAG_NUMBER_INTEGRATED_FRAMES;
 unsigned int STATUS_TAG_START_FRAME_ID;
@@ -103,7 +103,7 @@ unsigned int STATUS_TAG_END_FRAME_ID;
 unsigned int STATUS_TAG_START_TIMESTAMP;
 unsigned int STATUS_TAG_END_TIMESTAMP;
 
-AAVRec::IntegrationChecker* integrationChecker;
+OccuRec::IntegrationChecker* integrationChecker;
 
 void ClearResourses()
 {
@@ -184,7 +184,7 @@ HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas)
 	return S_OK;
 }
 
-AAVRec::IntegrationChecker* testChecker = NULL;
+OccuRec::IntegrationChecker* testChecker = NULL;
 
 HRESULT InitNewIntegrationPeriodTesting(float differenceRatio, float minimumDifference)
 {
@@ -194,7 +194,7 @@ HRESULT InitNewIntegrationPeriodTesting(float differenceRatio, float minimumDiff
 		testChecker = NULL;
 	}
 
-	testChecker = new AAVRec::IntegrationChecker(differenceRatio, minimumDifference);
+	testChecker = new OccuRec::IntegrationChecker(differenceRatio, minimumDifference);
 	testChecker->ControlIntegrationDetectionTuning(true);
 
 	return S_OK;
@@ -233,7 +233,7 @@ bool IsNewIntegrationPeriod(float diffSignature)
 }
 
 
-HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szAavRecVersion)
+HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion)
 {
 	OCR_IS_SETUP = false;
 	USE_IMAGE_LAYOUT = useImageLayout;
@@ -247,7 +247,7 @@ HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDet
 		SyncLock::UnlockIntDet();
 	}
 	
-	strcpy(&aavRecVersion[0], (char *)szAavRecVersion);
+	strcpy(&occuRecVersion[0], (char *)szOccuRecVersion);
 
 	switch(USE_IMAGE_LAYOUT)
 	{
@@ -501,7 +501,7 @@ HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float d
 		integrationChecker = NULL;
 	}
 
-	integrationChecker = new AAVRec::IntegrationChecker(SIGNATURE_DIFFERENCE_RATIO, MINIMUM_SIGNATURE_DIFFERENCE);
+	integrationChecker = new OccuRec::IntegrationChecker(SIGNATURE_DIFFERENCE_RATIO, MINIMUM_SIGNATURE_DIFFERENCE);
 	integrationChecker->ControlIntegrationDetectionTuning(INTEGRATION_DETECTION_TUNING);
 
 	SyncLock::UnlockIntDet();
@@ -1271,14 +1271,14 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	AavNewFile((const char*)szFileName);		
 	
 	AavAddFileTag("AAVR-SOFTWARE-VERSION", "1.0");
-	AavAddFileTag("RECORDER", aavRecVersion);
+	AavAddFileTag("RECORDER", occuRecVersion);
 	AavAddFileTag("FSTF-TYPE", "AAV");
 	AavAddFileTag("AAV-VERSION", "1");
 
 	AavAddFileTag("CAMERA-MODEL", cameraModel);
 
 	if (OCR_IS_SETUP)
-		AavAddFileTag("OCR-ENGINE", "AAVRec IOTA-VTI OCR v0.2");
+		AavAddFileTag("OCR-ENGINE", "OccuRec IOTA-VTI OCR v0.2");
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
 	

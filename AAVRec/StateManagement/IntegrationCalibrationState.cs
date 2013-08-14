@@ -5,9 +5,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using AAVRec.Helpers;
+using OccuRec.Helpers;
 
-namespace AAVRec.StateManagement
+namespace OccuRec.StateManagement
 {
 	public class IntegrationCalibrationState : CameraState
 	{

@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using AAVRec.Properties;
+using OccuRec.Properties;
 
-namespace AAVRec.Helpers
+namespace OccuRec.Helpers
 {
     public static class FileNameGenerator
     {

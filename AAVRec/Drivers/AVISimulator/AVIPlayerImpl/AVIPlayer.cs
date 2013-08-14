@@ -7,14 +7,14 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using AAVRec.Helpers;
-using AAVRec.OCR;
-using AAVRec.Properties;
-using AAVRec.Video.AstroDigitalVideo;
+using OccuRec.Helpers;
+using OccuRec.OCR;
+using OccuRec.Properties;
+using OccuRec.Video.AstroDigitalVideo;
 using DirectShowLib;
 using DirectShowLib.DES;
 
-namespace AAVRec.Drivers.AVISimulator.AVIPlayerImpl
+namespace OccuRec.Drivers.AVISimulator.AVIPlayerImpl
 {
     class AVIPlayer
     {

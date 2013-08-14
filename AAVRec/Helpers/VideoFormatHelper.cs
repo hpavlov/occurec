@@ -7,10 +7,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl;
+using OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl;
 using DirectShowLib;
 
-namespace AAVRec.Helpers
+namespace OccuRec.Helpers
 {
     public static class VideoFormatHelper
     {

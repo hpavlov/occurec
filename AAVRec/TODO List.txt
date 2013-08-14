@@ -7,7 +7,7 @@ V) Make the horizontal flip the default option
 V) Remove the vertical flip option or implement a vertical flip for AAV format
 V) Make a Beep when starting and stopping a recording
 V) Implement NTP Server time synchronisation every 10 min
-V) Test XviD recording. It has been reported that stopping the recording crashes AAVRec
+V) Test XviD recording. It has been reported that stopping the recording crashes OccuRec
 V) "Rec" should not be enabled for "Integrating" cameras if "Lock" hasn't been pressed
 V) Refactor the AAV native code and remove all unused 12 and 16 bit stuff
 
@@ -18,7 +18,7 @@ v) Implement integration frame "Unlock-ing". Reconsider renaming the button to s
 V) AAV should be usable without OCR i.e. add setting to turn on OCR (turned off by default)
 V) Make it possible to run in AAV mode using a simmulated video rather than live images from the camera
 V) Print the failed OCR chars in red, rather than yellow, on the error image
-V) AAVRec should be usable without IOTA-VTI-OCR-Settings.xml. Add parameters for TimestampTop and TimestampHeight  
+V) OccuRec should be usable without IOTA-VTI-OCR-Settings.xml. Add parameters for TimestampTop and TimestampHeight  
 V) Allow the user to modify the image size (if possible at all at DirectShow level !)
 V) Display the framerate supported by the capture hardware 
 - Test the integration detection algorithm without the [signatureDifferenceFactor * pastSignaturesSigma] factor. Find out the reasoning behind using this factor and document it as needed	

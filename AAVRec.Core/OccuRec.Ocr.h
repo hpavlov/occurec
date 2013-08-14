@@ -1,5 +1,5 @@
-#ifndef AAVRECOCR_H
-#define AAVRECOCR_H
+#ifndef OCCURECOCR_H
+#define OCCURECOCR_H
 
 #include <vector>
 #include <map>
@@ -137,4 +137,4 @@ void UnpackValue(long packed, long* charId, bool* isOddField, long* zoneId, long
 
 }
 
-#endif // AAVRECOCR_H
+#endif // OCCURECOCR_H

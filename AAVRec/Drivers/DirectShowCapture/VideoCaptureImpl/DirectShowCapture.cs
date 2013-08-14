@@ -8,13 +8,13 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using AAVRec.Helpers;
-using AAVRec.OCR;
-using AAVRec.Properties;
-using AAVRec.Video.AstroDigitalVideo;
+using OccuRec.Helpers;
+using OccuRec.OCR;
+using OccuRec.Properties;
+using OccuRec.Video.AstroDigitalVideo;
 using DirectShowLib;
 
-namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
+namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
 {
     internal class DirectShowCapture : ISampleGrabberCB, IDisposable
     {
@@ -241,12 +241,12 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                 ConfigureSampleGrabber(samplGrabber);
 
                 // Add the frame grabber to the graph
-                hr = filterGraph.AddFilter(baseGrabFlt, "AAVRec Video Grabber");
+                hr = filterGraph.AddFilter(baseGrabFlt, "OccuRec AVI Video Grabber");
                 DsError.ThrowExceptionForHR(hr);
 
                 // Add the frame grabber to the graph
                 muxFilter = (IBaseFilter)new NullRenderer();
-                hr = filterGraph.AddFilter(muxFilter, "AAVRec Video Null Renderer");
+				hr = filterGraph.AddFilter(muxFilter, "OccuRec AVI Video Null Renderer");
                 DsError.ThrowExceptionForHR(hr);
 
                 // Connect everything together
@@ -275,7 +275,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                 IBaseFilter capFilter = CreateFilter(FilterCategory.VideoInputDevice, dev.Name);
 
                 // Add the Video input device to the graph
-                int hr = filterGraph.AddFilter(capFilter, "AAVRec Video Source");
+				int hr = filterGraph.AddFilter(capFilter, "OccuRec AVI Video Source");
                 DsError.ThrowExceptionForHR(hr);
 
                 if (capFilter != null)
@@ -287,7 +287,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                     compressorFilter = CreateFilter(FilterCategory.VideoCompressorCategory, compressor.Name);
 
                     // Add the Video compressor filter to the graph
-                    hr = filterGraph.AddFilter(compressorFilter, "AAVRec Video Compressor");
+					hr = filterGraph.AddFilter(compressorFilter, "OccuRec AVI Video Compressor");
                     DsError.ThrowExceptionForHR(hr);
                 }
 
@@ -299,12 +299,12 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                 ConfigureSampleGrabber(samplGrabber);
 
                 // Add the frame grabber to the graph
-                hr = filterGraph.AddFilter(baseGrabFlt, "AAVRec Video Grabber");
+				hr = filterGraph.AddFilter(baseGrabFlt, "OccuRec AVI Video Grabber");
                 DsError.ThrowExceptionForHR(hr);
 
                 // Add the frame grabber to the graph
                 nullRenderer = (IBaseFilter)new NullRenderer();
-                hr = filterGraph.AddFilter(nullRenderer, "AAVRec Video Null Renderer");
+				hr = filterGraph.AddFilter(nullRenderer, "OccuRec AVI Video Null Renderer");
                 DsError.ThrowExceptionForHR(hr);
 
                 // Render any preview pin of the device to the sample grabber
@@ -368,11 +368,11 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
                 IBaseFilter baseGrabFlt = (IBaseFilter)samplGrabber;
                 ConfigureSampleGrabber(samplGrabber);
 
-                hr = filterGraph.AddFilter(baseGrabFlt, "AAVRec Video Grabber");
+				hr = filterGraph.AddFilter(baseGrabFlt, "OccuRec AVI Video Grabber");
                 DsError.ThrowExceptionForHR(hr);
 
                 smartTeeFilter = Marshal.BindToMoniker(SMART_TEE_MONKIER) as IBaseFilter;
-                hr = filterGraph.AddFilter(smartTeeFilter, "AAVRec Video SmartTee");
+				hr = filterGraph.AddFilter(smartTeeFilter, "OccuRec AVI Video SmartTee");
                 DsError.ThrowExceptionForHR(hr);
 
                 // Connect the video device output to the splitter
@@ -393,7 +393,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
                 // Add the frame grabber to the graph
                 nullRenderer = (IBaseFilter)new NullRenderer();
-                hr = filterGraph.AddFilter(nullRenderer, "AAVRec Video Null Renderer");
+				hr = filterGraph.AddFilter(nullRenderer, "OccuRec AVI Video Null Renderer");
                 DsError.ThrowExceptionForHR(hr);
 
                 // Connect the sample grabber to the null renderer (so frame samples will be coming through)
@@ -406,7 +406,7 @@ namespace AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
                 // Create the compressor
                 compressorFilter = CreateFilter(FilterCategory.VideoCompressorCategory, compressor.Name);
-                hr = filterGraph.AddFilter(compressorFilter, "AAVRec Video Compressor");
+				hr = filterGraph.AddFilter(compressorFilter, "OccuRec AVI Video Compressor");
                 DsError.ThrowExceptionForHR(hr);
 
                 // Connect the splitter Capture pin to the compressor

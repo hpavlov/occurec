@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace AAVRec.StateManagement
+namespace OccuRec.StateManagement
 {
     public class DeterminedIntegrationCameraState : CameraState
     {

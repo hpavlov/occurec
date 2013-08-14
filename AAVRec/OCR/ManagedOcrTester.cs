@@ -6,12 +6,12 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
-using AAVRec.Drivers;
-using AAVRec.Helpers;
-using AAVRec.OCR.TestStates;
-using AAVRec.Properties;
+using OccuRec.Drivers;
+using OccuRec.Helpers;
+using OccuRec.OCR.TestStates;
+using OccuRec.Properties;
 
-namespace AAVRec.OCR
+namespace OccuRec.OCR
 {
     internal interface IOcrTester
     {

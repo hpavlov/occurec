@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using AAVRec.Helpers;
+using OccuRec.Helpers;
 
-namespace AAVRec.Drivers
+namespace OccuRec.Drivers
 {
     public class BasicVideoFrame : IVideoFrame
     {

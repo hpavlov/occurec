@@ -7,12 +7,12 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using AAVRec.Drivers.DirectShowCapture;
-using AAVRec.Helpers;
-using AAVRec.Properties;
+using OccuRec.Drivers.DirectShowCapture;
+using OccuRec.Helpers;
+using OccuRec.Properties;
 using DirectShowLib;
 
-namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
+namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 {
 	internal class VideoCapture
 	{

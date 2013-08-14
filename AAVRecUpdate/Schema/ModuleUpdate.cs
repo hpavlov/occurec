@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml;
 using System.Globalization;
 
-namespace AAVRecUpdate.Schema
+namespace OccuRecUpdate.Schema
 {
     class ModuleUpdate : UpdateObject 
     {
@@ -14,14 +14,14 @@ namespace AAVRecUpdate.Schema
         internal readonly string m_Created = null;
         internal readonly bool m_NonEnglishOnly = false;
 
-        //<ModuleUpdate VerReq="1" File="AAVRec.LangRes.dll" MustExist="false" Version="30000" ReleaseDate="21 Mar 2008" ModuleName="Translation Resources">
-        //    <File Path="/AAVRec_3_0_0_0/AAVRec.LangRes.zip" LocalPath="AAVRec.LangRes.dll" Archived="true"/>
+		//<ModuleUpdate VerReq="1" File="OccuRec.LangRes.dll" MustExist="false" Version="30000" ReleaseDate="21 Mar 2008" ModuleName="Translation Resources">
+		//    <File Path="/OccuRec_3_0_0_0/OccuRec.LangRes.zip" LocalPath="OccuRec.LangRes.dll" Archived="true"/>
         //</ModuleUpdate>
         //
-        //<ModuleUpdate VerReq="2" File="/Documentation/AAVRec.pdf" MustExist="false" Created="17/03/2008" ReleaseDate="21 Mar 2008" ModuleName="Documentation">
-        //    <File Path="/AAVRec_3_0_0_0/AAVRec.EN.pdf" LocalPath="/Documentation/AAVRec.pdf" Action="ShellExecute">
-        //      <Language Id="1" Path="/AAVRec_3_0_0_0/AAVRec.EN.pdf" />
-        //      <Language Id="2" Path="/AAVRec_3_0_0_0/AAVRec.DE.pdf" />
+		//<ModuleUpdate VerReq="2" File="/Documentation/OccuRec.pdf" MustExist="false" Created="17/03/2008" ReleaseDate="21 Mar 2008" ModuleName="Documentation">
+		//    <File Path="/OccuRec_3_0_0_0/OccuRec.EN.pdf" LocalPath="/Documentation/OccuRec.pdf" Action="ShellExecute">
+		//      <Language Id="1" Path="/OccuRec_3_0_0_0/OccuRec.EN.pdf" />
+		//      <Language Id="2" Path="/OccuRec_3_0_0_0/OccuRec.DE.pdf" />
         //    </File>
         //</ModuleUpdate>
         public ModuleUpdate(XmlElement node)
@@ -51,12 +51,12 @@ namespace AAVRecUpdate.Schema
                 m_VersionStr = node.Attributes["VersionStr"].Value;
         }
 
-        public override bool NewUpdatesAvailable(string aavRecPath)
+        public override bool NewUpdatesAvailable(string occuRecPath)
         {
             if (VerReq > 1 &&
                 !string.IsNullOrEmpty(m_Created))
             {
-				string fullLocalFileName = System.IO.Path.GetFullPath(aavRecPath + "\\" + this.File);
+				string fullLocalFileName = System.IO.Path.GetFullPath(occuRecPath + "\\" + this.File);
                 if (!System.IO.File.Exists(fullLocalFileName) &&
                     !m_MustExist)
                 {
@@ -80,7 +80,7 @@ namespace AAVRecUpdate.Schema
                 }
             }
             else
-                return base.NewUpdatesAvailable(aavRecPath);
+                return base.NewUpdatesAvailable(occuRecPath);
         }
 
         protected override void OnFileUpdated(Schema.File file, string localFilePath)

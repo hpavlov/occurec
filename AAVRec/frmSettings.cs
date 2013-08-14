@@ -7,11 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using AAVRec.Helpers;
-using AAVRec.OCR;
-using AAVRec.Properties;
+using OccuRec.Helpers;
+using OccuRec.OCR;
+using OccuRec.Properties;
 
-namespace AAVRec
+namespace OccuRec
 {
 	public partial class frmSettings : Form
 	{

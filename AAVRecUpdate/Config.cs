@@ -9,7 +9,7 @@ using Microsoft.Win32;
 using System.Security;
 using System.Xml;
 
-namespace AAVRecUpdate
+namespace OccuRecUpdate
 {
     internal class Config
     {
@@ -29,20 +29,20 @@ namespace AAVRecUpdate
 
         public bool IsFirtsTimeRun = false;
 
-        public string DEFAULT_INSTALL_PATH = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\AAVRec\\");
+		public string DEFAULT_INSTALL_PATH = Path.GetFullPath(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\OccuRec\\");
 
-        public void Load(string aavRecPath, bool acceptBetaUpdates)
+        public void Load(string occuRecPath, bool acceptBetaUpdates)
         {
-            UpdateLocation = "http://www.hristopavlov.net/AAVRec/";
+			UpdateLocation = "http://www.hristopavlov.net/OccuRec/";
             UpdatesXmlFileName = acceptBetaUpdates ? "/Beta.xml" : "/Updates.xml";
 
             RegistryKey key = null;
 
             try
             {
-                key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\AAVRec", RegistryKeyPermissionCheck.ReadSubTree);
+				key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\OccuRec", RegistryKeyPermissionCheck.ReadSubTree);
                 if (key == null)
-                    key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\AAVRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
+					key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\OccuRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
             }
             catch (UnauthorizedAccessException) { }
             catch (SecurityException) { }
@@ -51,9 +51,9 @@ namespace AAVRecUpdate
             {
                 try
                 {
-                    UpdateLocation = Convert.ToString(key.GetValue("UpdateLocation", "http://www.hristopavlov.net/AAVRec/"), CultureInfo.InvariantCulture);
+					UpdateLocation = Convert.ToString(key.GetValue("UpdateLocation", "http://www.hristopavlov.net/OccuRec/"), CultureInfo.InvariantCulture);
                     UpdateLocation = UpdateLocation.TrimEnd(new char[] { '/' });
-                    SelfUpdateFileNameToDelete = Convert.ToString(key.GetValue("SelfAAVRecUpdateTempFile", null));
+					SelfUpdateFileNameToDelete = Convert.ToString(key.GetValue("SelfOccuRecUpdateTempFile", null));
                 }
                 finally
                 {
@@ -61,7 +61,7 @@ namespace AAVRecUpdate
                 }
             }
 
-			IsFirtsTimeRun = !File.Exists(AAVRecExePath(aavRecPath));
+			IsFirtsTimeRun = !File.Exists(OccuRecExePath(occuRecPath));
 
             try
             {
@@ -77,20 +77,20 @@ namespace AAVRecUpdate
             catch { }
         }
 
-        public string AAVRecExePath(string aavRecLocation)
+        public string OccuRecExePath(string occuRecLocation)
         {
-			return Path.GetFullPath(aavRecLocation + @"/AAVRec.exe");
+			return Path.GetFullPath(occuRecLocation + @"/OccuRec.exe");
         }
 
-        public string PrepareAAVRecSelfUpdateTempFile(string aavRecLocation, bool acceptBetaUpdates, string newVersionLocation)
+        public string PrepareOccuRecSelfUpdateTempFile(string occuRecLocation, bool acceptBetaUpdates, string newVersionLocation)
         {
             RegistryKey key = null;
 
             try
             {
-                key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\AAVRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
+				key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\OccuRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
                 if (key == null)
-                    key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\AAVRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
+					key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\OccuRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
             }
             catch (UnauthorizedAccessException) { }
             catch (SecurityException) { }
@@ -100,11 +100,11 @@ namespace AAVRecUpdate
             {
                 try
                 {
-                    key.SetValue("SelfAAVRecUpdateTempFile", tempFileName);
-                    key.SetValue("CopySelfAAVRecUpdateFrom", newVersionLocation);
-                    key.SetValue("CopySelfAAVRecUpdateTo", AppDomain.CurrentDomain.BaseDirectory);
-					key.SetValue("AAVRecUpdateAAVRecLocation", aavRecLocation);
-					key.SetValue("AAVRecUpdateAcceptBeta", acceptBetaUpdates);
+                    key.SetValue("SelfOccuRecUpdateTempFile", tempFileName);
+					key.SetValue("CopySelfOccuRecUpdateFrom", newVersionLocation);
+					key.SetValue("CopySelfOccuRecUpdateTo", AppDomain.CurrentDomain.BaseDirectory);
+					key.SetValue("OccuRecUpdateOccuRecLocation", occuRecLocation);
+					key.SetValue("OccuRecUpdateAcceptBeta", acceptBetaUpdates);
                 }
                 catch { }
                 finally
@@ -122,9 +122,9 @@ namespace AAVRecUpdate
 
             try
             {
-                key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\AAVRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
+				key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\OccuRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
                 if (key == null)
-                    key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\AAVRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
+					key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\OccuRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
             }
             catch (UnauthorizedAccessException) { }
             catch (SecurityException) { }
@@ -133,11 +133,11 @@ namespace AAVRecUpdate
             {
                 try
                 {
-                    key.DeleteValue("SelfAAVRecUpdateTempFile", false);
-                    key.DeleteValue("CopySelfAAVRecUpdateFrom", false);
-                    key.DeleteValue("CopySelfAAVRecUpdateTo", false);
-					key.DeleteValue("AAVRecUpdateAAVRecLocation", false);
-					key.DeleteValue("AAVRecUpdateAcceptBeta", false);
+                    key.DeleteValue("SelfOccuRecUpdateTempFile", false);
+					key.DeleteValue("CopySelfOccuRecUpdateFrom", false);
+					key.DeleteValue("CopySelfOccuRecUpdateTo", false);
+					key.DeleteValue("OccuRecUpdateOccuRecLocation", false);
+					key.DeleteValue("OccuRecUpdateAcceptBeta", false);
                 }
                 catch (Exception)
                 { }
@@ -148,11 +148,11 @@ namespace AAVRecUpdate
             }
         }
 
-        public int CurrentlyInstalledFileVersion(string aavRecLocation, string relativeFilePath)
+        public int CurrentlyInstalledFileVersion(string occuRecLocation, string relativeFilePath)
         {
-			if (Directory.Exists(aavRecLocation))
+			if (Directory.Exists(occuRecLocation))
             {
-				string owExeFilePath = Path.GetFullPath(aavRecLocation + "/" + relativeFilePath);
+				string owExeFilePath = Path.GetFullPath(occuRecLocation + "/" + relativeFilePath);
                 if (File.Exists(owExeFilePath))
                 {
                     try
@@ -169,17 +169,17 @@ namespace AAVRecUpdate
             }
             else
             {
-				Directory.CreateDirectory(aavRecLocation);
+				Directory.CreateDirectory(occuRecLocation);
             }
 
             return 0;
         }
 
-		public int CurrentlyInstalledAAVRecVersion(string aavRecLocation)
+		public int CurrentlyInstalledOccuRecVersion(string occuRecLocation)
         {
-			if (Directory.Exists(aavRecLocation))
+			if (Directory.Exists(occuRecLocation))
             {
-				string owExeFilePath = Path.GetFullPath(aavRecLocation + "/AAVRec.exe");
+				string owExeFilePath = Path.GetFullPath(occuRecLocation + "/OccuRec.exe");
                 if (File.Exists(owExeFilePath))
                 {
                     try
@@ -194,7 +194,7 @@ namespace AAVRecUpdate
             }
             else
             {
-				Directory.CreateDirectory(aavRecLocation);
+				Directory.CreateDirectory(occuRecLocation);
             }
 
             return 0;
@@ -229,7 +229,7 @@ namespace AAVRecUpdate
             return version;
         }
 
-        public int AAVRecUpdateVersionStringToVersion(string versionString)
+        public int OccuRecUpdateVersionStringToVersion(string versionString)
         {
             string[] tokens = versionString.Split('.');
             int version = 

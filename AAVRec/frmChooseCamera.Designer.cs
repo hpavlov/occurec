@@ -1,4 +1,4 @@
-﻿namespace AAVRec
+﻿namespace OccuRec
 {
     partial class frmChooseCamera
     {

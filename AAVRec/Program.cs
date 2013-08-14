@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
-using AAVRec.Helpers;
+using OccuRec.Helpers;
 
-namespace AAVRec
+namespace OccuRec
 {
     static class Program
     {
@@ -19,7 +19,7 @@ namespace AAVRec
 			Version appVersion = a.GetName().Version;
 			string appVersionString = appVersion.ToString();
 
-			Trace.WriteLine(string.Format("Starting AAVRec v.{0}", appVersionString));
+			Trace.WriteLine(string.Format("Starting OccuRec v.{0}", appVersionString));
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

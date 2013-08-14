@@ -6,7 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Security.Permissions;
 
-namespace AAVRecUpdate
+namespace OccuRecUpdate
 {
     /// <summary>
     /// ZIP File Header:

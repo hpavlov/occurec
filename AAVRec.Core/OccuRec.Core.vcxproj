@@ -13,7 +13,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>AAVRecCore</RootNamespace>
+    <RootNamespace>OccuRecCore</RootNamespace>
+    <ProjectName>OccuRec.Core</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -48,13 +49,13 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;AAVRECCORE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;OCCURECCORE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ModuleDefinitionFile>AAVRec.Core.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>OccuRec.Core.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -64,7 +65,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;AAVRECCORE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;OCCURECCORE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -72,17 +73,16 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <ModuleDefinitionFile>AAVRec.Core.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>OccuRec.Core.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="AAVRec.Core.def" />
-    <None Include="ReadMe.txt" />
+    <None Include="OccuRec.Core.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AAVRec.Core.h" />
-    <ClInclude Include="AAVRec.IntegrationChecker.h" />
-    <ClInclude Include="AAVRec.Ocr.h" />
+    <ClInclude Include="OccuRec.Core.h" />
+    <ClInclude Include="OccuRec.IntegrationChecker.h" />
+    <ClInclude Include="OccuRec.Ocr.h" />
     <ClInclude Include="aav_file.h" />
     <ClInclude Include="aav_frames_index.h" />
     <ClInclude Include="aav_image_layout.h" />
@@ -105,9 +105,9 @@
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AAVRec.Core.cpp" />
-    <ClCompile Include="AAVRec.IntegrationChecker.cpp" />
-    <ClCompile Include="AAVRec.Ocr.cpp" />
+    <ClCompile Include="OccuRec.Core.cpp" />
+    <ClCompile Include="OccuRec.IntegrationChecker.cpp" />
+    <ClCompile Include="OccuRec.Ocr.cpp" />
     <ClCompile Include="aav_file.cpp" />
     <ClCompile Include="aav_frames_index.cpp" />
     <ClCompile Include="aav_image_layout.cpp" />

@@ -7,12 +7,12 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using AAVRec.Helpers;
-using AAVRec.OCR;
-using AAVRec.Properties;
+using OccuRec.Helpers;
+using OccuRec.OCR;
+using OccuRec.Properties;
 using DirectShowLib;
 
-namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
+namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 {
 	internal class DirectShowCapture : ISampleGrabberCB, IDisposable
 	{
@@ -203,12 +203,12 @@ namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
 				ConfigureSampleGrabber(samplGrabber);
 
 				// Add the frame grabber to the graph
-				hr = filterGraph.AddFilter(baseGrabFlt, "AAVRec Video Grabber");
+				hr = filterGraph.AddFilter(baseGrabFlt, "AAV Video Grabber");
 				DsError.ThrowExceptionForHR(hr);
 
 				// Add the frame grabber to the graph
 				nullRendered = (IBaseFilter)new NullRenderer();
-                hr = filterGraph.AddFilter(nullRendered, "AAVRec Video Null Renderer");
+                hr = filterGraph.AddFilter(nullRendered, "AAV Video Null Renderer");
 				DsError.ThrowExceptionForHR(hr);
 
 				// Connect everything together

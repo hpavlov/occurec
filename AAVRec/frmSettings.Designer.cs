@@ -1,4 +1,4 @@
-﻿namespace AAVRec
+﻿namespace OccuRec
 {
 	partial class frmSettings
 	{
@@ -715,7 +715,7 @@
 			this.MinimizeBox = false;
 			this.Name = "frmSettings";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "AAVRec Settings";
+			this.Text = "OccuRec Settings";
 			this.Load += new System.EventHandler(this.frmSettings_Load);
 			this.tabControl.ResumeLayout(false);
 			this.tabGeneral.ResumeLayout(false);

@@ -5,9 +5,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
-using AAVRec.Drivers.DirectShowCapture.VideoCaptureImpl;
+using OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl;
 
-namespace AAVRec.Drivers.DirectShowCapture
+namespace OccuRec.Drivers.DirectShowCapture
 {
 	public enum VideoFrameLayout
 	{

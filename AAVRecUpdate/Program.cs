@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 
-namespace AAVRecUpdate
+namespace OccuRecUpdate
 {
     static class Program
     {
@@ -23,12 +23,12 @@ namespace AAVRecUpdate
 
             if (frmUpdate.s_Error is InstallationAbortException)
             {
-                MessageBox.Show("The installation cannot continue:\r\n\r\n" + frmUpdate.s_Error.Message, "AAVRec Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("The installation cannot continue:\r\n\r\n" + frmUpdate.s_Error.Message, "OccuRec Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return 101;
             }
             else if (frmUpdate.s_Error is Exception)
             {
-                MessageBox.Show("An unanticipated error has occured:\r\n\r\n" + frmUpdate.s_Error.Message, "AAVRec Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show("An unanticipated error has occured:\r\n\r\n" + frmUpdate.s_Error.Message, "OccuRec Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return 102;
             }
 
@@ -41,9 +41,9 @@ namespace AAVRecUpdate
             Exception ex = e.ExceptionObject as Exception;
 
             if (exia != null)
-                MessageBox.Show("The installation cannot continue:\r\n\r\n" + exia.Message, "AAVRec Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show("The installation cannot continue:\r\n\r\n" + exia.Message, "OccuRec Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else
-                MessageBox.Show("An unanticipated error has occured:\r\n\r\n" + ex != null ? ex.Message : "", "AAVRec Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show("An unanticipated error has occured:\r\n\r\n" + ex != null ? ex.Message : "", "OccuRec Update Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using AAVRec.Helpers;
+using OccuRec.Helpers;
 
-namespace AAVRec.StateManagement
+namespace OccuRec.StateManagement
 {
     public interface IKnowsIntegrationRate
     {

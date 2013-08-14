@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Globalization;
 
-namespace AAVRecUpdate.Schema
+namespace OccuRecUpdate.Schema
 {
     internal abstract class UpdateObject
     {
@@ -71,7 +71,7 @@ namespace AAVRecUpdate.Schema
         protected virtual void OnFileUpdated(Schema.File file, string localFileName)
         { }
 
-		public virtual void Update(Updater updater, string aavRecPath, bool acceptBetaUpdates, IProgressUpdate progress)
+		public virtual void Update(Updater updater, string occuRecPath, bool acceptBetaUpdates, IProgressUpdate progress)
         {
             foreach (Schema.File fileToUpdate in AllFiles)
             {
@@ -101,10 +101,10 @@ namespace AAVRecUpdate.Schema
             }
         }
 
-        public virtual bool NewUpdatesAvailable(string aavRecPath)
+        public virtual bool NewUpdatesAvailable(string occuRecPath)
         {
             Assembly asm = null;
-			string fullLocalFileName = System.IO.Path.GetFullPath(aavRecPath + "\\" + this.File);
+			string fullLocalFileName = System.IO.Path.GetFullPath(occuRecPath + "\\" + this.File);
             if (System.IO.File.Exists(fullLocalFileName))
             {
                 byte[] asmBytes = System.IO.File.ReadAllBytes(fullLocalFileName);

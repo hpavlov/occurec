@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace AAVRec.Drivers
+namespace OccuRec.Drivers
 {
     public enum SensorType
     {

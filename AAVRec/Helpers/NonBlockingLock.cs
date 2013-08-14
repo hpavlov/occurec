@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace AAVRec.Helpers
+namespace OccuRec.Helpers
 {
     public class NonBlockingLock
     {

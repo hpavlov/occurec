@@ -5,14 +5,14 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using AAVRec.Helpers;
-using AAVRec.OCR;
-using AAVRec.OCR.TestStates;
-using AAVRec.Properties;
-using AAVRec.Video;
-using AAVRec.Video.AstroDigitalVideo;
+using OccuRec.Helpers;
+using OccuRec.OCR;
+using OccuRec.OCR.TestStates;
+using OccuRec.Properties;
+using OccuRec.Video;
+using OccuRec.Video.AstroDigitalVideo;
 
-namespace AAVRec.Drivers.AAVSimulator.AAVPlayerImpl
+namespace OccuRec.Drivers.AAVSimulator.AAVPlayerImpl
 {
     class AAVPlayer
     {

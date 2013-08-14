@@ -8,17 +8,17 @@ using System.Xml;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using AAVRecUpdate.Schema;
+using OccuRecUpdate.Schema;
 using System.Threading;
 
-namespace AAVRecUpdate
+namespace OccuRecUpdate
 {
     public partial class frmUpdate : Form, IProgressUpdate
     {
         private int m_allFilesToUpdate = 0;
         internal static Exception s_Error = null;
 
-	    private string aavRecPath;
+	    private string occuRecPath;
 	    private bool acceptBetaUpdates;
 	    private Updater updater;
 
@@ -28,7 +28,7 @@ namespace AAVRecUpdate
 
 	        string[] args = Environment.GetCommandLineArgs();
 
-            aavRecPath = AppDomain.CurrentDomain.BaseDirectory;
+            occuRecPath = AppDomain.CurrentDomain.BaseDirectory;
 
             if (args.Length == 1)
             {
@@ -39,10 +39,10 @@ namespace AAVRecUpdate
                 acceptBetaUpdates = args[1] == "beta";
             }
 
-            Trace.WriteLine(string.Format("Accept Beta Updates: {0}", acceptBetaUpdates), "AAVRecUpdate");
+			Trace.WriteLine(string.Format("Accept Beta Updates: {0}", acceptBetaUpdates), "OccuRecUpdate");
 
-            updater = new Updater(aavRecPath, acceptBetaUpdates);
-			Config.Instance.Load(aavRecPath, acceptBetaUpdates);
+            updater = new Updater(occuRecPath, acceptBetaUpdates);
+			Config.Instance.Load(occuRecPath, acceptBetaUpdates);
 
             SetMiniLayout();
         }
@@ -69,10 +69,10 @@ namespace AAVRecUpdate
                     #region Get all modules to update and refresh the information in the UI about thse updates
                     foreach (UpdateObject module in schema.AllUpdateObjects)
                     {
-                        if (!module.NewUpdatesAvailable(aavRecPath))
+                        if (!module.NewUpdatesAvailable(occuRecPath))
                             continue;
 
-                        if (!(module is Schema.AAVRecUpdate))
+                        if (!(module is Schema.OccuRecUpdate))
                             modulesToUpdate.Add(module);
                     }
 
@@ -81,8 +81,8 @@ namespace AAVRecUpdate
                         lbModulesToUpdate.Items.Clear();
                         foreach (UpdateObject module in modulesToUpdate)
                         {
-                            if (module is Schema.AAVRecMainUpdate)
-                                lbModulesToUpdate.Items.Add("AAVRec");
+                            if (module is Schema.OccuRecMainUpdate)
+								lbModulesToUpdate.Items.Add("OccuRec");
                             else if (module is Schema.ModuleUpdate)
                                 lbModulesToUpdate.Items.Add((module as Schema.ModuleUpdate).ModuleName);
                         }
@@ -93,13 +93,13 @@ namespace AAVRecUpdate
                     }
                     #endregion
 
-                    if (schema.AAVRecUpdate != null &&
-                        schema.AAVRecUpdate.NewUpdatesAvailable(aavRecPath))
+                    if (schema.OccuRecUpdate != null &&
+                        schema.OccuRecUpdate.NewUpdatesAvailable(occuRecPath))
                     {
-                        // Update the AAVRecUpdate. Will need to start another process to finish this
+                        // Update the OccuRecUpdate. Will need to start another process to finish this
                         // and store the assembly for this other process as a resource
 
-                        schema.AAVRecUpdate.Update(updater, aavRecPath, acceptBetaUpdates, this);
+                        schema.OccuRecUpdate.Update(updater, occuRecPath, acceptBetaUpdates, this);
                         if (m_Abort) return;
                     }
 
@@ -108,7 +108,7 @@ namespace AAVRecUpdate
                     m_CurrentFileIndex = 0;
                     foreach (UpdateObject module in modulesToUpdate)
                     {
-                        if (module.NewUpdatesAvailable(aavRecPath))
+                        if (module.NewUpdatesAvailable(occuRecPath))
                             m_allFilesToUpdate += module.AllFiles.Count;
                     }
 
@@ -117,7 +117,7 @@ namespace AAVRecUpdate
                     pbUpdate.Style = ProgressBarStyle.Continuous;
                     #endregion
 
-                    #region Prepare: Kill running instances of AAVRec
+                    #region Prepare: Kill running instances of OccuRec
                     lblStatus.Text = "Preparing to update ...";
                     pbUpdate.Update();
                     lblStatus.Update();
@@ -150,7 +150,7 @@ namespace AAVRecUpdate
 
                     foreach (UpdateObject module in modulesToUpdate)
                     {
-                        if (module.NewUpdatesAvailable(aavRecPath))
+                        if (module.NewUpdatesAvailable(occuRecPath))
                         {
                             lblInfo.Text = string.Format("Updating {0} to {3}version {1} released on {2}", module.ModuleName, module.VersionString, module.ReleaseDate, acceptBetaUpdates ? "beta " : "");
                             lblInfo.Update();
@@ -170,15 +170,15 @@ namespace AAVRecUpdate
                         }
                     }
 
-                    lblStatus.Text = "Restarting AAVRec ...";
+					lblStatus.Text = "Restarting OccuRec ...";
                     pbUpdate.Value = pbUpdate.Maximum;
                     pbUpdate.Update();
                     lblStatus.Update();
 
                     System.Threading.Thread.Sleep(1000);
 
-                    if (System.IO.File.Exists(Config.Instance.AAVRecExePath(aavRecPath)))
-						Process.Start(Config.Instance.AAVRecExePath(aavRecPath));
+                    if (System.IO.File.Exists(Config.Instance.OccuRecExePath(occuRecPath)))
+						Process.Start(Config.Instance.OccuRecExePath(occuRecPath));
 
                     this.Close();
                     Application.Exit();
@@ -187,7 +187,7 @@ namespace AAVRecUpdate
                 {
                     // No new updates
                     lblStatus.Text = string.Format("There are no new {0}updates available", acceptBetaUpdates ? "beta " : "");
-                    int currVer = Config.Instance.CurrentlyInstalledAAVRecVersion(aavRecPath);
+                    int currVer = Config.Instance.CurrentlyInstalledOccuRecVersion(occuRecPath);
                     lblInfo.Text = string.Format("Your version {0} is the latest", Config.Instance.VersionToVersionString(currVer));
                     pbUpdate.Maximum = 10;
                     pbUpdate.Value = 10;
@@ -210,7 +210,7 @@ namespace AAVRecUpdate
 
             try
             {
-				module.Update(updater, aavRecPath, acceptBetaUpdates, ipu);
+				module.Update(updater, occuRecPath, acceptBetaUpdates, ipu);
             }
             catch (Exception ex)
             {
@@ -285,7 +285,7 @@ namespace AAVRecUpdate
 			{
 				var error = message as Exception;
 
-				MessageBox.Show("An unanticipated error has occured. Please try to update again later.", "AAVRecUpdate", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show("An unanticipated error has occured. Please try to update again later.", "OccuRecUpdate", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				Trace.WriteLine(error.ToString());
 
 				pbUpdate.Value = pbUpdate.Maximum;

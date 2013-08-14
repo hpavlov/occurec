@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 
-namespace AAVRec.Helpers
+namespace OccuRec.Helpers
 {
     public class OverlayManager
     {

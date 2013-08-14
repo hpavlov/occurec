@@ -6,7 +6,7 @@ using Microsoft.Win32;
 using System.Threading;
 using System.IO;
 
-namespace AAVRecSelfUpdate
+namespace OccuRecSelfUpdate
 {
     class Program
     {
@@ -14,14 +14,14 @@ namespace AAVRecSelfUpdate
         {
             try
             {
-                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\AAVRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\OccuRec", RegistryKeyPermissionCheck.ReadWriteSubTree);
 
                 if (key != null)
                 {
                     try
                     {
-                        string copyFromFullFileName = Convert.ToString(key.GetValue("CopySelfAAVRecUpdateFrom", null));
-                        string copyToDirectoryName = Convert.ToString(key.GetValue("CopySelfAAVRecUpdateTo", null));
+						string copyFromFullFileName = Convert.ToString(key.GetValue("CopySelfOccuRecUpdateFrom", null));
+						string copyToDirectoryName = Convert.ToString(key.GetValue("CopySelfOccuRecUpdateTo", null));
 
                         Thread.Sleep(2000);
 

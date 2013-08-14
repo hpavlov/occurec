@@ -4,9 +4,9 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using AAVRec.Drivers;
+using OccuRec.Drivers;
 
-namespace AAVRec.Helpers
+namespace OccuRec.Helpers
 {
     public interface ICameraImage
     {

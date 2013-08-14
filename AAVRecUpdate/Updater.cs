@@ -5,9 +5,9 @@ using System.Text;
 using System.IO;
 using System.Xml;
 using System.Net;
-using AAVRecUpdate.Schema;
+using OccuRecUpdate.Schema;
 
-namespace AAVRecUpdate
+namespace OccuRecUpdate
 {
     public class InstallationAbortException : Exception
     {
@@ -25,12 +25,12 @@ namespace AAVRecUpdate
 
     internal class Updater
     {
-	    private string aavRecPath;
+	    private string occuRecPath;
 	    private bool acceptBetaUpdates;
 
-		public Updater(string aavRecPath, bool acceptBetaUpdates)
+		public Updater(string occuRecPath, bool acceptBetaUpdates)
 		{
-			this.aavRecPath = aavRecPath;
+			this.occuRecPath = occuRecPath;
 			this.acceptBetaUpdates = acceptBetaUpdates;
 		}
 
@@ -71,7 +71,7 @@ namespace AAVRecUpdate
 
                     UpdateSchema updateSchema = new UpdateSchema(xmlDoc);
 
-                    if (updateSchema.NewUpdatesAvailable(aavRecPath))
+                    if (updateSchema.NewUpdatesAvailable(occuRecPath))
                         return updateSchema;
                 }
             }
@@ -90,7 +90,7 @@ namespace AAVRecUpdate
             List<int> pids = null;
             do
             {
-                pids = SingleInstance.SingleApplication.GetCurrentInstanceWindowHandle("AAVRec.exe");
+                pids = SingleInstance.SingleApplication.GetCurrentInstanceWindowHandle("OccuRec.exe");
 
                 if (pids != null)
                 {
@@ -105,7 +105,7 @@ namespace AAVRecUpdate
             }
             while (pids != null && pids.Count > 0);
 
-            string updaterPath = Path.GetFullPath(aavRecPath + @"/AAVRecUpdate.exe");
+            string updaterPath = Path.GetFullPath(occuRecPath + @"/OccuRecUpdate.exe");
             if (!System.IO.File.Exists(updaterPath))
             {
                 try
@@ -126,7 +126,7 @@ namespace AAVRecUpdate
         {
             string localFile =
                 localFileNameExplicit == null
-				? Path.GetFullPath(aavRecPath + "//" + (string.IsNullOrEmpty(fileNode.LocalPath) ? Path.GetFileName(fileNode.Path) : fileNode.LocalPath))
+				? Path.GetFullPath(occuRecPath + "//" + (string.IsNullOrEmpty(fileNode.LocalPath) ? Path.GetFileName(fileNode.Path) : fileNode.LocalPath))
                 : localFileNameExplicit;
 
             return UpdateFile(fileNode.Path, localFile, fileNode.Archived, progress);
@@ -180,9 +180,9 @@ namespace AAVRecUpdate
                     if (fileDelException != null)
                     {
                         System.Windows.Forms.MessageBox.Show(
-                            "There was a problem upgrading AAVRec\r\n\r\n" + fileDelException.GetType().ToString() + " : " + fileDelException.Message +
-                            "\r\n\r\nPlease note that the update process needs to be run by an administrator. Stop all running copies of AAVRec and then manually run:\r\n\r\n" +
-                            Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory + "\\AAVRecUpdate.exe") +
+                            "There was a problem upgrading OccuRec\r\n\r\n" + fileDelException.GetType().ToString() + " : " + fileDelException.Message +
+                            "\r\n\r\nPlease note that the update process needs to be run by an administrator. Stop all running copies of OccuRec and then manually run:\r\n\r\n" +
+                            Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory + "\\OccuRecUpdate.exe") +
                             "\r\n\r\nYou can also use Right-Click and then use 'Run as ...' and specify a user with administrative previlegies.",
                             "Error Upgrading",
                             System.Windows.Forms.MessageBoxButtons.OK,

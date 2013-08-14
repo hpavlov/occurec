@@ -1,5 +1,5 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AAVRec.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="OccuRec.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="OutputLocation" Type="System.String" Scope="User">
@@ -11,7 +11,7 @@
     <Setting Name="PreferredCaptureDevice" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="MonochromePixelsType" Type="AAVRec.Helpers.LumaConversionMode" Scope="User">
+    <Setting Name="MonochromePixelsType" Type="OccuRec.Helpers.LumaConversionMode" Scope="User">
       <Value Profile="(Default)">R</Value>
     </Setting>
     <Setting Name="FileFormat" Type="System.String" Scope="User">
@@ -71,7 +71,7 @@
     <Setting Name="OcrCameraTestModeAav" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="AavImageLayout" Type="AAVRec.Helpers.AavImageLayout" Scope="User">
+    <Setting Name="AavImageLayout" Type="OccuRec.Helpers.AavImageLayout" Scope="User">
       <Value Profile="(Default)">CompressedRaw</Value>
     </Setting>
     <Setting Name="NTPServer" Type="System.String" Scope="User">

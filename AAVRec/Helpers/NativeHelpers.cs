@@ -7,10 +7,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
-using AAVRec.OCR;
-using AAVRec.Properties;
+using OccuRec.OCR;
+using OccuRec.Properties;
 
-namespace AAVRec.Helpers
+namespace OccuRec.Helpers
 {
 	public enum LumaConversionMode
 	{
@@ -135,9 +135,9 @@ namespace AAVRec.Helpers
 
 	internal static class NativeHelpers
 	{
-        private const string AAVREC_CORE_DLL_NAME = "AAVRec.Core.dll";
+        private const string OCCUREC_CORE_DLL_NAME = "OccuRec.Core.dll";
 
-		[DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetBitmapPixels(
 			int width, 
 			int height, 
@@ -145,7 +145,7 @@ namespace AAVRec.Helpers
 			[In, MarshalAs(UnmanagedType.LPArray)] int[,] pixels,
 			[In, Out] byte[] bitmapBytes);
 
-		[DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int GetColourBitmapPixels(
 			int width,
 			int height,
@@ -153,7 +153,7 @@ namespace AAVRec.Helpers
 			[In, MarshalAs(UnmanagedType.LPArray)] int[,,] pixels,
 			[In, Out] byte[] bitmapBytes);
 
-		[DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int GetMonochromePixelsFromBitmap(
 			int width,
 			int height,
@@ -162,7 +162,7 @@ namespace AAVRec.Helpers
 			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,] bitmapBytes,
 			int mode);
 
-		[DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int GetColourPixelsFromBitmap(
 			int width,
 			int height,
@@ -171,7 +171,7 @@ namespace AAVRec.Helpers
 			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,,] bitmapBytes,
             short flipMode);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupCamera(
             int width, 
             int height, 
@@ -181,64 +181,64 @@ namespace AAVRec.Helpers
             bool flipVertically,
             bool isIntegrating);
 
-	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma);
 
-	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string aavRecVersion);
+	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetCurrentImage([In, Out] byte[] bitmapPixels);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetCurrentImageStatus([In, Out] ImageStatus status);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int StartRecording(string fileName);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int StopRecording();
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int LockIntegration(bool doLock);
 
-		[DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int ControlIntegrationCalibration(int cameraIntegration);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetIntegrationCalibrationDataConfig([In, Out] ref int gammasLength, [In, Out] ref int signaturesPerCycle);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetIntegrationCalibrationData([In, MarshalAs(UnmanagedType.LPArray)] float[] rawSignatures, [In, MarshalAs(UnmanagedType.LPArray)] float[] gammas);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int InitNewIntegrationPeriodTesting(float differenceRatio, float minimumDifference);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int TestNewIntegrationPeriod(long frameNo, float diffSignature, [In, Out] ref bool isNew);
 
-		[DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int areaHeight);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupOcrAlignment(int width, int height, int frameTopOdd, int frameTopEven, int charWidth, int charHeight, int numberOfCharPositions, int numberOfZones, [In, MarshalAs(UnmanagedType.LPArray)] int[] pixelsInZones);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 	    private static extern int SetupOcrZoneMatrix([In, MarshalAs(UnmanagedType.LPArray)] int[,] matrix);
 
-	    [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 	    private static extern int SetupOcrChar(char character, int fixedPosition);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupOcrCharDefinitionZone(char character, int zoneId, int zoneValue, int zonePixelsCount);
 
-        [DllImport(AAVREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int DisableOcrProcessing();
 
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory")]
@@ -421,7 +421,7 @@ namespace AAVRec.Helpers
                 (int)imageLayout, 
                 Settings.Default.UsesBufferedFrameProcessing ? 1 : 0,
                 Settings.Default.IntegrationDetectionTuning ? 1 : 0,
-                string.Format("AAVRec v{0}", ASSEMBLY_FILE_VERSION.Version));
+                string.Format("OccuRec v{0}", ASSEMBLY_FILE_VERSION.Version));
         }
 
 		public static string SetupTimestampPreservation(int width, int height)

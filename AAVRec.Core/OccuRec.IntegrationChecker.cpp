@@ -1,13 +1,13 @@
 
 #include "stdafx.h"
 
-#include "AAVRec.IntegrationChecker.h"
+#include "OccuRec.IntegrationChecker.h"
 #include "stdlib.h"
 #include <stdio.h>
 #include "utils.h"
 #include <cmath>
 
-namespace AAVRec
+namespace OccuRec
 {
 	IntegrationChecker::IntegrationChecker(float differenceRatio, float minimumDifference)
 	{

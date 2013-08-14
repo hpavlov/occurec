@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using AAVRec.Drivers;
-using AAVRec.Helpers;
+using OccuRec.Drivers;
+using OccuRec.Helpers;
 
-namespace AAVRec.StateManagement
+namespace OccuRec.StateManagement
 {
     public class CameraStateManager
     {

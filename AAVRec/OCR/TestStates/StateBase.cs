@@ -5,9 +5,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
-using AAVRec.Properties;
+using OccuRec.Properties;
 
-namespace AAVRec.OCR.TestStates
+namespace OccuRec.OCR.TestStates
 {
     public abstract class StateBase
     {

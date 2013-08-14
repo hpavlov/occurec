@@ -4,7 +4,7 @@
 #define LOW_INTEGRATION_CHECK_POOL_SIZE 12 // 0.5 sec @ PAL
 #define LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY (MAX_INTEGRATION + 1)
 
-namespace AAVRec
+namespace OccuRec
 {
 	class IntegrationChecker 
 	{

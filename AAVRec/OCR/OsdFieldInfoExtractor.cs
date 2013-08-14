@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace AAVRec.OCR
+namespace OccuRec.OCR
 {
     public class OsdFieldInfo
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
+namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 {
 	public static class Profiler
 	{

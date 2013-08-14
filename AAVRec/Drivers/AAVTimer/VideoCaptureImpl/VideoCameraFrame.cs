@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using AAVRec.Drivers.DirectShowCapture;
-using AAVRec.Helpers;
+using OccuRec.Drivers.DirectShowCapture;
+using OccuRec.Helpers;
 
-namespace AAVRec.Drivers.AAVTimer.VideoCaptureImpl
+namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 {
 	internal class VideoCameraFrame
 	{

@@ -6,13 +6,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using AAVRec.Properties;
+using OccuRec.Properties;
 
-namespace AAVRec.Helpers
+namespace OccuRec.Helpers
 {
     public class UpdateManager
     {
-		public static int CurrentlyInstalledAAVRecVersion()
+		public static int CurrentlyInstalledOccuRecVersion()
 		{
 			try
 			{
@@ -26,11 +26,11 @@ namespace AAVRec.Helpers
 			return 0;
 		}
 
-		public static int CurrentlyInstalledAAVRecUpdateVersion()
+		public static int CurrentlyInstalledOccuRecUpdateVersion()
 		{
 			try
 			{
-				string woupdatePath = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory + "\\AAVRecUpdate.exe");
+				string woupdatePath = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory + "\\OccuRecUpdate.exe");
 				if (File.Exists(woupdatePath))
 				{
 					AssemblyName an = AssemblyName.GetAssemblyName(woupdatePath);
@@ -87,7 +87,7 @@ namespace AAVRec.Helpers
 
 	    public static string UpdateLocation
 	    {
-			get { return "http://www.hristopavlov.net/AAVRec"; }
+			get { return "http://www.hristopavlov.net/OccuRec"; }
 	    }
 
 		public static string UpdatesXmlFileLocation
