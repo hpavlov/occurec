@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OccuRec", "AAVRec\OccuRec.csproj", "{B501E13A-44D3-4B3C-9B65-3A326FE49767}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OccuRec", "OccuRec\OccuRec.csproj", "{B501E13A-44D3-4B3C-9B65-3A326FE49767}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OccuRecUpdate", "AAVRecUpdate\OccuRecUpdate.csproj", "{C4AD98C2-3E0A-4AB2-B7D1-31A5E13F2BDC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OccuRecUpdate", "OccuRecUpdate\OccuRecUpdate.csproj", "{C4AD98C2-3E0A-4AB2-B7D1-31A5E13F2BDC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OccuRecSelfUpdate", "AAVRecUpdate\AAVRecSelfUpdate\OccuRecSelfUpdate.csproj", "{16959003-A7F6-424A-BB62-7E6914240F9B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OccuRecSelfUpdate", "OccuRecUpdate\OccuRecSelfUpdate\OccuRecSelfUpdate.csproj", "{16959003-A7F6-424A-BB62-7E6914240F9B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OccuRec.Core", "AAVRec.Core\OccuRec.Core.vcxproj", "{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OccuRec.Core", "OccuRec.Core\OccuRec.Core.vcxproj", "{52C2C4DC-8205-4C0B-A330-A6D20809B9FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
