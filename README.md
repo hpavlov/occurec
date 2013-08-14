@@ -1,4 +1,4 @@
 aavrec
 ======
 
-Astronomical Alanogue Video Recorder
+Occultation Video Recorder
