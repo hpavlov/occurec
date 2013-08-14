@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using OccuRec.Helpers;
+using OccuRec.Properties;
 
 namespace OccuRec.Drivers
 {
@@ -73,7 +74,11 @@ namespace OccuRec.Drivers
 	            {
 		            try
 		            {
-			            rv.exposureStartTime = new DateTime(status.StartExposureSystemTime).ToString("yyyy/MM/dd HH:mm:ss.fff");
+			            rv.exposureStartTime = 
+							new DateTime(status.StartExposureSystemTime).ToString("yyyy/MM/dd HH:mm:ss ffff - ") +
+							new DateTime(status.EndExposureSystemTime).ToString("yyyy/MM/dd HH:mm:ss ffff | ") + 
+							status.StartExposureFrameNo.ToString("0 - ") +
+							status.EndExposureFrameNo.ToString("0");
 		            }
 		            catch { }
 
@@ -135,25 +140,37 @@ namespace OccuRec.Drivers
 
         public double ExposureDuration
         {
-            //[DebuggerStepThrough]
+            [DebuggerStepThrough]
             get
             {
-                if (exposureDuration.HasValue)
-                    return exposureDuration.Value;
-
-                throw new PropertyNotImplementedException("Current camera doesn't support frame timing.");
+				if (Settings.Default.OcrSimulatorTestMode &&
+				    Settings.Default.OcrSimulatorNativeCode)
+				{
+					if (exposureDuration.HasValue)
+						return exposureDuration.Value;
+					else
+						return 0;
+				}
+				else
+					throw new PropertyNotImplementedException("Current camera doesn't support frame timing.");
             }
         }
         public string ExposureStartTime
         {
-            //[DebuggerStepThrough]
+            [DebuggerStepThrough]
             get
             {
-                if (exposureStartTime != null)
-                    return exposureStartTime;
-
-                throw new PropertyNotImplementedException("Current camera doesn't support frame timing.");
-            }
+				if (Settings.Default.OcrSimulatorTestMode &&
+					Settings.Default.OcrSimulatorNativeCode)
+				{
+					if (exposureStartTime != string.Empty)
+						return exposureStartTime;
+					else
+						return null;
+				}
+				else
+					throw new PropertyNotImplementedException("Current camera doesn't support frame timing.");
+			}
         }
 
         public string ImageInfo

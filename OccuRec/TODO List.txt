@@ -22,8 +22,8 @@ V) OccuRec should be usable without IOTA-VTI-OCR-Settings.xml. Add parameters fo
 V) Allow the user to modify the image size (if possible at all at DirectShow level !)
 V) Display the framerate supported by the capture hardware 
 - Complete the integration detection calibration, make it find the best settings
-- "Calibrate" should not be available when the integration is Locked (hidden or disabled?)
-- Implement dropped frame check in unmanaged world and return it as a number (count) since the integration has been LOCKED
+V) "Calibrate" should not be available when the integration is Locked (hidden or disabled?)
+V) Implement dropped frame check in unmanaged world and return it as a number (count) since the integration has been LOCKED
 
 HARDER:
 
@@ -40,7 +40,11 @@ OCR Implemntation:
 
 V) Implement an AVI simulator (that plays an AVI file rather than AAV)
 V) Complete the OCR tuning using simulated videos
-- Implement the OCR in unmanaged code
+V) Implement the OCR in unmanaged code
+ - Implement OCR errors processor and counter in unmanaged world. Return the error count as status field
+ - Record the Tracked Satellites + GPS info in the AAV file
+ - Fix the OCRed and recorded timestamps in the AAV file. Fix OCRed timestampes returned in both locked and unlocked mode
+ - Make the OCR engine to consider which field is first (even or odd). Check with IOTA VTI Configuration 
 - Implement a 'live' OCR testing without crashing and with logging of all errors
 - Successfully run a live test for 24 hours without any errors
 

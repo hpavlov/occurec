@@ -9,7 +9,7 @@
 #include <time.h>
 
 
-namespace AavOcr
+namespace OccuOcr
 {
 
 	
@@ -71,24 +71,6 @@ CharRecognizer::CharRecognizer(long charPosition)
 			zoneProc->ZonePixels[i] = 0;
 		}
 	}
-
-	//vector<OcrZoneEntry*>::iterator itZones = charDef->ZoneEntries.begin();
-	//while(itZones != charDef->ZoneEntries.end())
-	//{
-	//	Zone* zoneProc = new Zone(*itZones);
-
-	//	if ((*itZones)->ZoneId < 0 || (*itZones)->ZoneId >= MAX_ZONE_COUNT)
-	//		throw std::exception("ZoneId must be between 0 and MAX_ZONE_COUNT");
-
-	//	Zones[(*itZones)->ZoneId] = zoneProc;
-
-	//	for (int i = 0; i < (*itZones)->NumPixels; i++)
-	//	{
-	//		zoneProc->ZonePixels[i] = 0;
-	//	}
-
-	//	itZones++;
-	//}
 
 	m_CharPosition = charPosition;
 }
@@ -347,9 +329,11 @@ void OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtc
 	// 1min = 600000000 ticks
 	// 1hour = 36000000000 ticks
 	fieldInfo.FieldTimeStamp = 
-		currentUtcDayAsTicks + 
-		36000000000 * hh + 600000000 * mm + 10000000 * ss +
-		10000 * (ms1 != 0 ? ms1 : ms2);
+		currentUtcDayAsTicks +
+		36000000000 * (long long) hh + 
+		  600000000 * (long long) mm + 
+		   10000000 * (long long) ss +
+		      10000 * (long long) (ms1 != 0 ? ms1 : ms2);
 
 	char fieldNoStr[7];
 	::ZeroMemory(fieldNoStr, 7);
@@ -388,7 +372,7 @@ void OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtc
 		OddFieldOcredOsd.FieldNumber < EvenFieldOcredOsd.FieldNumber;
 }
 
-bool OcrFrameProcessor::IsStartTimeStampFirst()
+bool OcrFrameProcessor::IsOddFieldDataFirst()
 {
 	return m_IsOddFieldDataFirst;
 }
@@ -435,6 +419,50 @@ char OcrFrameProcessor::GetOcredGpsFixType()
 {
 	return OddFieldOcredOsd.GpsFixType;
 }
+
+OcrManager::OcrManager()
+{
+	OcrErrorsSinceReset = 0;
+};
+
+void OcrManager::Reset()
+{
+	OcrErrorsSinceReset = 0;
+};
+
+void OcrManager::RegisterFirstSuccessfullyOcredFrame(OcrFrameProcessor* ocredFrame)
+{
+	frameIdOddBeforeEven = ocredFrame->IsOddFieldDataFirst();
+};
+
+void OcrManager::VerifyAndFixOcredFrame(OcrFrameProcessor* ocredFrame)
+{
+	// TODO:
+};
+
+void OcrManager::VerifyAndFixOcredIntegratedInterval(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame)
+{
+	// TODO:
+};
+
+void OcrManager::ProcessedOcredFrame(OcrFrameProcessor* ocredFrame)
+{
+	VerifyAndFixOcredFrame(ocredFrame);
+
+	if (!ocredFrame->Success)
+		OcrErrorsSinceReset++;
+};
+
+void OcrManager::ProcessedOcredFramesInLockedMode(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame)
+{
+	VerifyAndFixOcredIntegratedInterval(firstOcredFrame, lastOcredFrame);
+
+	if (!firstOcredFrame->Success)
+		OcrErrorsSinceReset++;
+
+	if (!lastOcredFrame->Success)
+		OcrErrorsSinceReset++;
+};
 
 }
 

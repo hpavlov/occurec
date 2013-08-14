@@ -12,7 +12,7 @@
 
 #include "OccuRec.Ocr.h"
 
-using namespace AavOcr;
+using namespace OccuOcr;
 
 struct ImageStatus
 {
@@ -28,6 +28,8 @@ struct ImageStatus
 	float PerformedActionProgress;
 	long DetectedIntegrationRate;
 	long DropedFramesSinceIntegrationLock;
+	long OcrWorking;
+	long OcrErrorsSinceLastReset;
 };
 
 struct FrameProcessingStatus

@@ -19,7 +19,7 @@
 #include "OccuRec.Ocr.h"
 #include "OccuRec.IntegrationChecker.h"
 
-using namespace AavOcr;
+using namespace OccuOcr;
 
 #define MEDIAN_CALC_ROWS_FROM 10
 #define MEDIAN_CALC_ROWS_TO 11
@@ -48,6 +48,7 @@ long MEDIAN_CALC_INDEX_TO;
 
 OcrFrameProcessor* firstFrameOcrProcessor = NULL;
 OcrFrameProcessor* lastFrameOcrProcessor = NULL;
+OcrManager* ocrManager = NULL;
 
 bool FLIP_VERTICALLY;
 bool FLIP_HORIZONTALLY;
@@ -86,6 +87,8 @@ __int64 idxLastFrameTimestamp = 0;
 __int64 idxIntegratedFrameNumber = 0;
 long droppedFramesSinceIntegrationIsLocked = 0;
 long lockedIntegrationFrames = 0;
+bool ocrFirstFrameProcessed = false;
+long ocrErrorsSiceLastReset = 0;
 
 unsigned char* latestIntegratedFrame = NULL;
 ImageStatus latestImageStatus;
@@ -128,6 +131,9 @@ HRESULT LockIntegration(bool lock)
 
 	if (INTEGRATION_LOCKED)
 		droppedFramesSinceIntegrationIsLocked = 0;
+
+	if (NULL != ocrManager)
+		ocrManager->Reset();
 
 	return S_OK;
 }
@@ -365,9 +371,15 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 		delete lastFrameOcrProcessor;
 		lastFrameOcrProcessor = NULL;
 	}
+	if (NULL != ocrManager)
+	{
+		delete ocrManager;
+		ocrManager = NULL;
+	}
 
 	firstFrameOcrProcessor = new OcrFrameProcessor();
 	lastFrameOcrProcessor = new OcrFrameProcessor();
+	ocrManager = new OcrManager();
 
 	OCR_IS_SETUP = true;
 
@@ -852,21 +864,38 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			ptrPixels++;
 		}
 
-		// TODO: The OCR logic will run here and will set the values of: idxFirstFrameNumber, idxFirstFrameTimestamp, idxLastFrameNumber and idxLastFrameTimestamp
-		//		 Run the OCR logic on firstIntegratedFramePixels and lastIntegratedFramePixels
 		if (runOCR)
 		{
 
 			firstFrameOcrProcessor->Ocr(currentUtcDayAsTicks);
 			lastFrameOcrProcessor->Ocr(currentUtcDayAsTicks);
 
+			// If OCR is enabled but we haven'd had a single successfully OCRed frame then don't count errors
+			// Once we have had at least one successfully OCRed frame - start counting errors. Use the first OCRed frame to determine which field is first - even or odd
+			// Be mindful that when the integration is not Locked - the first and last frames may not have been picked correctly
+			// Implement an OCR timestamp checker and fixer (similar to the managed one) which can also report incorrect timestamps
+
 			if (firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success)
 			{
+				if (!ocrFirstFrameProcessed)
+				{
+					ocrManager->RegisterFirstSuccessfullyOcredFrame(lastFrameOcrProcessor);
+					ocrFirstFrameProcessed = true;
+				}
+
+				if (INTEGRATION_LOCKED)
+					ocrManager->ProcessedOcredFramesInLockedMode(firstFrameOcrProcessor, lastFrameOcrProcessor);
+				else
+					ocrManager->ProcessedOcredFrame(lastFrameOcrProcessor);
+
 				idxFirstFrameNumber = firstFrameOcrProcessor->GetOcredStartFrameNumber();
 				idxLastFrameNumber = lastFrameOcrProcessor->GetOcredEndFrameNumber();
 				idxFirstFrameTimestamp = firstFrameOcrProcessor->GetOcredStartFrameTimeStamp();
 				idxLastFrameTimestamp = firstFrameOcrProcessor->GetOcredEndFrameTimeStamp();
 			}
+
+			ocrErrorsSiceLastReset = ocrManager->OcrErrorsSinceReset;
+			
 		}
 
 		latestImageStatus.CountedFrames = numberOfIntegratedFrames;
@@ -878,6 +907,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		latestImageStatus.EndExposureTicks = idxLastFrameTimestamp;
 		latestImageStatus.DetectedIntegrationRate = detectedIntegrationRate;
 		latestImageStatus.DropedFramesSinceIntegrationLock = droppedFramesSinceIntegrationIsLocked;
+		latestImageStatus.OcrWorking = ocrFirstFrameProcessed ? 1 : 0;
+		latestImageStatus.OcrErrorsSinceLastReset = ocrErrorsSiceLastReset;
 
 		if (INTEGRATION_CALIBRATION)
 		{
@@ -1308,6 +1339,9 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	STATUS_TAG_END_TIMESTAMP = AavDefineStatusSectionTag("END_FRAME_TIMESTAMP", AavTagType::ULong64);
 
 	ClearRecordingBuffer();
+
+	if (NULL != ocrManager)
+		ocrManager->Reset();
 
 	// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
 	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);

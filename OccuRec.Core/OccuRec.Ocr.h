@@ -10,7 +10,7 @@ using namespace std;
 #define MAX_ZONE_COUNT 16
 #define MAX_PIXELS_IN_ZONE_COUNT 32
 
-namespace AavOcr
+namespace OccuOcr
 {
 
 // Types of 'values' that a zone can have when matched against a configuration in order to recognize a character
@@ -118,7 +118,7 @@ class OcrFrameProcessor
 		void AddMedianComputationPixel(unsigned char pixelValue);
 		void ProcessZonePixel(long packedInfo, long pixX, long pixY, unsigned char pixelValue);
 		void Ocr(__int64 currentUtcDayAsTicks);
-		bool IsStartTimeStampFirst();
+		bool IsOddFieldDataFirst();
 		long GetOcredStartFrameNumber();
 		__int64 GetOcredStartFrameTimeStamp();
 		long GetOcredEndFrameNumber();
@@ -126,6 +126,24 @@ class OcrFrameProcessor
 		long GetOcredTrackedSatellitesCount();
 		long GetOcredAlmanacUpdateState();
 		char GetOcredGpsFixType();
+};
+
+class OcrManager
+{
+	private:
+		bool frameIdOddBeforeEven;
+		void VerifyAndFixOcredFrame(OcrFrameProcessor* ocredFrame);
+		void VerifyAndFixOcredIntegratedInterval(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame);
+
+	public:
+		long OcrErrorsSinceReset;
+
+		OcrManager();
+
+		void Reset();
+		void RegisterFirstSuccessfullyOcredFrame(OcrFrameProcessor* ocredFrame);
+		void ProcessedOcredFrame(OcrFrameProcessor* ocredFrame);
+		void ProcessedOcredFramesInLockedMode(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame);
 };
 
 extern vector<OcrCharDefinition*> OCR_CHAR_DEFS;

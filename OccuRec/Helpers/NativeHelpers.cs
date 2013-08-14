@@ -104,6 +104,8 @@ namespace OccuRec.Helpers
         public float PerformedActionProgress;
 		public int DetectedIntegrationRate;
 	    public int DropedFramesSinceIntegrationLock;
+		public long OcrWorking;
+		public long OcrErrorsSinceLastReset;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -126,6 +128,8 @@ namespace OccuRec.Helpers
 		public long EndExposureSystemTime;
 		public long StartExposureFrameNo;
 		public long EndExposureFrameNo;
+		public long OcrWorking;
+		public long OcrErrorsSinceLastReset;
 		
 		public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
         {
@@ -155,6 +159,8 @@ namespace OccuRec.Helpers
 			EndExposureSystemTime = imgStatus.EndExposureSystemTime;
 			StartExposureFrameNo = imgStatus.StartExposureFrameNo;
 			EndExposureFrameNo = imgStatus.EndExposureFrameNo;
+			OcrWorking = imgStatus.OcrWorking;
+			OcrErrorsSinceLastReset = imgStatus.OcrErrorsSinceLastReset;		
 		}
     };
 
@@ -399,7 +405,7 @@ namespace OccuRec.Helpers
         {
             var frameInfo = new FrameProcessingStatus();
 
-            long currentUtcDayAsTicks = DateTime.UtcNow.Ticks;
+            long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
 
             ProcessVideoFrame2(pixels, currentUtcDayAsTicks, ref frameInfo);
