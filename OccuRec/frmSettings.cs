@@ -52,7 +52,7 @@ namespace OccuRec
             cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedDiffCodeWithSigns);
             cbxImageLayoutMode.Items.Add(AavImageLayout.UncompressedRaw);
 
-            cbxEnableAAVIOTAVTIOCR.Checked = Settings.Default.IotaVtiOcrEnabled;
+            cbxEnableAAVIOTAVTIOCR.Checked = Settings.Default.AavOcrEnabled;
 
             cbxImageLayoutMode.SelectedIndex = cbxImageLayoutMode.Items.IndexOf(Settings.Default.AavImageLayout);
 
@@ -103,7 +103,7 @@ namespace OccuRec
             Settings.Default.NTPServer = tbxNTPServer.Text;
             Settings.Default.OcrSimulatorNativeCode = rbNativeOCR.Checked;
             Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
-            Settings.Default.IotaVtiOcrEnabled = cbxEnableAAVIOTAVTIOCR.Checked;
+            Settings.Default.AavOcrEnabled = cbxEnableAAVIOTAVTIOCR.Checked;
 			Settings.Default.PreserveTSLineTop = (int)nudPreserveTSTop.Value;
 			Settings.Default.PreserveTSAreaHeight = (int)nudPreserveTSHeight.Value;			
 

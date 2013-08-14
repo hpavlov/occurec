@@ -49,10 +49,6 @@ namespace OccuRec.Drivers
             return InternalCreateFrame(width, height, cameraFrame, fameNumber, false, status);
         }
 
-        private static int lastIntergatedFramesSoFar = 0;
-        private static int lastIntegrationRate = 1;
-	    private static long lastFrameId = -1;
-
         private static BasicVideoFrame InternalCreateFrame(int width, int height, Bitmap cameraFrame, int fameNumber, bool variant, FrameProcessingStatus status)
         {
             var rv = new BasicVideoFrame();
@@ -73,22 +69,33 @@ namespace OccuRec.Drivers
             }
             else
             {
-	            if (lastIntergatedFramesSoFar != status.IntegratedFramesSoFar)
+	            if (status.StartExposureSystemTime > 0)
 	            {
-		            if (lastIntergatedFramesSoFar != status.IntegratedFramesSoFar - 1)
-			            lastIntegrationRate = lastIntergatedFramesSoFar;
-		            lastIntergatedFramesSoFar = status.IntegratedFramesSoFar;
+		            try
+		            {
+			            rv.exposureStartTime = new DateTime(status.StartExposureSystemTime).ToString("yyyy/MM/dd HH:mm:ss.fff");
+		            }
+		            catch { }
+
+					try
+					{
+						rv.exposureDuration = new TimeSpan(status.EndExposureSystemTime - status.StartExposureSystemTime).TotalMilliseconds;
+					}
+					catch { }
 	            }
-				else if (lastFrameId + 1 == status.IntegratedFrameNo)
-				{
-					lastIntegrationRate = status.IntegratedFramesSoFar;					
-				}
+	            else
+	            {
+		            rv.exposureStartTime = null;
+		            rv.exposureDuration = null;
+	            }
 
-	            lastFrameId = status.IntegratedFrameNo;
-
-	            rv.exposureStartTime = null;
-                rv.exposureDuration = null;
-                rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4}", lastIntegrationRate, 0, 0, status.CurrentSignatureRatio, status.CameraFrameNo);
+	            rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4};DRPD:{5}", 
+					status.DetectedIntegrationRate,
+					status.StartExposureFrameNo,
+					status.EndExposureFrameNo,
+					status.CurrentSignatureRatio, 
+					status.CameraFrameNo,
+					status.DropedFramesSinceIntegrationLock);
 
                 if (status.PerformedAction > 0)
                 {
@@ -128,7 +135,7 @@ namespace OccuRec.Drivers
 
         public double ExposureDuration
         {
-            [DebuggerStepThrough]
+            //[DebuggerStepThrough]
             get
             {
                 if (exposureDuration.HasValue)
@@ -139,7 +146,7 @@ namespace OccuRec.Drivers
         }
         public string ExposureStartTime
         {
-            [DebuggerStepThrough]
+            //[DebuggerStepThrough]
             get
             {
                 if (exposureStartTime != null)

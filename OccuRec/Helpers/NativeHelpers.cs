@@ -109,28 +109,53 @@ namespace OccuRec.Helpers
     [StructLayout(LayoutKind.Sequential)]
     struct FrameProcessingStatus
     {
+		// TODO: Why are we using a struct that duplicates the ImageStatus ??
+
         public static FrameProcessingStatus Empty = new FrameProcessingStatus();
 
         public long CameraFrameNo;
         public long IntegratedFrameNo;
-        public int IntegratedFramesSoFar;
+		public int CountedFrames;
         public float FrameDiffSignature;
         public float CurrentSignatureRatio;
         public int PerformedAction;
         public float PerformedActionProgress;
-
-        public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
+		public int DetectedIntegrationRate;
+		public int DropedFramesSinceIntegrationLock;
+		public long StartExposureSystemTime;
+		public long EndExposureSystemTime;
+		public long StartExposureFrameNo;
+		public long EndExposureFrameNo;
+		
+		public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
         {
             var rv = new FrameProcessingStatus();
             rv.CameraFrameNo = cloneFrom.CameraFrameNo;
             rv.IntegratedFrameNo = cloneFrom.IntegratedFrameNo;
-            rv.IntegratedFramesSoFar = cloneFrom.IntegratedFramesSoFar;
+			rv.CountedFrames = cloneFrom.CountedFrames;
             rv.FrameDiffSignature = cloneFrom.FrameDiffSignature;
             rv.CurrentSignatureRatio = cloneFrom.CurrentSignatureRatio;
             rv.PerformedAction = cloneFrom.PerformedAction;
             rv.PerformedActionProgress = cloneFrom.PerformedActionProgress;
             return rv;
         }
+
+		public FrameProcessingStatus(ImageStatus imgStatus)
+		{
+			FrameDiffSignature = 0;
+			CameraFrameNo = imgStatus.UniqueFrameNo;
+			CurrentSignatureRatio = imgStatus.CutOffRatio;
+			IntegratedFrameNo = imgStatus.IntegratedFrameNo;
+			CountedFrames = imgStatus.CountedFrames;
+			DetectedIntegrationRate = imgStatus.DetectedIntegrationRate;
+			DropedFramesSinceIntegrationLock = imgStatus.DropedFramesSinceIntegrationLock;
+			PerformedAction = imgStatus.PerformedAction;
+			PerformedActionProgress = imgStatus.PerformedActionProgress;
+			StartExposureSystemTime = imgStatus.StartExposureSystemTime;
+			EndExposureSystemTime = imgStatus.EndExposureSystemTime;
+			StartExposureFrameNo = imgStatus.StartExposureFrameNo;
+			EndExposureFrameNo = imgStatus.EndExposureFrameNo;
+		}
     };
 
 	internal static class NativeHelpers

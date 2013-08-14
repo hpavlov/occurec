@@ -106,13 +106,14 @@ namespace OccuRec.Drivers.AAVTimer
 			rv.frameNumber = cameraFrame.FrameNumber;
             rv.exposureStartTime = new DateTime(cameraFrame.ImageStatus.StartExposureSystemTime).ToString("HH:mm:ss.fff");
 			rv.exposureDuration = null;
-			rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4};IFID:{5}",
+			rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4};IFID:{5};DRPD:{6}",
 				cameraFrame.ImageStatus.DetectedIntegrationRate, 
 				cameraFrame.ImageStatus.StartExposureFrameNo, 
 				cameraFrame.ImageStatus.EndExposureFrameNo, 
 				cameraFrame.ImageStatus.CutOffRatio, 
 				cameraFrame.ImageStatus.UniqueFrameNo,
-				cameraFrame.ImageStatus.IntegratedFrameNo);
+				cameraFrame.ImageStatus.IntegratedFrameNo,
+				cameraFrame.ImageStatus.DropedFramesSinceIntegrationLock);
 
 			if (cameraFrame.ImageStatus.PerformedAction > 0)
 			{

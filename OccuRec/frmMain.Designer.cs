@@ -493,6 +493,7 @@
 			// 
 			// btnCalibrateIntegration
 			// 
+			this.btnCalibrateIntegration.Visible = false;
 			this.btnCalibrateIntegration.Location = new System.Drawing.Point(13, 53);
 			this.btnCalibrateIntegration.Name = "btnCalibrateIntegration";
 			this.btnCalibrateIntegration.Size = new System.Drawing.Size(160, 23);

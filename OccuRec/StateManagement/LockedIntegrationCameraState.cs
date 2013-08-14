@@ -26,15 +26,10 @@ namespace OccuRec.StateManagement
 		public override void ProcessFrame(CameraStateManager stateManager, Helpers.VideoFrameWrapper frame)
 		{
 			if (frame.IntegrationRate.HasValue && frame.IntegrationRate.Value > 1)
-			{
-				if (lastIntegratedFrameIntegration != frame.IntegrationRate.Value)
-				{
-					int droppedFrames = lockedIntegrationRate - frame.IntegrationRate.Value;
-					numberOfDroppedFrames += droppedFrames;
-				}
-
 				lastIntegratedFrameIntegration = frame.IntegrationRate.Value;
-			}			
+
+			if (frame.DroppedFramesSinceLocked.HasValue)
+				numberOfDroppedFrames = frame.DroppedFramesSinceLocked.Value;
 		}
     }
 }

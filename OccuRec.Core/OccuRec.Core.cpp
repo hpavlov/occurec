@@ -84,6 +84,8 @@ __int64 idxLastFrameNumber = 0;
 __int64 idxFirstFrameTimestamp = 0;
 __int64 idxLastFrameTimestamp = 0;
 __int64 idxIntegratedFrameNumber = 0;
+long droppedFramesSinceIntegrationIsLocked = 0;
+long lockedIntegrationFrames = 0;
 
 unsigned char* latestIntegratedFrame = NULL;
 ImageStatus latestImageStatus;
@@ -123,6 +125,9 @@ void ClearResourses()
 HRESULT LockIntegration(bool lock)
 {
 	INTEGRATION_LOCKED = lock;
+
+	if (INTEGRATION_LOCKED)
+		droppedFramesSinceIntegrationIsLocked = 0;
 
 	return S_OK;
 }
@@ -224,9 +229,11 @@ bool IsNewIntegrationPeriod(float diffSignature)
 
 	if (NULL != integrationChecker)
 	{
-		SyncLock::LockIntDet();
-		return integrationChecker->IsNewIntegrationPeriod(idxFrameNumber, diffSignature);
-		SyncLock::UnlockIntDet();
+		SyncLock::LockIntDet();		
+		bool isNewIntegrationPeriod = integrationChecker->IsNewIntegrationPeriod(idxFrameNumber, diffSignature);
+		SyncLock::UnlockIntDet();		
+
+		return isNewIntegrationPeriod;
 	}
 	else
 		return false;
@@ -477,6 +484,7 @@ HRESULT SetupCamera(
 	numberOfDiffSignaturesCalculated = 0;
 	numberOfIntegratedFrames = 0;
 	idxIntegratedFrameNumber = 0;
+	droppedFramesSinceIntegrationIsLocked = 0;
 
 	latestImageStatus.UniqueFrameNo = 0;
 
@@ -526,6 +534,7 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->PerformedAction = latestImageStatus.PerformedAction;
 	imageStatus->PerformedActionProgress = latestImageStatus.PerformedActionProgress;
 	imageStatus->DetectedIntegrationRate = latestImageStatus.DetectedIntegrationRate;
+	imageStatus->DropedFramesSinceIntegrationLock = latestImageStatus.DropedFramesSinceIntegrationLock;
 
 	return S_OK;
 }
@@ -740,15 +749,19 @@ long detectedIntegrationRate = 0;
 
 long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks)
 {
-	// TODO: Prepare a new IntegratedFrame object, copy the averaged integratedPixels, set the start/end frame and timestamp, put in the buffer for recording.
-	// TODO: Have a second copy for display??
 	long numItems = 0;
 
 	idxIntegratedFrameNumber++;
 
-	if (isNewIntegrationPeriod)	
+	if (isNewIntegrationPeriod)
+	{
 		detectedIntegrationRate = numberOfIntegratedFrames;
 
+		if (!INTEGRATION_LOCKED)
+			lockedIntegrationFrames = detectedIntegrationRate;
+		else
+			droppedFramesSinceIntegrationIsLocked = abs(lockedIntegrationFrames - detectedIntegrationRate);
+	}
 
 	if (numberOfIntegratedFrames == 0)
 	{
@@ -864,6 +877,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		latestImageStatus.EndExposureFrameNo = idxLastFrameNumber;
 		latestImageStatus.EndExposureTicks = idxLastFrameTimestamp;
 		latestImageStatus.DetectedIntegrationRate = detectedIntegrationRate;
+		latestImageStatus.DropedFramesSinceIntegrationLock = droppedFramesSinceIntegrationIsLocked;
 
 		if (INTEGRATION_CALIBRATION)
 		{

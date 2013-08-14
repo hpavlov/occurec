@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using OccuRec.Drivers;
 using OccuRec.Helpers;
+using OccuRec.Properties;
 
 namespace OccuRec.StateManagement
 {
@@ -27,6 +28,12 @@ namespace OccuRec.StateManagement
         {
             if (currentState != null)
                 currentState.ProcessFrame(this, frame);
+
+			if ((Settings.Default.SimulatorRunOCR && Settings.Default.OcrSimulatorNativeCode) ||
+			    Settings.Default.AavOcrEnabled)
+			{
+				Trace.WriteLine(frame.ExposureStartTime);
+			}
         }
 
         public void CameraConnected(IVideo driverInstance, OverlayManager overlayManager, int maxOcrErrorsPerRun, bool isIntegrating)

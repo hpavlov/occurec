@@ -641,6 +641,8 @@ namespace OccuRec
                 }
 
                 btnLockIntegration.Enabled = (stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0) || stateManager.IsIntegrationLocked;
+				btnCalibrateIntegration.Visible = !stateManager.IsIntegrationLocked;
+
                 if (stateManager.IntegrationRate > 0 && stateManager.IsValidIntegrationRate && !stateManager.IsIntegrationLocked)
                     btnLockIntegration.Text = string.Format("Lock at x{0} Frames", stateManager.IntegrationRate);
                 else if (stateManager.IsIntegrationLocked)

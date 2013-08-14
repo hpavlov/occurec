@@ -245,7 +245,9 @@ namespace OccuRec.Drivers.AVISimulator.AVIPlayerImpl
                                 nextFrameStatus = NativeHelpers.ProcessVideoFrame2(pixels);
                         }
 
-                        if (Settings.Default.SimulatorRunOCR)
+						if (Settings.Default.SimulatorRunOCR &&
+							!Settings.Default.OcrSimulatorNativeCode &&
+							ocrTester != null)
                         {
                             OsdFrameInfo frameInfo = ocrTester.ProcessFrame(pixels, frameNo);
                             if (callbacksObject != null && frameInfo != null)
@@ -297,12 +299,8 @@ namespace OccuRec.Drivers.AVISimulator.AVIPlayerImpl
             {
                 ImageStatus imgStatus;
                 cameraFrame = NativeHelpers.GetCurrentImage(out imgStatus);
-                status.CameraFrameNo = imgStatus.UniqueFrameNo;
-                status.CurrentSignatureRatio = imgStatus.CutOffRatio;
-                status.IntegratedFrameNo = imgStatus.IntegratedFrameNo;
-                status.IntegratedFramesSoFar = imgStatus.CountedFrames;
-                status.PerformedAction = imgStatus.PerformedAction;
-                status.PerformedActionProgress = imgStatus.PerformedActionProgress;
+                status = new FrameProcessingStatus(imgStatus);
+				
             }
             else
             {

@@ -265,7 +265,7 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool SimulatorRunOCR {
             get {
                 return ((bool)(this["SimulatorRunOCR"]));
@@ -338,12 +338,12 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IotaVtiOcrEnabled {
+        public bool AavOcrEnabled {
             get {
-                return ((bool)(this["IotaVtiOcrEnabled"]));
+                return ((bool)(this["AavOcrEnabled"]));
             }
             set {
-                this["IotaVtiOcrEnabled"] = value;
+                this["AavOcrEnabled"] = value;
             }
         }
         

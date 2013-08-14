@@ -21,8 +21,7 @@ V) Print the failed OCR chars in red, rather than yellow, on the error image
 V) OccuRec should be usable without IOTA-VTI-OCR-Settings.xml. Add parameters for TimestampTop and TimestampHeight  
 V) Allow the user to modify the image size (if possible at all at DirectShow level !)
 V) Display the framerate supported by the capture hardware 
-- Test the integration detection algorithm without the [signatureDifferenceFactor * pastSignaturesSigma] factor. Find out the reasoning behind using this factor and document it as needed	
-- Complete the integration detection calibration, make it find the best settings. Use this test data:
+- Complete the integration detection calibration, make it find the best settings
 - "Calibrate" should not be available when the integration is Locked (hidden or disabled?)
 - Implement dropped frame check in unmanaged world and return it as a number (count) since the integration has been LOCKED
 
