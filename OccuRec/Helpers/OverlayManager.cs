@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using OccuRec.Properties;
 
 namespace OccuRec.Helpers
 {
@@ -60,23 +61,27 @@ namespace OccuRec.Helpers
         {
             ProcessErrorMessages(g);
 
-            string ocrStampToDisplay = currentOcrStamp;
-            currentOcrStamp = null;
-			if (ocrStampToDisplay != null)
+			if (Settings.Default.OcrSimulatorTestMode && !Settings.Default.OcrSimulatorNativeCode)
 			{
-				framesWithoutTimestams = 0;
-				timestampMeasurement = g.MeasureString(ocrStampToDisplay, overlayMessagesFont);
+				// Only show OCR timestamp when running in managed simulated test mode
+				string ocrStampToDisplay = currentOcrStamp;
+				currentOcrStamp = null;
+				if (ocrStampToDisplay != null)
+				{
+					framesWithoutTimestams = 0;
+					timestampMeasurement = g.MeasureString(ocrStampToDisplay, overlayMessagesFont);
 
-				g.FillRectangle(Brushes.DarkSlateGray, imageWidth - timestampMeasurement.Width - 9, imageHeight - timestampMeasurement.Height - 39, timestampMeasurement.Width + 6, timestampMeasurement.Height + 6);
-				g.DrawString(ocrStampToDisplay, overlayMessagesFont, Brushes.Lime, imageWidth - timestampMeasurement.Width - 6, imageHeight - timestampMeasurement.Height - 36);
-			}
-			else
-			{
-				framesWithoutTimestams++;
-				if (framesWithoutTimestams < 100)
-					g.FillRectangle(Brushes.DarkSlateGray, imageWidth - timestampMeasurement.Width - 9, imageHeight - timestampMeasurement.Height - 39, timestampMeasurement.Width + 6, timestampMeasurement.Height + 6);				
+					g.FillRectangle(Brushes.DarkSlateGray, imageWidth - timestampMeasurement.Width - 9, imageHeight - timestampMeasurement.Height - 39, timestampMeasurement.Width + 6, timestampMeasurement.Height + 6);
+					g.DrawString(ocrStampToDisplay, overlayMessagesFont, Brushes.Lime, imageWidth - timestampMeasurement.Width - 6, imageHeight - timestampMeasurement.Height - 36);
+				}
 				else
-					timestampMeasurement = SizeF.Empty;
+				{
+					framesWithoutTimestams++;
+					if (framesWithoutTimestams < 100)
+						g.FillRectangle(Brushes.DarkSlateGray, imageWidth - timestampMeasurement.Width - 9, imageHeight - timestampMeasurement.Height - 39, timestampMeasurement.Width + 6, timestampMeasurement.Height + 6);
+					else
+						timestampMeasurement = SizeF.Empty;
+				}				
 			}
         }
 
@@ -109,7 +114,7 @@ namespace OccuRec.Helpers
                         currMessageToDisplay = errorMessagesQueue.Dequeue();
                         displayMessageUntil = DateTime.Now.AddSeconds(10);
                         PrintCurrentErrorMessage(g);
-                    }                    
+                    }
                 }
             }
         }

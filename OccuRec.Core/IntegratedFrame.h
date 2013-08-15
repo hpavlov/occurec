@@ -11,6 +11,8 @@ public:
 	__int64 EndFrameId;
 	__int64 StartTimeStamp;
 	__int64 EndTimeStamp;
+	char StartTimeStampStr[128];
+	char EndTimeStampStr[128];
 	__int64 FrameNumber;
 	unsigned char GpsTrackedSatellites;
 	unsigned char GpsAlamancStatus;

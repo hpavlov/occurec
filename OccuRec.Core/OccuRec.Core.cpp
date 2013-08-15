@@ -86,6 +86,8 @@ __int64 idxLastFrameNumber = 0;
 __int64 idxFirstFrameTimestamp = 0;
 __int64 idxLastFrameTimestamp = 0;
 __int64 idxIntegratedFrameNumber = 0;
+char firstFrameTimestampStr[128];
+char endFrameTimestampStr[128];
 long droppedFramesSinceIntegrationIsLocked = 0;
 long lockedIntegrationFrames = 0;
 bool ocrFirstFrameProcessed = false;
@@ -791,8 +793,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		if (!INTEGRATION_LOCKED)
 			lockedIntegrationFrames = detectedIntegrationRate;
 		else
-			droppedFramesSinceIntegrationIsLocked = abs(lockedIntegrationFrames - detectedIntegrationRate);
-	}
+			droppedFramesSinceIntegrationIsLocked += abs(lockedIntegrationFrames - detectedIntegrationRate);
+	}	
 
 	if (numberOfIntegratedFrames == 0)
 	{
@@ -920,6 +922,9 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 						idxFirstFrameTimestamp = firstFrameOcrProcessor->GetOcredStartFrameTimeStamp(ocrManager->FieldDurationInTicks);
 						idxLastFrameTimestamp = lastFrameOcrProcessor->GetOcredEndFrameTimeStamp();
 
+						firstFrameOcrProcessor->GetOcredStartFrameTimeStampStr(&firstFrameTimestampStr[0]);
+						lastFrameOcrProcessor->GetOcredEndFrameTimeStampStr(&endFrameTimestampStr[0]);
+
 						almanacUpdateSatus = lastFrameOcrProcessor->GetOcredAlmanacUpdateState();
 						gpsFixStatus = lastFrameOcrProcessor->GetOcredGpsFixState();
 						trackedSatellitesCount = lastFrameOcrProcessor->GetOcredTrackedSatellitesCount();
@@ -937,6 +942,9 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 						idxLastFrameNumber = timeStampFrameProcessor->GetOcredEndFrameNumber();
 						idxFirstFrameTimestamp = timeStampFrameProcessor->GetOcredStartFrameTimeStamp(ocrManager->FieldDurationInTicks);
 						idxLastFrameTimestamp = timeStampFrameProcessor->GetOcredEndFrameTimeStamp();
+
+						timeStampFrameProcessor->GetOcredStartFrameTimeStampStr(&firstFrameTimestampStr[0]);
+						timeStampFrameProcessor->GetOcredEndFrameTimeStampStr(&endFrameTimestampStr[0]);
 
 						almanacUpdateSatus = timeStampFrameProcessor->GetOcredAlmanacUpdateState();
 						gpsFixStatus = timeStampFrameProcessor->GetOcredGpsFixType();
@@ -988,6 +996,10 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			frame->GpsTrackedSatellites = trackedSatellitesCount;
 			frame->GpsAlamancStatus = almanacUpdateSatus;
 			frame->GpsFixStatus = gpsFixStatus;
+
+			strcpy(&frame->StartTimeStampStr[0], &firstFrameTimestampStr[0]);
+			strcpy(&frame->EndTimeStampStr[0], &endFrameTimestampStr[0]);
+
 
 			numItems = AddFrameToRecordingBuffer(frame);
 		}
@@ -1365,8 +1377,8 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 
 	if (OCR_IS_SETUP)
 	{
-		AavFrameAddStatusTag64(STATUS_TAG_START_TIMESTAMP, nextFrame->StartTimeStamp);
-		AavFrameAddStatusTag64(STATUS_TAG_END_TIMESTAMP, nextFrame->EndTimeStamp);
+		AavFrameAddStatusTag(STATUS_TAG_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]);
+		AavFrameAddStatusTag(STATUS_TAG_END_TIMESTAMP, &nextFrame->EndTimeStampStr[0]);
 		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_TRACKED_SATELLITES, nextFrame->GpsTrackedSatellites);
 		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_ALMANAC, nextFrame->GpsAlamancStatus);
 		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_FIX, nextFrame->GpsFixStatus);
@@ -1427,7 +1439,7 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	AavAddFileTag("CAMERA-MODEL", cameraModel);
 
 	if (OCR_IS_SETUP)
-		AavAddFileTag("OCR-ENGINE", "OccuRec IOTA-VTI OCR v0.2");
+		AavAddFileTag("OCR-ENGINE", "IOTA-VTI OccuRec OCR v1.0");
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
 	
@@ -1436,11 +1448,11 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	AavDefineImageLayout(3, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
 	AavDefineImageLayout(4, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
 	
-	STATUS_TAG_NUMBER_INTEGRATED_FRAMES = AavDefineStatusSectionTag("INTEGRATED_FRAMES", AavTagType::UInt16);
-	STATUS_TAG_START_FRAME_ID = AavDefineStatusSectionTag("START_FRAME", AavTagType::ULong64);
-	STATUS_TAG_END_FRAME_ID = AavDefineStatusSectionTag("END_FRAME", AavTagType::ULong64);
-	STATUS_TAG_START_TIMESTAMP = AavDefineStatusSectionTag("START_FRAME_TIMESTAMP", AavTagType::ULong64);
-	STATUS_TAG_END_TIMESTAMP = AavDefineStatusSectionTag("END_FRAME_TIMESTAMP", AavTagType::ULong64);
+	STATUS_TAG_NUMBER_INTEGRATED_FRAMES = AavDefineStatusSectionTag("IntegratedFrames", AavTagType::UInt16);
+	STATUS_TAG_START_FRAME_ID = AavDefineStatusSectionTag("StartFrame", AavTagType::ULong64);
+	STATUS_TAG_END_FRAME_ID = AavDefineStatusSectionTag("EndFrame", AavTagType::ULong64);
+	STATUS_TAG_START_TIMESTAMP = AavDefineStatusSectionTag("StartFrameTimestamp", AavTagType::AnsiString255);
+	STATUS_TAG_END_TIMESTAMP = AavDefineStatusSectionTag("EndFrameTimestamp", AavTagType::AnsiString255);
 	STATUS_TAG_GPS_TRACKED_SATELLITES = AavDefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8);
 	STATUS_TAG_GPS_ALMANAC = AavDefineStatusSectionTag("GPSAlmanacStatus", AavTagType::UInt8);
 	STATUS_TAG_GPS_FIX = AavDefineStatusSectionTag("GPSFixStatus", AavTagType::UInt8);
@@ -1451,8 +1463,7 @@ HRESULT StartRecording(LPCTSTR szFileName)
 
 	if (NULL != ocrManager)
 	{
-		ocrManager->Reset();
-		ocrFirstFrameProcessed = false;
+		ocrManager->ResetErrorCounter();
 	}
 
 	if (NULL == ocrManager || !ocrManager->IsReceivingTimeStamps())

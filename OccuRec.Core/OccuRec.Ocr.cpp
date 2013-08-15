@@ -411,6 +411,44 @@ __int64 OcrFrameProcessor::GetOcredEndFrameTimeStamp()
 		: OddFieldOcredOsd.FieldTimeStamp;
 }
 
+void OcrFrameProcessor::GetOcredStartFrameTimeStampStr(char* destBuffer)
+{
+	if (m_IsOddFieldDataFirst)
+		SafeCopyCharsReplaceZeroWithSpace(destBuffer, &m_OcredCharsOdd[0], 25);
+	else
+		SafeCopyCharsReplaceZeroWithSpace(destBuffer, &m_OcredCharsEven[0], 25);
+}
+
+void OcrFrameProcessor::GetOcredEndFrameTimeStampStr(char* destBuffer)
+{
+	if (m_IsOddFieldDataFirst)
+		SafeCopyCharsReplaceZeroWithSpace(destBuffer, &m_OcredCharsEven[0], 25);
+	else
+		SafeCopyCharsReplaceZeroWithSpace(destBuffer, &m_OcredCharsOdd[0], 25);
+}
+
+void OcrFrameProcessor::SafeCopyCharsReplaceZeroWithSpace(char* destBuffer, char* source, int len)
+{
+	int j = 0;
+	for (int i = 0; i < len; i++, j++)
+	{
+		if (source[i] != '\0')
+			destBuffer[j] = source[i];
+		else
+			destBuffer[j] = ' ';
+
+		if (i == 1 || i == 2 || i == 8 || i == 16)
+		{
+			j++; destBuffer[j] = ' ';
+		}
+		else if (i == 4 || i == 6)
+		{
+			j++; destBuffer[j] = ':';
+		}
+	}
+	destBuffer[j + 1] = '\0';
+}
+
 unsigned char OcrFrameProcessor::GetOcredTrackedSatellitesCount()
 {
 	return (unsigned char)(OddFieldOcredOsd.TrackedSatellites & 0xFF);
@@ -453,6 +491,11 @@ void OcrManager::Reset()
 	OcrErrorsSinceReset = 0;
 	FieldDurationInTicks = 0;
 	receivingTimestamps = false;
+};
+
+void OcrManager::ResetErrorCounter()
+{
+	OcrErrorsSinceReset = 0;
 };
 
 void OcrManager::RegisterFirstSuccessfullyOcredFrame(OcrFrameProcessor* ocredFrame)

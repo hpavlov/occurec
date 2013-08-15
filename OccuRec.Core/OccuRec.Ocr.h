@@ -108,6 +108,7 @@ class OcrFrameProcessor
 		OcredFieldOsd EvenFieldOcredOsd;
 
 		void ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo);
+		void SafeCopyCharsReplaceZeroWithSpace(char* destBuffer, char* source, int len);
 
 	public:
 		bool Success;
@@ -123,6 +124,10 @@ class OcrFrameProcessor
 		__int64 GetOcredStartFrameTimeStamp(long fieldDurationInTicks);
 		long GetOcredEndFrameNumber();
 		__int64 GetOcredEndFrameTimeStamp();
+
+		void GetOcredStartFrameTimeStampStr(char* destBuffer);
+		void GetOcredEndFrameTimeStampStr(char* destBuffer);
+
 		unsigned char GetOcredTrackedSatellitesCount();
 		unsigned char GetOcredAlmanacUpdateState();
 		char GetOcredGpsFixType();
@@ -147,6 +152,8 @@ class OcrManager
 		OcrManager();
 
 		void Reset();
+		void ResetErrorCounter();
+
 		void RegisterFirstSuccessfullyOcredFrame(OcrFrameProcessor* ocredFrame);
 		void ProcessedOcredFrame(OcrFrameProcessor* ocredFrame);
 		void ProcessedOcredFramesInLockedMode(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame);

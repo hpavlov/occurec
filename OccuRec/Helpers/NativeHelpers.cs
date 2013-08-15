@@ -104,8 +104,8 @@ namespace OccuRec.Helpers
         public float PerformedActionProgress;
 		public int DetectedIntegrationRate;
 	    public int DropedFramesSinceIntegrationLock;
-		public long OcrWorking;
-		public long OcrErrorsSinceLastReset;
+		public int OcrWorking;
+		public int OcrErrorsSinceLastReset;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -128,8 +128,8 @@ namespace OccuRec.Helpers
 		public long EndExposureSystemTime;
 		public long StartExposureFrameNo;
 		public long EndExposureFrameNo;
-		public long OcrWorking;
-		public long OcrErrorsSinceLastReset;
+		public int OcrWorking;
+		public int OcrErrorsSinceLastReset;
 		
 		public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
         {
