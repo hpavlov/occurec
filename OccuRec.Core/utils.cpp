@@ -81,6 +81,19 @@ long long DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, in
 		return 0;
 }
 
+long long WindowsTicksToAavTicks(__int64 windowsTicks)
+{
+	if (windowsTicks > 0)
+	{
+		long long advTicks = 
+				(long long)(windowsTicks - ADV_EPOCH_ZERO_TICKS) / 10000;
+
+		return advTicks;		
+	}
+	else
+		return 0;
+}
+
 void DebugViewPrint(const wchar_t* formatText, ...)
 {
 	wchar_t debug512CharBuffer[512];

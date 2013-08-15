@@ -24,6 +24,13 @@ V) Display the framerate supported by the capture hardware
 - Complete the integration detection calibration, make it find the best settings
 V) "Calibrate" should not be available when the integration is Locked (hidden or disabled?)
 V) Implement dropped frame check in unmanaged world and return it as a number (count) since the integration has been LOCKED
+- Implement a second integration detection based on locking at user specified integration rate. Add options in the settings form for "Automatic" or "Manually Specified" integration processing
+- Add a 'SystemTime' status field in the AAV recorded file
+V) Add an AVI file level metadata about (1) the name of the grabbing device used and (2) the video mode used
+- When recording an AAV video don't add the first and last non-integrated timestamps
+- Reported Dropped Frames seems to be hidden when the currently reported dropped frames are zero or the dropped frames don't get added up. Check with laptop camera and x3 locked integration
+- Don't overlay OCRed timestamps unless in Simulated mode with Managed OCR engine
+- Make the START and END timestamped saved as status fields in the AAV - strings of the actually OCR-ed data from the fields (rather than int64 ticks)
 
 HARDER:
 

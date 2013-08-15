@@ -294,6 +294,8 @@ void OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtc
 		success = false;
 	}
 
+	fieldInfo.AlmanacUpdateState = ocredChars[2] != 'W';
+
 	long hh = 0;
 	if (ocredChars[3] > 0 && ocredChars[4] > 0)
 		hh = 10 * (ocredChars[3] - 0x30) + (ocredChars[4] - 0x30);
@@ -324,16 +326,17 @@ void OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtc
 
 	// NOTE: This will be problematic at date change. 
 	// TODO: Need to some something more to ensure we are capturing and processing correctly the case of date change
-	// 1ms = 10000 ticks
-	// 1sec = 10000000 ticks
-	// 1min = 600000000 ticks
+	// 0.1ms = 1000 ticks
+	//   1ms = 10000 ticks
+	//  1sec = 10000000 ticks
+	//  1min = 600000000 ticks
 	// 1hour = 36000000000 ticks
 	fieldInfo.FieldTimeStamp = 
 		currentUtcDayAsTicks +
-		36000000000 * (long long) hh + 
-		  600000000 * (long long) mm + 
-		   10000000 * (long long) ss +
-		      10000 * (long long) (ms1 != 0 ? ms1 : ms2);
+		(long long)(36000000000) * (long long) hh + 
+		  (long long)(600000000) * (long long) mm + 
+		   (long long)(10000000) * (long long) ss +
+		       (long long)(1000) * (long long) (ms1 != 0 ? ms1 : ms2);
 
 	char fieldNoStr[7];
 	::ZeroMemory(fieldNoStr, 7);
@@ -384,11 +387,14 @@ long OcrFrameProcessor::GetOcredStartFrameNumber()
 		: EvenFieldOcredOsd.FieldNumber;
 }
 
-__int64 OcrFrameProcessor::GetOcredStartFrameTimeStamp()
+__int64 OcrFrameProcessor::GetOcredStartFrameTimeStamp(long fieldDurationInTicks)
 {
-	return m_IsOddFieldDataFirst 
+	__int64 endFirstFieldTimestamp = m_IsOddFieldDataFirst 
 		? OddFieldOcredOsd.FieldTimeStamp 
 		: EvenFieldOcredOsd.FieldTimeStamp;
+
+	// The frame exposure actually starts 1 field before the first field timestamp
+	return endFirstFieldTimestamp - fieldDurationInTicks;
 }
 
 long OcrFrameProcessor::GetOcredEndFrameNumber()
@@ -405,14 +411,30 @@ __int64 OcrFrameProcessor::GetOcredEndFrameTimeStamp()
 		: OddFieldOcredOsd.FieldTimeStamp;
 }
 
-long OcrFrameProcessor::GetOcredTrackedSatellitesCount()
+unsigned char OcrFrameProcessor::GetOcredTrackedSatellitesCount()
 {
-	return OddFieldOcredOsd.TrackedSatellites;
+	return (unsigned char)(OddFieldOcredOsd.TrackedSatellites & 0xFF);
 }
 
-long OcrFrameProcessor::GetOcredAlmanacUpdateState()
+unsigned char OcrFrameProcessor::GetOcredAlmanacUpdateState()
 {
-	return 0;
+	
+	return (unsigned char)(OddFieldOcredOsd.AlmanacUpdateState & 0xFF);
+}
+
+unsigned char OcrFrameProcessor::GetOcredGpsFixState()
+{
+	switch(OddFieldOcredOsd.GpsFixType)
+	{
+		case 'G':
+			return (unsigned char)1;
+
+		case 'P':
+			return (unsigned char)2;
+
+		default:
+			return (unsigned char)0;
+	}
 }
 
 char OcrFrameProcessor::GetOcredGpsFixType()
@@ -423,16 +445,25 @@ char OcrFrameProcessor::GetOcredGpsFixType()
 OcrManager::OcrManager()
 {
 	OcrErrorsSinceReset = 0;
+	receivingTimestamps = false;
 };
 
 void OcrManager::Reset()
 {
 	OcrErrorsSinceReset = 0;
+	FieldDurationInTicks = 0;
+	receivingTimestamps = false;
 };
 
 void OcrManager::RegisterFirstSuccessfullyOcredFrame(OcrFrameProcessor* ocredFrame)
 {
 	frameIdOddBeforeEven = ocredFrame->IsOddFieldDataFirst();
+	prevStartFieldId = ocredFrame->GetOcredStartFrameNumber();
+	prevStartTimeStamp = ocredFrame-> GetOcredStartFrameTimeStamp(0);
+
+	FieldDurationInTicks = abs(ocredFrame->GetOcredEndFrameTimeStamp() - ocredFrame->GetOcredStartFrameTimeStamp(0));
+
+	receivingTimestamps = true;
 };
 
 void OcrManager::VerifyAndFixOcredFrame(OcrFrameProcessor* ocredFrame)
@@ -445,23 +476,34 @@ void OcrManager::VerifyAndFixOcredIntegratedInterval(OcrFrameProcessor* firstOcr
 	// TODO:
 };
 
+bool OcrManager::IsReceivingTimeStamps()
+{
+	return receivingTimestamps;
+};
+
 void OcrManager::ProcessedOcredFrame(OcrFrameProcessor* ocredFrame)
 {
-	VerifyAndFixOcredFrame(ocredFrame);
+	if (receivingTimestamps)
+	{
+		VerifyAndFixOcredFrame(ocredFrame);
 
-	if (!ocredFrame->Success)
-		OcrErrorsSinceReset++;
+		if (!ocredFrame->Success)
+			OcrErrorsSinceReset++;
+	}
 };
 
 void OcrManager::ProcessedOcredFramesInLockedMode(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame)
 {
-	VerifyAndFixOcredIntegratedInterval(firstOcredFrame, lastOcredFrame);
+	if (receivingTimestamps)
+	{
+		VerifyAndFixOcredIntegratedInterval(firstOcredFrame, lastOcredFrame);
 
-	if (!firstOcredFrame->Success)
-		OcrErrorsSinceReset++;
+		if (!firstOcredFrame->Success)
+			OcrErrorsSinceReset++;
 
-	if (!lastOcredFrame->Success)
-		OcrErrorsSinceReset++;
+		if (!lastOcredFrame->Success)
+			OcrErrorsSinceReset++;
+	}
 };
 
 }

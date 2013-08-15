@@ -75,7 +75,9 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
                     Settings.Default.IsIntegrating,
                     (float)Settings.Default.MinSignatureDiffRatio,
                     (float)Settings.Default.MinSignatureDiff,
-					Settings.Default.GammaDiff);
+					Settings.Default.GammaDiff,
+					dev.Name,
+					selectedFormat.AsSerialized());
 
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 

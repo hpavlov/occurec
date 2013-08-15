@@ -20,6 +20,7 @@ namespace OccuRec.StateManagement
         private OverlayManager overlayManager;
 
         private int ocrErrors;
+	    private bool providesOcredTimestamps;
         private bool ocrMayBeRunning;
 
 	    private bool isIntegratingCamera;
@@ -32,6 +33,17 @@ namespace OccuRec.StateManagement
 			if ((Settings.Default.SimulatorRunOCR && Settings.Default.OcrSimulatorNativeCode) ||
 			    Settings.Default.AavOcrEnabled)
 			{
+				if (frame.OcrErrorsSinceReset.HasValue)
+				{
+					ocrErrors = frame.OcrErrorsSinceReset.Value;
+					providesOcredTimestamps = true;
+				}
+				else
+				{
+					ocrErrors = 0;
+					providesOcredTimestamps = false;
+				}
+
 				Trace.WriteLine(frame.ExposureStartTime);
 			}
         }
@@ -43,6 +55,7 @@ namespace OccuRec.StateManagement
 	        isIntegratingCamera = isIntegrating;
 
             ocrErrors = 0;
+	        providesOcredTimestamps = false;
             MAX_ORC_ERRORS_PER_RUN = maxOcrErrorsPerRun;
 
             driverInstanceSupportedActions = driverInstance.SupportedActions.Cast<string>().ToList();
@@ -234,6 +247,11 @@ namespace OccuRec.StateManagement
         {
             get { return ocrErrors; }
         }
+		
+	    public bool ProvidesOcredTimestamps
+	    {
+			get { return providesOcredTimestamps; }
+	    }
 
         public int DroppedFrames
         {

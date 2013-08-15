@@ -120,23 +120,29 @@ class OcrFrameProcessor
 		void Ocr(__int64 currentUtcDayAsTicks);
 		bool IsOddFieldDataFirst();
 		long GetOcredStartFrameNumber();
-		__int64 GetOcredStartFrameTimeStamp();
+		__int64 GetOcredStartFrameTimeStamp(long fieldDurationInTicks);
 		long GetOcredEndFrameNumber();
 		__int64 GetOcredEndFrameTimeStamp();
-		long GetOcredTrackedSatellitesCount();
-		long GetOcredAlmanacUpdateState();
+		unsigned char GetOcredTrackedSatellitesCount();
+		unsigned char GetOcredAlmanacUpdateState();
 		char GetOcredGpsFixType();
+		unsigned char GetOcredGpsFixState();
 };
 
 class OcrManager
 {
 	private:
+		bool receivingTimestamps;
 		bool frameIdOddBeforeEven;
+		long prevStartFieldId;
+		long long prevStartTimeStamp;
+
 		void VerifyAndFixOcredFrame(OcrFrameProcessor* ocredFrame);
 		void VerifyAndFixOcredIntegratedInterval(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame);
 
 	public:
 		long OcrErrorsSinceReset;
+		long FieldDurationInTicks;
 
 		OcrManager();
 
@@ -144,6 +150,7 @@ class OcrManager
 		void RegisterFirstSuccessfullyOcredFrame(OcrFrameProcessor* ocredFrame);
 		void ProcessedOcredFrame(OcrFrameProcessor* ocredFrame);
 		void ProcessedOcredFramesInLockedMode(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame);
+		bool IsReceivingTimeStamps();
 };
 
 extern vector<OcrCharDefinition*> OCR_CHAR_DEFS;

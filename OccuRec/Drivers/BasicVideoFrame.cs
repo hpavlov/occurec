@@ -106,6 +106,11 @@ namespace OccuRec.Drivers
                 {
                     rv.imageInfo += string.Format(";ACT:{0};ACT%:{1}", status.PerformedAction, status.PerformedActionProgress);
                 }
+
+				if (status.OcrWorking > 0)
+				{
+					rv.imageInfo += string.Format(";ORER:{0}", status.OcrErrorsSinceLastReset);
+				}
             }
 
             return rv;

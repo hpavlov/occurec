@@ -19,7 +19,7 @@ namespace OccuRec.Drivers.AAVTimer
 {
     public class Video : IVideo, ISupportsCrossbar
 	{
-		private static string DRIVER_DESCRIPTION = "AAV Capture";
+		public static string DRIVER_DESCRIPTION = "AAV Capture";
 
 		private VideoCaptureImpl.VideoCapture camera;
         private IVideoCallbacks callbacksObject;

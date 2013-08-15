@@ -70,6 +70,7 @@ extern OcrFrameProcessor* lastFrameOcrProcessor;
 void FrameProcessingThreadProc(void* pContext);
 
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating);
+HRESULT SetupGrabberInfo(LPCTSTR szGrabberName, LPCTSTR szVideoMode);
 HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float diffGamma);
 HRESULT SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int areaHeight);
 HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfCharPositions, long numberOfZones, long* pixelsInZones);

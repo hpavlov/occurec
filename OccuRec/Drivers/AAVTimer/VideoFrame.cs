@@ -120,6 +120,11 @@ namespace OccuRec.Drivers.AAVTimer
 				rv.imageInfo += string.Format(";ACT:{0};ACT%:{1}", cameraFrame.ImageStatus.PerformedAction, cameraFrame.ImageStatus.PerformedActionProgress);
 			}
 
+			if (cameraFrame.ImageStatus.OcrWorking > 0)
+			{
+				rv.imageInfo += string.Format(";ORER:{0}", cameraFrame.ImageStatus.OcrErrorsSinceLastReset);
+			}
+
 			return rv;
 		}
 

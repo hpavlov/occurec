@@ -12,6 +12,9 @@ public:
 	__int64 StartTimeStamp;
 	__int64 EndTimeStamp;
 	__int64 FrameNumber;
+	unsigned char GpsTrackedSatellites;
+	unsigned char GpsAlamancStatus;
+	unsigned char GpsFixStatus;
 
 	IntegratedFrame(long totalPixelsInFrame);
 	~IntegratedFrame(void);

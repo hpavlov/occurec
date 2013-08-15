@@ -16,7 +16,7 @@ namespace OccuRec.Drivers.AVISimulator
 {
     public class Video : IVideo
     {
-        private static string DRIVER_DESCRIPTION = "AVI Player";
+        public static string DRIVER_DESCRIPTION = "AVI Player";
 
         private AVIPlayer player;
         private bool fullAAVSimulation;

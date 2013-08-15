@@ -19,6 +19,7 @@ namespace OccuRec.Helpers
         public int? PerformedAction { get; private set; }
         public float? PerformedActionProgress { get; private set; }
 		public int? DroppedFramesSinceLocked { get; private set; }
+		public int? OcrErrorsSinceReset { get; private set; }
 
         public VideoFrameWrapper(IVideoFrame videoFrame)
         {
@@ -61,6 +62,10 @@ namespace OccuRec.Helpers
 
                         if (nvpair[0] == "ACT%")
                             PerformedActionProgress = float.Parse(nvpair[1]);
+
+						if (nvpair[0] == "ORER")
+							OcrErrorsSinceReset = int.Parse(nvpair[1]);
+						
                     }
                 }
             }

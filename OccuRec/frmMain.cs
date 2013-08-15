@@ -403,12 +403,31 @@ namespace OccuRec
                     tssIntegrationRate.Text = "Integration Rate: ...";
             }
 
-            if (stateManager.OcrErrors > 0)
+            if (stateManager.ProvidesOcredTimestamps)
             {
-                tssOcrErr.Text = string.Format("OCR ERR {0}", stateManager.OcrErrors);
+				if (stateManager.OcrErrors > 0)
+				{
+					if (tssOcrErr.Tag == null || (int)tssOcrErr.Tag != 2)
+					{
+						tssOcrErr.ForeColor = Color.Red;
+						tssOcrErr.Tag = (int) 2;
+					}
 
-                if (!tssOcrErr.Visible)
-                    tssOcrErr.Visible = true;
+					tssOcrErr.Text = string.Format("OCR ERR {0}", stateManager.OcrErrors);	
+					
+				}
+				else
+				{
+					if (tssOcrErr.Tag == null || (int) tssOcrErr.Tag != 1)
+					{
+						tssOcrErr.Text = "OCR";
+						tssOcrErr.ForeColor = Color.Green;
+						tssOcrErr.Tag = (int)1;
+					}
+				}
+
+				if (!tssOcrErr.Visible)
+					tssOcrErr.Visible = true;
             }
             else
             {
@@ -428,6 +447,7 @@ namespace OccuRec
                 if (tssDroppedFrames.Visible)
                     tssDroppedFrames.Visible = false;
             }
+			
 
             if (frame.PerformedAction.HasValue && frame.PerformedAction.Value > 0 &&
                 frame.PerformedActionProgress.HasValue)

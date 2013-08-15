@@ -76,6 +76,7 @@ float CALIBRATION_SIGNATURES[MAX_CALIBRATION_SIGNATURES_SIZE];
 unsigned char* prtPreviousDiffArea = NULL;
 __int64 numberOfDiffSignaturesCalculated; 
 long numberOfIntegratedFrames;
+bool lastFrameWasNewIntegrationPeriod;
 
 double* integratedPixels = NULL;
 
@@ -101,12 +102,17 @@ HANDLE hRecordingThread = NULL;
 bool recording = false;
 char cameraModel[128];
 char occuRecVersion[32];
+char grabberName[128];
+char videoMode[128];
 
 unsigned int STATUS_TAG_NUMBER_INTEGRATED_FRAMES;
 unsigned int STATUS_TAG_START_FRAME_ID;
 unsigned int STATUS_TAG_END_FRAME_ID;
 unsigned int STATUS_TAG_START_TIMESTAMP;
 unsigned int STATUS_TAG_END_TIMESTAMP;
+unsigned int STATUS_TAG_GPS_TRACKED_SATELLITES;
+unsigned int STATUS_TAG_GPS_ALMANAC;
+unsigned int STATUS_TAG_GPS_FIX;
 
 OccuRec::IntegrationChecker* integrationChecker;
 
@@ -133,7 +139,10 @@ HRESULT LockIntegration(bool lock)
 		droppedFramesSinceIntegrationIsLocked = 0;
 
 	if (NULL != ocrManager)
+	{
 		ocrManager->Reset();
+		ocrFirstFrameProcessed = false;
+	}
 
 	return S_OK;
 }
@@ -435,6 +444,14 @@ void SetupDiffGammaMemoryTable(float diffGamma)
 	}
 }
 
+HRESULT SetupGrabberInfo(LPCTSTR szGrabberName, LPCTSTR szVideoMode)
+{
+	strcpy(&grabberName[0], (char *)szGrabberName);
+	strcpy(&videoMode[0], (char *)szVideoMode);
+
+	return S_OK;
+}
+
 HRESULT SetupCamera(
 	long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating)
 {
@@ -547,6 +564,8 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->PerformedActionProgress = latestImageStatus.PerformedActionProgress;
 	imageStatus->DetectedIntegrationRate = latestImageStatus.DetectedIntegrationRate;
 	imageStatus->DropedFramesSinceIntegrationLock = latestImageStatus.DropedFramesSinceIntegrationLock;
+	imageStatus->OcrWorking = latestImageStatus.OcrWorking;
+	imageStatus->OcrErrorsSinceLastReset = latestImageStatus.OcrErrorsSinceLastReset;
 
 	return S_OK;
 }
@@ -781,6 +800,10 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 	}
 	else
 	{
+		unsigned char almanacUpdateSatus = 0;
+		unsigned char gpsFixStatus = 0;
+		unsigned char trackedSatellitesCount = 0;
+
 		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
 
 		double* ptrPixels = integratedPixels;
@@ -817,7 +840,6 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				{
 					firstFrameOcrProcessor->ProcessZonePixel(packedInfo, pixX, pixY, firstIntegratedFramePixels[i]);
 					lastFrameOcrProcessor->ProcessZonePixel(packedInfo,  pixX, pixY, lastIntegratedFramePixels[i]);
-					//DebugViewPrint(L"(%d,%d) = %d", pixX, pixY, packedInfo);
 				}
 			}
 
@@ -875,23 +897,52 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			// Be mindful that when the integration is not Locked - the first and last frames may not have been picked correctly
 			// Implement an OCR timestamp checker and fixer (similar to the managed one) which can also report incorrect timestamps
 
-			if (firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success)
+			if (!ocrFirstFrameProcessed)
 			{
-				if (!ocrFirstFrameProcessed)
+				if ((INTEGRATION_LOCKED && firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success) || 
+					(!INTEGRATION_LOCKED && lastFrameOcrProcessor->Success))
 				{
 					ocrManager->RegisterFirstSuccessfullyOcredFrame(lastFrameOcrProcessor);
 					ocrFirstFrameProcessed = true;
 				}
-
+			}
+			
+			if (ocrFirstFrameProcessed)
+			{
 				if (INTEGRATION_LOCKED)
+				{
 					ocrManager->ProcessedOcredFramesInLockedMode(firstFrameOcrProcessor, lastFrameOcrProcessor);
-				else
-					ocrManager->ProcessedOcredFrame(lastFrameOcrProcessor);
 
-				idxFirstFrameNumber = firstFrameOcrProcessor->GetOcredStartFrameNumber();
-				idxLastFrameNumber = lastFrameOcrProcessor->GetOcredEndFrameNumber();
-				idxFirstFrameTimestamp = firstFrameOcrProcessor->GetOcredStartFrameTimeStamp();
-				idxLastFrameTimestamp = firstFrameOcrProcessor->GetOcredEndFrameTimeStamp();
+					if (firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success)
+					{
+						idxFirstFrameNumber = firstFrameOcrProcessor->GetOcredStartFrameNumber();
+						idxLastFrameNumber = lastFrameOcrProcessor->GetOcredEndFrameNumber();
+						idxFirstFrameTimestamp = firstFrameOcrProcessor->GetOcredStartFrameTimeStamp(ocrManager->FieldDurationInTicks);
+						idxLastFrameTimestamp = lastFrameOcrProcessor->GetOcredEndFrameTimeStamp();
+
+						almanacUpdateSatus = lastFrameOcrProcessor->GetOcredAlmanacUpdateState();
+						gpsFixStatus = lastFrameOcrProcessor->GetOcredGpsFixState();
+						trackedSatellitesCount = lastFrameOcrProcessor->GetOcredTrackedSatellitesCount();
+					}
+				}
+				else
+				{
+					OccuOcr::OcrFrameProcessor* timeStampFrameProcessor = lastFrameWasNewIntegrationPeriod ? firstFrameOcrProcessor : lastFrameOcrProcessor;
+
+					ocrManager->ProcessedOcredFrame(timeStampFrameProcessor);
+
+					if (timeStampFrameProcessor->Success)
+					{
+						idxFirstFrameNumber = timeStampFrameProcessor->GetOcredStartFrameNumber();
+						idxLastFrameNumber = timeStampFrameProcessor->GetOcredEndFrameNumber();
+						idxFirstFrameTimestamp = timeStampFrameProcessor->GetOcredStartFrameTimeStamp(ocrManager->FieldDurationInTicks);
+						idxLastFrameTimestamp = timeStampFrameProcessor->GetOcredEndFrameTimeStamp();
+
+						almanacUpdateSatus = timeStampFrameProcessor->GetOcredAlmanacUpdateState();
+						gpsFixStatus = timeStampFrameProcessor->GetOcredGpsFixType();
+						trackedSatellitesCount = timeStampFrameProcessor->GetOcredTrackedSatellitesCount();
+					}
+				}
 			}
 
 			ocrErrorsSiceLastReset = ocrManager->OcrErrorsSinceReset;
@@ -934,6 +985,9 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			frame->StartTimeStamp = idxFirstFrameTimestamp;
 			frame->EndTimeStamp = idxLastFrameTimestamp;
 			frame->FrameNumber = idxIntegratedFrameNumber;
+			frame->GpsTrackedSatellites = trackedSatellitesCount;
+			frame->GpsAlamancStatus = almanacUpdateSatus;
+			frame->GpsFixStatus = gpsFixStatus;
 
 			numItems = AddFrameToRecordingBuffer(frame);
 		}
@@ -972,9 +1026,7 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProc
 			numberOfIntegratedFrames = 0;
 
 			idxFirstFrameNumber = idxFrameNumber;
-			//idxFirstFrameTimestamp = currentUtcDayAsTicks;
 			idxLastFrameNumber = 0;
-			//idxLastFrameTimestamp = 0;
 		}
 	}
 
@@ -986,8 +1038,25 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProc
 
 	double* ptrPixels = integratedPixels;
 
-	unsigned char* ptrFirstOrLastFrameCopy = numberOfIntegratedFrames == 0 ? firstIntegratedFramePixels : lastIntegratedFramePixels;
-	
+	unsigned char* ptrFirstOrLastFrameCopy = NULL;
+
+	if (isNewIntegrationPeriod)
+	{
+		ptrFirstOrLastFrameCopy = firstIntegratedFramePixels;
+		lastFrameWasNewIntegrationPeriod = true;
+#if _DEBUG
+		DebugViewPrint(L"Copying pixels of the %d-th frame to FirstIntegratedFramePixels", idxFrameNumber);
+#endif
+	}
+	else
+	{
+		ptrFirstOrLastFrameCopy = lastIntegratedFramePixels;
+		lastFrameWasNewIntegrationPeriod = false;
+#if _DEBUG
+		DebugViewPrint(L"Copying pixels of the %d-th frame to LastIntegratedFramePixels", idxFrameNumber);
+#endif
+	}	
+
 	for (int y = 0; y < IMAGE_HEIGHT; y++)
 	{
 		for (int x = 0; x < IMAGE_WIDTH; x++)
@@ -1040,9 +1109,7 @@ void ProcessRawFrame(RawFrame* rawFrame)
 			numberOfIntegratedFrames = 0;
 
 			idxFirstFrameNumber = idxFrameNumber;
-			//idxFirstFrameTimestamp = currentUtcDayAsTicks;
 			idxLastFrameNumber = 0;
-			//idxLastFrameTimestamp = 0;
 		}
 	}
 
@@ -1051,8 +1118,25 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	double* ptrPixels = integratedPixels;
 
-	unsigned char* ptrFirstOrLastFrameCopy = numberOfIntegratedFrames == 0 ? firstIntegratedFramePixels : lastIntegratedFramePixels;
-	
+	unsigned char* ptrFirstOrLastFrameCopy = NULL;
+
+	if (isNewIntegrationPeriod)
+	{
+		ptrFirstOrLastFrameCopy = firstIntegratedFramePixels;
+		lastFrameWasNewIntegrationPeriod = true;
+#if _DEBUG
+		DebugViewPrint(L"Copying pixels of the %d-th frame to FirstIntegratedFramePixels", idxFrameNumber);
+#endif
+	}
+	else
+	{
+		ptrFirstOrLastFrameCopy = lastIntegratedFramePixels;
+		lastFrameWasNewIntegrationPeriod = false;
+#if _DEBUG
+		DebugViewPrint(L"Copying pixels of the %d-th frame to LastIntegratedFramePixels", idxFrameNumber);
+#endif
+	}
+
 	for (int y = 0; y < IMAGE_HEIGHT; y++)
 	{
 		for (int x = 0; x < IMAGE_WIDTH; x++)
@@ -1154,7 +1238,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	CalculateDiffSignature(buf, &diffSignature);
 
 	idxFrameNumber++;
-
+	
 	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
 
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
@@ -1171,9 +1255,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 			numberOfIntegratedFrames = 0;
 
 			idxFirstFrameNumber = idxFrameNumber;
-			//idxFirstFrameTimestamp = currentUtcDayAsTicks;
 			idxLastFrameNumber = 0;
-			//idxLastFrameTimestamp = 0;
 		}
 	}
 
@@ -1185,7 +1267,24 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 	double* ptrPixels = integratedPixels;
 
-	unsigned char* ptrFirstOrLastFrameCopy = numberOfIntegratedFrames == 0 ? firstIntegratedFramePixels : lastIntegratedFramePixels;
+	unsigned char* ptrFirstOrLastFrameCopy = NULL;
+
+	if (isNewIntegrationPeriod)
+	{
+		ptrFirstOrLastFrameCopy = firstIntegratedFramePixels;
+		lastFrameWasNewIntegrationPeriod = true;
+#if _DEBUG
+		DebugViewPrint(L"Copying pixels of the %d-th frame to FirstIntegratedFramePixels", idxFrameNumber);
+#endif
+	}
+	else
+	{
+		ptrFirstOrLastFrameCopy = lastIntegratedFramePixels;
+		lastFrameWasNewIntegrationPeriod = false;
+#if _DEBUG
+		DebugViewPrint(L"Copying pixels of the %d-th frame to LastIntegratedFramePixels", idxFrameNumber);
+#endif
+	}
 	
 	for (int y = 0; y < IMAGE_HEIGHT; y++)
 	{
@@ -1245,18 +1344,18 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 		return ProcessVideoFrameSynchronous(bmpBits, currentUtcDayAsTicks, frameInfo);
 }
 
-void ProcessCurrentFrame(IntegratedFrame* nextFrame)
-{
-	// TODO: Use OCR to read the HH:MM:SS.FFF
-	long hour = 0;
-	long minute = 0;
-	long sec = 0;
-	long millisec = 0;
+long long firstRecordedFrameTimestamp = 0;
 
-	long long timeStamp = DateTimeToAavTicks((nextFrame->StartTimeStamp + nextFrame->EndTimeStamp) / 2, hour, minute, sec, millisec * 10);
+void RecordCurrentFrame(IntegratedFrame* nextFrame)
+{
+	long long timeStamp = WindowsTicksToAavTicks((nextFrame->StartTimeStamp + nextFrame->EndTimeStamp) / 2);
 	unsigned int exposureIn10thMilliseconds = (nextFrame->EndTimeStamp - nextFrame->StartTimeStamp) / 1000;
 
-	unsigned int elapsedTimeMilliseconds = 0; // since the first recorded frame was taken
+	if (firstRecordedFrameTimestamp == 0)
+		firstRecordedFrameTimestamp = timeStamp;
+
+	// since the first recorded frame was taken
+	unsigned int elapsedTimeMilliseconds = (unsigned int)((timeStamp - firstRecordedFrameTimestamp) * 0xFFFFFFFF);
 
 	bool frameStartedOk = AavBeginFrame(timeStamp, elapsedTimeMilliseconds, exposureIn10thMilliseconds);
 
@@ -1268,6 +1367,9 @@ void ProcessCurrentFrame(IntegratedFrame* nextFrame)
 	{
 		AavFrameAddStatusTag64(STATUS_TAG_START_TIMESTAMP, nextFrame->StartTimeStamp);
 		AavFrameAddStatusTag64(STATUS_TAG_END_TIMESTAMP, nextFrame->EndTimeStamp);
+		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_TRACKED_SATELLITES, nextFrame->GpsTrackedSatellites);
+		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_ALMANAC, nextFrame->GpsAlamancStatus);
+		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_FIX, nextFrame->GpsFixStatus);
 	}
 
 	AavFrameAddImage(USE_IMAGE_LAYOUT, nextFrame->Pixels);
@@ -1287,7 +1389,7 @@ void RecordAllbufferedFrames()
 		{
 			unsigned char* dataToSave;
 
-			ProcessCurrentFrame(nextFrame);
+			RecordCurrentFrame(nextFrame);
 
 			delete nextFrame;
 		}
@@ -1319,7 +1421,9 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	AavAddFileTag("RECORDER", occuRecVersion);
 	AavAddFileTag("FSTF-TYPE", "AAV");
 	AavAddFileTag("AAV-VERSION", "1");
-
+	
+	AavAddFileTag("GRABBER", grabberName);
+	AavAddFileTag("VIDEO-MODE", videoMode);
 	AavAddFileTag("CAMERA-MODEL", cameraModel);
 
 	if (OCR_IS_SETUP)
@@ -1337,24 +1441,36 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	STATUS_TAG_END_FRAME_ID = AavDefineStatusSectionTag("END_FRAME", AavTagType::ULong64);
 	STATUS_TAG_START_TIMESTAMP = AavDefineStatusSectionTag("START_FRAME_TIMESTAMP", AavTagType::ULong64);
 	STATUS_TAG_END_TIMESTAMP = AavDefineStatusSectionTag("END_FRAME_TIMESTAMP", AavTagType::ULong64);
+	STATUS_TAG_GPS_TRACKED_SATELLITES = AavDefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8);
+	STATUS_TAG_GPS_ALMANAC = AavDefineStatusSectionTag("GPSAlmanacStatus", AavTagType::UInt8);
+	STATUS_TAG_GPS_FIX = AavDefineStatusSectionTag("GPSFixStatus", AavTagType::UInt8);
 
 	ClearRecordingBuffer();
 
+	firstRecordedFrameTimestamp = 0;
+
 	if (NULL != ocrManager)
+	{
 		ocrManager->Reset();
+		ocrFirstFrameProcessed = false;
+	}
 
-	// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
-	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
-	memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
+	if (NULL == ocrManager || !ocrManager->IsReceivingTimeStamps())
+	{
+		// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
 
-	frame->NumberOfIntegratedFrames = 0;
-	frame->StartFrameId = -1;
-	frame->EndFrameId = -1;
-	frame->StartTimeStamp = 0;
-	frame->EndTimeStamp = 0;
-	frame->FrameNumber = -1;
+		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
+		memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
 
-	ProcessCurrentFrame(frame);
+		frame->NumberOfIntegratedFrames = 0;
+		frame->StartFrameId = -1;
+		frame->EndFrameId = -1;
+		frame->StartTimeStamp = 0;
+		frame->EndTimeStamp = 0;
+		frame->FrameNumber = -1;
+
+		RecordCurrentFrame(frame);
+	}
 
 	recording = true;
 
@@ -1368,20 +1484,23 @@ HRESULT StopRecording(long* pixels)
 {
 	recording = false;
 
-	// As a last frame add a non-integrated frame (to be able to tell the star-end timestamp order)
-	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
-	memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
-
-	frame->NumberOfIntegratedFrames = 0;
-	frame->StartFrameId = -1;
-	frame->EndFrameId = -1;
-	frame->StartTimeStamp = 0;
-	frame->EndTimeStamp = 0;
-	frame->FrameNumber = -1;
-
 	WaitForSingleObject(hRecordingThread, INFINITE); // wait for thread to exit
 
-	ProcessCurrentFrame(frame);
+	if (NULL == ocrManager || !ocrManager->IsReceivingTimeStamps())
+	{
+		// As a last frame add a non-integrated frame (to be able to tell the star-end timestamp order)
+		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
+		memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
+
+		frame->NumberOfIntegratedFrames = 0;
+		frame->StartFrameId = -1;
+		frame->EndFrameId = -1;
+		frame->StartTimeStamp = 0;
+		frame->EndTimeStamp = 0;
+		frame->FrameNumber = -1;
+	
+		RecordCurrentFrame(frame);
+	}
 
 	AavEndFile();
 

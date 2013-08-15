@@ -65,7 +65,9 @@ namespace OccuRec.Drivers.AVISimulator.AVIPlayerImpl
                        Settings.Default.IsIntegrating,
 					   (float)Settings.Default.MinSignatureDiffRatio,
                        (float)Settings.Default.MinSignatureDiff,
-					   Settings.Default.GammaDiff);
+					   Settings.Default.GammaDiff,
+					   OccuRec.Drivers.AVISimulator.Video.DRIVER_DESCRIPTION,
+					   "N/A");
 
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 

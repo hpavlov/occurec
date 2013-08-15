@@ -17,7 +17,7 @@ namespace OccuRec.Drivers.DirectShowCapture
 {
     public class Video : IVideo, ISupportsCrossbar
 	{
-		private static string DRIVER_DESCRIPTION = "Video Capture";
+		public static string DRIVER_DESCRIPTION = "Video Capture";
 
 
 		private VideoCaptureImpl.VideoCapture camera;

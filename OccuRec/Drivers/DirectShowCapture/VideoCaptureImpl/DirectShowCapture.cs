@@ -175,7 +175,9 @@ namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
                 Settings.Default.FlipHorizontally,
                 Settings.Default.FlipVertically,
                 false,
-                0, 0, 1);
+                0, 0, 1,
+				string.Empty,
+				string.Empty);
 
             NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 
