@@ -11,7 +11,7 @@ namespace OccuRec.StateManagement
 {
     public class CameraStateManager
     {
-        private static long MIN_CONSEQUTIVE_FRAMES_TO_LOCK_INTEGRATION = 4;
+		private static int MIN_CONSEQUTIVE_FRAMES_TO_LOCK_INTEGRATION = 3;
         private static long MAX_ORC_ERRORS_PER_RUN = 100;
 
         private CameraState currentState;
@@ -163,6 +163,17 @@ namespace OccuRec.StateManagement
                     currentState.NumberConsequtiveSameIntegrationIntegratedFrames >= MIN_CONSEQUTIVE_FRAMES_TO_LOCK_INTEGRATION;
             }
         }
+
+	    public int PercentDoneDetectingIntegration
+	    {
+			get
+			{
+				if (currentState is UndeterminedIntegrationCameraState && currentState.NumberConsequtiveSameIntegrationIntegratedFrames < MIN_CONSEQUTIVE_FRAMES_TO_LOCK_INTEGRATION)
+					return Math.Min(99, Math.Max(1, (int)(100 * (currentState.NumberConsequtiveSameIntegrationIntegratedFrames * 1.0 / MIN_CONSEQUTIVE_FRAMES_TO_LOCK_INTEGRATION))));
+				else
+					return 100;
+			}
+	    }
 
         public bool CanStartRecording
         {

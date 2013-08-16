@@ -10,10 +10,6 @@ V) Implement NTP Server time synchronisation every 10 min
 V) Test XviD recording. It has been reported that stopping the recording crashes OccuRec
 V) "Rec" should not be enabled for "Integrating" cameras if "Lock" hasn't been pressed
 V) Refactor the AAV native code and remove all unused 12 and 16 bit stuff
-
-EASY:
-
-?) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
 v) Implement integration frame "Unlock-ing". Reconsider renaming the button to something else
 V) AAV should be usable without OCR i.e. add setting to turn on OCR (turned off by default)
 V) Make it possible to run in AAV mode using a simmulated video rather than live images from the camera
@@ -24,28 +20,16 @@ V) Display the framerate supported by the capture hardware
 V) Complete the integration detection calibration, make it find the best settings
 V) "Calibrate" should not be available when the integration is Locked (hidden or disabled?)
 V) Implement dropped frame check in unmanaged world and return it as a number (count) since the integration has been LOCKED
-- Implement a second integration detection based on locking at user specified integration rate. Add options in the settings form for "Automatic" or "Manually Specified" integration processing
-- Add a 'SystemTime' status field in the AAV recorded file
 V) Add an AVI file level metadata about (1) the name of the grabbing device used and (2) the video mode used
 V) When recording an AAV video don't add the first and last non-integrated timestamps
 V) Reported Dropped Frames seems to be hidden when the currently reported dropped frames are zero or the dropped frames don't get added up. Check with laptop camera and x3 locked integration
 V) Don't overlay OCRed timestamps unless in Simulated mode with Managed OCR engine
 V) Make the START and END timestamped saved as status fields in the AAV - strings of the actually OCR-ed data from the fields (rather than int64 ticks)
-
-HARDER:
-
 V) Implement 1x and x2 integration frame recognition
 V) Implement Differential Coding Compression for AAV 8 bit format
 V) Ensure that the start/end timestamps are not overwritten in the process of stacking images.
 V) When recording an AAV file always save one extra single frame after the last integration period, in order to solve any timestamp ambiguity issues
 V) The saved settings are forgotten after releasing a new version. This will need to be fixed.
-- Remove the x1 integration (or make it lockable in a different way). Then if no integration is detected for a long time for cameras that are selected as "Integrating" then
-try to analyze the signatures and make suggestions (e.g. "Try to increase the gain" in a case where the sigantures are too small or "AAV mode is designed for recording star fields." if they appear to be day light signatures)
-- Make it so GetNextFrame() returns a bitmap image bytes so no time is wasted converting bitmaps to arrays and back to bitmaps. May be define another generic output format [24bpp bitmap]
-?) Fix the x2 Integration Detection
-
-OCR Implemntation:
-
 V) Implement an AVI simulator (that plays an AVI file rather than AAV)
 V) Complete the OCR tuning using simulated videos
 V) Implement the OCR in unmanaged code
@@ -54,5 +38,22 @@ V) Record the Tracked Satellites + GPS info in the AAV file
 V) Fix the OCRed and recorded timestamps in the AAV file. Fix OCRed timestampes returned in both locked and unlocked mode
 V) Make the OCR engine to consider which field is first (even or odd). Check with IOTA VTI Configuration 
 V) Implement a 'live' OCR testing without crashing and with logging of all errors
- - Successfully run a live test for 24 hours without any errors
+
+EASY:
+
+?) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
+- Implement a second integration detection based on locking at user specified integration rate. Add options in the settings form for "Automatic" or "Manually Specified" integration processing
+- Add a 'SystemTime' status field in the AAV recorded file
+
+HARDER:
+
+- Remove the x1 integration (or make it lockable in a different way). Then if no integration is detected for a long time for cameras that are selected as "Integrating" then
+try to analyze the signatures and make suggestions (e.g. "Try to increase the gain" in a case where the sigantures are too small or "AAV mode is designed for recording star fields." if they appear to be day light signatures)
+- Make it so GetNextFrame() returns a bitmap image bytes so no time is wasted converting bitmaps to arrays and back to bitmaps. May be define another generic output format [24bpp bitmap]
+?) Fix the x2 Integration Detection
+
+OCR Implemntation:
+
+- Complete the unmanaged OCR verification based on expected frame/integration period field numbers and expected frame/integration period duration 
+- Successfully run a live test for 24 hours without any errors
 

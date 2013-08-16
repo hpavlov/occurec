@@ -20,12 +20,12 @@
 			this.statusStrip = new System.Windows.Forms.StatusStrip();
 			this.ttsProgressBar = new System.Windows.Forms.ToolStripProgressBar();
 			this.tssCameraState = new System.Windows.Forms.ToolStripStatusLabel();
-			this.tssDisplayRate = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssFrameNo = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssDroppedFrames = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssOcrErr = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssRecordingFile = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pnlNewVersionAvailable = new System.Windows.Forms.ToolStripStatusLabel();
+			this.tssDisplayRate = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssIntegrationRate = new System.Windows.Forms.ToolStripStatusLabel();
 			this.msMain = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -76,6 +76,7 @@
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+			this.pbarIntDetPercentDone = new System.Windows.Forms.ProgressBar();
 			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
@@ -96,12 +97,12 @@
 			this.statusStrip.BackColor = System.Drawing.SystemColors.Control;
 			this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ttsProgressBar,
-			this.tssCameraState,
-			this.tssFrameNo,
-			this.tssDroppedFrames,
-			this.tssOcrErr,
-			this.tssRecordingFile,
-			this.pnlNewVersionAvailable});
+            this.tssCameraState,
+            this.tssFrameNo,
+            this.tssDroppedFrames,
+            this.tssOcrErr,
+            this.tssRecordingFile,
+            this.pnlNewVersionAvailable});
 			this.statusStrip.Location = new System.Drawing.Point(0, 543);
 			this.statusStrip.Name = "statusStrip";
 			this.statusStrip.Size = new System.Drawing.Size(903, 22);
@@ -124,15 +125,6 @@
 			this.tssCameraState.Name = "tssCameraState";
 			this.tssCameraState.Size = new System.Drawing.Size(75, 17);
 			this.tssCameraState.Text = "Disconnected";
-			// 
-			// tssDisplayRate
-			// 
-			this.tssDisplayRate.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-			this.tssDisplayRate.Name = "tssDisplayRate";
-			this.tssDisplayRate.Size = new System.Drawing.Size(71, 17);
-			this.tssDisplayRate.Text = "Display Rate";
 			// 
 			// tssFrameNo
 			// 
@@ -185,10 +177,19 @@
 			this.pnlNewVersionAvailable.IsLink = true;
 			this.pnlNewVersionAvailable.LinkColor = System.Drawing.Color.Lime;
 			this.pnlNewVersionAvailable.Name = "pnlNewVersionAvailable";
-			this.pnlNewVersionAvailable.Size = new System.Drawing.Size(288, 17);
+			this.pnlNewVersionAvailable.Size = new System.Drawing.Size(292, 17);
 			this.pnlNewVersionAvailable.Text = "New version of OccuRec is available. Click here to upgrade.";
 			this.pnlNewVersionAvailable.Visible = false;
 			this.pnlNewVersionAvailable.Click += new System.EventHandler(this.pnlNewVersionAvailable_Click);
+			// 
+			// tssDisplayRate
+			// 
+			this.tssDisplayRate.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.tssDisplayRate.Name = "tssDisplayRate";
+			this.tssDisplayRate.Size = new System.Drawing.Size(71, 17);
+			this.tssDisplayRate.Text = "Display Rate";
 			// 
 			// tssIntegrationRate
 			// 
@@ -286,7 +287,7 @@
 			// 
 			this.miHelpIndex.Image = ((System.Drawing.Image)(resources.GetObject("miHelpIndex.Image")));
 			this.miHelpIndex.Name = "miHelpIndex";
-			this.miHelpIndex.Size = new System.Drawing.Size(177, 22);
+			this.miHelpIndex.Size = new System.Drawing.Size(181, 22);
 			this.miHelpIndex.Text = "&Index";
 			this.miHelpIndex.Click += new System.EventHandler(this.miHelpIndex_Click);
 			// 
@@ -294,19 +295,19 @@
 			// 
 			this.miYahooGroup.Image = ((System.Drawing.Image)(resources.GetObject("miYahooGroup.Image")));
 			this.miYahooGroup.Name = "miYahooGroup";
-			this.miYahooGroup.Size = new System.Drawing.Size(177, 22);
+			this.miYahooGroup.Size = new System.Drawing.Size(181, 22);
 			this.miYahooGroup.Text = "OccuRec Yahoo Group";
 			this.miYahooGroup.Click += new System.EventHandler(this.miYahooGroup_Click);
 			// 
 			// toolStripMenuItem1
 			// 
 			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-			this.toolStripMenuItem1.Size = new System.Drawing.Size(174, 6);
+			this.toolStripMenuItem1.Size = new System.Drawing.Size(178, 6);
 			// 
 			// miCheckForUpdates
 			// 
 			this.miCheckForUpdates.Name = "miCheckForUpdates";
-			this.miCheckForUpdates.Size = new System.Drawing.Size(177, 22);
+			this.miCheckForUpdates.Size = new System.Drawing.Size(181, 22);
 			this.miCheckForUpdates.Text = "&Check for Updates";
 			this.miCheckForUpdates.Click += new System.EventHandler(this.miCheckForUpdates_Click);
 			// 
@@ -482,6 +483,7 @@
 			// 
 			// pnlAAV
 			// 
+			this.pnlAAV.Controls.Add(this.pbarIntDetPercentDone);
 			this.pnlAAV.Controls.Add(this.btnCalibrateIntegration);
 			this.pnlAAV.Controls.Add(this.label3);
 			this.pnlAAV.Controls.Add(this.btnLockIntegration);
@@ -493,13 +495,13 @@
 			// 
 			// btnCalibrateIntegration
 			// 
-			this.btnCalibrateIntegration.Visible = false;
-			this.btnCalibrateIntegration.Location = new System.Drawing.Point(13, 53);
+			this.btnCalibrateIntegration.Location = new System.Drawing.Point(13, 51);
 			this.btnCalibrateIntegration.Name = "btnCalibrateIntegration";
 			this.btnCalibrateIntegration.Size = new System.Drawing.Size(160, 23);
 			this.btnCalibrateIntegration.TabIndex = 15;
 			this.btnCalibrateIntegration.Text = "Calibrate";
 			this.btnCalibrateIntegration.UseVisualStyleBackColor = true;
+			this.btnCalibrateIntegration.Visible = false;
 			this.btnCalibrateIntegration.Click += new System.EventHandler(this.btnCalibrateIntegration_Click);
 			// 
 			// label3
@@ -663,6 +665,15 @@
 			this.openFileDialog.DefaultExt = "avi";
 			this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
 			// 
+			// pbarIntDetPercentDone
+			// 
+			this.pbarIntDetPercentDone.Location = new System.Drawing.Point(127, 9);
+			this.pbarIntDetPercentDone.Name = "pbarIntDetPercentDone";
+			this.pbarIntDetPercentDone.Size = new System.Drawing.Size(46, 9);
+			this.pbarIntDetPercentDone.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+			this.pbarIntDetPercentDone.TabIndex = 16;
+			this.pbarIntDetPercentDone.Visible = false;
+			// 
 			// frmMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -765,6 +776,7 @@
 		private System.Windows.Forms.OpenFileDialog openFileDialog;
 		private System.Windows.Forms.Button btnCalibrateIntegration;
         private System.Windows.Forms.ToolStripStatusLabel tssDisplayRate;
+		private System.Windows.Forms.ProgressBar pbarIntDetPercentDone;
 	}
 }
 

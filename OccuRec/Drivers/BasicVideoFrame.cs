@@ -94,12 +94,13 @@ namespace OccuRec.Drivers
 		            rv.exposureDuration = null;
 	            }
 
-	            rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4};DRPD:{5}", 
+				rv.imageInfo = string.Format("INT:{0};SFID:{1};EFID:{2};CTOF:{3};UFID:{4};IFID:{5};DRPD:{6}", 
 					status.DetectedIntegrationRate,
 					status.StartExposureFrameNo,
 					status.EndExposureFrameNo,
 					status.CurrentSignatureRatio, 
 					status.CameraFrameNo,
+					status.IntegratedFrameNo,
 					status.DropedFramesSinceIntegrationLock);
 
                 if (status.PerformedAction > 0)

@@ -784,10 +784,10 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 {
 	long numItems = 0;
 
-	idxIntegratedFrameNumber++;
-
 	if (isNewIntegrationPeriod)
 	{
+		idxIntegratedFrameNumber++;
+
 		detectedIntegrationRate = numberOfIntegratedFrames;
 
 		if (!INTEGRATION_LOCKED)

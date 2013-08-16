@@ -15,7 +15,7 @@ namespace OccuRec.StateManagement
     public abstract class CameraState
     {
         private long lastIntegratedFrameNumber;
-        protected int lastIntegratedFrameIntegration;
+	    protected int lastIntegratedFrameIntegration;
 		protected int numberOfDroppedFrames = 0;
 
         private long numberConsequtiveSameIntegrationIntegratedFrames;
@@ -29,7 +29,7 @@ namespace OccuRec.StateManagement
         {
             lastIntegratedFrameNumber = -1;
             lastIntegratedFrameIntegration = -1;
-            numberConsequtiveSameIntegrationIntegratedFrames = 0;            
+            numberConsequtiveSameIntegrationIntegratedFrames = 0;
         }
 
 		internal int GetNumberOfDroppedFrames()
@@ -49,7 +49,7 @@ namespace OccuRec.StateManagement
                     if (frame.IntegrationRate != null)
                     {
                         lastIntegratedFrameIntegration = frame.IntegrationRate.Value;
-                        numberConsequtiveSameIntegrationIntegratedFrames = 0;                        
+                        numberConsequtiveSameIntegrationIntegratedFrames = 0;                 
                     }
                     else
                     {
@@ -59,7 +59,8 @@ namespace OccuRec.StateManagement
                 }
                 else if (frame.IntegrationRate != null && lastIntegratedFrameIntegration == frame.IntegrationRate.Value)
                 {
-                    numberConsequtiveSameIntegrationIntegratedFrames++;
+					if (lastIntegratedFrameNumber == frame.IntegratedFrameNo - 1)
+	                    numberConsequtiveSameIntegrationIntegratedFrames++;
                 }
                 else
                 {
@@ -68,7 +69,7 @@ namespace OccuRec.StateManagement
                         lastIntegratedFrameIntegration = frame.IntegrationRate.Value;
                 }
 
-                lastIntegratedFrameNumber = frame.FrameNumber;
+                lastIntegratedFrameNumber = frame.IntegratedFrameNo;
             }
         }
 

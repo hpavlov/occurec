@@ -668,8 +668,15 @@ namespace OccuRec
 
                 btnLockIntegration.Enabled = (stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0) || stateManager.IsIntegrationLocked;
 				btnCalibrateIntegration.Visible = !stateManager.IsIntegrationLocked;
+				if (!stateManager.IsIntegrationLocked && stateManager.PercentDoneDetectingIntegration < 100)
+				{
+					pbarIntDetPercentDone.Value = stateManager.PercentDoneDetectingIntegration;
+					if (!pbarIntDetPercentDone.Visible) pbarIntDetPercentDone.Visible = true;
+				}
+				else if (pbarIntDetPercentDone.Visible) pbarIntDetPercentDone.Visible = false;
 
-                if (stateManager.IntegrationRate > 0 && stateManager.IsValidIntegrationRate && !stateManager.IsIntegrationLocked)
+
+				if (stateManager.IntegrationRate > 0 && stateManager.IsValidIntegrationRate && !stateManager.IsIntegrationLocked && stateManager.CanLockIntegrationNow)
                     btnLockIntegration.Text = string.Format("Lock at x{0} Frames", stateManager.IntegrationRate);
                 else if (stateManager.IsIntegrationLocked)
                     btnLockIntegration.Text = "Unlock";
