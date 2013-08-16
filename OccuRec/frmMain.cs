@@ -12,6 +12,7 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
@@ -72,6 +73,11 @@ namespace OccuRec
             CheckForUpdates(false);
 
 		    UpdateState();
+
+#if DEBUG
+			// NOTE: Used to test integration detection logs against the currently used algorithm
+			tbsAddTarget.Visible = true;
+#endif
 		}
 
 		/// <summary>
@@ -1251,7 +1257,20 @@ namespace OccuRec
 
 		private void tbsAddTarget_Click(object sender, EventArgs e)
 		{
+			Regex rex = new Regex("FRID:(\\d+).*DF:([0-9\\.]+)");
 
+			NativeHelpers.InitIntegrationDetectionTesting(0.269f, 0.269f);
+			string[] fileLines = File.ReadAllLines(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "INTLOG.LOG"));
+			foreach (string line in fileLines)
+			{
+				Match match = rex.Match(line);
+				if (match.Success)
+				{
+					int frameNo = int.Parse(match.Groups[1].Value);
+					float diff = float.Parse(match.Groups[2].Value);
+					NativeHelpers.IntegrationDetectionTestNextFrame(frameNo, diff);
+				}
+			}
 		}
 
 	}

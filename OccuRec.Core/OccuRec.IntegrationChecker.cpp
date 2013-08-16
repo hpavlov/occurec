@@ -120,35 +120,31 @@ namespace OccuRec
 		}
 		else if (lowFrameIntegrationMode == 2)
 		{
+			bool newIntegrationStartsOnEven = evenLowFrameSignAverage > oddLowFrameSignAverage;
+
 			float evenDiff = abs(evenLowFrameSignAverage - diffSignature);
 			float oddDiff = abs(oddLowFrameSignAverage - diffSignature);
 
-			bool isEvenFrame = evenDiff > minimumSignatureDifference;
-			bool isOddFrame = oddDiff > minimumSignatureDifference;
+			bool isEvenFrame = evenDiff < oddDiff;
 
-			if (isEvenFrame && !isOddFrame)
+			if (isEvenFrame)
 			{
-				// Correctly recognized even frame of a x2 integration 
+				// Assume as even frame of a x2 integration. NOTE: The check if  we are still in x2 integration mode is done once every LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY frames
 			
 				// This is a new frame if a new 2-Frame period starts on an even frame
-				isNewIntegrationPeriod = evenLowFrameSignAverage > oddLowFrameSignAverage; 
-			}
-			else if (isOddFrame && !isEvenFrame)
-			{
-				// Correctly recognized odd frame of a x2 integration 
-
-				// This is a new frame if a new 2-Frame period starts on an odd frame
-				isNewIntegrationPeriod = oddLowFrameSignAverage > evenLowFrameSignAverage; 
+				isNewIntegrationPeriod = newIntegrationStartsOnEven; 
 			}
 			else
 			{
-				// Looks like the the 2-frame integration cannot be recognized further, so enter normal mode
-				lowFrameIntegrationMode = 0;
+				//  Assume as odd frame of a x2 integration. NOTE: The check if  we are still in x2 integration mode is done once every LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY frames
+
+				// This is a new frame if a new 2-Frame period starts on an odd frame
+				isNewIntegrationPeriod = !newIntegrationStartsOnEven; 
 			}
 
 			if (integrationDetectionTuning)
-				DebugViewPrint(L"LFM-2: lowFrameIntegrationMode = %d; evenDiff = %.3f; oddDiff = %.3f; 10-sigmaEven = %.3f; 10-sigmaOdd = %.3f; 3-MaxValEven = %.3f; 3-MaxValOdd = %.3f; NEW = %d\n", 
-					lowFrameIntegrationMode, evenDiff, oddDiff, 10 * evenLowFrameSignSigma, 10 * oddLowFrameSignSigma, 3 * evenSignMaxResidual, 3 * oddSignMaxResidual, isNewIntegrationPeriod);
+				DebugViewPrint(L"LFM-2: lowFrameIntegrationMode = %d; evenDiff = %.3f; oddDiff = %.3f; 3MaxEven = %.5f; 3MaxOdd = %.5f;NEW = %d\n", 
+					lowFrameIntegrationMode, evenDiff, oddDiff, 3 * evenSignMaxResidual, 3 * oddSignMaxResidual, isNewIntegrationPeriod);
 		}
 
 		if (lowFrameIntegrationMode == 0)
@@ -166,8 +162,6 @@ namespace OccuRec
 
 		if (!isNewIntegrationPeriod && 
 			lowFrameIntegrationMode == 0 && 
-			//pastSignaturesCount > 0 && 
-			//pastSignaturesCount % LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY == 0 &&
 			idxFrameNumber % LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY == 0)
 		{
 			if (integrationDetectionTuning)
@@ -178,12 +172,18 @@ namespace OccuRec
 
 			RecalculateLowIntegrationMetrics();
 
-			float allEvenFrameDiff = abs(allLowFrameSignAverage - evenLowFrameSignAverage);
-			float allOddFrameDiff = abs(allLowFrameSignAverage - oddLowFrameSignAverage);
+			float allEvenFrameDiff = abs(diffSignature - evenLowFrameSignAverage);
+			float allOddFrameDiff = abs(diffSignature - oddLowFrameSignAverage);
 			float evenOddFrameDiff = abs(evenLowFrameSignAverage - oddLowFrameSignAverage);
 
+			float evenToOddRatio = allEvenFrameDiff / allOddFrameDiff;
+			float oddToEvenRatio = allOddFrameDiff / allEvenFrameDiff;
+
+			float minRatioEven = evenOddFrameDiff / (3 * evenSignMaxResidual);
+			float minRatioOdd = evenOddFrameDiff / (3 * oddSignMaxResidual);
+
 			// NOTE: This code is still 'IN TESTING' and may not work
-			if (evenOddFrameDiff > minimumSignatureDifference)
+			if (evenToOddRatio > minRatioOdd || oddToEvenRatio > minRatioEven)
 			{
 				// 2-Frame integration
 				lowFrameIntegrationMode = 2;
@@ -202,8 +202,8 @@ namespace OccuRec
 			}
 
 			if (integrationDetectionTuning)
-				DebugViewPrint(L"lowFrameIntegrationMode = %d; ALL-EVEN = %.5f; ALL-ODD = %.5f; ODD-EVEN = %.5f; DIFF_SIGN/3 = %.5f\n", 
-				lowFrameIntegrationMode, allEvenFrameDiff, allOddFrameDiff, evenOddFrameDiff, minimumSignatureDifference/3);
+				DebugViewPrint(L"lowFrameIntegrationMode = %d; DIFF-EVEN = %.5f; DIFF-ODD = %.5f; ODD-EVEN = %.5f; DIFF_SIGN/3 = %.5f ODD/EVEN = %.5f EVEN/ODD = %.5f MIN-RATIO-EVEN = %.5f MIN-RATIO-ODD = %.5f\n", 
+				lowFrameIntegrationMode, allEvenFrameDiff, allOddFrameDiff, evenOddFrameDiff, minimumSignatureDifference/3, evenToOddRatio, oddToEvenRatio, minRatioEven, minRatioOdd);
 		}
 
 		if (integrationDetectionTuning)
