@@ -43,8 +43,6 @@ namespace OccuRec.StateManagement
 					ocrErrors = 0;
 					providesOcredTimestamps = false;
 				}
-
-				Trace.WriteLine(frame.ExposureStartTime);
 			}
         }
 

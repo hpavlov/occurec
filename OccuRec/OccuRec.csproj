@@ -199,7 +199,7 @@
     <Content Include="aavrec-big.ico" />
     <Content Include="img\aavrec-big.ico" />
     <Content Include="img\redcross.ico" />
-    <Content Include="IOTA-VTI-OCR-Settings.xml">
+    <Content Include="OCR-Settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>

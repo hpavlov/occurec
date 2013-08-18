@@ -183,7 +183,7 @@ namespace OccuRec.OCR
             {
                 if (s_OCRSettings == null)
                 {
-                    string configFileName = Path.GetFullPath(string.Format("{0}\\IOTA-VTI-OCR-Settings.xml", AppDomain.CurrentDomain.BaseDirectory));
+                    string configFileName = Path.GetFullPath(string.Format("{0}\\OCR-Settings.xml", AppDomain.CurrentDomain.BaseDirectory));
 
                     if (!File.Exists(configFileName))
                     {

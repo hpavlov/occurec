@@ -173,7 +173,7 @@ char CharRecognizer::Ocr(long frameMedian)
 		itCharDef++;
 	}
 	
-	return 0;
+	return '\0';
 }
 
 
@@ -262,7 +262,7 @@ void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 			itCharProc++;
 			position++;
 		}
-		m_OcredCharsOdd[position] = 0;
+		m_OcredCharsOdd[position] = '\0';
 
 		position = 0;
 		itCharProc = EvenFieldChars.begin();

@@ -420,7 +420,7 @@ namespace OccuRec.Helpers
         {
             var frameInfo = new FrameProcessingStatus();
 
-            long currentUtcDayAsTicks = DateTime.UtcNow.Ticks;
+            long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
             ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, ref frameInfo);
 

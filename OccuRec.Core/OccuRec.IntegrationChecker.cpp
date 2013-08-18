@@ -101,6 +101,7 @@ namespace OccuRec
 		float diffRatio = 1;
 		bool isNewIntegrationPeriod = false;
 	
+#if LOW_INTEGRATION_ENABLED
 		if (idxFrameNumber % 128 == 0 && lowFrameIntegrationMode != 0)
 			RecalculateLowIntegrationMetrics();
 
@@ -146,6 +147,7 @@ namespace OccuRec
 				DebugViewPrint(L"LFM-2: lowFrameIntegrationMode = %d; evenDiff = %.3f; oddDiff = %.3f; 3MaxEven = %.5f; 3MaxOdd = %.5f;NEW = %d\n", 
 					lowFrameIntegrationMode, evenDiff, oddDiff, 3 * evenSignMaxResidual, 3 * oddSignMaxResidual, isNewIntegrationPeriod);
 		}
+#endif
 
 		if (lowFrameIntegrationMode == 0)
 		{
@@ -160,6 +162,7 @@ namespace OccuRec
 		long currSignaturesHistoryIndex = (long)((idxFrameNumber % (long long)LOW_INTEGRATION_CHECK_POOL_SIZE) & 0xFFFF);
 		signaturesHistory[currSignaturesHistoryIndex] = diffSignature;
 
+#if LOW_INTEGRATION_ENABLED
 		if (!isNewIntegrationPeriod && 
 			lowFrameIntegrationMode == 0 && 
 			idxFrameNumber % LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY == 0)
@@ -205,7 +208,7 @@ namespace OccuRec
 				DebugViewPrint(L"lowFrameIntegrationMode = %d; DIFF-EVEN = %.5f; DIFF-ODD = %.5f; ODD-EVEN = %.5f; DIFF_SIGN/3 = %.5f ODD/EVEN = %.5f EVEN/ODD = %.5f MIN-RATIO-EVEN = %.5f MIN-RATIO-ODD = %.5f\n", 
 				lowFrameIntegrationMode, allEvenFrameDiff, allOddFrameDiff, evenOddFrameDiff, minimumSignatureDifference/3, evenToOddRatio, oddToEvenRatio, minRatioEven, minRatioOdd);
 		}
-
+#endif
 		if (integrationDetectionTuning)
 			DebugViewPrint(L"FRID:%I64d PSC:%d DF:%.5f D:%.5f %.5f %.5f SM:%.3f AVG:%.5f RSSM:%.5f SGM:%.5f CSI:%d LFIM: %d NEW: %d\n", 
 				idxFrameNumber, pastSignaturesCount, diffSignature, diff, minimumSignatureDifference, minimumSignatureRatio, 

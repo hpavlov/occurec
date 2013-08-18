@@ -80,7 +80,7 @@ HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue);
 HRESULT DisableOcrProcessing();
 HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
-HRESULT GetCurrentImageStatus(ImageStatus* imageStatus);
+HRESULT GetCurrentImageStatus(ImageStatus* ImageStatus);
 HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo);
 HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo);
 HRESULT StartRecording(LPCTSTR szFileName);

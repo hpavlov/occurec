@@ -390,7 +390,9 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 
 	firstFrameOcrProcessor = new OcrFrameProcessor();
 	lastFrameOcrProcessor = new OcrFrameProcessor();
+
 	ocrManager = new OcrManager();
+	ocrFirstFrameProcessed = false;
 
 	OCR_IS_SETUP = true;
 
@@ -966,7 +968,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		latestImageStatus.EndExposureTicks = idxLastFrameTimestamp;
 		latestImageStatus.DetectedIntegrationRate = detectedIntegrationRate;
 		latestImageStatus.DropedFramesSinceIntegrationLock = droppedFramesSinceIntegrationIsLocked;
-		latestImageStatus.OcrWorking = ocrFirstFrameProcessed ? 1 : 0;
+		latestImageStatus.OcrWorking = (NULL != ocrManager && ocrManager->IsReceivingTimeStamps()) ? 1 : 0;
 		latestImageStatus.OcrErrorsSinceLastReset = ocrErrorsSiceLastReset;
 
 		if (INTEGRATION_CALIBRATION)
