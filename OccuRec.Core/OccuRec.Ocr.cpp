@@ -462,17 +462,25 @@ unsigned char OcrFrameProcessor::GetOcredAlmanacUpdateState()
 
 unsigned char OcrFrameProcessor::GetOcredGpsFixState()
 {
-	switch(OddFieldOcredOsd.GpsFixType)
+	if (GetOcredAlmanacUpdateState() == 0 && (OddFieldOcredOsd.GpsFixType == 'P' || OddFieldOcredOsd.GpsFixType == 'G'))
+		// Internal Time-Keeping
+		return 1;
+	else if (GetOcredAlmanacUpdateState() == 1)
 	{
-		case 'G':
-			return (unsigned char)1;
+		switch(OddFieldOcredOsd.GpsFixType)
+		{
+			case 'G':
+				return (unsigned char)2;
 
-		case 'P':
-			return (unsigned char)2;
+			case 'P':
+				return (unsigned char)3;
 
-		default:
-			return (unsigned char)0;
+			default:
+				return (unsigned char)0;
+		}
 	}
+	else
+		return (unsigned char)0;
 }
 
 char OcrFrameProcessor::GetOcredGpsFixType()
