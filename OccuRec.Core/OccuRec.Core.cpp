@@ -112,6 +112,7 @@ unsigned int STATUS_TAG_START_FRAME_ID;
 unsigned int STATUS_TAG_END_FRAME_ID;
 unsigned int STATUS_TAG_START_TIMESTAMP;
 unsigned int STATUS_TAG_END_TIMESTAMP;
+unsigned int STATUS_TAG_SYSTEM_TIME;
 unsigned int STATUS_TAG_GPS_TRACKED_SATELLITES;
 unsigned int STATUS_TAG_GPS_ALMANAC;
 unsigned int STATUS_TAG_GPS_FIX;
@@ -1376,6 +1377,11 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 	AavFrameAddStatusTag16(STATUS_TAG_NUMBER_INTEGRATED_FRAMES, nextFrame->NumberOfIntegratedFrames);
 	AavFrameAddStatusTag64(STATUS_TAG_START_FRAME_ID, nextFrame->StartFrameId);
 	AavFrameAddStatusTag64(STATUS_TAG_END_FRAME_ID, nextFrame->EndFrameId);
+	
+	SYSTEMTIME sysTime;
+	GetSystemTime(&sysTime);
+
+	AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime));
 
 	if (OCR_IS_SETUP)
 	{
@@ -1450,6 +1456,7 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	AavDefineImageLayout(3, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
 	AavDefineImageLayout(4, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
 	
+	STATUS_TAG_SYSTEM_TIME= AavDefineStatusSectionTag("SystemTime", AavTagType::ULong64);
 	STATUS_TAG_NUMBER_INTEGRATED_FRAMES = AavDefineStatusSectionTag("IntegratedFrames", AavTagType::UInt16);
 	STATUS_TAG_START_FRAME_ID = AavDefineStatusSectionTag("StartFrame", AavTagType::ULong64);
 	STATUS_TAG_END_FRAME_ID = AavDefineStatusSectionTag("EndFrame", AavTagType::ULong64);

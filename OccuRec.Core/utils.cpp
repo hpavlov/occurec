@@ -65,6 +65,19 @@ unsigned int compute_crc32(unsigned char *data, int len)
 }
 
 #define ADV_EPOCH_ZERO_TICKS 633979008000000000
+#define EPOCH_1601_JAN_1_TICKS 504911232000000000
+
+long long SystemTimeToAavTicks(SYSTEMTIME systemTime)
+{
+	FILETIME fileTime;
+	SystemTimeToFileTime(&systemTime, &fileTime);
+
+	ULARGE_INTEGER uli;
+	uli.LowPart = fileTime.dwLowDateTime;
+	uli.HighPart = fileTime.dwHighDateTime;
+
+	return WindowsTicksToAavTicks(uli.QuadPart + EPOCH_1601_JAN_1_TICKS);
+}
 
 long long DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs)
 {
