@@ -3,6 +3,7 @@
 #define MAX_INTEGRATION 256
 #define LOW_INTEGRATION_CHECK_POOL_SIZE 12 // 0.5 sec @ PAL
 #define LOW_INTEGRATION_CHECK_FULL_CALC_FREQUENCY (MAX_INTEGRATION + 1)
+#define MANUAL_INTEGRATION_CHECK_POOL_SIZE 10240
 
 namespace OccuRec
 {
@@ -20,6 +21,7 @@ namespace OccuRec
 			int pastSignaturesCount;
 			float pastSignatures[MAX_INTEGRATION];
 			float signaturesHistory[LOW_INTEGRATION_CHECK_POOL_SIZE];
+			float manualSignaturesHistory[MANUAL_INTEGRATION_CHECK_POOL_SIZE];
 
 			float evenLowFrameSignSigma;
 			float oddLowFrameSignSigma;
@@ -32,7 +34,15 @@ namespace OccuRec
 			float oddSignMaxResidual;
 			float allSignMaxResidual;
 
+			__int64 processedManualRateSignatures;
+			long currentManualRate;
+			bool manualIntegrationIsCalibrated;
+			long manualIntegrationHighAverage;
+			long manualIntegrationLowAverage;
+
 			void RecalculateLowIntegrationMetrics();
+			void TryToFindManuallySpecifiedIntegrationRate();
+			void RecalculateDetectedManualIntegrationRateLowAndHigh();
 
 		public:
 			IntegrationChecker(float differenceRatio, float minimumDifference);
@@ -41,6 +51,7 @@ namespace OccuRec
 			float CurrentSignatureRatio;
 
 			void ControlIntegrationDetectionTuning(bool enabled);
-			bool IsNewIntegrationPeriod(__int64 idxFrameNumber, float diffSignature);
+			bool IsNewIntegrationPeriod_Automatic(__int64 idxFrameNumber, float diffSignature);
+			bool IsNewIntegrationPeriod_Manual(__int64 idxFrameNumber, long manualRate, float diffSignature);
 	};
 };

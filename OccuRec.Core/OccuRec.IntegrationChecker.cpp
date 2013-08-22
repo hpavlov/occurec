@@ -95,12 +95,73 @@ namespace OccuRec
 				allLowFrameSignAverage, allLowFrameSignSigma, allSignMaxResidual); 
 	}
 
-	bool IntegrationChecker::IsNewIntegrationPeriod(__int64 idxFrameNumber, float diffSignature)
+
+	void IntegrationChecker::TryToFindManuallySpecifiedIntegrationRate()
+	{
+		for (int i = 0; i < currentManualRate; i++)
+		{
+			// TODO: Check each
+		}
+		
+	}
+
+	void IntegrationChecker::RecalculateDetectedManualIntegrationRateLowAndHigh()
+	{
+		// TODO:
+	}
+
+	bool IntegrationChecker::IsNewIntegrationPeriod_Manual(__int64 idxFrameNumber, long manualRate, float diffSignature)
+	{
+		if (currentManualRate != manualRate)
+		{
+			// TODO: Reset the manual rate 
+			processedManualRateSignatures = 0;
+			currentManualRate = manualRate;
+			manualIntegrationIsCalibrated = false;
+		}
+
+		if (currentManualRate == 1)
+			// NOTE: Manual rate of 1 is easy! Don't do anything just always report every frame as new
+			return true;
+
+		long currSignaturesHistoryIndex = (long)((processedManualRateSignatures % (long long)(10 * currentManualRate)) & 0xFFFF);
+		manualSignaturesHistory[currSignaturesHistoryIndex] = diffSignature;
+
+		// TODO: After we have filled in 10 full integration periods we should start filling from the beginning ??
+
+		// otherwise continue to save the diffSignatures and run all calculations (if we have at least 3 x currentManualRate signatures saved)
+		bool isNewIntegrationPeriod = false;
+
+		if (manualIntegrationIsCalibrated)
+		{
+			isNewIntegrationPeriod = abs(diffSignature - manualIntegrationHighAverage) < abs(diffSignature - manualIntegrationLowAverage);
+
+			// TODO: Must deal with dropped frames somehow, otherwise calculations will be wrong
+
+			RecalculateDetectedManualIntegrationRateLowAndHigh();
+		}
+		else
+		{
+			if (processedManualRateSignatures > 3 * currentManualRate + 1);
+				// Need some minimum data before anything can be detected (wait for 3 full periods/integrations)
+				TryToFindManuallySpecifiedIntegrationRate();
+		}
+
+		processedManualRateSignatures++;
+
+		return isNewIntegrationPeriod;
+	}
+
+	bool IntegrationChecker::IsNewIntegrationPeriod_Automatic(__int64 idxFrameNumber, float diffSignature)
 	{
 		float diff = 0;
 		float diffRatio = 1;
 		bool isNewIntegrationPeriod = false;
 	
+		if (currentManualRate > 0)
+			// Reset the manual rate, in case the user changes from Manual X -> to automatic -> back to Manual X, which should be treated as a new manual rate
+			currentManualRate = 0;
+
 #if LOW_INTEGRATION_ENABLED
 		if (idxFrameNumber % 128 == 0 && lowFrameIntegrationMode != 0)
 			RecalculateLowIntegrationMetrics();

@@ -20,12 +20,14 @@ namespace OccuRec.Helpers
         public float? PerformedActionProgress { get; private set; }
 		public int? DroppedFramesSinceLocked { get; private set; }
 		public int? OcrErrorsSinceReset { get; private set; }
+		public int ManualIntegrationRateHint { get; private set; }
 
         public VideoFrameWrapper(IVideoFrame videoFrame)
         {
             this.videoFrame = videoFrame;
             
             UniqueFrameId = -1;
+	        ManualIntegrationRateHint = 0;
 
             if (!string.IsNullOrEmpty(videoFrame.ImageInfo))
             {
@@ -65,7 +67,9 @@ namespace OccuRec.Helpers
 
 						if (nvpair[0] == "ORER")
 							OcrErrorsSinceReset = int.Parse(nvpair[1]);
-						
+
+						if (nvpair[0] == "USRI")
+							ManualIntegrationRateHint = int.Parse(nvpair[1]);
                     }
                 }
             }

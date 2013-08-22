@@ -106,6 +106,7 @@ namespace OccuRec.Helpers
 	    public int DropedFramesSinceIntegrationLock;
 		public int OcrWorking;
 		public int OcrErrorsSinceLastReset;
+	    public int UserIntegratonRateHint;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -130,6 +131,7 @@ namespace OccuRec.Helpers
 		public long EndExposureFrameNo;
 		public int OcrWorking;
 		public int OcrErrorsSinceLastReset;
+	    public int UserIntegratonRateHint;
 		
 		public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
         {
@@ -160,7 +162,8 @@ namespace OccuRec.Helpers
 			StartExposureFrameNo = imgStatus.StartExposureFrameNo;
 			EndExposureFrameNo = imgStatus.EndExposureFrameNo;
 			OcrWorking = imgStatus.OcrWorking;
-			OcrErrorsSinceLastReset = imgStatus.OcrErrorsSinceLastReset;		
+			OcrErrorsSinceLastReset = imgStatus.OcrErrorsSinceLastReset;
+			UserIntegratonRateHint = imgStatus.UserIntegratonRateHint;
 		}
     };
 
@@ -241,6 +244,9 @@ namespace OccuRec.Helpers
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int LockIntegration(bool doLock);
+
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		private static extern int SetManualIntegrationHint(int hintRate);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int ControlIntegrationCalibration(int cameraIntegration);
@@ -644,5 +650,10 @@ namespace OccuRec.Helpers
             TestNewIntegrationPeriod(frameNo, diffSignature, ref isNew);
 	        return isNew;
 	    }
+
+		public static void SetManualIntegrationRateHint(int hintRate)
+		{
+			SetManualIntegrationHint(hintRate);
+		}
 	}
 }

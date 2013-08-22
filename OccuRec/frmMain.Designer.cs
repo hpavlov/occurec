@@ -58,6 +58,8 @@
 			this.btnAddSchedule = new System.Windows.Forms.Button();
 			this.lbSchedule = new System.Windows.Forms.ListBox();
 			this.pnlAAV = new System.Windows.Forms.Panel();
+			this.btnManualIntegration = new System.Windows.Forms.Button();
+			this.pbarIntDetPercentDone = new System.Windows.Forms.ProgressBar();
 			this.btnCalibrateIntegration = new System.Windows.Forms.Button();
 			this.label3 = new System.Windows.Forms.Label();
 			this.btnLockIntegration = new System.Windows.Forms.Button();
@@ -76,7 +78,6 @@
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-			this.pbarIntDetPercentDone = new System.Windows.Forms.ProgressBar();
 			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
@@ -483,6 +484,7 @@
 			// 
 			// pnlAAV
 			// 
+			this.pnlAAV.Controls.Add(this.btnManualIntegration);
 			this.pnlAAV.Controls.Add(this.pbarIntDetPercentDone);
 			this.pnlAAV.Controls.Add(this.btnCalibrateIntegration);
 			this.pnlAAV.Controls.Add(this.label3);
@@ -493,11 +495,31 @@
 			this.pnlAAV.TabIndex = 11;
 			this.pnlAAV.Visible = false;
 			// 
+			// btnManualIntegration
+			// 
+			this.btnManualIntegration.Location = new System.Drawing.Point(96, 51);
+			this.btnManualIntegration.Name = "btnManualIntegration";
+			this.btnManualIntegration.Size = new System.Drawing.Size(80, 23);
+			this.btnManualIntegration.TabIndex = 17;
+			this.btnManualIntegration.Text = "Manual";
+			this.btnManualIntegration.UseVisualStyleBackColor = true;
+			this.btnManualIntegration.Visible = false;
+			this.btnManualIntegration.Click += new System.EventHandler(this.btnManualIntegration_Click);
+			// 
+			// pbarIntDetPercentDone
+			// 
+			this.pbarIntDetPercentDone.Location = new System.Drawing.Point(127, 9);
+			this.pbarIntDetPercentDone.Name = "pbarIntDetPercentDone";
+			this.pbarIntDetPercentDone.Size = new System.Drawing.Size(46, 9);
+			this.pbarIntDetPercentDone.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+			this.pbarIntDetPercentDone.TabIndex = 16;
+			this.pbarIntDetPercentDone.Visible = false;
+			// 
 			// btnCalibrateIntegration
 			// 
 			this.btnCalibrateIntegration.Location = new System.Drawing.Point(13, 51);
 			this.btnCalibrateIntegration.Name = "btnCalibrateIntegration";
-			this.btnCalibrateIntegration.Size = new System.Drawing.Size(160, 23);
+			this.btnCalibrateIntegration.Size = new System.Drawing.Size(79, 23);
 			this.btnCalibrateIntegration.TabIndex = 15;
 			this.btnCalibrateIntegration.Text = "Calibrate";
 			this.btnCalibrateIntegration.UseVisualStyleBackColor = true;
@@ -665,15 +687,6 @@
 			this.openFileDialog.DefaultExt = "avi";
 			this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
 			// 
-			// pbarIntDetPercentDone
-			// 
-			this.pbarIntDetPercentDone.Location = new System.Drawing.Point(127, 9);
-			this.pbarIntDetPercentDone.Name = "pbarIntDetPercentDone";
-			this.pbarIntDetPercentDone.Size = new System.Drawing.Size(46, 9);
-			this.pbarIntDetPercentDone.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-			this.pbarIntDetPercentDone.TabIndex = 16;
-			this.pbarIntDetPercentDone.Visible = false;
-			// 
 			// frmMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -777,6 +790,7 @@
 		private System.Windows.Forms.Button btnCalibrateIntegration;
         private System.Windows.Forms.ToolStripStatusLabel tssDisplayRate;
 		private System.Windows.Forms.ProgressBar pbarIntDetPercentDone;
+		private System.Windows.Forms.Button btnManualIntegration;
 	}
 }
 

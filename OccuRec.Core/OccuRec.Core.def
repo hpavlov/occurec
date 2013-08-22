@@ -24,6 +24,7 @@ EXPORTS
 	StopRecording
 
 	LockIntegration
+	SetManualIntegrationHint
 	ControlIntegrationCalibration
 	GetIntegrationCalibrationDataConfig
 	GetIntegrationCalibrationData

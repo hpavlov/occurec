@@ -59,6 +59,7 @@ float MINIMUM_SIGNATURE_DIFFERENCE;
 bool USES_DIFF_GAMMA;
 unsigned char GAMMA[256];
 
+long MANUAL_INTEGRATION_RATE;
 bool INTEGRATION_LOCKED;
 
 #define INTEGRATION_CALIBRATION_CYCLES 10
@@ -227,11 +228,18 @@ HRESULT TestNewIntegrationPeriod(__int64 frameNo, float diffSignature, bool* isN
 {
 	if (NULL != testChecker)
 	{
-		*isNew = testChecker->IsNewIntegrationPeriod(frameNo, diffSignature);
+		*isNew = testChecker->IsNewIntegrationPeriod_Automatic(frameNo, diffSignature);
 		return S_OK;
 	}
 	else
 		return E_HANDLE;
+}
+
+HRESULT SetManualIntegrationHint(long manualRate)
+{
+	MANUAL_INTEGRATION_RATE = manualRate;
+
+	return S_OK;
 }
 
 bool IsNewIntegrationPeriod(float diffSignature)
@@ -248,8 +256,11 @@ bool IsNewIntegrationPeriod(float diffSignature)
 	if (NULL != integrationChecker)
 	{
 		SyncLock::LockIntDet();		
-		bool isNewIntegrationPeriod = integrationChecker->IsNewIntegrationPeriod(idxFrameNumber, diffSignature);
-		SyncLock::UnlockIntDet();		
+		bool isNewIntegrationPeriod = MANUAL_INTEGRATION_RATE > 0
+			? integrationChecker->IsNewIntegrationPeriod_Manual(idxFrameNumber, MANUAL_INTEGRATION_RATE, diffSignature)
+			: integrationChecker->IsNewIntegrationPeriod_Automatic(idxFrameNumber, diffSignature);
+
+		SyncLock::UnlockIntDet();
 
 		return isNewIntegrationPeriod;
 	}
@@ -473,6 +484,7 @@ HRESULT SetupCamera(
 	IS_INTEGRATING_CAMERA = isIntegrating;
 
 	INTEGRATION_LOCKED = false;
+	MANUAL_INTEGRATION_RATE = 0;
 
 	ClearResourses();
 
@@ -571,6 +583,7 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->DropedFramesSinceIntegrationLock = latestImageStatus.DropedFramesSinceIntegrationLock;
 	imageStatus->OcrWorking = latestImageStatus.OcrWorking;
 	imageStatus->OcrErrorsSinceLastReset = latestImageStatus.OcrErrorsSinceLastReset;
+	imageStatus->UserIntegratonRateHint = latestImageStatus.UserIntegratonRateHint;
 
 	return S_OK;
 }
@@ -971,6 +984,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		latestImageStatus.DropedFramesSinceIntegrationLock = droppedFramesSinceIntegrationIsLocked;
 		latestImageStatus.OcrWorking = (NULL != ocrManager && ocrManager->IsReceivingTimeStamps()) ? 1 : 0;
 		latestImageStatus.OcrErrorsSinceLastReset = ocrErrorsSiceLastReset;
+		latestImageStatus.UserIntegratonRateHint = MANUAL_INTEGRATION_RATE > 0 ? MANUAL_INTEGRATION_RATE : 0;
 
 		if (INTEGRATION_CALIBRATION)
 		{

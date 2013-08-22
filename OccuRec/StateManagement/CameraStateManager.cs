@@ -20,6 +20,7 @@ namespace OccuRec.StateManagement
         private OverlayManager overlayManager;
 
         private int ocrErrors;
+	    private bool isUsingManualIntegration;
 	    private bool providesOcredTimestamps;
         private bool ocrMayBeRunning;
 
@@ -44,6 +45,8 @@ namespace OccuRec.StateManagement
 					providesOcredTimestamps = false;
 				}
 			}
+
+			isUsingManualIntegration = frame.ManualIntegrationRateHint > 0;
         }
 
         public void CameraConnected(IVideo driverInstance, OverlayManager overlayManager, int maxOcrErrorsPerRun, bool isIntegrating)
@@ -53,6 +56,7 @@ namespace OccuRec.StateManagement
 	        isIntegratingCamera = isIntegrating;
 
             ocrErrors = 0;
+	        isUsingManualIntegration = false;
 	        providesOcredTimestamps = false;
             MAX_ORC_ERRORS_PER_RUN = maxOcrErrorsPerRun;
 
@@ -250,6 +254,11 @@ namespace OccuRec.StateManagement
 		public bool IsCalibratingIntegration
 		{
 			get { return currentState is IntegrationCalibrationState; }
+		}
+
+		public bool IsUsingManualIntegration
+		{
+			get { return isUsingManualIntegration; }
 		}
 
         public int OcrErrors

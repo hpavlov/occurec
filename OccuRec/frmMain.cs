@@ -668,6 +668,7 @@ namespace OccuRec
 
                 btnLockIntegration.Enabled = (stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0) || stateManager.IsIntegrationLocked;
 				btnCalibrateIntegration.Visible = !stateManager.IsIntegrationLocked;
+				btnManualIntegration.Visible = !stateManager.IsIntegrationLocked;
 				if (!stateManager.IsIntegrationLocked && stateManager.PercentDoneDetectingIntegration < 100)
 				{
 					pbarIntDetPercentDone.Value = stateManager.PercentDoneDetectingIntegration;
@@ -676,6 +677,7 @@ namespace OccuRec
 				else if (pbarIntDetPercentDone.Visible) pbarIntDetPercentDone.Visible = false;
 
 
+				
 				if (stateManager.IntegrationRate > 0 && stateManager.IsValidIntegrationRate && !stateManager.IsIntegrationLocked && stateManager.CanLockIntegrationNow)
                     btnLockIntegration.Text = string.Format("Lock at x{0} Frames", stateManager.IntegrationRate);
                 else if (stateManager.IsIntegrationLocked)
@@ -702,6 +704,11 @@ namespace OccuRec
                     UpdateApplicationStateFromCameraState();
 					EnsureSchedulesState(true);
                 }
+
+				if (stateManager.IsUsingManualIntegration)
+					btnLockIntegration.Text = "Automatic";
+				else
+					btnLockIntegration.Text = "Manual";
 
                 tsbConnectDisconnect.ToolTipText = "Disconnect";
                 tsbConnectDisconnect.Image = imageListToolbar.Images[1];
@@ -1277,6 +1284,16 @@ namespace OccuRec
 					float diff = float.Parse(match.Groups[2].Value);
 					NativeHelpers.IntegrationDetectionTestNextFrame(frameNo, diff);
 				}
+			}
+		}
+
+		private void btnManualIntegration_Click(object sender, EventArgs e)
+		{
+			var frm = new frmChooseManualIntegrationRate();
+			if (frm.ShowDialog(this) == DialogResult.OK)
+			{
+				int manualIntegrationRate = (int)frm.nudIntegrationRate.Value;
+				NativeHelpers.SetManualIntegrationRateHint(manualIntegrationRate);
 			}
 		}
 

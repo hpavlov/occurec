@@ -59,6 +59,12 @@
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
     <Compile Include="Drivers\AVISimulator\Video.cs" />
     <Compile Include="Drivers\BasicVideoFrame.cs" />
+    <Compile Include="frmChooseManualIntegrationRate.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmChooseManualIntegrationRate.Designer.cs">
+      <DependentUpon>frmChooseManualIntegrationRate.cs</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\ImageUtils.cs" />
     <Compile Include="Helpers\NonBlockingLock.cs" />
     <Compile Include="Helpers\NTPClient.cs" />
@@ -157,6 +163,9 @@
     <Compile Include="StateManagement\UndeterminedIntegrationCameraState.cs" />
     <EmbeddedResource Include="frmChooseCamera.resx">
       <DependentUpon>frmChooseCamera.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmChooseManualIntegrationRate.resx">
+      <DependentUpon>frmChooseManualIntegrationRate.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmDetectIntegrationConfig.resx">
       <DependentUpon>frmDetectIntegrationConfig.cs</DependentUpon>

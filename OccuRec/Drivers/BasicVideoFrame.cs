@@ -112,6 +112,11 @@ namespace OccuRec.Drivers
 				{
 					rv.imageInfo += string.Format(";ORER:{0}", status.OcrErrorsSinceLastReset);
 				}
+
+				if (status.UserIntegratonRateHint > 0)
+				{
+					rv.imageInfo += string.Format(";USRI:{0}", status.UserIntegratonRateHint);
+				}				
             }
 
             return rv;

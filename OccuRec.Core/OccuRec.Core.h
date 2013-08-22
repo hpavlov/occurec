@@ -30,6 +30,7 @@ struct ImageStatus
 	long DropedFramesSinceIntegrationLock;
 	long OcrWorking;
 	long OcrErrorsSinceLastReset;
+	long UserIntegratonRateHint;
 };
 
 struct FrameProcessingStatus
@@ -86,6 +87,7 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProc
 HRESULT StartRecording(LPCTSTR szFileName);
 HRESULT StopRecording(long* pixels);
 HRESULT LockIntegration(bool lock);
+HRESULT SetManualIntegrationHint(long manualRate);
 HRESULT ControlIntegrationCalibration(long operation);
 HRESULT GetIntegrationCalibrationDataConfig(long* gammasLength, long* signaturesPerCycle);
 HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas);
