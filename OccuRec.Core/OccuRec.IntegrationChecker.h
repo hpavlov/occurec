@@ -43,6 +43,7 @@ namespace OccuRec
 			void RecalculateLowIntegrationMetrics();
 			void TryToFindManuallySpecifiedIntegrationRate();
 			void RecalculateDetectedManualIntegrationRateLowAndHigh();
+			void CalculateManualIntegrationForDataset(float* signatures, int signaturesCount, float* lowAverage, float* highAverage, float* lowSigma, float* highSigma);
 
 		public:
 			IntegrationChecker(float differenceRatio, float minimumDifference);

@@ -706,9 +706,9 @@ namespace OccuRec
                 }
 
 				if (stateManager.IsUsingManualIntegration)
-					btnLockIntegration.Text = "Automatic";
+					btnManualIntegration.Text = "Automatic";
 				else
-					btnLockIntegration.Text = "Manual";
+					btnManualIntegration.Text = "Manual";
 
                 tsbConnectDisconnect.ToolTipText = "Disconnect";
                 tsbConnectDisconnect.Image = imageListToolbar.Images[1];
@@ -1289,11 +1289,18 @@ namespace OccuRec
 
 		private void btnManualIntegration_Click(object sender, EventArgs e)
 		{
-			var frm = new frmChooseManualIntegrationRate();
-			if (frm.ShowDialog(this) == DialogResult.OK)
+			if (stateManager.IsUsingManualIntegration)
 			{
-				int manualIntegrationRate = (int)frm.nudIntegrationRate.Value;
-				NativeHelpers.SetManualIntegrationRateHint(manualIntegrationRate);
+				NativeHelpers.SetManualIntegrationRateHint(0);
+			}
+			else
+			{
+				var frm = new frmChooseManualIntegrationRate();
+				if (frm.ShowDialog(this) == DialogResult.OK)
+				{
+					int manualIntegrationRate = (int)frm.nudIntegrationRate.Value;
+					NativeHelpers.SetManualIntegrationRateHint(manualIntegrationRate);
+				}
 			}
 		}
 

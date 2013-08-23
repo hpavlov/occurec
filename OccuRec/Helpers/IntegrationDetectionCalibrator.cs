@@ -143,6 +143,7 @@ namespace OccuRec.Helpers
 					Trace.WriteLine(string.Format("Successful calibration DiffGamma={0:0.00}; MinDiff={1:0.00}; Ratio={2:0.00}", Settings.Default.GammaDiff, Settings.Default.MinSignatureDiff, Settings.Default.MinSignatureDiffRatio));
 
                     NativeHelpers.ReconfigureIntegrationDetection((float)Settings.Default.MinSignatureDiffRatio, (float)Settings.Default.MinSignatureDiff, (float)Settings.Default.GammaDiff);
+					NativeHelpers.SetManualIntegrationRateHint(0); // Move from Manual to Automatic integration if required
 
 					return true;
                 }

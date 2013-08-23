@@ -95,14 +95,102 @@ namespace OccuRec
 				allLowFrameSignAverage, allLowFrameSignSigma, allSignMaxResidual); 
 	}
 
+	float tempLowValues[MANUAL_INTEGRATION_CHECK_POOL_SIZE];
+	float tempHighValues[MANUAL_INTEGRATION_CHECK_POOL_SIZE];
+
+	void IntegrationChecker::CalculateManualIntegrationForDataset(float* signatures, int signaturesCount, float* lowAverage, float* highAverage, float* lowSigma, float* highSigma)
+	{
+		float sumLow = 0;
+		float sumHigh = 0;
+		long lowFiguresCount = 0;
+		long highFiguresCount = 0;
+		
+		for (int i = 0; i < signaturesCount; i++)
+		{
+			float currVal = *(signatures + i);
+			if (i % currentManualRate == 0)
+			{
+				sumHigh += currVal;
+				tempHighValues[highFiguresCount] = currVal;
+				highFiguresCount++;
+			}
+			else
+			{
+				sumLow += currVal;
+				tempLowValues[lowFiguresCount] = currVal;
+				lowFiguresCount++;
+			}
+		}
+
+		*lowAverage = sumLow / lowFiguresCount;
+		float lowVariance = 0;
+		for (int i = 0; i < lowFiguresCount; i++)
+		{
+			lowVariance += (tempLowValues[i] - *lowAverage) * (tempLowValues[i] - *lowAverage);
+		}
+		*lowSigma = sqrt(lowVariance / (lowFiguresCount - 1));
+
+		*highAverage = sumHigh / highFiguresCount;
+		float highVariance = 0;
+		for (int i = 0; i < highFiguresCount; i++)
+		{
+			highVariance += (tempHighValues[i] - *highAverage) * (tempHighValues[i] - *highAverage);
+		}
+		*highSigma = sqrt(highVariance / (highFiguresCount - 1));
+	}
 
 	void IntegrationChecker::TryToFindManuallySpecifiedIntegrationRate()
 	{
+		float testSignatures[MANUAL_INTEGRATION_CHECK_POOL_SIZE];
+
+		float bestLowAverage = 0;
+		float bestHighAverage = 0;
+		float bestLowSigma = 1000;
+		float bestHighSigma = 1000;
+
+		int signaturesCount = min(processedManualRateSignatures, currentManualRate * 10);
+
 		for (int i = 0; i < currentManualRate; i++)
-		{
-			// TODO: Check each
+		{			
+			float lowAverage;
+			float highAverage;
+			float lowSigma;
+			float highSigma;
+
+			int counter = 0;
+			for (int j = i; j < signaturesCount; j++, counter++)
+			{
+				testSignatures[counter] = manualSignaturesHistory[j];
+			}			
+			int backwardsCounter = 0;
+			for (int j = i - 1; j >= 0 && counter < signaturesCount; j--, counter++, backwardsCounter++)
+			{
+				//TODO: An extra number is being copied here which stuffs up the integration detection
+				testSignatures[signaturesCount - backwardsCounter] = manualSignaturesHistory[j];
+			}
+
+			CalculateManualIntegrationForDataset(&testSignatures[0], signaturesCount, &lowAverage, &highAverage, &lowSigma, &highSigma);
+
+			if (highSigma < bestHighSigma)
+			{
+				bestHighSigma = highSigma;
+				bestLowSigma = lowSigma;
+				bestHighAverage = highAverage;
+				bestLowAverage = lowAverage;
+			}
 		}
-		
+
+		// If the 3-sigma intervals around the Low and high values do not overlap, then we have found a solution
+		if (bestLowAverage + 3 * bestLowSigma < bestHighAverage - 3 * bestHighSigma)
+		{
+			manualIntegrationIsCalibrated = true;
+			manualIntegrationHighAverage = bestHighAverage;
+			manualIntegrationLowAverage = bestLowAverage;
+		}
+		else
+		{
+			manualIntegrationIsCalibrated = false;
+		}
 	}
 
 	void IntegrationChecker::RecalculateDetectedManualIntegrationRateLowAndHigh()
@@ -127,6 +215,8 @@ namespace OccuRec
 		long currSignaturesHistoryIndex = (long)((processedManualRateSignatures % (long long)(10 * currentManualRate)) & 0xFFFF);
 		manualSignaturesHistory[currSignaturesHistoryIndex] = diffSignature;
 
+		processedManualRateSignatures++;
+
 		// TODO: After we have filled in 10 full integration periods we should start filling from the beginning ??
 
 		// otherwise continue to save the diffSignatures and run all calculations (if we have at least 3 x currentManualRate signatures saved)
@@ -142,12 +232,16 @@ namespace OccuRec
 		}
 		else
 		{
-			if (processedManualRateSignatures > 3 * currentManualRate + 1);
+			if (processedManualRateSignatures > (3 * currentManualRate + 1))
+			{
 				// Need some minimum data before anything can be detected (wait for 3 full periods/integrations)
 				TryToFindManuallySpecifiedIntegrationRate();
-		}
-
-		processedManualRateSignatures++;
+			}
+			else
+			{
+				// Set the progress bar so the user sees we are waiting to collect enough samples to run the stats
+			}
+		}		
 
 		return isNewIntegrationPeriod;
 	}
