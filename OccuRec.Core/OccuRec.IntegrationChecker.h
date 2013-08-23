@@ -37,11 +37,11 @@ namespace OccuRec
 			__int64 processedManualRateSignatures;
 			long currentManualRate;
 			bool manualIntegrationIsCalibrated;
-			long manualIntegrationHighAverage;
-			long manualIntegrationLowAverage;
+			float manualIntegrationHighAverage;
+			float manualIntegrationLowAverage;
 
 			void RecalculateLowIntegrationMetrics();
-			void TryToFindManuallySpecifiedIntegrationRate();
+			bool TryToFindManuallySpecifiedIntegrationRate();
 			void RecalculateDetectedManualIntegrationRateLowAndHigh();
 			void CalculateManualIntegrationForDataset(float* signatures, int signaturesCount, float* lowAverage, float* highAverage, float* lowSigma, float* highSigma);
 
@@ -50,6 +50,9 @@ namespace OccuRec
 
 			float NewIntegrationPeriodCutOffRatio;
 			float CurrentSignatureRatio;
+
+			long PerformedAction;
+			float PerformedActionProgress;
 
 			void ControlIntegrationDetectionTuning(bool enabled);
 			bool IsNewIntegrationPeriod_Automatic(__int64 idxFrameNumber, float diffSignature);

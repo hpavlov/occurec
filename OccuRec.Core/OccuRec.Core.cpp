@@ -994,6 +994,11 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			else
 				latestImageStatus.PerformedActionProgress = 1.0 * INTEGRATION_CALIBRATION_PASSES / INTEGRATION_CALIBRATION_TOTAL_PASSES;
 		}
+		else if (NULL != integrationChecker)
+		{
+			latestImageStatus.PerformedAction = integrationChecker->PerformedAction;
+			latestImageStatus.PerformedActionProgress = integrationChecker->PerformedActionProgress;
+		}
 		else
 		{
 			latestImageStatus.PerformedAction = 0;
@@ -1073,17 +1078,11 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProc
 	{
 		ptrFirstOrLastFrameCopy = firstIntegratedFramePixels;
 		lastFrameWasNewIntegrationPeriod = true;
-#if _DEBUG
-		DebugViewPrint(L"Copying pixels of the %d-th frame to FirstIntegratedFramePixels", idxFrameNumber);
-#endif
 	}
 	else
 	{
 		ptrFirstOrLastFrameCopy = lastIntegratedFramePixels;
 		lastFrameWasNewIntegrationPeriod = false;
-#if _DEBUG
-		DebugViewPrint(L"Copying pixels of the %d-th frame to LastIntegratedFramePixels", idxFrameNumber);
-#endif
 	}	
 
 	for (int y = 0; y < IMAGE_HEIGHT; y++)
@@ -1153,17 +1152,11 @@ void ProcessRawFrame(RawFrame* rawFrame)
 	{
 		ptrFirstOrLastFrameCopy = firstIntegratedFramePixels;
 		lastFrameWasNewIntegrationPeriod = true;
-#if _DEBUG
-		DebugViewPrint(L"Copying pixels of the %d-th frame to FirstIntegratedFramePixels", idxFrameNumber);
-#endif
 	}
 	else
 	{
 		ptrFirstOrLastFrameCopy = lastIntegratedFramePixels;
 		lastFrameWasNewIntegrationPeriod = false;
-#if _DEBUG
-		DebugViewPrint(L"Copying pixels of the %d-th frame to LastIntegratedFramePixels", idxFrameNumber);
-#endif
 	}
 
 	for (int y = 0; y < IMAGE_HEIGHT; y++)
@@ -1302,17 +1295,11 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	{
 		ptrFirstOrLastFrameCopy = firstIntegratedFramePixels;
 		lastFrameWasNewIntegrationPeriod = true;
-#if _DEBUG
-		DebugViewPrint(L"Copying pixels of the %d-th frame to FirstIntegratedFramePixels", idxFrameNumber);
-#endif
 	}
 	else
 	{
 		ptrFirstOrLastFrameCopy = lastIntegratedFramePixels;
 		lastFrameWasNewIntegrationPeriod = false;
-#if _DEBUG
-		DebugViewPrint(L"Copying pixels of the %d-th frame to LastIntegratedFramePixels", idxFrameNumber);
-#endif
 	}
 	
 	for (int y = 0; y < IMAGE_HEIGHT; y++)

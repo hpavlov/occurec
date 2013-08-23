@@ -72,7 +72,7 @@ namespace OccuRec
 
             CheckForUpdates(false);
 
-		    UpdateState();
+		    UpdateState(null);
 
 #if DEBUG
 			// NOTE: Used to test integration detection logs against the currently used algorithm
@@ -234,7 +234,7 @@ namespace OccuRec
 
             pnlOcrTesting.Visible = false;
 
-			UpdateState();
+			UpdateState(null);
 
 			pnlVideoControls.Enabled = connected;
 		    btnRecord.Enabled = CanRecordNow(connected);
@@ -366,7 +366,7 @@ namespace OccuRec
 			}
 
 			currentFrameNo = frame.FrameNumber;
-			UpdateState();
+			UpdateState(frame);
 			renderedFrameCounter++;
 
 			if (renderedFrameCounter == 20)
@@ -605,7 +605,7 @@ namespace OccuRec
 				gbxSchedules.Enabled = enabled;
 		}
 
-		private void UpdateState()
+		private void UpdateState(VideoFrameWrapper frame)
 		{
 		    if (IsDisposed)
                 // It is possible this method to be called during Disposing and we don't need to do anything in that case
@@ -666,7 +666,13 @@ namespace OccuRec
                     btnStopRecording.Enabled = false;
                 }
 
-                btnLockIntegration.Enabled = (stateManager.CanLockIntegrationNow && stateManager.IntegrationRate > 0) || stateManager.IsIntegrationLocked;
+				btnLockIntegration.Enabled = 
+					(
+						stateManager.CanLockIntegrationNow && 
+						stateManager.IntegrationRate > 0 && 
+						(frame == null || !frame.PerformedAction.HasValue || frame.PerformedAction.Value == 0)) 
+					|| stateManager.IsIntegrationLocked;
+
 				btnCalibrateIntegration.Visible = !stateManager.IsIntegrationLocked;
 				btnManualIntegration.Visible = !stateManager.IsIntegrationLocked;
 				if (!stateManager.IsIntegrationLocked && stateManager.PercentDoneDetectingIntegration < 100)
@@ -677,8 +683,13 @@ namespace OccuRec
 				else if (pbarIntDetPercentDone.Visible) pbarIntDetPercentDone.Visible = false;
 
 
-				
-				if (stateManager.IntegrationRate > 0 && stateManager.IsValidIntegrationRate && !stateManager.IsIntegrationLocked && stateManager.CanLockIntegrationNow)
+
+				if (frame != null && frame.PerformedAction.HasValue && frame.PerformedAction.Value > 0)
+				{
+					// When there is an action in progress, then don't show anything
+					btnLockIntegration.Text = "Busy ...";
+				}
+				else if (stateManager.IntegrationRate > 0 && stateManager.IsValidIntegrationRate && !stateManager.IsIntegrationLocked && stateManager.CanLockIntegrationNow)
                     btnLockIntegration.Text = string.Format("Lock at x{0} Frames", stateManager.IntegrationRate);
                 else if (stateManager.IsIntegrationLocked)
                     btnLockIntegration.Text = "Unlock";
@@ -696,6 +707,14 @@ namespace OccuRec
 					btnCalibrateIntegration.Text = "Cancel Calibration";
 					tssCameraState.Text = "Calibrating";
 					EnsureSchedulesState(false);
+				}
+				else if (frame != null && frame.PerformedAction.HasValue)
+				{
+					if (frame.PerformedAction.Value == 2)
+					{
+						// Checking Manually Entered Integration
+						tssCameraState.Text = "Busy";
+					}
 				}
                 else
                 {
@@ -723,7 +742,7 @@ namespace OccuRec
 
 				recordingfileName = videoObject.StartRecording(fileName);
 
-				UpdateState();
+				UpdateState(null);
 
 				framesBeforeUpdatingCameraVideoFormat = 4;
 			}
@@ -735,7 +754,7 @@ namespace OccuRec
 			{
 				videoObject.StopRecording();
 
-				UpdateState();
+				UpdateState(null);
 			}
 		}
 
@@ -774,7 +793,7 @@ namespace OccuRec
                         videoObject.ExecuteAction("ToggleIotaVtiOcrTesting", null);
                 }
 
-                UpdateState();
+                UpdateState(null);
             } 
         }
 
@@ -820,13 +839,13 @@ namespace OccuRec
 
 								overlayManager.OnError(100, "Failed to start AAV recording. Integration is not locked.");
 
-								UpdateState();
+								UpdateState(null);
 							}
 							else
 							{
 								string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
 								recordingfileName = videoObject.StartRecording(fileName);
-								UpdateState();								
+								UpdateState(null);								
 							}
                         }
                         break;
@@ -835,7 +854,7 @@ namespace OccuRec
                         if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
                         {
                             videoObject.StopRecording();
-                            UpdateState();
+                            UpdateState(null);
                         }
                         break;
                 }

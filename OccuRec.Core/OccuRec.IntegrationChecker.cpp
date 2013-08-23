@@ -139,7 +139,7 @@ namespace OccuRec
 		*highSigma = sqrt(highVariance / (highFiguresCount - 1));
 	}
 
-	void IntegrationChecker::TryToFindManuallySpecifiedIntegrationRate()
+	bool IntegrationChecker::TryToFindManuallySpecifiedIntegrationRate()
 	{
 		float testSignatures[MANUAL_INTEGRATION_CHECK_POOL_SIZE];
 
@@ -162,16 +162,15 @@ namespace OccuRec
 			{
 				testSignatures[counter] = manualSignaturesHistory[j];
 			}			
-			int backwardsCounter = 0;
+			int backwardsCounter = 1;
 			for (int j = i - 1; j >= 0 && counter < signaturesCount; j--, counter++, backwardsCounter++)
 			{
-				//TODO: An extra number is being copied here which stuffs up the integration detection
 				testSignatures[signaturesCount - backwardsCounter] = manualSignaturesHistory[j];
 			}
 
 			CalculateManualIntegrationForDataset(&testSignatures[0], signaturesCount, &lowAverage, &highAverage, &lowSigma, &highSigma);
 
-			if (highSigma < bestHighSigma)
+			if (lowSigma < bestLowSigma && lowSigma < highSigma)
 			{
 				bestHighSigma = highSigma;
 				bestLowSigma = lowSigma;
@@ -183,29 +182,39 @@ namespace OccuRec
 		// If the 3-sigma intervals around the Low and high values do not overlap, then we have found a solution
 		if (bestLowAverage + 3 * bestLowSigma < bestHighAverage - 3 * bestHighSigma)
 		{
-			manualIntegrationIsCalibrated = true;
 			manualIntegrationHighAverage = bestHighAverage;
 			manualIntegrationLowAverage = bestLowAverage;
+			DebugViewPrint(L"ManuallyHintedIntegration: New averaged calculated - Low = %.2f; High: %.2f", manualIntegrationLowAverage, manualIntegrationHighAverage);
+			return true;
 		}
 		else
 		{
-			manualIntegrationIsCalibrated = false;
+			DebugViewPrint(L"ManuallyHintedIntegration: Faild for find new averaged values.");
+			return false;
 		}
 	}
 
 	void IntegrationChecker::RecalculateDetectedManualIntegrationRateLowAndHigh()
 	{
-		// TODO:
+		float oldHigh = manualIntegrationHighAverage;
+		float oldLow = manualIntegrationLowAverage;
+
+		if (!TryToFindManuallySpecifiedIntegrationRate())
+		{
+			manualIntegrationHighAverage = oldHigh;
+			manualIntegrationLowAverage = oldLow;
+		}
 	}
 
 	bool IntegrationChecker::IsNewIntegrationPeriod_Manual(__int64 idxFrameNumber, long manualRate, float diffSignature)
 	{
 		if (currentManualRate != manualRate)
 		{
-			// TODO: Reset the manual rate 
 			processedManualRateSignatures = 0;
 			currentManualRate = manualRate;
 			manualIntegrationIsCalibrated = false;
+			PerformedAction = 2;
+			PerformedActionProgress = 0;
 		}
 
 		if (currentManualRate == 1)
@@ -228,18 +237,28 @@ namespace OccuRec
 
 			// TODO: Must deal with dropped frames somehow, otherwise calculations will be wrong
 
-			RecalculateDetectedManualIntegrationRateLowAndHigh();
+			if (processedManualRateSignatures % (16 * currentManualRate) == 0)
+			{
+				RecalculateDetectedManualIntegrationRateLowAndHigh();
+			}
 		}
 		else
 		{
 			if (processedManualRateSignatures > (3 * currentManualRate + 1))
 			{
+				// Collection of data completed. Reset the progress values.
+				PerformedActionProgress = 0;
+
 				// Need some minimum data before anything can be detected (wait for 3 full periods/integrations)
-				TryToFindManuallySpecifiedIntegrationRate();
+				manualIntegrationIsCalibrated = TryToFindManuallySpecifiedIntegrationRate();
+				if (manualIntegrationIsCalibrated)
+					// Recognition completed
+					PerformedAction = 0;
 			}
 			else
 			{
-				// Set the progress bar so the user sees we are waiting to collect enough samples to run the stats
+				// Set the progress bar so the user sees we are waiting to collect enough samples to run the stats test
+				PerformedActionProgress = 1.0 * processedManualRateSignatures / (3 * currentManualRate);
 			}
 		}		
 
@@ -253,8 +272,12 @@ namespace OccuRec
 		bool isNewIntegrationPeriod = false;
 	
 		if (currentManualRate > 0)
+		{
 			// Reset the manual rate, in case the user changes from Manual X -> to automatic -> back to Manual X, which should be treated as a new manual rate
 			currentManualRate = 0;
+			PerformedAction = 0;
+			PerformedActionProgress = 0;
+		}
 
 #if LOW_INTEGRATION_ENABLED
 		if (idxFrameNumber % 128 == 0 && lowFrameIntegrationMode != 0)
