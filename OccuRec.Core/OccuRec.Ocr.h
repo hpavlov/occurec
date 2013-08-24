@@ -107,13 +107,14 @@ class OcrFrameProcessor
 		OcredFieldOsd OddFieldOcredOsd;
 		OcredFieldOsd EvenFieldOcredOsd;
 
-		void ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo);
+		bool ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo);
 		void SafeCopyCharsReplaceZeroWithSpace(char* destBuffer, char* source, int len);
 
 	public:
 		bool Success;
 
 		OcrFrameProcessor();
+		~OcrFrameProcessor();
 
 		void NewFrame();
 		void AddMedianComputationPixel(unsigned char pixelValue);

@@ -38,22 +38,30 @@ V) Record the Tracked Satellites + GPS info in the AAV file
 V) Fix the OCRed and recorded timestamps in the AAV file. Fix OCRed timestampes returned in both locked and unlocked mode
 V) Make the OCR engine to consider which field is first (even or odd). Check with IOTA VTI Configuration 
 V) Implement a 'live' OCR testing without crashing and with logging of all errors
+V) Implement a second integration detection based on locking at user specified integration rate. Add options in the settings form for "Automatic" or "Manually Specified" integration processing
+V) Add a 'SystemTime' status field in the AAV recorded file
+V) Fix the x2 Integration Detection
+V) Fix the x1 integration lock - the timestamps never seem to be preserved
+
 
 EASY:
 
 ?) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
-- Implement a second integration detection based on locking at user specified integration rate. Add options in the settings form for "Automatic" or "Manually Specified" integration processing
-- Add a 'SystemTime' status field in the AAV recorded file
 
 HARDER:
 
-- Remove the x1 integration (or make it lockable in a different way). Then if no integration is detected for a long time for cameras that are selected as "Integrating" then
-try to analyze the signatures and make suggestions (e.g. "Try to increase the gain" in a case where the sigantures are too small or "AAV mode is designed for recording star fields." if they appear to be day light signatures)
 - Make it so GetNextFrame() returns a bitmap image bytes so no time is wasted converting bitmaps to arrays and back to bitmaps. May be define another generic output format [24bpp bitmap]
-?) Fix the x2 Integration Detection
 
 OCR Implemntation:
 
 - Complete the unmanaged OCR verification based on expected frame/integration period field numbers and expected frame/integration period duration 
 - Successfully run a live test for 24 hours without any errors
+- Implement OCR test action that will start recording an AAV file but will only record single frames for which the OCR integration has failed
+- OCR-ing the IOTA-VTI timestamp must be redone so it works against a white background
+
+Telescope Control:
+
+- Make it possible to select target and comparison star and implement 'tracking'
+- Implement focusing 
+- Implement guiding (keeping the selected target at the initial position sending telescope tracking pulses)
 

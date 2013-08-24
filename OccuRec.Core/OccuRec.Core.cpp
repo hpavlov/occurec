@@ -23,6 +23,7 @@ using namespace OccuOcr;
 
 #define MEDIAN_CALC_ROWS_FROM 10
 #define MEDIAN_CALC_ROWS_TO 11
+#define STARTUP_FRAMES_WITH_NO_OUTPUT 2
 
 long IMAGE_WIDTH;
 long IMAGE_HEIGHT;
@@ -59,7 +60,7 @@ float MINIMUM_SIGNATURE_DIFFERENCE;
 bool USES_DIFF_GAMMA;
 unsigned char GAMMA[256];
 
-long MANUAL_INTEGRATION_RATE;
+long MANUAL_INTEGRATION_RATE = 0;
 bool INTEGRATION_LOCKED;
 
 #define INTEGRATION_CALIBRATION_CYCLES 10
@@ -255,7 +256,7 @@ bool IsNewIntegrationPeriod(float diffSignature)
 
 	if (NULL != integrationChecker)
 	{
-		SyncLock::LockIntDet();		
+		SyncLock::LockIntDet();
 		bool isNewIntegrationPeriod = MANUAL_INTEGRATION_RATE > 0
 			? integrationChecker->IsNewIntegrationPeriod_Manual(idxFrameNumber, MANUAL_INTEGRATION_RATE, diffSignature)
 			: integrationChecker->IsNewIntegrationPeriod_Automatic(idxFrameNumber, diffSignature);
@@ -351,6 +352,7 @@ HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameT
 			OCR_ZONE_PIXEL_COUNTS[i] = 0;
 	}
 	
+	OCR_CHAR_DEFS.clear();
 
 	return S_OK;
 }
@@ -359,9 +361,6 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 {
 	if (NULL == OCR_ZONE_MATRIX)
 		OCR_ZONE_MATRIX = (long*)malloc(IMAGE_TOTAL_PIXELS * sizeof(long));
-
-	// memcpy didn't work??
-	// memcpy(&OCR_ZONE_MATRIX[0], &matrix[0], IMAGE_TOTAL_PIXELS);
 	
 	for (long i=0; i < IMAGE_TOTAL_PIXELS; i++)
 	{
@@ -483,9 +482,6 @@ HRESULT SetupCamera(
 
 	IS_INTEGRATING_CAMERA = isIntegrating;
 
-	INTEGRATION_LOCKED = false;
-	MANUAL_INTEGRATION_RATE = 0;
-
 	ClearResourses();
 
 	if (NULL != prtPreviousDiffArea)
@@ -531,6 +527,7 @@ HRESULT SetupCamera(
 	numberOfIntegratedFrames = 0;
 	idxIntegratedFrameNumber = 0;
 	droppedFramesSinceIntegrationIsLocked = 0;
+	INTEGRATION_LOCKED = false;
 
 	latestImageStatus.UniqueFrameNo = 0;
 
@@ -848,7 +845,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			if (runOCR && i >= MEDIAN_CALC_INDEX_FROM && i <= MEDIAN_CALC_INDEX_TO)
 			{
 				firstFrameOcrProcessor->AddMedianComputationPixel(firstIntegratedFramePixels[i]);
-				lastFrameOcrProcessor->AddMedianComputationPixel(lastIntegratedFramePixels[i]);
+				lastFrameOcrProcessor->AddMedianComputationPixel(detectedIntegrationRate > 1 ? lastIntegratedFramePixels[i] : firstIntegratedFramePixels[i]);
 			}
 
 			if (runOCR)
@@ -857,7 +854,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				if (packedInfo != 0)
 				{
 					firstFrameOcrProcessor->ProcessZonePixel(packedInfo, pixX, pixY, firstIntegratedFramePixels[i]);
-					lastFrameOcrProcessor->ProcessZonePixel(packedInfo,  pixX, pixY, lastIntegratedFramePixels[i]);
+					lastFrameOcrProcessor->ProcessZonePixel(packedInfo,  pixX, pixY, detectedIntegrationRate > 1 ? lastIntegratedFramePixels[i] : firstIntegratedFramePixels[i]);
 				}
 			}
 
@@ -882,20 +879,24 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				*ptrFramePixels = averageValue;
 			}
 
-			if (pixY >= OCR_FRAME_TOP_ODD && pixY < OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT)
+			if (detectedIntegrationRate > 1)
 			{
-				restoredPixels++;
+				// Only preserve timestamps from different frames IF the integration is bigger than 1 frame
+				if (pixY >= OCR_FRAME_TOP_ODD && pixY < OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT)
+				{
+					restoredPixels++;
 
-				// Preserve the timestamp pixels from the first and last integrated frame in the final image
-				if (pixY % 2 == 0)
-				{
-					*ptrFramePixels = firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
-					*ptr8BitPixels = *ptrFramePixels;
-				}
-				else
-				{
-					*ptrFramePixels = lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
-					*ptr8BitPixels = *ptrFramePixels;
+					// Preserve the timestamp pixels from the first and last integrated frame in the final image
+					if (pixY % 2 == 0)
+					{
+						*ptrFramePixels = firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+						*ptr8BitPixels = *ptrFramePixels;
+					}
+					else
+					{
+						*ptrFramePixels = lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+						*ptr8BitPixels = *ptrFramePixels;
+					}
 				}
 			}
 
@@ -917,11 +918,40 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 			if (!ocrFirstFrameProcessed)
 			{
-				if ((INTEGRATION_LOCKED && firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success) || 
-					(!INTEGRATION_LOCKED && lastFrameOcrProcessor->Success))
+				if ((INTEGRATION_LOCKED && firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success))
+				{
+					ocrManager->RegisterFirstSuccessfullyOcredFrame(firstFrameOcrProcessor);
+					ocrFirstFrameProcessed = true;
+
+					if (INTEGRATION_DETECTION_TUNING)
+					{
+						char tsFrom[128];
+						char tsTo[128];
+						firstFrameOcrProcessor->GetOcredStartFrameTimeStampStr(&tsFrom[0]);
+						firstFrameOcrProcessor->GetOcredEndFrameTimeStampStr(&tsTo[0]);
+						std::wstring wcFrom( 256, L'#' );
+						mbstowcs( &wcFrom[0], tsFrom, 128 );
+						std::wstring wcTo( 256, L'#' );
+						mbstowcs( &wcTo[0], tsTo, 128 );
+						DebugViewPrint(L"%lld: FieldDurationInTicks=%d (LOCKED*first* frame from %d to %d TS from %s to %s)", idxFrameNumber, ocrManager->FieldDurationInTicks, firstFrameOcrProcessor->GetOcredStartFrameNumber(), firstFrameOcrProcessor->GetOcredEndFrameNumber(), &wcFrom[0], &wcTo[0]);
+					}
+				}
+				else if (!INTEGRATION_LOCKED && lastFrameOcrProcessor->Success)
 				{
 					ocrManager->RegisterFirstSuccessfullyOcredFrame(lastFrameOcrProcessor);
 					ocrFirstFrameProcessed = true;
+					if (INTEGRATION_DETECTION_TUNING)
+					{
+						char tsFrom[128];
+						char tsTo[128];
+						firstFrameOcrProcessor->GetOcredStartFrameTimeStampStr(&tsFrom[0]);
+						firstFrameOcrProcessor->GetOcredEndFrameTimeStampStr(&tsTo[0]);
+						std::wstring wcFrom( 256, L'#' );
+						mbstowcs( &wcFrom[0], tsFrom, 128 );
+						std::wstring wcTo( 256, L'#' );
+						mbstowcs( &wcTo[0], tsTo, 128 );
+						DebugViewPrint(L"%lld: FieldDurationInTicks=%d (UNLOCKED*last* frame from %d to %d from %s to %s)", idxFrameNumber, ocrManager->FieldDurationInTicks, lastFrameOcrProcessor->GetOcredStartFrameNumber(), lastFrameOcrProcessor->GetOcredEndFrameNumber(), &wcFrom[0], &wcTo[0]);
+					}
 				}
 			}
 			
@@ -1048,7 +1078,7 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProc
 
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera
-	bool showOutputFrame = isNewIntegrationPeriod || !INTEGRATION_LOCKED;
+	bool showOutputFrame = idxFrameNumber > STARTUP_FRAMES_WITH_NO_OUTPUT && (isNewIntegrationPeriod || !INTEGRATION_LOCKED);
 
 	if (showOutputFrame)
 	{
@@ -1125,7 +1155,7 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera
-	bool showOutputFrame = isNewIntegrationPeriod || !INTEGRATION_LOCKED;
+	bool showOutputFrame = idxFrameNumber > STARTUP_FRAMES_WITH_NO_OUTPUT && (isNewIntegrationPeriod || !INTEGRATION_LOCKED);
 
 	if (showOutputFrame)
 	{
@@ -1187,6 +1217,7 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 			// Saving the first/last frame raw pixels for OCR-ing
 			*ptrFirstOrLastFrameCopy = thisPixel;
+
 		    *ptrPixels += thisPixel;
 
 			ptrPixels++;
@@ -1265,7 +1296,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera
-	bool showOutputFrame = isNewIntegrationPeriod || !INTEGRATION_LOCKED;
+	bool showOutputFrame = idxFrameNumber > STARTUP_FRAMES_WITH_NO_OUTPUT && (isNewIntegrationPeriod || !INTEGRATION_LOCKED);
 
 	if (showOutputFrame)
 	{
@@ -1476,22 +1507,23 @@ HRESULT StartRecording(LPCTSTR szFileName)
 		ocrManager->ResetErrorCounter();
 	}
 
-	if (NULL == ocrManager || !ocrManager->IsReceivingTimeStamps())
-	{
-		// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
+	// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
+	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
+	memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
 
-		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
-		memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
+	frame->NumberOfIntegratedFrames = 0;
+	frame->StartFrameId = -1;
+	frame->EndFrameId = -1;
+	frame->StartTimeStamp = 0;
+	frame->EndTimeStamp = 0;
+	frame->FrameNumber = -1;
+	frame->GpsTrackedSatellites = 0;
+	frame->GpsAlamancStatus = 0;
+	frame->GpsFixStatus = 0;
+	frame->StartTimeStampStr[0] = 0;
+	frame->EndTimeStampStr[0] = 0;
 
-		frame->NumberOfIntegratedFrames = 0;
-		frame->StartFrameId = -1;
-		frame->EndFrameId = -1;
-		frame->StartTimeStamp = 0;
-		frame->EndTimeStamp = 0;
-		frame->FrameNumber = -1;
-
-		RecordCurrentFrame(frame);
-	}
+	RecordCurrentFrame(frame);
 
 	recording = true;
 
@@ -1519,7 +1551,12 @@ HRESULT StopRecording(long* pixels)
 		frame->StartTimeStamp = 0;
 		frame->EndTimeStamp = 0;
 		frame->FrameNumber = -1;
-	
+		frame->GpsTrackedSatellites = 0;
+		frame->GpsAlamancStatus = 0;
+		frame->GpsFixStatus = 0;
+		frame->StartTimeStampStr[0] = 0;
+		frame->EndTimeStampStr[0] = 0;
+
 		RecordCurrentFrame(frame);
 	}
 

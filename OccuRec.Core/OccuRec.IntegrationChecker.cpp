@@ -7,6 +7,9 @@
 #include "utils.h"
 #include <cmath>
 
+#define MANUAL_INT_TOTAL_HISTORY_LOOPS 10
+#define MANUAL_INT_RECALC_AFTER_LOOPS 5
+
 namespace OccuRec
 {
 	IntegrationChecker::IntegrationChecker(float differenceRatio, float minimumDifference)
@@ -139,7 +142,7 @@ namespace OccuRec
 		*highSigma = sqrt(highVariance / (highFiguresCount - 1));
 	}
 
-	bool IntegrationChecker::TryToFindManuallySpecifiedIntegrationRate()
+	int IntegrationChecker::TryToFindManuallySpecifiedIntegrationRate()
 	{
 		float testSignatures[MANUAL_INTEGRATION_CHECK_POOL_SIZE];
 
@@ -184,13 +187,18 @@ namespace OccuRec
 		{
 			manualIntegrationHighAverage = bestHighAverage;
 			manualIntegrationLowAverage = bestLowAverage;
-			DebugViewPrint(L"ManuallyHintedIntegration: New averaged calculated - Low = %.2f; High: %.2f", manualIntegrationLowAverage, manualIntegrationHighAverage);
-			return true;
+
+			if (integrationDetectionTuning)
+				DebugViewPrint(L"ManuallyHintedIntegration: New averages - Low = %.2f +/- %.4f; High: %.2f +/- %.4f", manualIntegrationLowAverage, bestLowSigma, manualIntegrationHighAverage, bestHighSigma);
+			
+			return 0;
 		}
 		else
 		{
-			DebugViewPrint(L"ManuallyHintedIntegration: Faild for find new averaged values.");
-			return false;
+			if (integrationDetectionTuning)
+				DebugViewPrint(L"ManuallyHintedIntegration: Failed for find new averaged values. %.2f +/- %.4f; %.2f +/- %.4f", manualIntegrationLowAverage, bestLowSigma, manualIntegrationHighAverage, bestHighSigma);
+			
+			return 1;
 		}
 	}
 
@@ -199,8 +207,10 @@ namespace OccuRec
 		float oldHigh = manualIntegrationHighAverage;
 		float oldLow = manualIntegrationLowAverage;
 
-		if (!TryToFindManuallySpecifiedIntegrationRate())
+		if (TryToFindManuallySpecifiedIntegrationRate() != 0)
 		{
+			if (integrationDetectionTuning)
+				DebugViewPrint(L"ManuallyHintedIntegration: Old averages - Low = %.2f; High: %.2f", manualIntegrationLowAverage, manualIntegrationHighAverage);
 			manualIntegrationHighAverage = oldHigh;
 			manualIntegrationLowAverage = oldLow;
 		}
@@ -212,21 +222,29 @@ namespace OccuRec
 		{
 			processedManualRateSignatures = 0;
 			currentManualRate = manualRate;
-			manualIntegrationIsCalibrated = false;
-			PerformedAction = 2;
-			PerformedActionProgress = 0;
+
+			if (currentManualRate == 1)
+			{
+				manualIntegrationIsCalibrated = true;
+				PerformedAction = 0;
+				PerformedActionProgress = 0;
+			}
+			else
+			{
+				manualIntegrationIsCalibrated = false;
+				PerformedAction = 2;
+				PerformedActionProgress = 0;
+			}
 		}
 
 		if (currentManualRate == 1)
 			// NOTE: Manual rate of 1 is easy! Don't do anything just always report every frame as new
 			return true;
 
-		long currSignaturesHistoryIndex = (long)((processedManualRateSignatures % (long long)(10 * currentManualRate)) & 0xFFFF);
+		long currSignaturesHistoryIndex = (long)((processedManualRateSignatures % (long long)(MANUAL_INT_TOTAL_HISTORY_LOOPS * currentManualRate)) & 0xFFFF);
 		manualSignaturesHistory[currSignaturesHistoryIndex] = diffSignature;
 
 		processedManualRateSignatures++;
-
-		// TODO: After we have filled in 10 full integration periods we should start filling from the beginning ??
 
 		// otherwise continue to save the diffSignatures and run all calculations (if we have at least 3 x currentManualRate signatures saved)
 		bool isNewIntegrationPeriod = false;
@@ -237,7 +255,7 @@ namespace OccuRec
 
 			// TODO: Must deal with dropped frames somehow, otherwise calculations will be wrong
 
-			if (processedManualRateSignatures % (16 * currentManualRate) == 0)
+			if (processedManualRateSignatures % (MANUAL_INT_RECALC_AFTER_LOOPS * currentManualRate) == 0)
 			{
 				RecalculateDetectedManualIntegrationRateLowAndHigh();
 			}

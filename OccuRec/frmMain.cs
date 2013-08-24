@@ -752,9 +752,14 @@ namespace OccuRec
 		{
 			if (videoObject != null)
 			{
+			    bool wasLocked = stateManager.IsIntegrationLocked;
+
 				videoObject.StopRecording();
 
 				UpdateState(null);
+
+                if (wasLocked)
+                    stateManager.UnlockIntegration();
 			}
 		}
 
@@ -831,22 +836,13 @@ namespace OccuRec
                         {
 							if (Settings.Default.FileFormat == "AAV" && !stateManager.IsIntegrationLocked)
 							{
-								// NOTE: If the integration hasn't been locked then don't start recording
-
-								ScheduleEntry nextEntry = Scheduler.GetNextEntry();
-								if (nextEntry != null && nextEntry.Action == ScheduledAction.StopRecording)
-									Scheduler.RemoveOperation(nextEntry.OperaionId);
-
-								overlayManager.OnError(100, "Failed to start AAV recording. Integration is not locked.");
-
-								UpdateState(null);
+								// If the integration hasn't been locked then try to lock it
+							    stateManager.LockIntegration();
 							}
-							else
-							{
-								string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
-								recordingfileName = videoObject.StartRecording(fileName);
-								UpdateState(null);								
-							}
+
+                            string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
+                            recordingfileName = videoObject.StartRecording(fileName);
+                            UpdateState(null);
                         }
                         break;
 

@@ -26,7 +26,7 @@ OcrCharDefinition::OcrCharDefinition(char character, long fixedPosition)
 
 OcrCharDefinition::~OcrCharDefinition()
 {
-
+	ZoneEntries.clear();
 }
 
 void OcrCharDefinition::AddZoneEntry(long zoneId, long zoneBehaviour, long numPixelsInZone)
@@ -163,6 +163,12 @@ char CharRecognizer::Ocr(long frameMedian)
 					break;
 				}
 			}
+			else
+			{
+				DebugViewPrint(L"Cannot find zone id %d", (*itZoneConfig)->ZoneId);
+				isMatch = false;
+				break;
+			}
 
 			itZoneConfig++;
 		}
@@ -173,7 +179,7 @@ char CharRecognizer::Ocr(long frameMedian)
 		itCharDef++;
 	}
 	
-	return '\0';
+	return ' ';
 }
 
 
@@ -194,23 +200,49 @@ OcrFrameProcessor::OcrFrameProcessor()
 	Success = false;
 }
 
+OcrFrameProcessor::~OcrFrameProcessor()
+{
+	OddFieldChars.clear();
+	EvenFieldChars.clear();
+}
+
 void OcrFrameProcessor::NewFrame()
 {
 	m_MedianComputationValues.clear();
 
+	int position = 0;
 	map<char,  CharRecognizer*>::iterator itCharProc = OddFieldChars.begin();
 	while (itCharProc != OddFieldChars.end()) 
 	{
 		itCharProc->second->NewFrame();
+		m_OcredCharsOdd[position] = ' ';
+
 		itCharProc++;
+		position++;
 	}
 
+	OddFieldOcredOsd.FieldNumber = 0;
+	OddFieldOcredOsd.FieldTimeStamp = 0;
+	OddFieldOcredOsd.TrackedSatellites = 0;
+	OddFieldOcredOsd.GpsFixType = 0;
+	OddFieldOcredOsd.AlmanacUpdateState = 0;
+
+	position = 0;
 	itCharProc = EvenFieldChars.begin();
 	while (itCharProc != EvenFieldChars.end()) 
 	{
 		itCharProc->second->NewFrame();
+		m_OcredCharsEven[position] = ' ';
+
 		itCharProc++;
+		position++;
 	}
+	
+	EvenFieldOcredOsd.FieldNumber = 0;
+	EvenFieldOcredOsd.FieldTimeStamp = 0;
+	EvenFieldOcredOsd.TrackedSatellites = 0;
+	EvenFieldOcredOsd.GpsFixType = 0;
+	EvenFieldOcredOsd.AlmanacUpdateState = 0;
 
 	Success = false;
 }
@@ -262,7 +294,7 @@ void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 			itCharProc++;
 			position++;
 		}
-		m_OcredCharsOdd[position] = '\0';
+		m_OcredCharsOdd[position] = ' ';
 
 		position = 0;
 		itCharProc = EvenFieldChars.begin();
@@ -274,14 +306,30 @@ void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 			itCharProc++;
 			position++;
 		}
-		m_OcredCharsEven[position] = 0;
+		m_OcredCharsEven[position] = ' ';
 
-		ExtractFieldInfo(m_OcredCharsOdd, currentUtcDayAsTicks, OddFieldOcredOsd);
-		ExtractFieldInfo(m_OcredCharsEven, currentUtcDayAsTicks, EvenFieldOcredOsd);
+		bool successOdd = ExtractFieldInfo(m_OcredCharsOdd, currentUtcDayAsTicks, OddFieldOcredOsd);
+		bool successEven = ExtractFieldInfo(m_OcredCharsEven, currentUtcDayAsTicks, EvenFieldOcredOsd);
+
+		Success = successOdd && successEven;
+
+		m_IsOddFieldDataFirst = 
+			Success && 
+			OddFieldOcredOsd.FieldNumber < EvenFieldOcredOsd.FieldNumber;
+
+		//char tsFrom[128];
+		//char tsTo[128];
+		//GetOcredStartFrameTimeStampStr(&tsFrom[0]);
+		//GetOcredEndFrameTimeStampStr(&tsTo[0]);
+		//std::wstring wcFrom( 256, L'#' );
+		//mbstowcs( &wcFrom[0], tsFrom, 128 );
+		//std::wstring wcTo( 256, L'#' );
+		//mbstowcs( &wcTo[0], tsTo, 128 );
+		//DebugViewPrint(L"%s to %s)", &wcFrom[0], &wcTo[0]);
 	}
 }
 
-void OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo)
+bool OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo)
 {
 	bool success = true;
 
@@ -317,9 +365,9 @@ void OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtc
 	long ms1 = 0;
 	long ms2 = 0;
 
-	if (ocredChars[9] > 0 && ocredChars[10] > 0 && ocredChars[11] > 0 && ocredChars[12] > 0)
+	if (ocredChars[9] >= '0' && ocredChars[10] >= '0' && ocredChars[11] >= '0' && ocredChars[12] >= '0')
 		ms1 = 1000 * (ocredChars[9] - 0x30) + 100 * (ocredChars[10] - 0x30) + 10 * (ocredChars[11] - 0x30) + (ocredChars[12] - 0x30);
-	else if (ocredChars[13] > 0 && ocredChars[14] > 0 && ocredChars[15] > 0 && ocredChars[16] > 0)
+	else if (ocredChars[13] >= '0' && ocredChars[14] >= '0' && ocredChars[15] >= '0' && ocredChars[16] >= '0')
 		ms2 = 1000 * (ocredChars[13] - 0x30) + 100 * (ocredChars[14] - 0x30) + 10 * (ocredChars[15] - 0x30) + (ocredChars[16] - 0x30);
 	else
 		success = false;
@@ -369,10 +417,7 @@ void OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtc
 
 	fieldInfo.FieldNumber = atoi(fieldNoStr);
 
-	Success = success;
-	m_IsOddFieldDataFirst = 
-		Success && 
-		OddFieldOcredOsd.FieldNumber < EvenFieldOcredOsd.FieldNumber;
+	return success;
 }
 
 bool OcrFrameProcessor::IsOddFieldDataFirst()
@@ -490,8 +535,7 @@ char OcrFrameProcessor::GetOcredGpsFixType()
 
 OcrManager::OcrManager()
 {
-	OcrErrorsSinceReset = 0;
-	receivingTimestamps = false;
+	Reset();
 };
 
 void OcrManager::Reset()

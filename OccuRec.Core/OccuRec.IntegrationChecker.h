@@ -41,7 +41,7 @@ namespace OccuRec
 			float manualIntegrationLowAverage;
 
 			void RecalculateLowIntegrationMetrics();
-			bool TryToFindManuallySpecifiedIntegrationRate();
+			int TryToFindManuallySpecifiedIntegrationRate();
 			void RecalculateDetectedManualIntegrationRateLowAndHigh();
 			void CalculateManualIntegrationForDataset(float* signatures, int signaturesCount, float* lowAverage, float* highAverage, float* lowSigma, float* highSigma);
 
