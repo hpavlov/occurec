@@ -82,6 +82,7 @@
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.openAavFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.tabTelControl = new System.Windows.Forms.TabPage();
             this.tabControl.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.tabAAVSettings.SuspendLayout();
@@ -114,6 +115,7 @@
             this.tabControl.Controls.Add(this.tabGeneral);
             this.tabControl.Controls.Add(this.tabAAVSettings);
             this.tabControl.Controls.Add(this.tabOCR);
+            this.tabControl.Controls.Add(this.tabTelControl);
             this.tabControl.Controls.Add(this.tabDebug);
             this.tabControl.Location = new System.Drawing.Point(12, 12);
             this.tabControl.Name = "tabControl";
@@ -701,6 +703,15 @@
             this.openAavFileDialog.FileName = "Open AAV/AVI File";
             this.openAavFileDialog.Filter = "Supported Video Files (*.aav;*.avi)|*.aav;*.avi";
             // 
+            // tabTelControl
+            // 
+            this.tabTelControl.Location = new System.Drawing.Point(4, 22);
+            this.tabTelControl.Name = "tabTelControl";
+            this.tabTelControl.Size = new System.Drawing.Size(396, 225);
+            this.tabTelControl.TabIndex = 4;
+            this.tabTelControl.Text = "Telescope Control";
+            this.tabTelControl.UseVisualStyleBackColor = true;
+            // 
             // frmSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -797,5 +808,6 @@
 		private System.Windows.Forms.ComboBox cbxOCRConfigurations;
 		private System.Windows.Forms.Label label13;
 		private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.TabPage tabTelControl;
 	}
 }
