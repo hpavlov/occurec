@@ -110,8 +110,18 @@ namespace OccuRec.OCR
         Off,
         Gray,
         NotOn,
-        NotOff
+        NotOff,
+		OnOff,
+		OffOn,
+		NotOnOff,
+		NotOffOn
     }
+
+	public enum DefinitionMode
+	{
+		Standard = 0,
+		SplitZones = 1
+	}
 
     public class ZoneSignature
     {
@@ -129,7 +139,7 @@ namespace OccuRec.OCR
             ZoneSignatures = new List<ZoneSignature>();
         }
 
-        public string Character { get; set; }
+	    public string Character { get; set; }
         public int? FixedPosition { get; set; }
 
         [XmlArrayItem("Zone")]
@@ -165,6 +175,9 @@ namespace OccuRec.OCR
 
 		[XmlAttribute]
 		public string Name { get; set; }
+
+		[XmlAttribute]
+		public DefinitionMode Mode { get; set; }
 
 		public AlignmentConfig Alignment { get; set; }
 

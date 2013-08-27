@@ -57,5 +57,29 @@ namespace OccuRec.OCR
 
             return rv;
         }
+
+		internal void ComputeSplitZones(out double[] topZones, out double[] bottomZones)
+		{
+			topZones = new double[Zones.Count];
+			bottomZones = new double[Zones.Count];
+
+			for (int i = 0; i < Zones.Count; i++)
+			{
+				int bottomStartPos = Zones[i].Length / 2;
+				double topSum = 0;
+				double bottomSum = 0;
+
+				for (int j = 0; j < Zones[i].Length; j++)
+				{
+					if (j < bottomStartPos)
+						topSum += Zones[i][j];
+					else
+						bottomSum += Zones[i][j];
+				}
+
+				topZones[i] = topSum / bottomStartPos;
+				bottomZones[i] = bottomSum / bottomStartPos;
+			}
+		}
     }
 }

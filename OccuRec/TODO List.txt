@@ -54,13 +54,16 @@ HARDER:
 
 OCR Implemntation:
 
+- OCR-ing the IOTA-VTI timestamp must be redone so it works against a white background (managed and unmanaged)
+- Add the "N" definition to the SplitZone OCR definition
 - Complete the unmanaged OCR verification based on expected frame/integration period field numbers and expected frame/integration period duration 
 - Successfully run a live test for 24 hours without any errors
 - Implement OCR test action that will start recording an AAV file but will only record single frames for which the OCR integration has failed
-- OCR-ing the IOTA-VTI timestamp must be redone so it works against a white background
+
 
 Telescope Control:
 
+- Get a working COM port and cable to connect to the LX200ACF and test with C2A
 - Make it possible to select target and comparison star and implement 'tracking'
 - Implement focusing 
 - Implement guiding (keeping the selected target at the initial position sending telescope tracking pulses)

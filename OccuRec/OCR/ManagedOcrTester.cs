@@ -124,6 +124,22 @@ namespace OccuRec.OCR
 
         private static Font s_DebugFont = new Font(FontFamily.GenericMonospace, 14, FontStyle.Bold, GraphicsUnit.Pixel);
 
+		public void ProcessChar(OcredChar ocredChar, int median, int charPosition)
+		{
+			if (ocrConfig.Mode == DefinitionMode.SplitZones)
+			{
+				double[] computedZonesTop;
+				double[] computedZonesBottom;
+				ocredChar.ComputeSplitZones(out computedZonesTop, out computedZonesBottom);
+				ocredChar.RecognizedChar = charRecognizer.RecognizeCharSplitZones(computedZonesTop, computedZonesBottom, charPosition);
+			}
+			else
+			{
+				double[] computedZones = ocredChar.ComputeZones();
+				ocredChar.RecognizedChar = charRecognizer.RecognizeChar(computedZones, median, charPosition);
+			}			
+		}
+
         public OsdFrameInfo ProcessFrame(int[,] pixels, long frameNo)
         {
             if (!ocrEnabled)
@@ -132,8 +148,8 @@ namespace OccuRec.OCR
             int IMAGE_HEIGHT = pixels.GetLength(0);
             int IMAGE_WIDTH = pixels.GetLength(1);
 
-			int[,] tsPixelsOdd = new int[42, IMAGE_WIDTH];
-			int[,] tsPixelsEven = new int[42, IMAGE_WIDTH];
+			int[,] tsPixelsOdd = new int[3 * ocrConfig.Alignment.CharHeight, IMAGE_WIDTH];
+			int[,] tsPixelsEven = new int[3 * ocrConfig.Alignment.CharHeight, IMAGE_WIDTH];
 
 			int OCR_LINES_FROM = ocrConfig.Alignment.FrameTopOdd;
 			int OCR_LINES_TO = ocrConfig.Alignment.FrameTopEven + 2 * ocrConfig.Alignment.CharHeight;
@@ -143,7 +159,7 @@ namespace OccuRec.OCR
             for (int y = 0; y < IMAGE_HEIGHT; y++)
             {
                 for (int x = 0; x < IMAGE_WIDTH; x++)
-                {
+                {		
                     if (y == 10 || y == 11)
                         medianArray.Add(pixels[y, x]);
 
@@ -179,7 +195,7 @@ namespace OccuRec.OCR
 
                         if (isOddFieldLine)
                         {
-                            int top = 14 + (y - OCR_LINES_FROM) / 2;
+							int top = ocrConfig.Alignment.CharHeight + (y - OCR_LINES_FROM) / 2;
                             if (top >= 0 && top < tsPixelsOdd.GetLength(0) && x >= 0 && x < tsPixelsOdd.GetLength(1))
                                 tsPixelsOdd[top, x] = pixels[y, x];
                             else
@@ -187,7 +203,7 @@ namespace OccuRec.OCR
                         }
                         else
                         {
-                            int top = 14 + (y - OCR_LINES_FROM + 1) / 2;
+							int top = ocrConfig.Alignment.CharHeight + (y - OCR_LINES_FROM + 1) / 2;
                             if (top >= 0 && top < tsPixelsEven.GetLength(0) && x >= 0 && x < tsPixelsEven.GetLength(1))
                                 tsPixelsEven[top, x] = pixels[y, x];
                             else
@@ -204,15 +220,13 @@ namespace OccuRec.OCR
             for (int i = 0; i < ocredCharsOdd.Count; i++)
             {
                 OcredChar ocredChar = ocredCharsOdd[i];
-                double[] computedZones = ocredChar.ComputeZones();
-                ocredChar.RecognizedChar = charRecognizer.RecognizeChar(computedZones, median, i);
+	            ProcessChar(ocredChar, median, i);
             }
 
             for (int i = 0; i < ocredCharsEven.Count; i++)
             {
                 OcredChar ocredChar = ocredCharsEven[i];
-                double[] computedZones = ocredChar.ComputeZones();
-                ocredChar.RecognizedChar = charRecognizer.RecognizeChar(computedZones, median, i);
+				ProcessChar(ocredChar, median, i);
             }
 
 	        OsdFieldInfo oddFieldInfo = null;
@@ -245,23 +259,49 @@ namespace OccuRec.OCR
                     foreach (OcredChar ocredChar in ocredCharsOdd)
                     {
 						if (ocredChar.FailedToRecognizeCorrectly)
-							g.DrawString(ocredChar.RecognizedChar == '\0' ? "?" : ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Tomato, ocredChar.LeftFrom + 4, 26);
+							g.DrawString(ocredChar.RecognizedChar == '\0' ? "?" : ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Tomato, ocredChar.LeftFrom + ocrConfig.Alignment.CharPositions[0], 2 * ocrConfig.Alignment.CharHeight - 2);
 						else
-							g.DrawString(ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Yellow, ocredChar.LeftFrom + 4, 26);
+							g.DrawString(ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Yellow, ocredChar.LeftFrom + ocrConfig.Alignment.CharPositions[0], 2 * ocrConfig.Alignment.CharHeight - 2);
 
-                        double[] zoneValues = ocredChar.ComputeZones();
-                        for (int i = 0; i < zoneValues.Length; i++)
-                        {
-                            int left = ocredChar.LeftFrom + 7 + i;
-							g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 39, left, 42);
-                            Pen zonePen = Pens.Black;
-                            if (zoneValues[i] >= OcrCharRecognizer.MIN_ON_VALUE)
-                                zonePen = Pens.White;
-                            else if (zoneValues[i] > MAX_OFF_VALUE)
-                                zonePen = Pens.LightSalmon;
-                            g.DrawLine(zonePen, left, 40, left, 42);
-							g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 41, left, 42);
-                        }
+						if (ocrConfig.Mode == DefinitionMode.Standard)
+						{
+							double[] zoneValues = ocredChar.ComputeZones();
+							for (int i = 0; i < zoneValues.Length; i++)
+							{
+								int left = ocredChar.LeftFrom + ocrConfig.Alignment.CharPositions[0] + 2 + i;
+								g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 3 * ocrConfig.Alignment.CharHeight - 3, left, 3 * ocrConfig.Alignment.CharHeight);
+								Pen zonePen = Pens.Black;
+                            
+									if (zoneValues[i] >= OcrCharRecognizer.MIN_ON_VALUE)
+										zonePen = Pens.White;
+									else if (zoneValues[i] > MAX_OFF_VALUE)
+										zonePen = Pens.LightSalmon;
+								g.DrawLine(zonePen, left, 3 * ocrConfig.Alignment.CharHeight - 2, left, 3 * ocrConfig.Alignment.CharHeight);
+								g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 3 * ocrConfig.Alignment.CharHeight - 1, left, 3 * ocrConfig.Alignment.CharHeight);
+							}
+						}
+						else if (ocrConfig.Mode == DefinitionMode.SplitZones)
+						{
+							double[] topZones;
+							double[] bottomZones;
+							ocredChar.ComputeSplitZones(out topZones, out bottomZones);
+							for (int i = 0; i < topZones.Length; i++)
+							{
+								int left = ocredChar.LeftFrom + ocrConfig.Alignment.CharPositions[0] + 2 + i;
+								g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 3 * ocrConfig.Alignment.CharHeight - 3, left, 3 * ocrConfig.Alignment.CharHeight);
+								Pen zonePen = Pens.Black;
+
+								if (topZones[i] >= OcrCharRecognizer.MIN_ON_VALUE && bottomZones[i] < OcrCharRecognizer.MAX_OFF_VALUE)
+									zonePen = Pens.White;
+								else if (topZones[i] < OcrCharRecognizer.MAX_OFF_VALUE && bottomZones[i] >= OcrCharRecognizer.MIN_ON_VALUE)
+									zonePen = Pens.Black;
+								else
+									zonePen = Pens.DarkRed;
+
+								g.DrawLine(zonePen, left, 3 * ocrConfig.Alignment.CharHeight - 2, left, 3 * ocrConfig.Alignment.CharHeight);
+								g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 3 * ocrConfig.Alignment.CharHeight - 1, left, 3 * ocrConfig.Alignment.CharHeight);
+							}
+						}
                     }
 
                     g.Save();
@@ -272,23 +312,49 @@ namespace OccuRec.OCR
                     foreach (OcredChar ocredChar in ocredCharsEven)
                     {
 						if (ocredChar.FailedToRecognizeCorrectly)
-							g.DrawString(ocredChar.RecognizedChar == '\0' ? "?" : ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Tomato, ocredChar.LeftFrom + 4, 26);
+							g.DrawString(ocredChar.RecognizedChar == '\0' ? "?" : ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Tomato, ocredChar.LeftFrom + ocrConfig.Alignment.CharPositions[0], 2 * ocrConfig.Alignment.CharHeight - 2);
 						else
-							g.DrawString(ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Yellow, ocredChar.LeftFrom + 4, 26);
+							g.DrawString(ocredChar.RecognizedChar + "", s_DebugFont, Brushes.Yellow, ocredChar.LeftFrom + ocrConfig.Alignment.CharPositions[0], 2 * ocrConfig.Alignment.CharHeight - 2);
 
-                        double[] zoneValues = ocredChar.ComputeZones();
-                        for (int i = 0; i < zoneValues.Length; i++)
-                        {
-                            int left = ocredChar.LeftFrom + 7 + i;
-                            g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 39, left, 42);
-                            Pen zonePen = Pens.Black;
-                            if (zoneValues[i] >= OcrCharRecognizer.MIN_ON_VALUE)
-                                zonePen = Pens.White;
-                            else if (zoneValues[i] > MAX_OFF_VALUE)
-                                zonePen = Pens.LightSalmon;
-                            g.DrawLine(zonePen, left, 40, left, 42);
-							g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 41, left, 42);
-                        }
+						if (ocrConfig.Mode == DefinitionMode.Standard)
+						{
+							double[] zoneValues = ocredChar.ComputeZones();
+							for (int i = 0; i < zoneValues.Length; i++)
+							{
+								int left = ocredChar.LeftFrom + ocrConfig.Alignment.CharPositions[0] + 2 + i;
+								g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 3 * ocrConfig.Alignment.CharHeight - 3, left, 3 * ocrConfig.Alignment.CharHeight);
+								Pen zonePen = Pens.Black;
+
+								if (zoneValues[i] >= OcrCharRecognizer.MIN_ON_VALUE)
+									zonePen = Pens.White;
+								else if (zoneValues[i] > MAX_OFF_VALUE)
+									zonePen = Pens.LightSalmon;
+								g.DrawLine(zonePen, left, 3 * ocrConfig.Alignment.CharHeight - 2, left, 3 * ocrConfig.Alignment.CharHeight);
+								g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 3 * ocrConfig.Alignment.CharHeight - 1, left, 3 * ocrConfig.Alignment.CharHeight);
+							}
+						}
+						else if (ocrConfig.Mode == DefinitionMode.SplitZones)
+						{
+							double[] topZones;
+							double[] bottomZones;
+							ocredChar.ComputeSplitZones(out topZones, out bottomZones);
+							for (int i = 0; i < topZones.Length; i++)
+							{
+								int left = ocredChar.LeftFrom + ocrConfig.Alignment.CharPositions[0] + 2 + i;
+								g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 3 * ocrConfig.Alignment.CharHeight - 3, left, 3 * ocrConfig.Alignment.CharHeight);
+								Pen zonePen = Pens.Black;
+
+								if (topZones[i] >= OcrCharRecognizer.MIN_ON_VALUE && bottomZones[i] < OcrCharRecognizer.MAX_OFF_VALUE)
+									zonePen = Pens.White;
+								else if (topZones[i] < OcrCharRecognizer.MAX_OFF_VALUE && bottomZones[i] >= OcrCharRecognizer.MIN_ON_VALUE)
+									zonePen = Pens.Black;
+								else
+									zonePen = Pens.DarkRed;
+
+								g.DrawLine(zonePen, left, 3 * ocrConfig.Alignment.CharHeight - 2, left, 3 * ocrConfig.Alignment.CharHeight);
+								g.DrawLine(i % 2 == 0 ? Pens.Green : Pens.Red, left, 3 * ocrConfig.Alignment.CharHeight - 1, left, 3 * ocrConfig.Alignment.CharHeight);
+							}
+						}
                     }
 
                     g.Save();
