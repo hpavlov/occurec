@@ -230,18 +230,6 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool OcrCameraTestModeAvi {
-            get {
-                return ((bool)(this["OcrCameraTestModeAvi"]));
-            }
-            set {
-                this["OcrCameraTestModeAvi"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool OcrSimulatorTestMode {
             get {
                 return ((bool)(this["OcrSimulatorTestMode"]));

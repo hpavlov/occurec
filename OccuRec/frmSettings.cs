@@ -35,7 +35,6 @@ namespace OccuRec
 
 		    tbxSimlatorFilePath.Text = Settings.Default.SimulatorFilePath;
 
-            cbxOcrCameraTestModeAvi.Checked = Settings.Default.OcrCameraTestModeAvi;
             cbxOcrCameraTestModeAav.Checked = Settings.Default.OcrCameraTestModeAav;
             nudMaxErrorsPerTestRun.Value = Settings.Default.OcrMaxErrorsPerCameraTestRun;
             cbxOcrSimlatorTestMode.Checked = Settings.Default.OcrSimulatorTestMode;
@@ -99,7 +98,6 @@ namespace OccuRec
 
             Settings.Default.SimulatorFilePath = tbxSimlatorFilePath.Text;
 
-            Settings.Default.OcrCameraTestModeAvi = cbxOcrCameraTestModeAvi.Checked;
             Settings.Default.OcrCameraTestModeAav = cbxOcrCameraTestModeAav.Checked;
             Settings.Default.OcrMaxErrorsPerCameraTestRun = (int)nudMaxErrorsPerTestRun.Value;
             Settings.Default.OcrSimulatorTestMode = cbxOcrSimlatorTestMode.Checked;

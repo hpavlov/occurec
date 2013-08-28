@@ -53,9 +53,6 @@
     <Setting Name="SimulatorFrameRate" Type="System.Single" Scope="User">
       <Value Profile="(Default)">25</Value>
     </Setting>
-    <Setting Name="OcrCameraTestModeAvi" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="OcrSimulatorTestMode" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

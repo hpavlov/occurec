@@ -271,8 +271,7 @@ namespace OccuRec
                 }
 
                 pnlOcrTesting.Visible = 
-                     (Settings.Default.OcrCameraTestModeAav && Settings.Default.FileFormat == "AAV") ||
-                     (Settings.Default.OcrCameraTestModeAvi && Settings.Default.FileFormat == "AVI");
+                     (Settings.Default.OcrCameraTestModeAav && Settings.Default.FileFormat == "AAV");
 			}
 			else
 			{
@@ -790,6 +789,7 @@ namespace OccuRec
                     if (videoObject != null)
                     {
 	                    string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
+                        fileName = Path.GetFullPath(string.Format("{0}\\{1}-OCR-TEST.aav", Path.GetDirectoryName(fileName), Path.GetFileNameWithoutExtension(fileName)));
 						recordingfileName = videoObject.ExecuteAction("StartOcrTesting", fileName);
                     }
                         
@@ -1251,7 +1251,6 @@ namespace OccuRec
 				{
 					Settings.Default.SimulatorFilePath = openFileDialog.FileName;
 				    Settings.Default.OcrSimulatorTestMode = false;
-                    Settings.Default.OcrCameraTestModeAvi = false;
                     Settings.Default.OcrCameraTestModeAav = false;
                     Settings.Default.SimulatorRunOCR = false;
 					Settings.Default.Save();

@@ -47,6 +47,7 @@ V) Fix the x1 integration lock - the timestamps never seem to be preserved
 EASY:
 
 ?) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
+- Change the recording buffer to use an array rather than std::list
 
 HARDER:
 
@@ -54,8 +55,8 @@ HARDER:
 
 OCR Implemntation:
 
-- OCR-ing the IOTA-VTI timestamp must be redone so it works against a white background (managed and unmanaged)
-- Add the "N" definition to the SplitZone OCR definition
+- Add managed simulation support for AAV files so recorded OCR test files can be reviewed in managed OCR mode to fix issues
+- Pass the "Max Errors" item when running OCR testing and stop recording after that many errors have been flagged
 - Complete the unmanaged OCR verification based on expected frame/integration period field numbers and expected frame/integration period duration 
 - Successfully run a live test for 24 hours without any errors
 - Implement OCR test action that will start recording an AAV file but will only record single frames for which the OCR integration has failed
