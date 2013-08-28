@@ -16,6 +16,7 @@ namespace OccuOcr
 vector<OcrCharDefinition*> OCR_CHAR_DEFS;
 long OCR_NUMBER_OF_CHAR_POSITIONS;
 long OCR_NUMBER_OF_ZONES;
+long OCR_ZONE_MODE;
 long OCR_ZONE_PIXEL_COUNTS[MAX_ZONE_COUNT];
 
 OcrCharDefinition::OcrCharDefinition(char character, long fixedPosition)
@@ -89,7 +90,7 @@ void CharRecognizer::NewFrame()
 	}
 }
 
-char CharRecognizer::Ocr(long frameMedian)
+void CharRecognizer::ComputeFullZones()
 {
 	for (int i = 0; i < MAX_ZONE_COUNT; i++)
 	{
@@ -106,7 +107,128 @@ char CharRecognizer::Ocr(long frameMedian)
 			zoneProc->ZoneMean = sum / zoneProc->ZonePixelsCount;
 		}
 	}
+}
 
+void CharRecognizer::ComputeSplitZones()
+{
+	for (int i = 0; i < MAX_ZONE_COUNT; i++)
+	{
+		if (NULL != Zones[i])
+		{
+			Zone* zoneProc = Zones[i];
+
+			int halfZoneLen = zoneProc->ZonePixelsCount / 2;
+
+			long sumTop = 0;
+			long sumBottom = 0;
+			for (int j = 0; j < zoneProc->ZonePixelsCount; j++)
+			{
+				unsigned char zonePixel = zoneProc->ZonePixels[j];
+
+				if (j < halfZoneLen)
+					sumTop = zonePixel;
+				else
+					sumBottom = zonePixel;
+			}
+
+			zoneProc->ZoneTopMean = sumTop / halfZoneLen;
+			zoneProc->ZoneBottomMean = sumBottom / halfZoneLen;
+		}
+	}
+}
+
+char CharRecognizer::Ocr(long frameMedian)
+{
+	if (OCR_ZONE_MODE == ZoneMode::Standard)
+	{
+		ComputeFullZones();
+		return OcrStandardZones(frameMedian);
+	}
+	else if (OCR_ZONE_MODE == ZoneMode::SplitZones)
+	{
+		ComputeSplitZones();
+		return OcrSplitZones();
+	}
+	else
+		throw new exception("Unsupported ZoneMode");
+}
+
+char CharRecognizer::OcrSplitZones()
+{
+	long MIN_ON_VALUE = 220;
+	long MAX_OFF_VALUE = 80;
+
+	vector<OcrCharDefinition*>::iterator itCharDef = OCR_CHAR_DEFS.begin();
+	while(itCharDef != OCR_CHAR_DEFS.end())
+	{
+		if ((*itCharDef)->FixedPosition > -1 &&
+			(*itCharDef)->FixedPosition != m_CharPosition)
+		{
+			itCharDef++;
+			continue;
+		}
+
+		bool isMatch = true;
+
+		vector<OcrZoneEntry*>::iterator itZoneConfig = (*itCharDef)->ZoneEntries.begin();
+		while(itZoneConfig != (*itCharDef)->ZoneEntries.end())
+		{
+			long zoneBEhaviour = (*itZoneConfig)->ZoneBehaviour;
+
+			Zone* zoneById = Zones[(*itZoneConfig)->ZoneId];
+
+			if (NULL != zoneById)
+			{
+				unsigned char zoneValue = zoneById->ZoneMean;
+
+				bool isOnOff = zoneValue >= MIN_ON_VALUE && zoneValue < MAX_OFF_VALUE;
+				bool isOffOn = zoneValue < MAX_OFF_VALUE && zoneValue >= MIN_ON_VALUE;
+
+				if (zoneBEhaviour == ZoneBehaviour::OnOff && !isOnOff)
+				{
+					isMatch = false;
+					break;
+				}
+
+				if (zoneBEhaviour == ZoneBehaviour::OffOn && !isOffOn)
+				{
+					isMatch = false;
+					break;
+				}
+
+				if (zoneBEhaviour == ZoneBehaviour::NotOffOn && isOffOn)
+				{
+					isMatch = false;
+					break;
+				}
+
+				if (zoneBEhaviour == ZoneBehaviour::NotOnOff && isOnOff)
+				{
+					isMatch = false;
+					break;
+				}
+			}
+			else
+			{
+				DebugViewPrint(L"Cannot find zone id %d", (*itZoneConfig)->ZoneId);
+				isMatch = false;
+				break;
+			}
+
+			itZoneConfig++;
+		}
+
+		if (isMatch)
+			return (*itCharDef)->Character;
+
+		itCharDef++;
+	}
+	
+	return ' ';
+}
+
+char CharRecognizer::OcrStandardZones(long frameMedian)
+{
 	long MIN_ON_VALUE = 220;
 	long MAX_OFF_VALUE = frameMedian + (MIN_ON_VALUE - frameMedian) / 4;
 

@@ -119,15 +119,15 @@ namespace OccuRec.Drivers.AAVTimer
                 AssertConnected();
                 return camera.UnlockIntegration().ToString(CultureInfo.InvariantCulture);
             }
-            else if (string.Compare(ActionName, "StartIotaVtiOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
+            else if (string.Compare(ActionName, "StartOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
             {
                 AssertConnected();
-                return camera.StartIotaVtiOcrTesting().ToString(CultureInfo.InvariantCulture);
+                return camera.StartOcrTesting().ToString(CultureInfo.InvariantCulture);
             }
-            else if (string.Compare(ActionName, "StopIotaVtiOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
+            else if (string.Compare(ActionName, "StopOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
             {
                 AssertConnected();
-                return camera.StopIotaVtiOcrTesting().ToString(CultureInfo.InvariantCulture);
+                return camera.StopOcrTesting().ToString(CultureInfo.InvariantCulture);
             }
             else if (string.Compare(ActionName, "DisableOcr", StringComparison.InvariantCultureIgnoreCase) == 0)
             {
@@ -153,7 +153,7 @@ namespace OccuRec.Drivers.AAVTimer
 		{
 			get
 			{
-				return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "StartIotaVtiOcrTesting", "StopIotaVtiOcrTesting", "DisableOcr", "IntegrationCalibration", "CancelIntegrationCalibration" });
+				return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "StartOcrTesting", "StopOcrTesting", "DisableOcr", "IntegrationCalibration", "CancelIntegrationCalibration" });
 			}
 		}
 

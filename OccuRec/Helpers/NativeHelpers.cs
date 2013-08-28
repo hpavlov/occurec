@@ -242,6 +242,9 @@ namespace OccuRec.Helpers
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int StopRecording();
 
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		private static extern int StartOcrTesting(string fileName);
+
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int LockIntegration(bool doLock);
 
@@ -267,7 +270,7 @@ namespace OccuRec.Helpers
 		private static extern int SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int areaHeight);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int SetupOcrAlignment(int width, int height, int frameTopOdd, int frameTopEven, int charWidth, int charHeight, int numberOfCharPositions, int numberOfZones, [In, MarshalAs(UnmanagedType.LPArray)] int[] pixelsInZones);
+		private static extern int SetupOcrAlignment(int width, int height, int frameTopOdd, int frameTopEven, int charWidth, int charHeight, int numberOfCharPositions, int numberOfZones, int zoneMode, [In, MarshalAs(UnmanagedType.LPArray)] int[] pixelsInZones);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 	    private static extern int SetupOcrZoneMatrix([In, MarshalAs(UnmanagedType.LPArray)] int[,] matrix);
@@ -410,6 +413,11 @@ namespace OccuRec.Helpers
             StopRecording();
         }
 
+		public static void StartOcrTestRecording(string fileName)
+		{
+			StartOcrTesting(fileName);
+		}
+
         public static FrameProcessingStatus ProcessVideoFrame2(int[,] pixels)
         {
             var frameInfo = new FrameProcessingStatus();
@@ -505,6 +513,7 @@ namespace OccuRec.Helpers
 				 ocrConfig.Alignment.CharHeight,
 				 ocrConfig.Alignment.CharPositions.Count,
 				 ocrConfig.Zones.Count,
+				 (int)ocrConfig.Mode,
 				 zonePixels);
 
 	        if (hr != 0)

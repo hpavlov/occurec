@@ -235,12 +235,12 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
             dsCapture.LoadCrossbarSources(comboBox);
         }
 
-        public bool StartIotaVtiOcrTesting()
+        public bool StartOcrTesting()
         {
             return true;
         }
 
-        public bool StopIotaVtiOcrTesting()
+        public bool StopOcrTesting()
         {
             return true;
         }

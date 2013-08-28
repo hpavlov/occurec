@@ -60,7 +60,11 @@ namespace OccuRec
             cbDebugIntegration.Checked = Settings.Default.IntegrationDetectionTuning;
 			nudCalibrIntegrRate.Value = Settings.Default.CalibrationIntegrationRate;
 
-			OcrSettings.Instance.Configurations.ForEach(x => cbxOCRConfigurations.Items.Add(x.Name));
+			OcrSettings.Instance.Configurations
+				.Where(x => !x.Hidden)
+				.ToList()
+				.ForEach(x => cbxOCRConfigurations.Items.Add(x.Name));
+
             if (!string.IsNullOrEmpty(Settings.Default.SelectedOcrConfiguration))
             {
                 int selectedIndex = cbxOCRConfigurations.Items.IndexOf(Settings.Default.SelectedOcrConfiguration);

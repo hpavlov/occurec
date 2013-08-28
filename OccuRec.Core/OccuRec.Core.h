@@ -62,6 +62,8 @@ extern long OCR_CHAR_WIDTH;
 extern long OCR_CHAR_FIELD_HEIGHT;
 extern long* OCR_ZONE_MATRIX;	
 
+extern bool OCR_FAILED_TEST_RECORDING;
+
 extern long MEDIAN_CALC_INDEX_FROM;
 extern long MEDIAN_CALC_INDEX_TO;
 
@@ -74,7 +76,7 @@ HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochr
 HRESULT SetupGrabberInfo(LPCTSTR szGrabberName, LPCTSTR szVideoMode);
 HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float diffGamma);
 HRESULT SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int areaHeight);
-HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfCharPositions, long numberOfZones, long* pixelsInZones);
+HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfCharPositions, long numberOfZones, long zoneMode, long* pixelsInZones);
 HRESULT SetupOcrZoneMatrix(long* matrix);
 HRESULT SetupOcrChar(char character, long fixedPosition);
 HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue);
@@ -86,6 +88,7 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FramePro
 HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo);
 HRESULT StartRecording(LPCTSTR szFileName);
 HRESULT StopRecording(long* pixels);
+HRESULT StartOcrTesting(LPCTSTR szFileName);
 HRESULT LockIntegration(bool lock);
 HRESULT SetManualIntegrationHint(long manualRate);
 HRESULT ControlIntegrationCalibration(long operation);

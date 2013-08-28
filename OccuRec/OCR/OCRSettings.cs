@@ -106,15 +106,15 @@ namespace OccuRec.OCR
 
     public enum ZoneValue
     {
-        On,
-        Off,
-        Gray,
-        NotOn,
-        NotOff,
-		OnOff,
-		OffOn,
-		NotOnOff,
-		NotOffOn
+		On = 0,
+		Off = 1,
+		Gray = 2,
+		NotOn = 3,
+		NotOff = 4,
+		OnOff = 5,
+		OffOn = 6,
+		NotOnOff = 7,
+		NotOffOn = 8
     }
 
 	public enum DefinitionMode
@@ -178,6 +178,9 @@ namespace OccuRec.OCR
 
 		[XmlAttribute]
 		public DefinitionMode Mode { get; set; }
+
+		[XmlAttribute]
+		public bool Hidden { get; set; }
 
 		public AlignmentConfig Alignment { get; set; }
 

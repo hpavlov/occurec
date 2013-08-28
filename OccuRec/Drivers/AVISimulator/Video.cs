@@ -135,6 +135,17 @@ namespace OccuRec.Drivers.AVISimulator
 					AssertConnected();
 					return player.StopIntegrationCalibration().ToString(CultureInfo.InvariantCulture);
 				}
+				else if (string.Compare(ActionName, "StartOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
+				{
+					AssertConnected();
+					return StartRecordingOcrTestFile(ActionParameters);					
+				}
+				else if (string.Compare(ActionName, "StopOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
+				{
+					AssertConnected();
+					StopRecordingVideoFile();
+					return true.ToString();
+				}
             }
             
             throw new NotImplementedException();
@@ -145,11 +156,39 @@ namespace OccuRec.Drivers.AVISimulator
             get
             {
                 if (fullAAVSimulation)
-					return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "DisableOcr", "IntegrationCalibration", "CancelIntegrationCalibration" });
+					return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "DisableOcr", "IntegrationCalibration", "CancelIntegrationCalibration", "StartOcrTesting", "StopOcrTesting", });
                 else
                     return new ArrayList(new string[] { "DisableOcr" });
             }
         }
+
+
+		private string StartRecordingOcrTestFile(string preferredFileName)
+		{
+			if (fullAAVSimulation)
+			{
+				if (cameraState == VideoCameraState.videoCameraRunning)
+				{
+					string directory = Path.GetDirectoryName(preferredFileName);
+					string fileName = Path.GetFileName(preferredFileName);
+
+					if (!Directory.Exists(directory))
+						Directory.CreateDirectory(fileName);
+
+					if (File.Exists(preferredFileName))
+						throw new DriverException(string.Format("File '{0}' already exists. Video can be recorded only in a non existing file.", preferredFileName));
+
+					NativeHelpers.StartOcrTestRecording(fileName);
+					cameraState = VideoCameraState.videoCameraRecording;
+
+					return preferredFileName;
+				}
+				else
+					throw new DriverException("Camera not running.");
+			}
+			else
+				throw new NotSupportedException();
+		}
 
         public void Dispose()
         {

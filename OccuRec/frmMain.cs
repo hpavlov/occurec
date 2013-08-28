@@ -653,7 +653,6 @@ namespace OccuRec
                 else if (
                     videoObject.State == VideoCameraState.videoCameraRunning && 
                     lbSchedule.Items.Count == 0 && 
-                    !stateManager.IsTestingIotaVtiOcr &&
                     (stateManager.CanStartRecording || Settings.Default.IntegrationDetectionTuning))
                 {
                     tssRecordingFile.Visible = false;
@@ -696,13 +695,7 @@ namespace OccuRec
                 else
                     btnLockIntegration.Text = "Checking Integration ...";
 
-                if (stateManager.IsTestingIotaVtiOcr)
-                {
-                    btnOcrTesting.Text = "Stop OCR Testing";
-                    tssCameraState.Text = "OCR Testing";
-                    EnsureSchedulesState(false);
-                }
-				else if (stateManager.IsCalibratingIntegration)
+                if (stateManager.IsCalibratingIntegration)
 				{
 					btnCalibrateIntegration.Text = "Cancel Calibration";
 					tssCameraState.Text = "Calibrating";
@@ -791,11 +784,13 @@ namespace OccuRec
             else
             {
                 if (Settings.Default.FileFormat == "AAV")
-                    stateManager.ToggleIotaVtiOcrTesting();
-                else if (Settings.Default.FileFormat == "AVI")
                 {
                     if (videoObject != null)
-                        videoObject.ExecuteAction("ToggleIotaVtiOcrTesting", null);
+                    {
+	                    string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
+						recordingfileName = videoObject.ExecuteAction("StartOcrTesting", fileName);
+                    }
+                        
                 }
 
                 UpdateState(null);

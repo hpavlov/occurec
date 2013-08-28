@@ -20,7 +20,17 @@ enum ZoneBehaviour
   Off = 1,
   Gray = 2,
   NotOn = 3,
-  NotOff = 4
+  NotOff = 4,
+  OnOff = 5,
+  OffOn = 6,
+  NotOnOff = 7,
+  NotOffOn = 8
+};
+
+enum ZoneMode
+{
+  Standard = 0,
+  SplitZones = 1
 };
 
 // 
@@ -59,6 +69,8 @@ class Zone
 {
 	public:
 		unsigned char ZoneMean;
+		unsigned char ZoneTopMean;
+		unsigned char ZoneBottomMean;
 		long ZonePixelsCount;
 
 		Zone(long zonePixelsCount);
@@ -71,6 +83,10 @@ class CharRecognizer
 {
 	private:
 		long m_CharPosition;
+		void ComputeFullZones();
+		void ComputeSplitZones();
+		char OcrSplitZones();
+		char OcrStandardZones(long frameMedian);
 
 	public:
 		Zone* Zones[MAX_ZONE_COUNT];
@@ -164,6 +180,7 @@ class OcrManager
 extern vector<OcrCharDefinition*> OCR_CHAR_DEFS;
 extern long OCR_NUMBER_OF_CHAR_POSITIONS;
 extern long OCR_NUMBER_OF_ZONES;
+extern long OCR_ZONE_MODE;
 extern long OCR_ZONE_PIXEL_COUNTS[MAX_ZONE_COUNT];
 
 void UnpackValue(long packed, long* charId, bool* isOddField, long* zoneId, long* zonePixelId);

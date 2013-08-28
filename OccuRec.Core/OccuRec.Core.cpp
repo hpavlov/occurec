@@ -41,8 +41,8 @@ long OCR_FRAME_TOP_EVEN;
 long OCR_CHAR_WIDTH;
 long OCR_CHAR_FIELD_HEIGHT; 
 long* OCR_ZONE_MATRIX = NULL; 
-//long OCR_NUMBER_OF_ZONES;
-//long OCR_NUMBER_OF_CHAR_POSITIONS;
+
+bool OCR_FAILED_TEST_RECORDING = false;
 
 long MEDIAN_CALC_INDEX_FROM;
 long MEDIAN_CALC_INDEX_TO;
@@ -317,7 +317,7 @@ HRESULT SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int ar
 	return S_OK;
 }
 
-HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfCharPositions, long numberOfZones, long* pixelsInZones)
+HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfCharPositions, long numberOfZones, long zoneMode, long* pixelsInZones)
 {
 	if (IMAGE_WIDTH != width || IMAGE_HEIGHT != height)
 	{
@@ -330,6 +330,7 @@ HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameT
 	OCR_CHAR_WIDTH = charWidth;
 	OCR_CHAR_FIELD_HEIGHT = charHeight;
 	OCR_NUMBER_OF_ZONES = numberOfZones;
+	OCR_ZONE_MODE = zoneMode;
 	OCR_NUMBER_OF_CHAR_POSITIONS = numberOfCharPositions;
 
 	if (NULL != OCR_ZONE_MATRIX)
@@ -905,6 +906,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			ptrPixels++;
 		}
 
+		bool hasOcrErors = false;
+
 		if (runOCR)
 		{
 
@@ -999,8 +1002,9 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				}
 			}
 
-			ocrErrorsSiceLastReset = ocrManager->OcrErrorsSinceReset;
-			
+			hasOcrErors = ocrManager->OcrErrorsSinceReset > ocrErrorsSiceLastReset;
+
+			ocrErrorsSiceLastReset = ocrManager->OcrErrorsSinceReset;			
 		}
 
 		latestImageStatus.CountedFrames = numberOfIntegratedFrames;
@@ -1037,8 +1041,9 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 		latestImageStatus.UniqueFrameNo++;
 
-		if (recording)
+		if (recording && (!OCR_FAILED_TEST_RECORDING || hasOcrErors))
 		{
+			// Record every buffered frame in standard mode or only record frames with OCR errors when running OCR testing
 			frame->NumberOfIntegratedFrames = numberOfIntegratedFrames;
 			frame->StartFrameId = idxFirstFrameNumber;
 			frame->EndFrameId = idxLastFrameNumber;
@@ -1465,7 +1470,7 @@ void RecorderThreadProc( void* pContext )
 }
 
 
-HRESULT StartRecording(LPCTSTR szFileName)
+HRESULT StartRecordingInternal(LPCTSTR szFileName)
 {
 	AavNewFile((const char*)szFileName);		
 	
@@ -1507,23 +1512,26 @@ HRESULT StartRecording(LPCTSTR szFileName)
 		ocrManager->ResetErrorCounter();
 	}
 
-	// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
-	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
-	memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
+	//if (!OCR_FAILED_TEST_RECORDING)
+	{
+		// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
+		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
+		memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
 
-	frame->NumberOfIntegratedFrames = 0;
-	frame->StartFrameId = -1;
-	frame->EndFrameId = -1;
-	frame->StartTimeStamp = 0;
-	frame->EndTimeStamp = 0;
-	frame->FrameNumber = -1;
-	frame->GpsTrackedSatellites = 0;
-	frame->GpsAlamancStatus = 0;
-	frame->GpsFixStatus = 0;
-	frame->StartTimeStampStr[0] = 0;
-	frame->EndTimeStampStr[0] = 0;
+		frame->NumberOfIntegratedFrames = 0;
+		frame->StartFrameId = -1;
+		frame->EndFrameId = -1;
+		frame->StartTimeStamp = 0;
+		frame->EndTimeStamp = 0;
+		frame->FrameNumber = -1;
+		frame->GpsTrackedSatellites = 0;
+		frame->GpsAlamancStatus = 0;
+		frame->GpsFixStatus = 0;
+		frame->StartTimeStampStr[0] = 0;
+		frame->EndTimeStampStr[0] = 0;
 
-	RecordCurrentFrame(frame);
+		RecordCurrentFrame(frame);
+	}
 
 	recording = true;
 
@@ -1531,6 +1539,12 @@ HRESULT StartRecording(LPCTSTR szFileName)
 	hRecordingThread = (HANDLE)_beginthread(RecorderThreadProc, 0, NULL);
 
 	return S_OK;
+}
+
+HRESULT StartRecording(LPCTSTR szFileName)
+{
+	OCR_FAILED_TEST_RECORDING = false;
+	return StartRecordingInternal(szFileName);
 }
 
 HRESULT StopRecording(long* pixels)
@@ -1562,7 +1576,19 @@ HRESULT StopRecording(long* pixels)
 
 	AavEndFile();
 
+	OCR_FAILED_TEST_RECORDING = false;
+
 	return S_OK;
+}
+
+HRESULT StartOcrTesting(LPCTSTR szFileName)
+{
+	if (!OCR_IS_SETUP)
+		throw new exception("OCR hasn't been setup. Cannot start testing.");
+
+	OCR_FAILED_TEST_RECORDING = true;
+
+	return StartRecordingInternal(szFileName);
 }
 
 HRESULT DisableOcrProcessing()

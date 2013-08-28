@@ -22,6 +22,7 @@ EXPORTS
 	ProcessVideoFrame2
 	StartRecording
 	StopRecording
+	StartOcrTesting
 
 	LockIntegration
 	SetManualIntegrationHint
