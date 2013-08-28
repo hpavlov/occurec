@@ -661,6 +661,7 @@ namespace OccuRec
                 }
                 else
                 {
+                    tssRecordingFile.Visible = false;
                     btnRecord.Enabled = false;
                     btnStopRecording.Enabled = false;
                 }
@@ -669,7 +670,8 @@ namespace OccuRec
 					(
 						stateManager.CanLockIntegrationNow && 
 						stateManager.IntegrationRate > 0 && 
-						(frame == null || !frame.PerformedAction.HasValue || frame.PerformedAction.Value == 0)) 
+						(frame == null || !frame.PerformedAction.HasValue || frame.PerformedAction.Value == 0)
+                     ) 
 					|| stateManager.IsIntegrationLocked;
 
 				btnCalibrateIntegration.Visible = !stateManager.IsIntegrationLocked;

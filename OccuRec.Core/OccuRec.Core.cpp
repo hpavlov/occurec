@@ -408,6 +408,8 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 
 	OCR_IS_SETUP = true;
 
+	DebugViewPrint(L"OCR has been setup.");
+
 	return S_OK;
 }
 
@@ -1003,8 +1005,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			}
 
 			hasOcrErors = ocrManager->OcrErrorsSinceReset > ocrErrorsSiceLastReset;
-
-			ocrErrorsSiceLastReset = ocrManager->OcrErrorsSinceReset;			
+			ocrErrorsSiceLastReset = ocrManager->OcrErrorsSinceReset;
 		}
 
 		latestImageStatus.CountedFrames = numberOfIntegratedFrames;

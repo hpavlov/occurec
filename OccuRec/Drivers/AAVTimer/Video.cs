@@ -122,12 +122,13 @@ namespace OccuRec.Drivers.AAVTimer
             else if (string.Compare(ActionName, "StartOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
             {
                 AssertConnected();
-                return camera.StartOcrTesting().ToString(CultureInfo.InvariantCulture);
+                return StartRecordingOcrTestFile(ActionParameters);
             }
             else if (string.Compare(ActionName, "StopOcrTesting", StringComparison.InvariantCultureIgnoreCase) == 0)
             {
                 AssertConnected();
-                return camera.StopOcrTesting().ToString(CultureInfo.InvariantCulture);
+                StopRecordingVideoFile();
+                return true.ToString();
             }
             else if (string.Compare(ActionName, "DisableOcr", StringComparison.InvariantCultureIgnoreCase) == 0)
             {
@@ -153,7 +154,11 @@ namespace OccuRec.Drivers.AAVTimer
 		{
 			get
 			{
-				return new ArrayList(new string[] { "LockIntegration", "UnlockIntegration", "StartOcrTesting", "StopOcrTesting", "DisableOcr", "IntegrationCalibration", "CancelIntegrationCalibration" });
+				return new ArrayList(new string[]
+				    {
+				        "LockIntegration", "UnlockIntegration", "StartOcrTesting", "StopOcrTesting", 
+                        "DisableOcr", "IntegrationCalibration", "CancelIntegrationCalibration"
+				    });
 			}
 		}
 
@@ -356,6 +361,37 @@ namespace OccuRec.Drivers.AAVTimer
 				return 1;
 			}
 		}
+
+        public string StartRecordingOcrTestFile(string PreferredFileName)
+        {
+            AssertConnected();
+
+            try
+            {
+                VideoCameraState currentState = camera.GetCurrentCameraState();
+
+                if (currentState == VideoCameraState.videoCameraRecording)
+                    throw new InvalidOperationException("The camera is already recording.");
+                else if (currentState != VideoCameraState.videoCameraRunning)
+                    throw new InvalidOperationException("The current state of the video camera doesn't allow a recording operation to begin right now.");
+
+                string directory = Path.GetDirectoryName(PreferredFileName);
+                string fileName = Path.GetFileName(PreferredFileName);
+
+                if (!Directory.Exists(directory))
+                    Directory.CreateDirectory(fileName);
+
+                if (File.Exists(PreferredFileName))
+                    throw new DriverException(string.Format("File '{0}' already exists. Video can be recorded only in a non existing file.", PreferredFileName));
+
+                return camera.StartOcrTestRecordingVideoFile(PreferredFileName);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.GetFullErrorDescription());
+                throw new DriverException("Error starting the recording: " + ex.Message, ex);
+            }
+        }
 
 		public string StartRecordingVideoFile(string PreferredFileName)
 		{

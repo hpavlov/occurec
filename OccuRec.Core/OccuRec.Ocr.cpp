@@ -126,9 +126,9 @@ void CharRecognizer::ComputeSplitZones()
 				unsigned char zonePixel = zoneProc->ZonePixels[j];
 
 				if (j < halfZoneLen)
-					sumTop = zonePixel;
+					sumTop += zonePixel;
 				else
-					sumBottom = zonePixel;
+					sumBottom += zonePixel;
 			}
 
 			zoneProc->ZoneTopMean = sumTop / halfZoneLen;
@@ -179,10 +179,8 @@ char CharRecognizer::OcrSplitZones()
 
 			if (NULL != zoneById)
 			{
-				unsigned char zoneValue = zoneById->ZoneMean;
-
-				bool isOnOff = zoneValue >= MIN_ON_VALUE && zoneValue < MAX_OFF_VALUE;
-				bool isOffOn = zoneValue < MAX_OFF_VALUE && zoneValue >= MIN_ON_VALUE;
+				bool isOnOff = zoneById->ZoneTopMean >= MIN_ON_VALUE && zoneById->ZoneBottomMean < MAX_OFF_VALUE;
+				bool isOffOn = zoneById->ZoneTopMean < MAX_OFF_VALUE && zoneById->ZoneBottomMean >= MIN_ON_VALUE;
 
 				if (zoneBEhaviour == ZoneBehaviour::OnOff && !isOnOff)
 				{

@@ -182,6 +182,24 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 			return cameraState;
 		}
 
+
+        public string StartOcrTestRecordingVideoFile(string preferredFileName)
+		{
+			if (dsCapture.IsRunning)
+			{
+                if (Path.GetExtension(preferredFileName) != ".aav")
+                    preferredFileName = Path.ChangeExtension(preferredFileName, ".aav");
+
+                NativeHelpers.StartOcrTestRecording(preferredFileName);
+
+				cameraState = VideoCameraState.videoCameraRecording;
+
+				return preferredFileName;
+			}
+
+			throw new InvalidOperationException();
+		}
+
 		public string StartRecordingVideoFile(string preferredFileName)
 		{
 			if (dsCapture.IsRunning)
@@ -233,16 +251,6 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
         public void LoadCrossbarSources(ComboBox comboBox)
         {
             dsCapture.LoadCrossbarSources(comboBox);
-        }
-
-        public bool StartOcrTesting()
-        {
-            return true;
-        }
-
-        public bool StopOcrTesting()
-        {
-            return true;
         }
 
         public bool DisableOcr()

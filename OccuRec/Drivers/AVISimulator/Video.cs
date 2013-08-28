@@ -178,7 +178,7 @@ namespace OccuRec.Drivers.AVISimulator
 					if (File.Exists(preferredFileName))
 						throw new DriverException(string.Format("File '{0}' already exists. Video can be recorded only in a non existing file.", preferredFileName));
 
-					NativeHelpers.StartOcrTestRecording(fileName);
+                    NativeHelpers.StartOcrTestRecording(preferredFileName);
 					cameraState = VideoCameraState.videoCameraRecording;
 
 					return preferredFileName;

@@ -48,20 +48,24 @@ namespace OccuRec.OCR.TestStates
             // Find, record and try to solve problems
             #region Frame/Field Number Corrections
             long expectedFieldNumber = lastTimeStamp.SecondField.FieldNumber + 1;
-            while (expectedFieldNumber != frameTimestamp.FirstField.FieldNumber)
+            int attempts = 5;
+            while (expectedFieldNumber != frameTimestamp.FirstField.FieldNumber && attempts > 0)
             {
                 // Problem with first frame number
                 long correctedFieldNo = CorrectField(expectedFieldNumber, frameTimestamp.FirstField.FieldNumber);
                 frameTimestamp.FirstField.FieldNumber = correctedFieldNo;
                 frameTimestamp.FrameNumber = correctedFieldNo;
+                attempts--;
             }
 
+            attempts = 5;
             expectedFieldNumber = frameTimestamp.FirstField.FieldNumber + 1;
-            while (expectedFieldNumber != frameTimestamp.SecondField.FieldNumber)
+            while (expectedFieldNumber != frameTimestamp.SecondField.FieldNumber && attempts > 0)
             {
                 // Problem with first frame number
                 long correctedFieldNo = CorrectField(expectedFieldNumber, frameTimestamp.SecondField.FieldNumber);
                 frameTimestamp.SecondField.FieldNumber = correctedFieldNo;
+                attempts--;
             }
             #endregion
 
@@ -97,14 +101,14 @@ namespace OccuRec.OCR.TestStates
                 char expectedChar = expectedFieldNumber.ToString()[problemWithDigitAtPosition - 1];
                 char ocredChar = detectedFieldNo.ToString()[problemWithDigitAtPosition - 1];
 
-                var logEntry = new MisstakenCharacterRecord()
-                {
-                    ExpectedChar = expectedChar + "",
-                    RecognizedChar = ocredChar + "",
-                    Position = problemWithDigitAtPosition
-                };
+                //var logEntry = new MisstakenCharacterRecord()
+                //{
+                //    ExpectedChar = expectedChar + "",
+                //    RecognizedChar = ocredChar + "",
+                //    Position = problemWithDigitAtPosition
+                //};
 
-                correctedChars.Add(logEntry);
+                //correctedChars.Add(logEntry);
 
                 char[] correctedFieldNumCharArray = detectedFieldNo.ToString().ToCharArray();
                 correctedFieldNumCharArray[problemWithDigitAtPosition - 1] = expectedChar;
