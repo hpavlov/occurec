@@ -1021,6 +1021,20 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			ocrErrorsSiceLastReset = ocrManager->OcrErrorsSinceReset;
 		}
 
+		if (INTEGRATION_LOCKED && numberOfIntegratedFrames > 1)
+		{
+			 // Marks for "summed" frame and "mixed timestamp"
+			frame->Pixels[0] = 255;
+			frame->Pixels[1] = 0;
+			frame->Pixels[2] = 255;
+			frame->Pixels[IMAGE_WIDTH] = 0;
+			if (restoredPixels > 0) frame->Pixels[IMAGE_WIDTH + 1] = 255;
+			frame->Pixels[IMAGE_WIDTH + 2] = 0;
+			frame->Pixels[2 * IMAGE_WIDTH] = 255;
+			frame->Pixels[2 * IMAGE_WIDTH + 1] = 0;
+			frame->Pixels[2 * IMAGE_WIDTH + 2] = 255;
+		}
+
 		latestImageStatus.CountedFrames = numberOfIntegratedFrames;
 		latestImageStatus.CutOffRatio = 0; // NULL != integrationChecker ? integrationChecker->NewIntegrationPeriodCutOffRatio : 0;
 		latestImageStatus.IntegratedFrameNo = idxIntegratedFrameNumber;

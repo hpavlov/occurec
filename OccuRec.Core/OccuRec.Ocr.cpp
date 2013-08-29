@@ -532,17 +532,26 @@ OcrErrorCode OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 cu
 		   (long long)(10000000) * (long long) ss +
 		       (long long)(1000) * (long long) (ms1 != 0 ? ms1 : ms2);
 
-	char fieldNoStr[7];
-	::ZeroMemory(fieldNoStr, 7);
+	char fieldNoStr[9];
+	::ZeroMemory(fieldNoStr, 9);
 	char* fieldNoPtr = &fieldNoStr[0];
 	bool fieldNoBeginingFound = false;
 	bool gapFound = false;
-	for (int i = 17; i < 23; i++)
+	for (int i = 17; i <= 24; i++)
 	{
-		if (ocredChars[i] != 0)
+		char ch = ocredChars[i];
+		if (ch != '\0' && ch != ' ')
 		{
 			if (gapFound)
 			{
+				// Error: a character had been found after a gap
+				fieldNoBeginingFound = false;
+				break;
+			}
+
+			if (ch < '0' || ch > '9')
+			{
+				// Error: field no contains a character that is not a digit
 				fieldNoBeginingFound = false;
 				break;
 			}
