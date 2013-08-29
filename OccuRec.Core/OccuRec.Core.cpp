@@ -976,9 +976,6 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 						idxFirstFrameTimestamp = firstFrameOcrProcessor->GetOcredStartFrameTimeStamp(ocrManager->FieldDurationInTicks);
 						idxLastFrameTimestamp = lastFrameOcrProcessor->GetOcredEndFrameTimeStamp();
 
-						firstFrameOcrProcessor->GetOcredStartFrameTimeStampStr(&firstFrameTimestampStr[0]);
-						lastFrameOcrProcessor->GetOcredEndFrameTimeStampStr(&endFrameTimestampStr[0]);
-
 						almanacUpdateSatus = lastFrameOcrProcessor->GetOcredAlmanacUpdateState();
 						gpsFixStatus = lastFrameOcrProcessor->GetOcredGpsFixState();
 						trackedSatellitesCount = lastFrameOcrProcessor->GetOcredTrackedSatellitesCount();
@@ -989,6 +986,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 						secondErrorCode = lastFrameOcrProcessor->IsOddFieldDataFirst() ? lastFrameOcrProcessor->ErrorCodeEvenField : lastFrameOcrProcessor->ErrorCodeOddField;
 					}
 
+					firstFrameOcrProcessor->GetOcredStartFrameTimeStampStr(&firstFrameTimestampStr[0]);
+					lastFrameOcrProcessor->GetOcredEndFrameTimeStampStr(&endFrameTimestampStr[0]);
 				}
 				else
 				{
@@ -1003,9 +1002,6 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 						idxFirstFrameTimestamp = timeStampFrameProcessor->GetOcredStartFrameTimeStamp(ocrManager->FieldDurationInTicks);
 						idxLastFrameTimestamp = timeStampFrameProcessor->GetOcredEndFrameTimeStamp();
 
-						timeStampFrameProcessor->GetOcredStartFrameTimeStampStr(&firstFrameTimestampStr[0]);
-						timeStampFrameProcessor->GetOcredEndFrameTimeStampStr(&endFrameTimestampStr[0]);
-
 						almanacUpdateSatus = timeStampFrameProcessor->GetOcredAlmanacUpdateState();
 						gpsFixStatus = timeStampFrameProcessor->GetOcredGpsFixType();
 						trackedSatellitesCount = timeStampFrameProcessor->GetOcredTrackedSatellitesCount();
@@ -1015,6 +1011,9 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 						firstErrorCode = timeStampFrameProcessor->IsOddFieldDataFirst() ? timeStampFrameProcessor->ErrorCodeOddField : timeStampFrameProcessor->ErrorCodeEvenField;
 						secondErrorCode = timeStampFrameProcessor->IsOddFieldDataFirst() ? timeStampFrameProcessor->ErrorCodeEvenField : timeStampFrameProcessor->ErrorCodeOddField;
 					}
+
+					timeStampFrameProcessor->GetOcredStartFrameTimeStampStr(&firstFrameTimestampStr[0]);
+					timeStampFrameProcessor->GetOcredEndFrameTimeStampStr(&endFrameTimestampStr[0]);
 				}
 			}
 

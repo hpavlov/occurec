@@ -155,8 +155,8 @@ char CharRecognizer::Ocr(long frameMedian)
 
 char CharRecognizer::OcrSplitZones()
 {
-	long MIN_ON_VALUE = 220;
-	long MAX_OFF_VALUE = 80;
+	long MIN_ON_VALUE = 200;
+	long MAX_OFF_VALUE = 100;
 
 	vector<OcrCharDefinition*>::iterator itCharDef = OCR_CHAR_DEFS.begin();
 	while(itCharDef != OCR_CHAR_DEFS.end())

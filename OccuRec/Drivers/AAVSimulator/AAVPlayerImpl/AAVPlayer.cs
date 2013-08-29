@@ -53,18 +53,57 @@ namespace OccuRec.Drivers.AAVSimulator.AAVPlayerImpl
             this.fullAAVSimulation = fullAAVSimulation;
 
             IsRunning = false;
+            string errorMessage;
 
-            if (Settings.Default.OcrSimulatorNativeCode)
-                ocrTester = new NativeOcrTester();
-            else
-                ocrTester = new ManagedOcrTester();
+            OcrConfiguration ocrConfig = OcrSettings.Instance[Settings.Default.SelectedOcrConfiguration];
 
-            string errorMessage = ocrTester.Initialize(OcrSettings.Instance[Settings.Default.SelectedOcrConfiguration], ImageWidth, ImageHeight);
+            if (fullAAVSimulation)
+            {
+                NativeHelpers.SetupCamera(
+                       Settings.Default.CameraModel,
+                       ImageWidth, ImageHeight,
+                       Settings.Default.FlipHorizontally,
+                       Settings.Default.FlipVertically,
+                       Settings.Default.IsIntegrating,
+                       (float)Settings.Default.MinSignatureDiffRatio,
+                       (float)Settings.Default.MinSignatureDiff,
+                       Settings.Default.GammaDiff,
+                       OccuRec.Drivers.AVISimulator.Video.DRIVER_DESCRIPTION,
+                       "N/A");
 
-            if (errorMessage != null && callbacksObject != null)
-                callbacksObject.OnError(-1, errorMessage);
-            else
-                ocrEnabled = true;
+                NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
+
+                if (Settings.Default.SimulatorRunOCR)
+                {
+                    if (ocrConfig.Alignment.Width == ImageWidth && ocrConfig.Alignment.Height == ImageHeight)
+                        errorMessage = NativeHelpers.SetupBasicOcrMetrix(ocrConfig);
+                    else
+                    {
+                        errorMessage = "Video file incompatible with OCR configuration.";
+                        Settings.Default.SimulatorRunOCR = false;
+                    }
+                }
+                else
+                    errorMessage = NativeHelpers.SetupTimestampPreservation(ImageWidth, ImageHeight);
+
+                if (errorMessage != null && callbacksObject != null)
+                    callbacksObject.OnError(-1, errorMessage);
+            }
+
+            if (Settings.Default.SimulatorRunOCR)
+            {
+                if (Settings.Default.OcrSimulatorNativeCode)
+                    ocrTester = new NativeOcrTester();
+                else
+                    ocrTester = new ManagedOcrTester();
+
+                errorMessage = ocrTester.Initialize(ocrConfig, ImageWidth, ImageHeight);
+
+                if (errorMessage != null && callbacksObject != null)
+                    callbacksObject.OnError(-1, errorMessage);
+                else
+                    ocrEnabled = true;
+            }
         }
 
         public void Start()
@@ -87,6 +126,7 @@ namespace OccuRec.Drivers.AAVSimulator.AAVPlayerImpl
         }
 
         private long frameCounter = 0;
+        private FrameProcessingStatus frameStatus;
 
         private void Run(object state)
         {
@@ -95,44 +135,85 @@ namespace OccuRec.Drivers.AAVSimulator.AAVPlayerImpl
 
             while (IsRunning)
             {
-                lock (syncRoot)
-                {
-                    frameCounter++;    
-                }                
+                long nextFrameCounterValue = frameCounter + 1;
+                FrameProcessingStatus nextFrameStatus = FrameProcessingStatus.Empty;
 
                 Thread.Sleep(waitTimeMs);
 
-                if (Settings.Default.SimulatorRunOCR)
+                if (Settings.Default.SimulatorRunOCR || fullAAVSimulation)
                 {
                     long frameNo = aavStream.FirstFrame + (frameCounter % (aavStream.LastFrame - aavStream.FirstFrame));
                     using (Bitmap bmp = aavStream.GetFrame((int)frameNo))
                     {
                         int[,] pixels = ImageUtils.GetPixelArray(bmp, AdvImageSection.GetPixelMode.Raw8Bit);
-                        ocrTester.ProcessFrame(pixels, frameNo);
+
+                        if (fullAAVSimulation)
+                        {
+                            if (pixels != null)
+                                nextFrameStatus = NativeHelpers.ProcessVideoFrame2(pixels);
+                        }
+
+						if (Settings.Default.SimulatorRunOCR &&
+							!Settings.Default.OcrSimulatorNativeCode &&
+							ocrTester != null)
+                        {
+                            OsdFrameInfo frameInfo = ocrTester.ProcessFrame(pixels, frameNo);
+                            if (callbacksObject != null && frameInfo != null)
+                            {
+                                callbacksObject.OnEvent(0, frameInfo.ToDisplayString());
+                                if (!frameInfo.FrameInfoIsOk())
+                                    callbacksObject.OnEvent(1, null);
+                            }
+                        }
                     }
                 }
+
+                NonBlockingLock.Lock(
+                    NonBlockingLock.LOCK_ID_BufferCB,
+                    () =>
+                    {
+                        frameCounter = nextFrameCounterValue;
+                        frameStatus = FrameProcessingStatus.Clone(nextFrameStatus);
+                    });
             }
         }
 
-        public bool GetCurrentFrame(out Bitmap bmp, out int frameNumber)
+        public bool GetCurrentFrame(out Bitmap bmp, out int frameNumber, out FrameProcessingStatus status)
         {
             if (!IsRunning)
             {
                 bmp = null;
                 frameNumber = -1;
+                status = FrameProcessingStatus.Empty;
+
                 return false;
             }
 
-            long frameNo;
+            long frameNo = 0;
+            var sts = new FrameProcessingStatus();
 
-            lock (syncRoot)
+            NonBlockingLock.Lock(
+                NonBlockingLock.LOCK_ID_GetNextFrame,
+                () =>
+                {
+                    frameNo = aavStream.FirstFrame + (frameCounter % (aavStream.LastFrame - aavStream.FirstFrame));
+                    sts = FrameProcessingStatus.Clone(frameStatus);
+                });
+
+            frameNumber = (int)frameNo;
+            status = sts;
+
+            if (fullAAVSimulation)
             {
-                frameNo = aavStream.FirstFrame + (frameCounter % (aavStream.LastFrame - aavStream.FirstFrame));
-                
-            }
+                ImageStatus imgStatus;
+                bmp = NativeHelpers.GetCurrentImage(out imgStatus);
+                status = new FrameProcessingStatus(imgStatus);
 
-            frameNumber = (int) frameNo;
-            bmp = aavStream.GetFrame(frameNumber);
+            }
+            else
+            {
+                bmp = aavStream.GetFrame(frameNumber);
+            }
             
             return true;
         }

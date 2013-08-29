@@ -184,10 +184,11 @@ namespace OccuRec.Drivers.AAVSimulator
 
 				Bitmap cameraFrame;
                 int frameNumber;
+			    FrameProcessingStatus status;
 
-                if (player.GetCurrentFrame(out cameraFrame, out frameNumber))
+                if (player.GetCurrentFrame(out cameraFrame, out frameNumber, out status))
 				{
-                    BasicVideoFrame rv = BasicVideoFrame.CreateFrame(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber);
+                    BasicVideoFrame rv = BasicVideoFrame.CreateFrame(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber, status);
 					return rv;
 				}
 				else
@@ -203,10 +204,11 @@ namespace OccuRec.Drivers.AAVSimulator
 
                 Bitmap cameraFrame;
 			    int frameNumber;
+                FrameProcessingStatus status;
 
-                if (player.GetCurrentFrame(out cameraFrame, out frameNumber))
+                if (player.GetCurrentFrame(out cameraFrame, out frameNumber, out status))
 				{
-                    BasicVideoFrame rv = BasicVideoFrame.CreateFrameVariant(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber);
+                    BasicVideoFrame rv = BasicVideoFrame.CreateFrameVariant(player.ImageWidth, player.ImageHeight, cameraFrame, frameNumber, status);
 					return rv;
 				}
 				else
