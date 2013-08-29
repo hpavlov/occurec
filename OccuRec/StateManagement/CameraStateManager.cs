@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using OccuRec.Drivers;
@@ -25,6 +26,7 @@ namespace OccuRec.StateManagement
         private bool ocrMayBeRunning;
 
 	    private bool isIntegratingCamera;
+		private bool isRecordingOcrTestFile;
 
         public void ProcessFrame(VideoFrameWrapper frame)
         {
@@ -92,6 +94,37 @@ namespace OccuRec.StateManagement
             driverInstance = null;
             overlayManager = null;
         }
+
+		public string StartRecordingOCRTestingFile()
+		{
+			if (driverInstance != null)
+			{
+				string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
+				fileName = Path.GetFullPath(string.Format("{0}\\{1}-OCR-TEST.aav", Path.GetDirectoryName(fileName), Path.GetFileNameWithoutExtension(fileName)));
+				driverInstance.Action("StartOcrTesting", fileName);
+
+				isRecordingOcrTestFile = true;
+				return fileName;
+			}
+
+			return null;
+		}
+
+		public void StopRecordingOCRTestingFile()
+		{
+			if (isRecordingOcrTestFile)
+			{
+				if (driverInstance != null)
+					driverInstance.StopRecordingVideoFile();
+
+				isRecordingOcrTestFile = false;
+			}
+		}
+
+	    public bool IsRecordingOcrTestFile
+	    {
+			get { return isRecordingOcrTestFile; }
+	    }
 
 	    public bool IsValidIntegrationRate
 	    {

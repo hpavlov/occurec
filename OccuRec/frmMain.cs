@@ -364,7 +364,7 @@ namespace OccuRec
 				return;
 			}
 
-			currentFrameNo = frame.FrameNumber;
+	        currentFrameNo = frame.FrameNumber;
 			UpdateState(frame);
 			renderedFrameCounter++;
 
@@ -399,14 +399,6 @@ namespace OccuRec
 			{
 				lblVideoFormat.Text = videoObject.CameraVideoFormat;
 			}
-
-            if (!string.IsNullOrEmpty(frame.ImageInfo))
-            {
-                if (frame.IntegrationRate != null)
-                    tssIntegrationRate.Text = string.Format("Integration Rate: x{0}", frame.IntegrationRate);
-                else
-                    tssIntegrationRate.Text = "Integration Rate: ...";
-            }
 
             if (stateManager.ProvidesOcredTimestamps)
             {
@@ -582,10 +574,7 @@ namespace OccuRec
                     break;
 
                 case VideoCameraState.videoCameraRunning:
-					if (stateManager.IsIntegrationLocked)
-						tssCameraState.Text = string.Concat("Running (x", stateManager.IntegrationRate, ")");
-					else
-						tssCameraState.Text = "Running";
+					tssCameraState.Text = "Running";
                     break;
 
                 case VideoCameraState.videoCameraRecording:
@@ -628,9 +617,37 @@ namespace OccuRec
 			{
 			    UpdateApplicationStateFromCameraState();
 
-				if (!tssFrameNo.Visible) tssFrameNo.Visible = true;				
+				if (frame != null)
+				{
+					if (!tssFrameNo.Visible) tssFrameNo.Visible = true;
 
-				tssFrameNo.Text = currentFrameNo.ToString("Current Frame: 0", CultureInfo.InvariantCulture);
+					if (stateManager.IsIntegrationLocked)
+						tssFrameNo.Text = frame.IntegratedFrameNo.ToString("Integrated Frame: 0", CultureInfo.InvariantCulture);
+					else
+						tssFrameNo.Text = frame.FrameNumber.ToString("Current Frame: 0", CultureInfo.InvariantCulture);
+
+					if (stateManager.IsIntegrationLocked)
+					{
+						if (!string.IsNullOrEmpty(frame.ImageInfo))
+						{
+							if (frame.IntegrationRate != null)
+								tssIntegrationRate.Text = string.Format("Integration Rate: x{0}", frame.IntegrationRate);
+							else
+								tssIntegrationRate.Text = "Integration Rate: ...";
+
+							if (!tssIntegrationRate.Visible) tssIntegrationRate.Visible = true;
+						}
+						else
+						{
+							if (tssIntegrationRate.Visible) tssIntegrationRate.Visible = false;
+						}						
+					}
+					else
+					{
+						if (tssIntegrationRate.Visible) tssIntegrationRate.Visible = false;
+					}
+				}
+
 #if DEBUG
 				if (!double.IsNaN(renderFps))
 				{
@@ -788,9 +805,7 @@ namespace OccuRec
                 {
                     if (videoObject != null)
                     {
-	                    string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
-                        fileName = Path.GetFullPath(string.Format("{0}\\{1}-OCR-TEST.aav", Path.GetDirectoryName(fileName), Path.GetFileNameWithoutExtension(fileName)));
-						recordingfileName = videoObject.ExecuteAction("StartOcrTesting", fileName);
+						recordingfileName = stateManager.StartRecordingOCRTestingFile();
                     }
                         
                 }
@@ -872,6 +887,16 @@ namespace OccuRec
 
                 nextNTPSyncTime = DateTime.UtcNow.AddMinutes(10);
             }
+
+			if (stateManager.IsRecordingOcrTestFile && videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
+			{
+				// NOTE: If we have been recording OCR test file and there are more than MaxErrorCount OCR errors then stop the recording
+				if (stateManager.OcrErrors > Settings.Default.OcrMaxErrorsPerCameraTestRun)
+				{
+					stateManager.StopRecordingOCRTestingFile();
+					UpdateState(null);
+				}				
+			}
         }
 
         private void UpdateTimeFromNTPServer(object state)

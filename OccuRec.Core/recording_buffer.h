@@ -12,22 +12,21 @@
 
 using namespace std;
 
-list<IntegratedFrame*> recordingBuffer;
+IntegratedFrame* recordingBuffer[1024];
+long currentIndex = -1;
 
 
 void ClearRecordingBuffer()
 {
 	SyncLock::LockVideo();
 
-	list<IntegratedFrame*>::iterator currFrame = recordingBuffer.begin();
-	while (currFrame != recordingBuffer.end()) 
+	while (currentIndex >= 0)
 	{
-		IntegratedFrame* frame = *currFrame;	
+		IntegratedFrame* frame = recordingBuffer[currentIndex];	
 		delete frame;
 		
-		currFrame++;
+		currentIndex--;
 	}
-	recordingBuffer.empty();
 
 	SyncLock::UnlockVideo();
 }
@@ -36,8 +35,9 @@ long AddFrameToRecordingBuffer(IntegratedFrame* frameToAdd)
 {
 	SyncLock::LockVideo();
 
-	recordingBuffer.push_back(frameToAdd);
-	long numItems = recordingBuffer.size();
+	currentIndex++;
+	recordingBuffer[currentIndex] = frameToAdd;
+	long numItems = currentIndex + 1;
 
 	SyncLock::UnlockVideo();
 
@@ -50,10 +50,13 @@ IntegratedFrame* FetchFrameFromRecordingBuffer()
 
 	SyncLock::LockVideo();
 
-	if (recordingBuffer.size() > 0)
+	if (currentIndex >= 0)
 	{
-		rv = recordingBuffer.front();
-		recordingBuffer.pop_front();
+		rv = recordingBuffer[0];
+		for (int i = 0; i < currentIndex; i++)
+			recordingBuffer[i] = recordingBuffer[i + 1];
+
+		currentIndex--;
 	}
 
 	SyncLock::UnlockVideo();

@@ -37,7 +37,7 @@ namespace OccuRec.OCR.TestStates
             newState.Reset(this);
         }
 
-        public TestFrameResult TestTimeStamp(OsdFrameInfo frameTimestamp)
+        public TestFrameResult TestTimeStamp(OsdFrameInfo frameTimestamp, bool ts)
         {
             TestFrameResult suggestedResult = currentState.TestTimeStamp(this, frameTimestamp);
 

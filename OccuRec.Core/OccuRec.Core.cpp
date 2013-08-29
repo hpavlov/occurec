@@ -118,6 +118,7 @@ unsigned int STATUS_TAG_SYSTEM_TIME;
 unsigned int STATUS_TAG_GPS_TRACKED_SATELLITES;
 unsigned int STATUS_TAG_GPS_ALMANAC;
 unsigned int STATUS_TAG_GPS_FIX;
+unsigned int STATUS_TAG_OCR_TESTING_ERROR_MESSAGE;
 
 OccuRec::IntegrationChecker* integrationChecker;
 
@@ -909,6 +910,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		}
 
 		bool hasOcrErors = false;
+		OcrErrorCode firstErrorCode = OcrErrorCode::Unknown;
+		OcrErrorCode secondErrorCode = OcrErrorCode::Unknown;
 
 		if (runOCR)
 		{
@@ -923,7 +926,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 			if (!ocrFirstFrameProcessed)
 			{
-				if ((INTEGRATION_LOCKED && firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success))
+				if ((INTEGRATION_LOCKED && firstFrameOcrProcessor->Success() && lastFrameOcrProcessor->Success()))
 				{
 					ocrManager->RegisterFirstSuccessfullyOcredFrame(firstFrameOcrProcessor);
 					ocrFirstFrameProcessed = true;
@@ -941,7 +944,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 						DebugViewPrint(L"%lld: FieldDurationInTicks=%d (LOCKED*first* frame from %d to %d TS from %s to %s)", idxFrameNumber, ocrManager->FieldDurationInTicks, firstFrameOcrProcessor->GetOcredStartFrameNumber(), firstFrameOcrProcessor->GetOcredEndFrameNumber(), &wcFrom[0], &wcTo[0]);
 					}
 				}
-				else if (!INTEGRATION_LOCKED && lastFrameOcrProcessor->Success)
+				else if (!INTEGRATION_LOCKED && lastFrameOcrProcessor->Success())
 				{
 					ocrManager->RegisterFirstSuccessfullyOcredFrame(lastFrameOcrProcessor);
 					ocrFirstFrameProcessed = true;
@@ -966,7 +969,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				{
 					ocrManager->ProcessedOcredFramesInLockedMode(firstFrameOcrProcessor, lastFrameOcrProcessor);
 
-					if (firstFrameOcrProcessor->Success && lastFrameOcrProcessor->Success)
+					if (firstFrameOcrProcessor->Success() && lastFrameOcrProcessor->Success())
 					{
 						idxFirstFrameNumber = firstFrameOcrProcessor->GetOcredStartFrameNumber();
 						idxLastFrameNumber = lastFrameOcrProcessor->GetOcredEndFrameNumber();
@@ -980,6 +983,12 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 						gpsFixStatus = lastFrameOcrProcessor->GetOcredGpsFixState();
 						trackedSatellitesCount = lastFrameOcrProcessor->GetOcredTrackedSatellitesCount();
 					}
+					else
+					{
+						firstErrorCode = firstFrameOcrProcessor->IsOddFieldDataFirst() ? firstFrameOcrProcessor->ErrorCodeOddField : firstFrameOcrProcessor->ErrorCodeEvenField;
+						secondErrorCode = lastFrameOcrProcessor->IsOddFieldDataFirst() ? lastFrameOcrProcessor->ErrorCodeEvenField : lastFrameOcrProcessor->ErrorCodeOddField;
+					}
+
 				}
 				else
 				{
@@ -987,7 +996,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 					ocrManager->ProcessedOcredFrame(timeStampFrameProcessor);
 
-					if (timeStampFrameProcessor->Success)
+					if (timeStampFrameProcessor->Success())
 					{
 						idxFirstFrameNumber = timeStampFrameProcessor->GetOcredStartFrameNumber();
 						idxLastFrameNumber = timeStampFrameProcessor->GetOcredEndFrameNumber();
@@ -1000,6 +1009,11 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 						almanacUpdateSatus = timeStampFrameProcessor->GetOcredAlmanacUpdateState();
 						gpsFixStatus = timeStampFrameProcessor->GetOcredGpsFixType();
 						trackedSatellitesCount = timeStampFrameProcessor->GetOcredTrackedSatellitesCount();
+					}
+					else
+					{
+						firstErrorCode = timeStampFrameProcessor->IsOddFieldDataFirst() ? timeStampFrameProcessor->ErrorCodeOddField : timeStampFrameProcessor->ErrorCodeEvenField;
+						secondErrorCode = timeStampFrameProcessor->IsOddFieldDataFirst() ? timeStampFrameProcessor->ErrorCodeEvenField : timeStampFrameProcessor->ErrorCodeOddField;
 					}
 				}
 			}
@@ -1054,6 +1068,9 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			frame->GpsTrackedSatellites = trackedSatellitesCount;
 			frame->GpsAlamancStatus = almanacUpdateSatus;
 			frame->GpsFixStatus = gpsFixStatus;
+
+			if (OCR_FAILED_TEST_RECORDING && hasOcrErors)
+				sprintf(&frame->OcrErrorMessageStr[0], "FirstFieldError: %d; LastFieldError: %d", (long)firstErrorCode, (long)secondErrorCode);
 
 			strcpy(&frame->StartTimeStampStr[0], &firstFrameTimestampStr[0]);
 			strcpy(&frame->EndTimeStampStr[0], &endFrameTimestampStr[0]);
@@ -1428,6 +1445,9 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_TRACKED_SATELLITES, nextFrame->GpsTrackedSatellites);
 		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_ALMANAC, nextFrame->GpsAlamancStatus);
 		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_FIX, nextFrame->GpsFixStatus);
+
+		if (OCR_FAILED_TEST_RECORDING)
+			AavFrameAddStatusTag(STATUS_TAG_OCR_TESTING_ERROR_MESSAGE, &nextFrame->OcrErrorMessageStr[0]);
 	}
 
 	AavFrameAddImage(USE_IMAGE_LAYOUT, nextFrame->Pixels);
@@ -1504,6 +1524,9 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	STATUS_TAG_GPS_ALMANAC = AavDefineStatusSectionTag("GPSAlmanacStatus", AavTagType::UInt8);
 	STATUS_TAG_GPS_FIX = AavDefineStatusSectionTag("GPSFixStatus", AavTagType::UInt8);
 
+	if (OCR_FAILED_TEST_RECORDING)
+		STATUS_TAG_OCR_TESTING_ERROR_MESSAGE = AavDefineStatusSectionTag("OcrTestingErrorMessage", AavTagType::AnsiString255);
+
 	ClearRecordingBuffer();
 
 	firstRecordedFrameTimestamp = 0;
@@ -1530,6 +1553,7 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 		frame->GpsFixStatus = 0;
 		frame->StartTimeStampStr[0] = 0;
 		frame->EndTimeStampStr[0] = 0;
+		frame->OcrErrorMessageStr[0] = 0;
 
 		RecordCurrentFrame(frame);
 	}
@@ -1571,6 +1595,7 @@ HRESULT StopRecording(long* pixels)
 		frame->GpsFixStatus = 0;
 		frame->StartTimeStampStr[0] = 0;
 		frame->EndTimeStampStr[0] = 0;
+		frame->OcrErrorMessageStr[0] = 0;
 
 		RecordCurrentFrame(frame);
 	}

@@ -245,7 +245,7 @@ namespace OccuRec.OCR
 
             var frameInfo = new OsdFrameInfo(oddFieldInfo, evenFieldInfo);
 
-            TestFrameResult testResult = testContext.TestTimeStamp(frameInfo);
+			TestFrameResult testResult = frameInfo.FrameInfoIsOk() ? TestFrameResult.Okay : TestFrameResult.ErrorSaveScreenShotImages;// testContext.TestTimeStamp(frameInfo);
 
             if (ocrErrorReporting && testResult == TestFrameResult.ErrorSaveScreenShotImages && oddFieldInfo.FieldNumber >= 0 && evenFieldInfo.FieldNumber >= 0)
             {

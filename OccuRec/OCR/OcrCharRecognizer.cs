@@ -8,7 +8,7 @@ namespace OccuRec.OCR
     public class OcrCharRecognizer
     {
         public static int MIN_ON_VALUE = 200;
-		public static int MAX_OFF_VALUE = 80;
+		public static int MAX_OFF_VALUE = 100;
 
         private List<OcrZone> zones = new List<OcrZone>();
         private List<CharDefinition> charDefinitions = new List<CharDefinition>();

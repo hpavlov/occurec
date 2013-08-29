@@ -2,6 +2,25 @@
 ?) == NEED TESTING
 ---------------------------------------------------------------------------
 
+General & Bugfixes:
+
+- Make it so GetNextFrame() returns a bitmap image bytes so no time is wasted converting bitmaps to arrays and back to bitmaps. May be define another generic output format [24bpp bitmap]
+
+OCR Implemntation:
+
+- Successfully run a live test for 24 hours without any errors
+
+
+Telescope Control:
+
+- Get a working COM port and cable to connect to the LX200ACF and test with C2A
+- Make it possible to select target and comparison star and implement 'tracking'
+- Implement focusing 
+- Implement guiding (keeping the selected target at the initial position sending telescope tracking pulses)
+
+---------------------------------------------------------------------------
+
+
 V) Implement horizontal flip for AVI format
 V) Make the horizontal flip the default option
 V) Remove the vertical flip option or implement a vertical flip for AAV format
@@ -42,30 +61,9 @@ V) Implement a second integration detection based on locking at user specified i
 V) Add a 'SystemTime' status field in the AAV recorded file
 V) Fix the x2 Integration Detection
 V) Fix the x1 integration lock - the timestamps never seem to be preserved
-
-
-EASY:
-
-?) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
-- Change the recording buffer to use an array rather than std::list
-
-HARDER:
-
-- Make it so GetNextFrame() returns a bitmap image bytes so no time is wasted converting bitmaps to arrays and back to bitmaps. May be define another generic output format [24bpp bitmap]
-
-OCR Implemntation:
-
-- Add managed simulation support for AAV files so recorded OCR test files can be reviewed in managed OCR mode to fix issues
-- Pass the "Max Errors" item when running OCR testing and stop recording after that many errors have been flagged
-- Complete the unmanaged OCR verification based on expected frame/integration period field numbers and expected frame/integration period duration 
-- Successfully run a live test for 24 hours without any errors
-- Implement OCR test action that will start recording an AAV file but will only record single frames for which the OCR integration has failed
-
-
-Telescope Control:
-
-- Get a working COM port and cable to connect to the LX200ACF and test with C2A
-- Make it possible to select target and comparison star and implement 'tracking'
-- Implement focusing 
-- Implement guiding (keeping the selected target at the initial position sending telescope tracking pulses)
-
+V) Implement OCR test action that will start recording an AAV file but will only record single frames for which the OCR integration has failed
+V) Change the recording buffer to use an array rather than std::list
+V) Pass the "Max Errors" item when running OCR testing and stop recording after that many errors have been flagged
+V) Add an error code when OCR verification fails (and save it in the test OCR file or put it on the debug image) so it is more obvious what is the problem
+V) Complete the unmanaged OCR verification based on expected frame/integration period field numbers and expected frame/integration period duration 
+V) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected

@@ -100,6 +100,7 @@
             this.ttsProgressBar,
             this.tssCameraState,
             this.tssFrameNo,
+			this.tssIntegrationRate,
             this.tssDroppedFrames,
             this.tssOcrErr,
             this.tssRecordingFile,

@@ -317,7 +317,8 @@ OcrFrameProcessor::OcrFrameProcessor()
 		OddFieldChars[position] = charProcOdd;
 	}
 
-	Success = false;
+	ErrorCodeEvenField = OcrErrorCode::Unknown;
+	ErrorCodeOddField = OcrErrorCode::Unknown;
 }
 
 OcrFrameProcessor::~OcrFrameProcessor()
@@ -364,7 +365,8 @@ void OcrFrameProcessor::NewFrame()
 	EvenFieldOcredOsd.GpsFixType = 0;
 	EvenFieldOcredOsd.AlmanacUpdateState = 0;
 
-	Success = false;
+	ErrorCodeEvenField = OcrErrorCode::Unknown;
+	ErrorCodeOddField = OcrErrorCode::Unknown;
 }
 
 void UnpackValue(long packed, long* charId, bool* isOddField, long* zoneId, long* zonePixelId)
@@ -428,13 +430,10 @@ void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 		}
 		m_OcredCharsEven[position] = ' ';
 
-		bool successOdd = ExtractFieldInfo(m_OcredCharsOdd, currentUtcDayAsTicks, OddFieldOcredOsd);
-		bool successEven = ExtractFieldInfo(m_OcredCharsEven, currentUtcDayAsTicks, EvenFieldOcredOsd);
-
-		Success = successOdd && successEven;
+		ErrorCodeOddField = ExtractFieldInfo(m_OcredCharsOdd, currentUtcDayAsTicks, OddFieldOcredOsd);
+		ErrorCodeEvenField = ExtractFieldInfo(m_OcredCharsEven, currentUtcDayAsTicks, EvenFieldOcredOsd);
 
 		m_IsOddFieldDataFirst = 
-			Success && 
 			OddFieldOcredOsd.FieldNumber < EvenFieldOcredOsd.FieldNumber;
 
 		//char tsFrom[128];
@@ -449,35 +448,56 @@ void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 	}
 }
 
-bool OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo)
+bool OcrFrameProcessor::Success()
+{
+	return
+		ErrorCodeOddField == OcrErrorCode::Success && 
+		ErrorCodeEvenField == OcrErrorCode::Success;
+}
+OcrErrorCode OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo)
 {
 	bool success = true;
+	long errorCode = OcrErrorCode::Unknown;
+
 
 	fieldInfo.GpsFixType = ocredChars[0];
-	if (ocredChars[1] > 0)
+	if (ocredChars[1] >= '0' && ocredChars[1] <= '9')
 		fieldInfo.TrackedSatellites = ocredChars[1] - 0x30;
 	else
 	{
 		fieldInfo.TrackedSatellites = 0;
+		errorCode += OcrErrorCode::TrackedSatellitesInvalid;
 		success = false;
 	}
 
-	fieldInfo.AlmanacUpdateState = ocredChars[2] != 'W';
+	if (ocredChars[2] == 'W' || ocredChars[2] == ' ' || ocredChars[2] == 0) 
+		fieldInfo.AlmanacUpdateState = ocredChars[2] != 'W';
+	else
+	{
+		errorCode += OcrErrorCode::WaitFlagInvalid;
+		success = false;
+	}
 
 	long hh = 0;
-	if (ocredChars[3] > 0 && ocredChars[4] > 0)
+	if (ocredChars[3] >= '0' && ocredChars[4] >= '0' && ocredChars[3] <= '9' && ocredChars[4] <= '9')
 		hh = 10 * (ocredChars[3] - 0x30) + (ocredChars[4] - 0x30);
 	else
+	{
+		errorCode += OcrErrorCode::HoursInvalid;
 		success = false;
+	}
 
 	long mm = 0;
-	if (ocredChars[5] > 0 && ocredChars[6] > 0)
+	if (ocredChars[5] >= '0' && ocredChars[6] >= '0' && ocredChars[5] <= '9' && ocredChars[6] <= '9')
 		mm = 10 * (ocredChars[5] - 0x30) + (ocredChars[6] - 0x30);
 	else
+	{
+		errorCode += OcrErrorCode::MinutesInvalid;
 		success = false;
+	}
 
 	long ss = 0;
-	if (ocredChars[7] > 0 && ocredChars[8] > 0)
+	if (ocredChars[7] >= '0' && ocredChars[8] >= '0' && ocredChars[7] <= '9' && ocredChars[8] <= '9')
 		ss = 10 * (ocredChars[7] - 0x30) + (ocredChars[8] - 0x30);
 	else
 		success = false;
@@ -485,12 +505,18 @@ bool OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtc
 	long ms1 = 0;
 	long ms2 = 0;
 
-	if (ocredChars[9] >= '0' && ocredChars[10] >= '0' && ocredChars[11] >= '0' && ocredChars[12] >= '0')
+	if (ocredChars[9] >= '0' && ocredChars[10] >= '0' && ocredChars[11] >= '0' && ocredChars[12] >= '0' && 
+		ocredChars[9] <= '9' && ocredChars[10] <= '9' && ocredChars[11] <= '9' && ocredChars[12] <= '9')
 		ms1 = 1000 * (ocredChars[9] - 0x30) + 100 * (ocredChars[10] - 0x30) + 10 * (ocredChars[11] - 0x30) + (ocredChars[12] - 0x30);
-	else if (ocredChars[13] >= '0' && ocredChars[14] >= '0' && ocredChars[15] >= '0' && ocredChars[16] >= '0')
+	else if (
+		ocredChars[13] >= '0' && ocredChars[14] >= '0' && ocredChars[15] >= '0' && ocredChars[16] >= '0' && 
+		ocredChars[13] <= '9' && ocredChars[14] <= '9' && ocredChars[15] <= '9' && ocredChars[16] <= '9')
 		ms2 = 1000 * (ocredChars[13] - 0x30) + 100 * (ocredChars[14] - 0x30) + 10 * (ocredChars[15] - 0x30) + (ocredChars[16] - 0x30);
 	else
+	{
+		errorCode += OcrErrorCode::MillisecondsInvalid;
 		success = false;
+	}
 
 	// NOTE: This will be problematic at date change. 
 	// TODO: Need to some something more to ensure we are capturing and processing correctly the case of date change
@@ -533,11 +559,17 @@ bool OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 currentUtc
 	}
 
 	if (!fieldNoBeginingFound)
+	{
+		errorCode = OcrErrorCode::FieldNumberInvalid;
 		success = false;
+	}
 
 	fieldInfo.FieldNumber = atoi(fieldNoStr);
 
-	return success;
+	if (success)
+		return OcrErrorCode::Success;
+	else
+		return (OcrErrorCode)errorCode;
 }
 
 bool OcrFrameProcessor::IsOddFieldDataFirst()
@@ -681,14 +713,42 @@ void OcrManager::RegisterFirstSuccessfullyOcredFrame(OcrFrameProcessor* ocredFra
 	receivingTimestamps = true;
 };
 
-void OcrManager::VerifyAndFixOcredFrame(OcrFrameProcessor* ocredFrame)
+void OcrManager::VerifyOcredFrameIntegrity(OcrFrameProcessor* ocredFrame)
 {
-	// TODO:
+	if (ocredFrame->ErrorCodeEvenField != OcrErrorCode::Success || ocredFrame->ErrorCodeEvenField != OcrErrorCode::Success)
+		// Cannot try and identify further problem if not all characters have been recognized correctly 
+		return;
+
+	// Field numbers must be consequtive
+	if (ocredFrame->GetOcredStartFrameNumber() + 1 != ocredFrame->GetOcredEndFrameNumber())
+	{
+		ocredFrame->ErrorCodeEvenField = (OcrErrorCode)((long)ocredFrame->ErrorCodeEvenField + OcrErrorCode::FieldNumbersNotSequential);
+		ocredFrame->ErrorCodeOddField = (OcrErrorCode)((long)ocredFrame->ErrorCodeOddField + OcrErrorCode::FieldNumbersNotSequential);
+	}
+
+	// Frame exposure duration must be PAL or NTSC
+	long long fieldTimestampDifference = ocredFrame->GetOcredEndFrameTimeStamp() - ocredFrame->GetOcredStartFrameTimeStamp(0);
+	bool isPAL = abs(fieldTimestampDifference - 20 * 10000) < 10000;
+	bool isNTSC = abs(fieldTimestampDifference - (33.3667 / 2) * 10000) < 10000;
+	if (!isPAL && !isNTSC)
+	{
+		ocredFrame->ErrorCodeEvenField = (OcrErrorCode)((long)ocredFrame->ErrorCodeEvenField + OcrErrorCode::FrameDurationNotPALorNTSC);
+		ocredFrame->ErrorCodeOddField = (OcrErrorCode)((long)ocredFrame->ErrorCodeOddField + OcrErrorCode::FrameDurationNotPALorNTSC);		
+	}
 };
 
-void OcrManager::VerifyAndFixOcredIntegratedInterval(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame)
+void OcrManager::VerifyOcredIntegratedIntervalIntegrity(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame)
 {
-	// TODO:
+	VerifyOcredFrameIntegrity(firstOcredFrame);
+	VerifyOcredFrameIntegrity(lastOcredFrame);
+
+	if (firstOcredFrame->ErrorCodeEvenField != OcrErrorCode::Success || lastOcredFrame->ErrorCodeEvenField != OcrErrorCode::Success)
+		// Cannot try and identify further problem if not all characters have been recognized correctly 
+		return;
+
+	// Frame integration duration must correspond to the integration period (NOTE: How to handle dropped frames ??)
+
+	// Field numbers must correspond to the integration period (NOTE: How to handle dropped frames ??)
 };
 
 bool OcrManager::IsReceivingTimeStamps()
@@ -700,9 +760,9 @@ void OcrManager::ProcessedOcredFrame(OcrFrameProcessor* ocredFrame)
 {
 	if (receivingTimestamps)
 	{
-		VerifyAndFixOcredFrame(ocredFrame);
+		VerifyOcredFrameIntegrity(ocredFrame);
 
-		if (!ocredFrame->Success)
+		if (!ocredFrame->Success())
 			OcrErrorsSinceReset++;
 	}
 };
@@ -711,12 +771,12 @@ void OcrManager::ProcessedOcredFramesInLockedMode(OcrFrameProcessor* firstOcredF
 {
 	if (receivingTimestamps)
 	{
-		VerifyAndFixOcredIntegratedInterval(firstOcredFrame, lastOcredFrame);
+		VerifyOcredIntegratedIntervalIntegrity(firstOcredFrame, lastOcredFrame);
 
-		if (!firstOcredFrame->Success)
+		if (!firstOcredFrame->Success())
 			OcrErrorsSinceReset++;
 
-		if (!lastOcredFrame->Success)
+		if (!lastOcredFrame->Success())
 			OcrErrorsSinceReset++;
 	}
 };

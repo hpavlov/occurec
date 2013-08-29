@@ -33,6 +33,21 @@ enum ZoneMode
   SplitZones = 1
 };
 
+enum OcrErrorCode
+{
+	Unknown = 0,
+	Success = 0,
+	TrackedSatellitesInvalid = 0x0001,
+	WaitFlagInvalid = 0x0002,
+	HoursInvalid = 0x0004,
+	MinutesInvalid = 0x0008,
+	SecondsInvalid = 0x0010,
+	MillisecondsInvalid = 0x0020,
+	FieldNumberInvalid = 0x0040,
+	FieldNumbersNotSequential = 0x0080,
+	FrameDurationNotPALorNTSC = 0x0100
+};
+
 // 
 class OcrZoneEntry
 {
@@ -123,11 +138,13 @@ class OcrFrameProcessor
 		OcredFieldOsd OddFieldOcredOsd;
 		OcredFieldOsd EvenFieldOcredOsd;
 
-		bool ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo);
+		OcrErrorCode ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo);
 		void SafeCopyCharsReplaceZeroWithSpace(char* destBuffer, char* source, int len);
 
 	public:
-		bool Success;
+		bool Success();
+		OcrErrorCode ErrorCodeOddField;
+		OcrErrorCode ErrorCodeEvenField;
 
 		OcrFrameProcessor();
 		~OcrFrameProcessor();
@@ -159,8 +176,8 @@ class OcrManager
 		long prevStartFieldId;
 		long long prevStartTimeStamp;
 
-		void VerifyAndFixOcredFrame(OcrFrameProcessor* ocredFrame);
-		void VerifyAndFixOcredIntegratedInterval(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame);
+		void VerifyOcredFrameIntegrity(OcrFrameProcessor* ocredFrame);
+		void VerifyOcredIntegratedIntervalIntegrity(OcrFrameProcessor* firstOcredFrame, OcrFrameProcessor* lastOcredFrame);
 
 	public:
 		long OcrErrorsSinceReset;
