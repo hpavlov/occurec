@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 using OccuRec.Properties;
 
 namespace OccuRec.Helpers
@@ -21,6 +22,8 @@ namespace OccuRec.Helpers
         private int imageHeight;
 	    private int framesWithoutTimestams;
 
+	    private OverlayState overlayState;
+
         private object syncRoot = new object();
 
         public OverlayManager(int width, int height, List<string> initializationErrorMessages)
@@ -32,6 +35,15 @@ namespace OccuRec.Helpers
             foreach (string message in initializationErrorMessages)
                 errorMessagesQueue.Enqueue(message);
         }
+
+		public void ChangeOverlayState<TNewState>() where TNewState : OverlayState, new()
+		{
+			if (overlayState != null)
+				overlayState.Finalise();
+
+			overlayState = new TNewState();
+			overlayState.Initialise();
+		}
 
         public void OnEvent(int eventId, string eventData)
         {
@@ -53,12 +65,20 @@ namespace OccuRec.Helpers
                 displayMessageUntil = DateTime.MinValue;
                 currMessageToDisplay = null;
             }
+
+			if (overlayState != null)
+				overlayState.Finalise();
+
+	        overlayState = null;
         }
 
 	    private SizeF timestampMeasurement = SizeF.Empty;
 
         public void ProcessFrame(Graphics g)
         {
+			if (overlayState != null)
+				overlayState.ProcessFrame(g);
+
             ProcessErrorMessages(g);
 
 			if (Settings.Default.OcrSimulatorTestMode && !Settings.Default.OcrSimulatorNativeCode)
@@ -118,5 +138,29 @@ namespace OccuRec.Helpers
                 }
             }
         }
+
+		public void MouseMove(MouseEventArgs e)
+		{
+			if (overlayState != null)
+				overlayState.MouseMove(e);
+		}
+
+		public void MouseLeave(EventArgs e)
+		{
+			if (overlayState != null)
+				overlayState.MouseLeave(e);
+		}
+
+		public void MouseDown(MouseEventArgs e)
+		{
+			if (overlayState != null)
+				overlayState.MouseDown(e);
+		}
+
+		public void MouseUp(MouseEventArgs e)
+		{
+			if (overlayState != null)
+				overlayState.MouseUp(e);
+		}
     }
 }

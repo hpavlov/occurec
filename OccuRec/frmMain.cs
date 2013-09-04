@@ -1381,5 +1381,29 @@ namespace OccuRec
 			}
 		}
 
+		private void pictureBox_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (overlayManager != null)
+				overlayManager.MouseMove(e);
+		}
+
+		private void pictureBox_MouseLeave(object sender, EventArgs e)
+		{
+			if (overlayManager != null)
+				overlayManager.MouseLeave(e);
+		}
+
+		private void pictureBox_MouseDown(object sender, MouseEventArgs e)
+		{
+			if (overlayManager != null)
+				overlayManager.MouseDown(e);
+		}
+
+		private void pictureBox_MouseUp(object sender, MouseEventArgs e)
+		{
+			if (overlayManager != null)
+				overlayManager.MouseUp(e);
+		}
+
 	}
 }

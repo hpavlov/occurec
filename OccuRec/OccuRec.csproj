@@ -65,6 +65,7 @@
     <Compile Include="frmChooseManualIntegrationRate.Designer.cs">
       <DependentUpon>frmChooseManualIntegrationRate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\OverlayState.cs" />
     <Compile Include="Helpers\ImageUtils.cs" />
     <Compile Include="Helpers\NonBlockingLock.cs" />
     <Compile Include="Helpers\NTPClient.cs" />

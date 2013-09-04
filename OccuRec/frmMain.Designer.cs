@@ -25,6 +25,7 @@
 			this.tssDroppedFrames = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssOcrErr = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssRecordingFile = new System.Windows.Forms.ToolStripStatusLabel();
+			this.tssFreeDiskSpace = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pnlNewVersionAvailable = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssDisplayRate = new System.Windows.Forms.ToolStripStatusLabel();
 			this.msMain = new System.Windows.Forms.MenuStrip();
@@ -78,7 +79,6 @@
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-			this.tssFreeDiskSpace = new System.Windows.Forms.ToolStripStatusLabel();
 			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
@@ -183,6 +183,18 @@
 			this.tssRecordingFile.Size = new System.Drawing.Size(73, 17);
 			this.tssRecordingFile.Text = "File (xxx Mb)";
 			this.tssRecordingFile.Visible = false;
+			// 
+			// tssFreeDiskSpace
+			// 
+			this.tssFreeDiskSpace.BackColor = System.Drawing.Color.Red;
+			this.tssFreeDiskSpace.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.tssFreeDiskSpace.ForeColor = System.Drawing.Color.Yellow;
+			this.tssFreeDiskSpace.Name = "tssFreeDiskSpace";
+			this.tssFreeDiskSpace.Size = new System.Drawing.Size(69, 17);
+			this.tssFreeDiskSpace.Text = "xxx Mb free";
+			this.tssFreeDiskSpace.Visible = false;
 			// 
 			// pnlNewVersionAvailable
 			// 
@@ -344,6 +356,10 @@
 			this.pictureBox.Size = new System.Drawing.Size(703, 494);
 			this.pictureBox.TabIndex = 0;
 			this.pictureBox.TabStop = false;
+			this.pictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseDown);
+			this.pictureBox.MouseLeave += new System.EventHandler(this.pictureBox_MouseLeave);
+			this.pictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseMove);
+			this.pictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseUp);
 			// 
 			// pnlVideoControls
 			// 
@@ -689,18 +705,6 @@
 			// 
 			this.openFileDialog.DefaultExt = "avi";
 			this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
-			// 
-			// tssFreeDiskSpace
-			// 
-			this.tssFreeDiskSpace.BackColor = System.Drawing.Color.Red;
-			this.tssFreeDiskSpace.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-			this.tssFreeDiskSpace.ForeColor = System.Drawing.Color.Yellow;
-			this.tssFreeDiskSpace.Name = "tssFreeDiskSpace";
-			this.tssFreeDiskSpace.Size = new System.Drawing.Size(69, 17);
-			this.tssFreeDiskSpace.Text = "xxx Mb free";
-			this.tssFreeDiskSpace.Visible = false;
 			// 
 			// frmMain
 			// 

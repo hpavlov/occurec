@@ -8,6 +8,7 @@ General & Bugfixes:
 - Make it possible to save files bigger than 2Gb 
 - Make it possible to select target and comparison star and implement 'tracking'
 - Implement target monitoring by drawing a live graph of the measured brightness of the selected target (normalized to selected comparison). Track using selected Guiding star
+- x256 fields rate is not working with WAT-910HX even in manual mode
 
 OCR Implemntation:
 
