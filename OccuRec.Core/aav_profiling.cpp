@@ -33,9 +33,16 @@ int advfsetpos64(FILE* file, const __int64* pos)
 	return rv;
 }
 
-int advfseek(FILE* file, long int off, int whence)
+int advfsetpos64(FILE* file, const __int64* pos, int origin)
 {
-	int rv = fseek(file, off, whence);
+	int rv = _fseeki64(file, *pos, origin);
+	return rv;
+}
+
+int advfseek(FILE* file, __int64 off, int whence)
+{
+	int rv = advfsetpos64(file, &off, whence);
+	//int rv = fseek(file, off, whence);
 	return rv;
 }
 

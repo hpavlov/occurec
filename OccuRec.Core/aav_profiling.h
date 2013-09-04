@@ -13,7 +13,7 @@ FILE* advfopen(const char* fileName, const char* modes);
 size_t advfwrite(const void* pData, size_t size, size_t count, FILE* file);
 void advfgetpos64(FILE* file, __int64* pos);
 int advfsetpos64(FILE* file, const __int64* pos);
-int advfseek(FILE* stream, long int off, int whence);
+int advfseek(FILE* stream, __int64 origin, int whence);
 int advfclose(FILE* file);
 int advfflush(FILE* file);
 

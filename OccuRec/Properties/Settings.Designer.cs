@@ -502,5 +502,17 @@ namespace OccuRec.Properties {
                 this["MinSignatureDiffRatio"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool WarnForFileSystemIssues {
+            get {
+                return ((bool)(this["WarnForFileSystemIssues"]));
+            }
+            set {
+                this["WarnForFileSystemIssues"] = value;
+            }
+        }
     }
 }

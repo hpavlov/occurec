@@ -21,12 +21,12 @@
 			this.ttsProgressBar = new System.Windows.Forms.ToolStripProgressBar();
 			this.tssCameraState = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssFrameNo = new System.Windows.Forms.ToolStripStatusLabel();
+			this.tssIntegrationRate = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssDroppedFrames = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssOcrErr = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssRecordingFile = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pnlNewVersionAvailable = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssDisplayRate = new System.Windows.Forms.ToolStripStatusLabel();
-			this.tssIntegrationRate = new System.Windows.Forms.ToolStripStatusLabel();
 			this.msMain = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.miConnect = new System.Windows.Forms.ToolStripMenuItem();
@@ -78,6 +78,7 @@
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+			this.tssFreeDiskSpace = new System.Windows.Forms.ToolStripStatusLabel();
 			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
@@ -100,10 +101,11 @@
             this.ttsProgressBar,
             this.tssCameraState,
             this.tssFrameNo,
-			this.tssIntegrationRate,
+            this.tssIntegrationRate,
             this.tssDroppedFrames,
             this.tssOcrErr,
             this.tssRecordingFile,
+            this.tssFreeDiskSpace,
             this.pnlNewVersionAvailable});
 			this.statusStrip.Location = new System.Drawing.Point(0, 543);
 			this.statusStrip.Name = "statusStrip";
@@ -138,6 +140,16 @@
 			this.tssFrameNo.Text = "Frame No";
 			this.tssFrameNo.Visible = false;
 			// 
+			// tssIntegrationRate
+			// 
+			this.tssIntegrationRate.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.tssIntegrationRate.Name = "tssIntegrationRate";
+			this.tssIntegrationRate.Size = new System.Drawing.Size(88, 17);
+			this.tssIntegrationRate.Text = "IntegrationRate";
+			this.tssIntegrationRate.Visible = false;
+			// 
 			// tssDroppedFrames
 			// 
 			this.tssDroppedFrames.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
@@ -163,7 +175,7 @@
 			// 
 			// tssRecordingFile
 			// 
-			this.tssRecordingFile.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+			this.tssRecordingFile.BackColor = System.Drawing.Color.MistyRose;
 			this.tssRecordingFile.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
@@ -192,16 +204,6 @@
 			this.tssDisplayRate.Name = "tssDisplayRate";
 			this.tssDisplayRate.Size = new System.Drawing.Size(71, 17);
 			this.tssDisplayRate.Text = "Display Rate";
-			// 
-			// tssIntegrationRate
-			// 
-			this.tssIntegrationRate.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-			this.tssIntegrationRate.Name = "tssIntegrationRate";
-			this.tssIntegrationRate.Size = new System.Drawing.Size(88, 17);
-			this.tssIntegrationRate.Text = "IntegrationRate";
-			this.tssIntegrationRate.Visible = false;
 			// 
 			// msMain
 			// 
@@ -688,6 +690,18 @@
 			this.openFileDialog.DefaultExt = "avi";
 			this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
 			// 
+			// tssFreeDiskSpace
+			// 
+			this.tssFreeDiskSpace.BackColor = System.Drawing.Color.Red;
+			this.tssFreeDiskSpace.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.tssFreeDiskSpace.ForeColor = System.Drawing.Color.Yellow;
+			this.tssFreeDiskSpace.Name = "tssFreeDiskSpace";
+			this.tssFreeDiskSpace.Size = new System.Drawing.Size(69, 17);
+			this.tssFreeDiskSpace.Text = "xxx Mb free";
+			this.tssFreeDiskSpace.Visible = false;
+			// 
 			// frmMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -704,6 +718,7 @@
 			this.MinimizeBox = false;
 			this.Name = "frmMain";
 			this.Text = "OccuRec ";
+			this.Load += new System.EventHandler(this.frmMain_Load);
 			this.statusStrip.ResumeLayout(false);
 			this.statusStrip.PerformLayout();
 			this.msMain.ResumeLayout(false);
@@ -792,6 +807,7 @@
         private System.Windows.Forms.ToolStripStatusLabel tssDisplayRate;
 		private System.Windows.Forms.ProgressBar pbarIntDetPercentDone;
 		private System.Windows.Forms.Button btnManualIntegration;
+		private System.Windows.Forms.ToolStripStatusLabel tssFreeDiskSpace;
 	}
 }
 

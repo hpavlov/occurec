@@ -59,6 +59,8 @@ namespace OccuRec
             cbDebugIntegration.Checked = Settings.Default.IntegrationDetectionTuning;
 			nudCalibrIntegrRate.Value = Settings.Default.CalibrationIntegrationRate;
 
+			cbxWarnForFileSystemIssues.Checked = Settings.Default.WarnForFileSystemIssues;
+
 			OcrSettings.Instance.Configurations
 				.Where(x => !x.Hidden)
 				.ToList()
@@ -93,6 +95,12 @@ namespace OccuRec
                 return;
             }
 
+			if (FileNameGenerator.CheckAndWarnForFileSystemLimitation(tbxOutputLocation.Text, MessageBoxButtons.OKCancel) == DialogResult.Cancel)
+			{
+				tbxOutputLocation.Focus();
+				return;				
+			}
+
             Settings.Default.OutputLocation = tbxOutputLocation.Text;
             Settings.Default.DisplayTimeInUT = cbxTimeInUT.Checked;
 
@@ -114,6 +122,7 @@ namespace OccuRec
 	        Settings.Default.CalibrationIntegrationRate = (int) nudCalibrIntegrRate.Value;
 
 			Settings.Default.SelectedOcrConfiguration = (string)cbxOCRConfigurations.SelectedItem;
+			Settings.Default.WarnForFileSystemIssues = cbxWarnForFileSystemIssues.Checked;
 
             Settings.Default.Save();
 

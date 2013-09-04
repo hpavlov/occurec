@@ -5,16 +5,18 @@
 General & Bugfixes:
 
 - Make it so GetNextFrame() returns a bitmap image bytes so no time is wasted converting bitmaps to arrays and back to bitmaps. May be define another generic output format [24bpp bitmap]
+- Make it possible to save files bigger than 2Gb 
+- Make it possible to select target and comparison star and implement 'tracking'
+- Implement target monitoring by drawing a live graph of the measured brightness of the selected target (normalized to selected comparison). Track using selected Guiding star
 
 OCR Implemntation:
 
-- Successfully run a live test for 24 hours without any errors
-
+V) Successfully run a live test for 24 hours without any errors
+- Implement OCR for NTSC
 
 Telescope Control:
 
-- Get a working COM port and cable to connect to the LX200ACF and test with C2A
-- Make it possible to select target and comparison star and implement 'tracking'
+V) Get a working COM port and cable to connect to the LX200ACF and test with C2A
 - Implement focusing 
 - Implement guiding (keeping the selected target at the initial position sending telescope tracking pulses)
 
@@ -67,3 +69,5 @@ V) Pass the "Max Errors" item when running OCR testing and stop recording after 
 V) Add an error code when OCR verification fails (and save it in the test OCR file or put it on the debug image) so it is more obvious what is the problem
 V) Complete the unmanaged OCR verification based on expected frame/integration period field numbers and expected frame/integration period duration 
 V) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
+V) Display remaining space left on disk (in status bar) when less than 2 Gb are available. Also show a warning message at start up
+V) Warn on start up if the target folder file system doesn't allow files bigger than 2/4 GB (i.e. is FAT or FAT32 with small file support)

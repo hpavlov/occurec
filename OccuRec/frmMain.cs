@@ -662,6 +662,20 @@ namespace OccuRec
 					var fi = new FileInfo(recordingfileName);
 					tssRecordingFile.Text = string.Format("{0} ({1:0.0} Mb)", fi.Name, 1.0 * fi.Length / (1024 * 1024));
 
+					if (fi.Directory != null)
+					{
+						ulong freeBytes;
+						NativeHelpers.GetDriveFreeBytes(fi.Directory.FullName, out freeBytes);
+
+						if (freeBytes < ((ulong)1024 * (ulong)1024 * (ulong)1024 * (ulong)2))
+						{
+							tssFreeDiskSpace.Visible = true;
+							tssFreeDiskSpace.Text = string.Format("{0:0.0} Gb free", 1.0 * freeBytes / (1024 * 1024 * 1024));
+						}
+						else
+							tssFreeDiskSpace.Visible = false;
+					}
+
 					tssRecordingFile.Visible = true;
 					btnStopRecording.Enabled = true;
 					btnRecord.Enabled = false;
@@ -672,12 +686,14 @@ namespace OccuRec
                     (stateManager.CanStartRecording || Settings.Default.IntegrationDetectionTuning))
                 {
                     tssRecordingFile.Visible = false;
+					tssFreeDiskSpace.Visible = false;
                     btnStopRecording.Enabled = false;
                     btnRecord.Enabled = true;
                 }
                 else
                 {
                     tssRecordingFile.Visible = false;
+					tssFreeDiskSpace.Visible = false;
                     btnRecord.Enabled = false;
                     btnStopRecording.Enabled = false;
                 }
@@ -1337,6 +1353,31 @@ namespace OccuRec
 					int manualIntegrationRate = (int)frm.nudIntegrationRate.Value;
 					NativeHelpers.SetManualIntegrationRateHint(manualIntegrationRate);
 				}
+			}
+		}
+
+		private void frmMain_Load(object sender, EventArgs e)
+		{
+			if (Settings.Default.WarnForFileSystemIssues && 
+				Directory.Exists(Settings.Default.OutputLocation))
+			{
+				ulong freeBytes;
+				NativeHelpers.GetDriveFreeBytes(Settings.Default.OutputLocation, out freeBytes);
+
+				string directoryRoot = Directory.GetDirectoryRoot(Settings.Default.OutputLocation);
+
+				if (freeBytes < ((ulong)1024 * (ulong)1024 * (ulong)1024 * (ulong)2))
+				{
+					MessageBox.Show(
+						string.Format("There is only {0:0.0} Gb left on drive {1}\r\n\r\nThere may not be enough disk space to record a video!",
+						1.0 * freeBytes / (1024 * 1024 * 1024),
+						directoryRoot), 
+						"OccuRec",
+						MessageBoxButtons.OK,
+						MessageBoxIcon.Warning);
+				}
+
+				FileNameGenerator.CheckAndWarnForFileSystemLimitation();
 			}
 		}
 
