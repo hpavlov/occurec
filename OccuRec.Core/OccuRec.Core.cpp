@@ -826,6 +826,9 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
 
 		double* ptrPixels = integratedPixels;
+		unsigned char* singleRawFramePixles = NULL;
+		if (OCR_FAILED_TEST_RECORDING) singleRawFramePixles = firstIntegratedFramePixels; // We always run OCR testing in locked x1 integration mode
+
 		unsigned char* ptr8BitPixels = latestIntegratedFrame;
 
 		unsigned char* ptrFramePixels = frame->Pixels;
@@ -867,6 +870,10 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			//       *ptrPixels (which is of type double but the value is integer from 0 to 255 * numberOfIntegratedFrames)
 			long averageValue = (long)(*ptrPixels / (INTEGRATION_LOCKED ? numberOfIntegratedFrames : 1));
 
+			if (OCR_FAILED_TEST_RECORDING) 
+				// In OCR testing mode always read the raw pixel from the actual frame
+				averageValue = *singleRawFramePixles;
+
 			if (averageValue <= 0)
 			{
 				*ptr8BitPixels = 0;
@@ -907,6 +914,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			ptr8BitPixels++;
 			ptrFramePixels++;
 			ptrPixels++;
+			if (OCR_FAILED_TEST_RECORDING) singleRawFramePixles ++;
 		}
 
 		bool hasOcrErors = false;
@@ -1028,12 +1036,13 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			frame->Pixels[1] = 0;
 			frame->Pixels[2] = 255;
 			frame->Pixels[IMAGE_WIDTH] = 0;
-			if (restoredPixels > 0) frame->Pixels[IMAGE_WIDTH + 1] = 255;
 			frame->Pixels[IMAGE_WIDTH + 2] = 0;
 			frame->Pixels[2 * IMAGE_WIDTH] = 255;
 			frame->Pixels[2 * IMAGE_WIDTH + 1] = 0;
 			frame->Pixels[2 * IMAGE_WIDTH + 2] = 255;
 		}
+		if (restoredPixels > 0) 
+			frame->Pixels[IMAGE_WIDTH + 1] = 255;
 
 		latestImageStatus.CountedFrames = numberOfIntegratedFrames;
 		latestImageStatus.CutOffRatio = 0; // NULL != integrationChecker ? integrationChecker->NewIntegrationPeriodCutOffRatio : 0;

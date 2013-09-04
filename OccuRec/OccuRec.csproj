@@ -209,6 +209,9 @@
     <Content Include="aavrec-big.ico" />
     <Content Include="img\aavrec-big.ico" />
     <Content Include="img\redcross.ico" />
+    <Content Include="license.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="OCR-Settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
