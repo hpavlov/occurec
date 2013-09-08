@@ -33,8 +33,6 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.cbxCaptureDevices = new System.Windows.Forms.ComboBox();
-            this.cbxMonochromeConversion = new System.Windows.Forms.ComboBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.cbxCameraModel = new System.Windows.Forms.ComboBox();
             this.gbxCodecs = new System.Windows.Forms.GroupBox();
@@ -55,15 +53,25 @@
             this.cbxFlipVertically = new System.Windows.Forms.CheckBox();
             this.cbxVideoFormats = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.nudPreserveVTITopRow = new System.Windows.Forms.NumericUpDown();
+            this.nudPreserveVTIBottomRow = new System.Windows.Forms.NumericUpDown();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cbxOCRConfigurations = new System.Windows.Forms.ComboBox();
+            this.label13 = new System.Windows.Forms.Label();
+            this.pnlPreserveOSDArea = new System.Windows.Forms.Panel();
             this.gbxCodecs.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gbxAAVSettings.SuspendLayout();
             this.pnlCrossbar.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
+            this.pnlPreserveOSDArea.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnOK
             // 
-            this.btnOK.Location = new System.Drawing.Point(259, 270);
+            this.btnOK.Location = new System.Drawing.Point(262, 302);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 7;
@@ -74,7 +82,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(340, 270);
+            this.btnCancel.Location = new System.Drawing.Point(343, 302);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 6;
@@ -99,29 +107,6 @@
             this.cbxCaptureDevices.Size = new System.Drawing.Size(210, 21);
             this.cbxCaptureDevices.TabIndex = 14;
             this.cbxCaptureDevices.SelectedIndexChanged += new System.EventHandler(this.cbxCaptureDevices_SelectedIndexChanged);
-            // 
-            // cbxMonochromeConversion
-            // 
-            this.cbxMonochromeConversion.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbxMonochromeConversion.FormattingEnabled = true;
-            this.cbxMonochromeConversion.Items.AddRange(new object[] {
-            "Use R value",
-            "Use G value",
-            "Use B value",
-            "Compute GrayScale value"});
-            this.cbxMonochromeConversion.Location = new System.Drawing.Point(16, 84);
-            this.cbxMonochromeConversion.Name = "cbxMonochromeConversion";
-            this.cbxMonochromeConversion.Size = new System.Drawing.Size(168, 21);
-            this.cbxMonochromeConversion.TabIndex = 17;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(16, 65);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(150, 13);
-            this.label3.TabIndex = 15;
-            this.label3.Text = "Monochrome Pixel Conversion";
             // 
             // label4
             // 
@@ -155,7 +140,7 @@
             this.gbxCodecs.Controls.Add(this.rbCodecUncompressed);
             this.gbxCodecs.Location = new System.Drawing.Point(131, 135);
             this.gbxCodecs.Name = "gbxCodecs";
-            this.gbxCodecs.Size = new System.Drawing.Size(262, 115);
+            this.gbxCodecs.Size = new System.Drawing.Size(262, 161);
             this.gbxCodecs.TabIndex = 21;
             this.gbxCodecs.TabStop = false;
             this.gbxCodecs.Text = "Video codec";
@@ -163,7 +148,7 @@
             // rbCodecLagarith
             // 
             this.rbCodecLagarith.AutoSize = true;
-            this.rbCodecLagarith.Location = new System.Drawing.Point(23, 42);
+            this.rbCodecLagarith.Location = new System.Drawing.Point(23, 48);
             this.rbCodecLagarith.Name = "rbCodecLagarith";
             this.rbCodecLagarith.Size = new System.Drawing.Size(140, 17);
             this.rbCodecLagarith.TabIndex = 4;
@@ -185,7 +170,7 @@
             // rbCodecXviD
             // 
             this.rbCodecXviD.AutoSize = true;
-            this.rbCodecXviD.Location = new System.Drawing.Point(23, 65);
+            this.rbCodecXviD.Location = new System.Drawing.Point(23, 77);
             this.rbCodecXviD.Name = "rbCodecXviD";
             this.rbCodecXviD.Size = new System.Drawing.Size(123, 17);
             this.rbCodecXviD.TabIndex = 2;
@@ -195,7 +180,7 @@
             // rbCodecUncompressed
             // 
             this.rbCodecUncompressed.AutoSize = true;
-            this.rbCodecUncompressed.Location = new System.Drawing.Point(22, 88);
+            this.rbCodecUncompressed.Location = new System.Drawing.Point(23, 106);
             this.rbCodecUncompressed.Name = "rbCodecUncompressed";
             this.rbCodecUncompressed.Size = new System.Drawing.Size(96, 17);
             this.rbCodecUncompressed.TabIndex = 1;
@@ -209,7 +194,7 @@
             this.groupBox2.Controls.Add(this.rbFileAAV);
             this.groupBox2.Location = new System.Drawing.Point(15, 135);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(110, 115);
+            this.groupBox2.Size = new System.Drawing.Size(110, 161);
             this.groupBox2.TabIndex = 22;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Format";
@@ -262,14 +247,15 @@
             // 
             // gbxAAVSettings
             // 
+            this.gbxAAVSettings.Controls.Add(this.pnlPreserveOSDArea);
+            this.gbxAAVSettings.Controls.Add(this.cbxOCRConfigurations);
+            this.gbxAAVSettings.Controls.Add(this.label13);
             this.gbxAAVSettings.Controls.Add(this.label4);
             this.gbxAAVSettings.Controls.Add(this.cbxIsIntegrating);
             this.gbxAAVSettings.Controls.Add(this.cbxCameraModel);
-            this.gbxAAVSettings.Controls.Add(this.label3);
-            this.gbxAAVSettings.Controls.Add(this.cbxMonochromeConversion);
             this.gbxAAVSettings.Location = new System.Drawing.Point(131, 136);
             this.gbxAAVSettings.Name = "gbxAAVSettings";
-            this.gbxAAVSettings.Size = new System.Drawing.Size(287, 115);
+            this.gbxAAVSettings.Size = new System.Drawing.Size(287, 160);
             this.gbxAAVSettings.TabIndex = 22;
             this.gbxAAVSettings.TabStop = false;
             this.gbxAAVSettings.Text = "AAV settings";
@@ -342,17 +328,103 @@
             this.label1.TabIndex = 27;
             this.label1.Text = "Video Resolution and Frame Rate";
             // 
+            // nudPreserveVTITopRow
+            // 
+            this.nudPreserveVTITopRow.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudPreserveVTITopRow.Location = new System.Drawing.Point(135, 3);
+            this.nudPreserveVTITopRow.Maximum = new decimal(new int[] {
+            4096,
+            0,
+            0,
+            0});
+            this.nudPreserveVTITopRow.Name = "nudPreserveVTITopRow";
+            this.nudPreserveVTITopRow.Size = new System.Drawing.Size(50, 20);
+            this.nudPreserveVTITopRow.TabIndex = 24;
+            this.nudPreserveVTITopRow.Value = new decimal(new int[] {
+            542,
+            0,
+            0,
+            0});
+            // 
+            // nudPreserveVTIBottomRow
+            // 
+            this.nudPreserveVTIBottomRow.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudPreserveVTIBottomRow.Location = new System.Drawing.Point(211, 3);
+            this.nudPreserveVTIBottomRow.Maximum = new decimal(new int[] {
+            4096,
+            0,
+            0,
+            0});
+            this.nudPreserveVTIBottomRow.Name = "nudPreserveVTIBottomRow";
+            this.nudPreserveVTIBottomRow.Size = new System.Drawing.Size(49, 20);
+            this.nudPreserveVTIBottomRow.TabIndex = 25;
+            this.nudPreserveVTIBottomRow.Value = new decimal(new int[] {
+            32,
+            0,
+            0,
+            0});
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Location = new System.Drawing.Point(7, 6);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(126, 13);
+            this.label11.TabIndex = 26;
+            this.label11.Text = "Preserve OSD rows from:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(192, 6);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(16, 13);
+            this.label3.TabIndex = 27;
+            this.label3.Text = "to";
+            // 
+            // cbxOCRConfigurations
+            // 
+            this.cbxOCRConfigurations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxOCRConfigurations.FormattingEnabled = true;
+            this.cbxOCRConfigurations.Location = new System.Drawing.Point(16, 84);
+            this.cbxOCRConfigurations.Name = "cbxOCRConfigurations";
+            this.cbxOCRConfigurations.Size = new System.Drawing.Size(250, 21);
+            this.cbxOCRConfigurations.TabIndex = 28;
+            this.cbxOCRConfigurations.SelectedIndexChanged += new System.EventHandler(this.cbxOCRConfigurations_SelectedIndexChanged);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(13, 68);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(118, 13);
+            this.label13.TabIndex = 29;
+            this.label13.Text = "VTI OSD Configuration:";
+            // 
+            // pnlPreserveOSDArea
+            // 
+            this.pnlPreserveOSDArea.Controls.Add(this.label11);
+            this.pnlPreserveOSDArea.Controls.Add(this.nudPreserveVTIBottomRow);
+            this.pnlPreserveOSDArea.Controls.Add(this.nudPreserveVTITopRow);
+            this.pnlPreserveOSDArea.Controls.Add(this.label3);
+            this.pnlPreserveOSDArea.Location = new System.Drawing.Point(6, 119);
+            this.pnlPreserveOSDArea.Name = "pnlPreserveOSDArea";
+            this.pnlPreserveOSDArea.Size = new System.Drawing.Size(275, 25);
+            this.pnlPreserveOSDArea.TabIndex = 31;
+            // 
             // frmChooseCamera
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(430, 306);
+            this.ClientSize = new System.Drawing.Size(430, 337);
+            this.Controls.Add(this.gbxAAVSettings);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.cbxVideoFormats);
             this.Controls.Add(this.cbxFlipVertically);
             this.Controls.Add(this.cbxFlipHorizontally);
             this.Controls.Add(this.pnlCrossbar);
-            this.Controls.Add(this.gbxAAVSettings);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.cbxCaptureDevices);
             this.Controls.Add(this.label2);
@@ -365,6 +437,7 @@
             this.MinimizeBox = false;
             this.Name = "frmChooseCamera";
             this.Text = "Connect to camera";
+            this.Load += new System.EventHandler(this.frmChooseCamera_Load);
             this.gbxCodecs.ResumeLayout(false);
             this.gbxCodecs.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -373,6 +446,10 @@
             this.gbxAAVSettings.PerformLayout();
             this.pnlCrossbar.ResumeLayout(false);
             this.pnlCrossbar.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).EndInit();
+            this.pnlPreserveOSDArea.ResumeLayout(false);
+            this.pnlPreserveOSDArea.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -384,8 +461,6 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cbxCaptureDevices;
-        private System.Windows.Forms.ComboBox cbxMonochromeConversion;
-        private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ComboBox cbxCameraModel;
         private System.Windows.Forms.GroupBox gbxCodecs;
@@ -406,5 +481,12 @@
         private System.Windows.Forms.CheckBox cbFileSIM;
         private System.Windows.Forms.ComboBox cbxVideoFormats;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.NumericUpDown nudPreserveVTITopRow;
+        private System.Windows.Forms.NumericUpDown nudPreserveVTIBottomRow;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.ComboBox cbxOCRConfigurations;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Panel pnlPreserveOSDArea;
     }
 }

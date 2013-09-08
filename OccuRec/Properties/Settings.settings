@@ -11,9 +11,6 @@
     <Setting Name="PreferredCaptureDevice" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="MonochromePixelsType" Type="OccuRec.Helpers.LumaConversionMode" Scope="User">
-      <Value Profile="(Default)">R</Value>
-    </Setting>
     <Setting Name="FileFormat" Type="System.String" Scope="User">
       <Value Profile="(Default)">AAV</Value>
     </Setting>
@@ -23,10 +20,10 @@
     <Setting Name="IsIntegrating" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="FlipVertically" Type="System.Boolean" Scope="User">
+    <Setting Name="VerticalFlip" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="FlipHorizontally" Type="System.Boolean" Scope="User">
+    <Setting Name="HorizontalFlip" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="UsesTunerCrossbar" Type="System.Boolean" Scope="User">
@@ -65,7 +62,7 @@
     <Setting Name="OcrMaxErrorsPerCameraTestRun" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">100</Value>
     </Setting>
-    <Setting Name="OcrCameraTestModeAav" Type="System.Boolean" Scope="User">
+    <Setting Name="OcrCameraAavTestMode" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="AavImageLayout" Type="OccuRec.Helpers.AavImageLayout" Scope="User">
@@ -83,11 +80,11 @@
     <Setting Name="FileSimulation" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="PreserveTSLineTop" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">542</Value>
+    <Setting Name="PreserveVTIFirstRow" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="PreserveTSAreaHeight" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">32</Value>
+    <Setting Name="PreserveVTILastRow" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="AcceptBetaUpdates" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -124,6 +121,15 @@
     </Setting>
     <Setting Name="WarnForFileSystemIssues" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ForceIntegrationRatesRestrictions" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="PreserveVTIWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="PreserveVTIHeight" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

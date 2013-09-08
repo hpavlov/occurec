@@ -4,11 +4,12 @@
 
 General & Bugfixes:
 
-- Make it so GetNextFrame() returns a bitmap image bytes so no time is wasted converting bitmaps to arrays and back to bitmaps. May be define another generic output format [24bpp bitmap]
-- Make it possible to save files bigger than 2Gb 
+- Save the default video modes per capture device
+
 - Make it possible to select target and comparison star and implement 'tracking'
 - Implement target monitoring by drawing a live graph of the measured brightness of the selected target (normalized to selected comparison). Track using selected Guiding star
-- x256 fields rate is not working with WAT-910HX even in manual mode
+
+- Add timekeeping using QueryPerformanceCounters and NTP synchronisation and start stamping all video frames with a second time source. Save the sync time and NTP server somewhere.
 
 OCR Implemntation:
 
@@ -17,13 +18,15 @@ V) Successfully run a live test for 24 hours without any errors
 
 Telescope Control:
 
-V) Get a working COM port and cable to connect to the LX200ACF and test with C2A
 - Implement focusing 
 - Implement guiding (keeping the selected target at the initial position sending telescope tracking pulses)
 
 ---------------------------------------------------------------------------
 
-
+V) Add a PreviewBitmap property to the IVideoFrame interface that returns a 24bpp bitmap (without the header?) and stop doing the constant 2-time pixel format conversion for display purposes
+V) x256 fields rate is not working with WAT-910HX even in manual mode. NOTE: It seems to work as x127 frames
+V) Get a working COM port and cable to connect to the LX200ACF and test with C2A
+V) Make it possible to save files bigger than 2Gb 
 V) Implement horizontal flip for AVI format
 V) Make the horizontal flip the default option
 V) Remove the vertical flip option or implement a vertical flip for AAV format

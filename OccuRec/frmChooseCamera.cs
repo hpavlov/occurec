@@ -10,6 +10,7 @@ using System.Text;
 using System.Windows.Forms;
 using OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl;
 using OccuRec.Helpers;
+using OccuRec.OCR;
 using OccuRec.Properties;
 using DirectShowLib;
 using System.Diagnostics;
@@ -28,7 +29,10 @@ namespace OccuRec
                 if (!Directory.Exists(Settings.Default.OutputLocation))
                     Directory.CreateDirectory(Settings.Default.OutputLocation);
             }
+        }
 
+        private void frmChooseCamera_Load(object sender, EventArgs e)
+        {
             cbxCameraModel.Text = Settings.Default.CameraModel;
 
             cbxCaptureDevices.Items.Clear();
@@ -44,8 +48,6 @@ namespace OccuRec
                 else
                     cbxCaptureDevices.SelectedIndex = 0;
             }
-
-            cbxMonochromeConversion.SelectedIndex = (int)Settings.Default.MonochromePixelsType;
 
             RadioButton rbCodec;
 
@@ -77,17 +79,38 @@ namespace OccuRec
             rbFileAVI.Checked = Settings.Default.FileFormat == "AVI";
 
             cbxIsIntegrating.Checked = Settings.Default.IsIntegrating;
-            cbxFlipHorizontally.Checked = Settings.Default.FlipHorizontally;
-            cbxFlipVertically.Checked = Settings.Default.FlipVertically;
+            cbxFlipHorizontally.Checked = Settings.Default.HorizontalFlip;
+            cbxFlipVertically.Checked = Settings.Default.VerticalFlip;
 
             cbFileSIM.Enabled = Settings.Default.OcrSimulatorTestMode && File.Exists(Settings.Default.SimulatorFilePath);
 
 #if !DEBUG
-			cbFileSIM.Checked = false;
-			cbFileSIM.Visible = false;
-#endif            
+            cbFileSIM.Checked = false;
+            cbFileSIM.Visible = false;
+#endif
 
             SetSettingsVisibility();
+        }
+
+        private void LoadVTIConfig(int width, int height)
+        {
+            cbxOCRConfigurations.Items.Clear();
+            cbxOCRConfigurations.Items.Add(string.Format("Reading VTI OSD not supported for {0} x {1}", width, height));
+
+            OcrSettings.Instance.Configurations
+                .Where(x => !x.Hidden && x.Alignment.Width == width && x.Alignment.Height == height)
+                .ToList()
+                .ForEach(x => cbxOCRConfigurations.Items.Add(x.Name));
+
+
+            if (!string.IsNullOrEmpty(Settings.Default.SelectedOcrConfiguration))
+            {
+                int selectedIndex = cbxOCRConfigurations.Items.IndexOf(Settings.Default.SelectedOcrConfiguration);
+                if (selectedIndex == -1) selectedIndex = 0; // Select 'Not Supported'
+                cbxOCRConfigurations.SelectedIndex = selectedIndex;
+            }
+            else
+                cbxOCRConfigurations.SelectedIndex = 0; // Select 'Not Supported'
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -98,7 +121,13 @@ namespace OccuRec
 
                 if (selectedItem == null)
                 {
-                    MessageBox.Show("Please select a crossbar source.");
+                    MessageBox.Show(
+                        this,
+                        "Please select a crossbar source.",
+                        "OccuRec",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+
                     cbxCameraModel.Focus();
                     return;
                 }
@@ -113,12 +142,43 @@ namespace OccuRec
             {
                 if (string.IsNullOrEmpty(cbxCameraModel.Text))
                 {
-                    MessageBox.Show("Please specify a camera model.");
+                    MessageBox.Show(
+                        this,
+                        "Please specify a camera model.",
+                        "OccuRec",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+
                     cbxCameraModel.Focus();
                     return;
                 }
 
                 Settings.Default.FileFormat = "AAV";
+
+                if (cbxOCRConfigurations.SelectedIndex > 0)
+                {
+                    // The first item is "Custom" and next items are actual OCR configurations
+                    Settings.Default.SelectedOcrConfiguration = (string) cbxOCRConfigurations.SelectedItem;
+                    Settings.Default.AavOcrEnabled = true;
+                }
+                else
+                {
+                    if (nudPreserveVTITopRow.Value == 0 && nudPreserveVTIBottomRow.Value == 0)
+                    {
+                        MessageBox.Show(
+                            this, 
+                            "Please specify VTI OSD rows to preserve or the timestamps will end up blurred. For more information see the online help from Help -> Index and then read the section 'How to use OccuRec'.",
+                            "OccuRec",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                        nudPreserveVTITopRow.Focus();
+                        return;
+                    }
+                    Settings.Default.AavOcrEnabled = false;
+                }
+
+                Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
+                Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;
             }
             else if (rbFileAVI.Checked)
                 Settings.Default.FileFormat = "AVI";
@@ -136,9 +196,8 @@ namespace OccuRec
                 Settings.Default.PreferredCompressorDevice = VideoCodecs.UNCOMPRESSED_VIDEO;
 
             Settings.Default.IsIntegrating = cbxIsIntegrating.Checked;
-            Settings.Default.MonochromePixelsType = (LumaConversionMode)cbxMonochromeConversion.SelectedIndex;
-            Settings.Default.FlipHorizontally = cbxFlipHorizontally.Checked;
-            Settings.Default.FlipVertically = cbxFlipVertically.Checked;
+            Settings.Default.HorizontalFlip = cbxFlipHorizontally.Checked;
+            Settings.Default.VerticalFlip = cbxFlipVertically.Checked;
 
             Settings.Default.Save();
 
@@ -265,8 +324,45 @@ namespace OccuRec
 
         private void cbxVideoFormats_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Settings.Default.SelectedVideoFormat = ((VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem).AsSerialized();
+            var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
+            Settings.Default.SelectedVideoFormat = selectedFormat.AsSerialized();
             Settings.Default.Save();
+
+            LoadVTIConfig(selectedFormat.Width, selectedFormat.Height);
+        }
+
+        private void cbxOCRConfigurations_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
+
+            if (cbxOCRConfigurations.SelectedIndex == 0 && selectedFormat != null)
+            {
+                if (Settings.Default.PreserveVTIWidth == selectedFormat.Width && Settings.Default.PreserveVTIHeight == selectedFormat.Height)
+                {
+                    nudPreserveVTITopRow.Value = Settings.Default.PreserveVTIFirstRow;
+                    nudPreserveVTIBottomRow.Value = Settings.Default.PreserveVTILastRow;
+                }
+                else
+                {
+                    nudPreserveVTITopRow.Value = 0;
+                    nudPreserveVTIBottomRow.Value = 0;
+                }
+
+                pnlPreserveOSDArea.Enabled = true;
+            }
+            else
+            {
+                OcrConfiguration ocrConfig = OcrSettings.Instance.Configurations.SingleOrDefault(x => x.Name == cbxOCRConfigurations.Text);
+
+                if (ocrConfig != null)
+                {
+                    nudPreserveVTITopRow.Value = ocrConfig.Alignment.FrameTopOdd - 1;
+                    nudPreserveVTIBottomRow.Value = ocrConfig.Alignment.FrameTopOdd + (2 * ocrConfig.Alignment.CharHeight) + 2;
+                    pnlPreserveOSDArea.Enabled = false;
+                }
+                else
+                    pnlPreserveOSDArea.Enabled = true;
+            }
         }
     }
 }

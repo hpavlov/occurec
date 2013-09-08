@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -62,8 +63,9 @@ namespace OccuRec.Drivers
 	{
 		object ImageArray { get; }
 
-
 		object ImageArrayVariant { get; }
+
+        Bitmap PreviewBitmap { get; }
 
 		long FrameNumber { get; }
 		

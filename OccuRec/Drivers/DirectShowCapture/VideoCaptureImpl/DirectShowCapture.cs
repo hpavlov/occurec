@@ -172,8 +172,8 @@ namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
             NativeHelpers.SetupCamera(
                 Settings.Default.CameraModel,
                 iWidth, iHeight,
-                Settings.Default.FlipHorizontally,
-                Settings.Default.FlipVertically,
+                Settings.Default.HorizontalFlip,
+                Settings.Default.VerticalFlip,
                 false,
                 0, 0, 1,
 				string.Empty,

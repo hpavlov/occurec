@@ -507,9 +507,9 @@ namespace OccuRec.Helpers
 		public static string SetupTimestampPreservation(int width, int height)
 		{
 			int hr = SetupIntegrationPreservationArea(
-				Settings.Default.PreserveTSLineTop,
-				Settings.Default.PreserveTSLineTop + 1,
-				Settings.Default.PreserveTSAreaHeight);
+				Settings.Default.PreserveVTIFirstRow,
+				Settings.Default.PreserveVTIFirstRow + 1,
+				Settings.Default.PreserveVTILastRow);
 
 			if (hr != 0)
 				return "Could not configure the timestamp preservation.";

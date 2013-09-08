@@ -159,17 +159,15 @@ namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
 			if (bmp != null)
 			{
-				using (bmp)
-				{
-                    object pixels = cameraImageHelper.GetImageArray(bmp, SimulatedSensorType, (LumaConversionMode)Settings.Default.MonochromePixelsType, Settings.Default.FlipHorizontally, Settings.Default.FlipVertically);
+                //object pixels = cameraImageHelper.GetImageArray(bmp, SimulatedSensorType, (LumaConversionMode)Settings.Default.MonochromePixelsType, Settings.Default.FlipHorizontally, Settings.Default.FlipVertically);
 
-					cameraFrame = new VideoCameraFrame()
-					{
-						FrameNumber = frameId,
-						Pixels = pixels,
-						ImageLayout = VideoFrameLayout.Color
-					};					
-				}
+                cameraFrame = new VideoCameraFrame()
+                {
+                    FrameNumber = frameId,
+                    Pixels = null,
+                    PreviewBitmap = bmp,
+                    ImageLayout = VideoFrameLayout.Color
+                };
 
 				return true;
 			}

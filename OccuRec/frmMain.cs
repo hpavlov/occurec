@@ -271,7 +271,7 @@ namespace OccuRec
                 }
 
                 pnlOcrTesting.Visible = 
-                     (Settings.Default.OcrCameraTestModeAav && Settings.Default.FileFormat == "AAV");
+                     (Settings.Default.OcrCameraAavTestMode && Settings.Default.FileFormat == "AAV");
 			}
 			else
 			{
@@ -339,11 +339,7 @@ namespace OccuRec
 
         private void PaintVideoFrame(VideoFrameWrapper frame, Bitmap bmp)
 		{
-			bool isEmptyFrame = frame == null;
-			if (!isEmptyFrame)
-				isEmptyFrame = useVariantPixels 
-					? frame.ImageArrayVariant == null 
-					: frame.ImageArray == null;
+            bool isEmptyFrame = frame == null || bmp == null;
 
 			if (isEmptyFrame)
 			{
@@ -470,6 +466,11 @@ namespace OccuRec
 				get { return null; }
 			}
 
+            public Bitmap PreviewBitmap
+            {
+                get { return null; }
+            }
+
 			public long FrameNumber
 			{
 				get
@@ -520,17 +521,20 @@ namespace OccuRec
 
                                 lastDisplayedVideoFrameNumber = frameWrapper.UniqueFrameId;
 
-                                Bitmap bmp = null;
+                                Bitmap bmp = frame.PreviewBitmap;
 
-                                cameraImage.SetImageArray(
-                                    useVariantPixels
-                                        ? frame.ImageArrayVariant
-                                        : frame.ImageArray,
-                                    imageWidth,
-                                    imageHeight,
-                                    videoObject.SensorType);
+                                if (bmp == null)
+                                {
+                                    cameraImage.SetImageArray(
+                                        useVariantPixels
+                                            ? frame.ImageArrayVariant
+                                            : frame.ImageArray,
+                                        imageWidth,
+                                        imageHeight,
+                                        videoObject.SensorType);
 
-                                bmp = cameraImage.GetDisplayBitmap();
+                                    bmp = cameraImage.GetDisplayBitmap();
+                                }
 
                                 Invoke(new PaintVideoFrameDelegate(PaintVideoFrame), new object[] { frameWrapper, bmp });                                
                             }
@@ -1292,7 +1296,7 @@ namespace OccuRec
 				{
 					Settings.Default.SimulatorFilePath = openFileDialog.FileName;
 				    Settings.Default.OcrSimulatorTestMode = false;
-                    Settings.Default.OcrCameraTestModeAav = false;
+                    Settings.Default.OcrCameraAavTestMode = false;
                     Settings.Default.SimulatorRunOCR = false;
 					Settings.Default.Save();
 

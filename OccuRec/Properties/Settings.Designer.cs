@@ -61,18 +61,6 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("R")]
-        public global::OccuRec.Helpers.LumaConversionMode MonochromePixelsType {
-            get {
-                return ((global::OccuRec.Helpers.LumaConversionMode)(this["MonochromePixelsType"]));
-            }
-            set {
-                this["MonochromePixelsType"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("AAV")]
         public string FileFormat {
             get {
@@ -110,24 +98,24 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool FlipVertically {
+        public bool VerticalFlip {
             get {
-                return ((bool)(this["FlipVertically"]));
+                return ((bool)(this["VerticalFlip"]));
             }
             set {
-                this["FlipVertically"] = value;
+                this["VerticalFlip"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool FlipHorizontally {
+        public bool HorizontalFlip {
             get {
-                return ((bool)(this["FlipHorizontally"]));
+                return ((bool)(this["HorizontalFlip"]));
             }
             set {
-                this["FlipHorizontally"] = value;
+                this["HorizontalFlip"] = value;
             }
         }
         
@@ -278,12 +266,12 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool OcrCameraTestModeAav {
+        public bool OcrCameraAavTestMode {
             get {
-                return ((bool)(this["OcrCameraTestModeAav"]));
+                return ((bool)(this["OcrCameraAavTestMode"]));
             }
             set {
-                this["OcrCameraTestModeAav"] = value;
+                this["OcrCameraAavTestMode"] = value;
             }
         }
         
@@ -349,25 +337,25 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("542")]
-        public int PreserveTSLineTop {
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PreserveVTIFirstRow {
             get {
-                return ((int)(this["PreserveTSLineTop"]));
+                return ((int)(this["PreserveVTIFirstRow"]));
             }
             set {
-                this["PreserveTSLineTop"] = value;
+                this["PreserveVTIFirstRow"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("32")]
-        public int PreserveTSAreaHeight {
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PreserveVTILastRow {
             get {
-                return ((int)(this["PreserveTSAreaHeight"]));
+                return ((int)(this["PreserveVTILastRow"]));
             }
             set {
-                this["PreserveTSAreaHeight"] = value;
+                this["PreserveVTILastRow"] = value;
             }
         }
         
@@ -512,6 +500,42 @@ namespace OccuRec.Properties {
             }
             set {
                 this["WarnForFileSystemIssues"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ForceIntegrationRatesRestrictions {
+            get {
+                return ((bool)(this["ForceIntegrationRatesRestrictions"]));
+            }
+            set {
+                this["ForceIntegrationRatesRestrictions"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PreserveVTIWidth {
+            get {
+                return ((int)(this["PreserveVTIWidth"]));
+            }
+            set {
+                this["PreserveVTIWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PreserveVTIHeight {
+            get {
+                return ((int)(this["PreserveVTIHeight"]));
+            }
+            set {
+                this["PreserveVTIHeight"] = value;
             }
         }
     }

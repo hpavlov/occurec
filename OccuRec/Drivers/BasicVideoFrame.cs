@@ -17,6 +17,7 @@ namespace OccuRec.Drivers
         private string exposureStartTime;
         private object pixels;
         private object pixelsVariant;
+        private Bitmap previewBitmap;
 
         private static int s_Counter = 0;
 
@@ -54,8 +55,8 @@ namespace OccuRec.Drivers
         {
             var rv = new BasicVideoFrame();
 
-            rv.pixels = ImageUtils.GetPixelArray(cameraFrame);
-
+            rv.pixels = null; // ImageUtils.GetPixelArray(cameraFrame);
+            rv.previewBitmap = cameraFrame;
             rv.pixelsVariant = null;
 
             // TODO: Set these from the unmanaged OCR data, when native OCR is running
@@ -136,6 +137,11 @@ namespace OccuRec.Drivers
             {
                 return pixelsVariant;
             }
+        }
+
+        public Bitmap PreviewBitmap
+        {
+            get { return previewBitmap; }
         }
 
         public long FrameNumber

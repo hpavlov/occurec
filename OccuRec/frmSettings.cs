@@ -25,6 +25,7 @@ namespace OccuRec
 
 #if !DEBUG
 		    tabControl.TabPages.Remove(tabDebug);
+		    tabControl.TabPages.Remove(tabTelControl);
 #endif
 
 			nudSignDiffRatio.Value = Math.Min(50, Math.Max(1, (decimal)Settings.Default.MinSignatureDiffRatio));
@@ -35,14 +36,12 @@ namespace OccuRec
 
 		    tbxSimlatorFilePath.Text = Settings.Default.SimulatorFilePath;
 
-            cbxOcrCameraTestModeAav.Checked = Settings.Default.OcrCameraTestModeAav;
+            cbxOcrCameraTestModeAav.Checked = Settings.Default.OcrCameraAavTestMode;
             nudMaxErrorsPerTestRun.Value = Settings.Default.OcrMaxErrorsPerCameraTestRun;
             cbxOcrSimlatorTestMode.Checked = Settings.Default.OcrSimulatorTestMode;
             cbxSimulatorRunOCR.Checked = Settings.Default.SimulatorRunOCR;
             tbxNTPServer.Text = Settings.Default.NTPServer;
 		    rbNativeOCR.Checked = Settings.Default.OcrSimulatorNativeCode;
-			nudPreserveTSTop.Value = Settings.Default.PreserveTSLineTop;
-			nudPreserveTSHeight.Value = Settings.Default.PreserveTSAreaHeight;
 			nudGammaDiff.Value = (decimal)Settings.Default.GammaDiff;
 
 		    cbxImageLayoutMode.Items.Clear();
@@ -50,8 +49,6 @@ namespace OccuRec
             cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedDiffCodeNoSigns);
             cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedDiffCodeWithSigns);
             cbxImageLayoutMode.Items.Add(AavImageLayout.UncompressedRaw);
-
-            cbxEnableAAVIOTAVTIOCR.Checked = Settings.Default.AavOcrEnabled;
 
             cbxImageLayoutMode.SelectedIndex = cbxImageLayoutMode.Items.IndexOf(Settings.Default.AavImageLayout);
 
@@ -61,25 +58,10 @@ namespace OccuRec
 
 			cbxWarnForFileSystemIssues.Checked = Settings.Default.WarnForFileSystemIssues;
 
-			OcrSettings.Instance.Configurations
-				.Where(x => !x.Hidden)
-				.ToList()
-				.ForEach(x => cbxOCRConfigurations.Items.Add(x.Name));
-
-            if (!string.IsNullOrEmpty(Settings.Default.SelectedOcrConfiguration))
-            {
-                int selectedIndex = cbxOCRConfigurations.Items.IndexOf(Settings.Default.SelectedOcrConfiguration);
-                cbxOCRConfigurations.SelectedIndex = selectedIndex;
-            }
+		    cbForceIntegrationRateRestrictions.Checked = Settings.Default.ForceIntegrationRatesRestrictions;
 
             UpdateControls();
 		}
-
-        private void frmSettings_Load(object sender, EventArgs e)
-        {
-            //lblArea1Config.Text = string.Format("T:{0}; L:{1}; W:{2}; H:{3}", m_OCRSettings.TimeStampArea1.Top, m_OCRSettings.TimeStampArea1.Left, m_OCRSettings.TimeStampArea1.Width, m_OCRSettings.TimeStampArea1.Height);
-            //lblArea2Config.Text = string.Format("T:{0}; L:{1}; W:{2}; H:{3}", m_OCRSettings.TimeStampArea2.Top, m_OCRSettings.TimeStampArea2.Left, m_OCRSettings.TimeStampArea2.Width, m_OCRSettings.TimeStampArea2.Height);
-        }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
@@ -106,23 +88,20 @@ namespace OccuRec
 
             Settings.Default.SimulatorFilePath = tbxSimlatorFilePath.Text;
 
-            Settings.Default.OcrCameraTestModeAav = cbxOcrCameraTestModeAav.Checked;
+            Settings.Default.OcrCameraAavTestMode = cbxOcrCameraTestModeAav.Checked;
             Settings.Default.OcrMaxErrorsPerCameraTestRun = (int)nudMaxErrorsPerTestRun.Value;
             Settings.Default.OcrSimulatorTestMode = cbxOcrSimlatorTestMode.Checked;
             Settings.Default.SimulatorRunOCR = cbxSimulatorRunOCR.Checked;
             Settings.Default.NTPServer = tbxNTPServer.Text;
             Settings.Default.OcrSimulatorNativeCode = rbNativeOCR.Checked;
             Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
-            Settings.Default.AavOcrEnabled = cbxEnableAAVIOTAVTIOCR.Checked;
-			Settings.Default.PreserveTSLineTop = (int)nudPreserveTSTop.Value;
-			Settings.Default.PreserveTSAreaHeight = (int)nudPreserveTSHeight.Value;			
 
             Settings.Default.UsesBufferedFrameProcessing = cbxFrameProcessingMode.SelectedIndex == 0;
             Settings.Default.IntegrationDetectionTuning = cbDebugIntegration.Checked;
 	        Settings.Default.CalibrationIntegrationRate = (int) nudCalibrIntegrRate.Value;
 
-			Settings.Default.SelectedOcrConfiguration = (string)cbxOCRConfigurations.SelectedItem;
-			Settings.Default.WarnForFileSystemIssues = cbxWarnForFileSystemIssues.Checked;
+            Settings.Default.WarnForFileSystemIssues = cbxWarnForFileSystemIssues.Checked;
+            Settings.Default.ForceIntegrationRatesRestrictions = cbForceIntegrationRateRestrictions.Checked;
 
             Settings.Default.Save();
 
@@ -154,12 +133,7 @@ namespace OccuRec
         private void UpdateControls()
         {
             rbManagedSim.Enabled = cbxSimulatorRunOCR.Checked;
-            rbNativeOCR.Enabled = cbxSimulatorRunOCR.Checked;            
+            rbNativeOCR.Enabled = cbxSimulatorRunOCR.Checked;
         }
-
-		private void cbxEnableAAVIOTAVTIOCR_CheckedChanged(object sender, EventArgs e)
-		{
-			pnlSelectOCRConfig.Enabled = cbxEnableAAVIOTAVTIOCR.Checked;
-		}
 	}
 }

@@ -32,6 +32,7 @@ namespace OccuRec.Drivers.DirectShowCapture
 		private string exposureStartTime;
 		private object pixels;
 		private object pixelsVariant;
+	    private Bitmap previewBitmap;
 
 		private static int s_Counter = 0;
 
@@ -102,6 +103,8 @@ namespace OccuRec.Drivers.DirectShowCapture
 			else
 				throw new NotSupportedException();
 
+		    rv.previewBitmap = cameraFrame.PreviewBitmap;
+
 			rv.frameNumber = cameraFrame.FrameNumber;
 			rv.exposureStartTime = null;
 			rv.exposureDuration = null;
@@ -125,6 +128,11 @@ namespace OccuRec.Drivers.DirectShowCapture
 				return pixelsVariant;
 			}
 		}
+
+        public Bitmap PreviewBitmap
+        {
+            get { return previewBitmap; }
+        }
 
 		public long FrameNumber
 		{

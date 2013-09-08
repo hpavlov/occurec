@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using OccuRec.Drivers;
@@ -76,16 +77,6 @@ namespace OccuRec.Helpers
 
             if (UniqueFrameId == -1)
                 UniqueFrameId = videoFrame.FrameNumber;
-        }
-
-        public object ImageArray
-        {
-            get { return videoFrame.ImageArray; }
-        }
-
-        public object ImageArrayVariant
-        {
-            get { return videoFrame.ImageArrayVariant; }
         }
 
         public long FrameNumber

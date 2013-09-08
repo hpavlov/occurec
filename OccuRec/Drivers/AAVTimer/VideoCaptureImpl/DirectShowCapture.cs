@@ -70,8 +70,8 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
                 NativeHelpers.SetupCamera(
                     Settings.Default.CameraModel, 
                     iWidth, iHeight, 
-                    Settings.Default.FlipHorizontally, 
-                    Settings.Default.FlipVertically,
+                    Settings.Default.HorizontalFlip, 
+                    Settings.Default.VerticalFlip,
                     Settings.Default.IsIntegrating,
                     (float)Settings.Default.MinSignatureDiffRatio,
                     (float)Settings.Default.MinSignatureDiff,

@@ -60,8 +60,8 @@ namespace OccuRec.Drivers.AVISimulator.AVIPlayerImpl
                 NativeHelpers.SetupCamera(
                        Settings.Default.CameraModel,
                        ImageWidth, ImageHeight,
-                       Settings.Default.FlipHorizontally,
-                       Settings.Default.FlipVertically,
+                       Settings.Default.HorizontalFlip,
+                       Settings.Default.VerticalFlip,
                        Settings.Default.IsIntegrating,
 					   (float)Settings.Default.MinSignatureDiffRatio,
                        (float)Settings.Default.MinSignatureDiff,
