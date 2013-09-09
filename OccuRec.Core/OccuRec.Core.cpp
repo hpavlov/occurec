@@ -315,6 +315,8 @@ HRESULT SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int ar
 	OCR_FRAME_TOP_EVEN = areaTopEven;
 	OCR_CHAR_FIELD_HEIGHT = areaHeight;
 
+	DebugViewPrint(L"IntegrationPreservationArea: From = %d; To = %d\n", OCR_FRAME_TOP_ODD, OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT); 
+			
 	return S_OK;
 }
 
@@ -1515,7 +1517,7 @@ void RecorderThreadProc( void* pContext )
 
 HRESULT StartRecordingInternal(LPCTSTR szFileName)
 {
-	AavNewFile((const char*)szFileName);		
+	AavNewFile((const char*)szFileName);
 	
 	AavAddFileTag("AAVR-SOFTWARE-VERSION", "1.0");
 	AavAddFileTag("RECORDER", occuRecVersion);
@@ -1527,7 +1529,14 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	AavAddFileTag("CAMERA-MODEL", cameraModel);
 
 	if (OCR_IS_SETUP)
-		AavAddFileTag("OCR-ENGINE", "IOTA-VTI OccuRec OCR v1.0");
+		AavAddFileTag("OCR-ENGINE", "IOTA-VTI OccuRec OCR v1.1");
+
+	char buffer[128];
+	sprintf(&buffer[0], "%d", OCR_FRAME_TOP_ODD);
+	AavAddFileTag("OSD-FIRST-LINE", &buffer[0]);
+
+	sprintf(&buffer[0], "%d", OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT);
+	AavAddFileTag("OSD-LAST-LINE", &buffer[0]);
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
 	

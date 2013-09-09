@@ -177,8 +177,15 @@ namespace OccuRec
                     Settings.Default.AavOcrEnabled = false;
                 }
 
-                Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
-                Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;
+                var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
+                if (selectedFormat != null)
+                {
+                    Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
+                    Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;
+                    Settings.Default.PreserveVTIWidth = selectedFormat.Width;
+                    Settings.Default.PreserveVTIHeight = selectedFormat.Height;
+                    Settings.Default.Save();
+                }
             }
             else if (rbFileAVI.Checked)
                 Settings.Default.FileFormat = "AVI";

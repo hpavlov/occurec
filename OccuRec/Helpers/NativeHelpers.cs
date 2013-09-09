@@ -509,7 +509,7 @@ namespace OccuRec.Helpers
 			int hr = SetupIntegrationPreservationArea(
 				Settings.Default.PreserveVTIFirstRow,
 				Settings.Default.PreserveVTIFirstRow + 1,
-				Settings.Default.PreserveVTILastRow);
+                (Settings.Default.PreserveVTILastRow - Settings.Default.PreserveVTIFirstRow - 1) / 2);
 
 			if (hr != 0)
 				return "Could not configure the timestamp preservation.";
