@@ -247,7 +247,7 @@ namespace OccuRec.OCR
 
 			TestFrameResult testResult = frameInfo.FrameInfoIsOk() ? TestFrameResult.Okay : TestFrameResult.ErrorSaveScreenShotImages;// testContext.TestTimeStamp(frameInfo);
 
-            if (ocrErrorReporting && testResult == TestFrameResult.ErrorSaveScreenShotImages && oddFieldInfo.FieldNumber >= 0 && evenFieldInfo.FieldNumber >= 0)
+            if (ocrErrorReporting && testResult == TestFrameResult.ErrorSaveScreenShotImages && (oddFieldInfo.FieldNumber >= 0 || evenFieldInfo.FieldNumber >= 0))
             {
                 Bitmap bmpOdd = CreateBitmapFromPixels(tsPixelsOdd);
                 Bitmap bmpEven = CreateBitmapFromPixels(tsPixelsEven);

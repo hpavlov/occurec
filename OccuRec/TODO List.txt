@@ -5,6 +5,8 @@
 General & Bugfixes:
 
 - Save the default video modes per capture device
+- During the integration detection check if the fields are combined incorrectly. Implement an automatic fix for this issue if present
+- Can the issue with misplaced fields once event 20 min 50 sec be solved by 'recombining' the fields on the fly when the issue is detected?
 
 - Make it possible to select target and comparison star and implement 'tracking'
 - Implement target monitoring by drawing a live graph of the measured brightness of the selected target (normalized to selected comparison). Track using selected Guiding star
@@ -14,6 +16,7 @@ General & Bugfixes:
 OCR Implemntation:
 
 V) Successfully run a live test for 24 hours without any errors
+- Test the parsing of "N" and apply fixes to the defintion is required
 - Implement OCR for NTSC
 
 Telescope Control:

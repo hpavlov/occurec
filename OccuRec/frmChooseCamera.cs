@@ -95,13 +95,18 @@ namespace OccuRec
         private void LoadVTIConfig(int width, int height)
         {
             cbxOCRConfigurations.Items.Clear();
-            cbxOCRConfigurations.Items.Add(string.Format("Reading VTI OSD not supported for {0} x {1}", width, height));
+
+	        bool listAllOCRConfigs = cbFileSIM.Enabled; // In simulator mode we show all
 
             OcrSettings.Instance.Configurations
-                .Where(x => !x.Hidden && x.Alignment.Width == width && x.Alignment.Height == height)
+                .Where(x => !x.Hidden && (listAllOCRConfigs || x.Alignment.Width == width && x.Alignment.Height == height))
                 .ToList()
                 .ForEach(x => cbxOCRConfigurations.Items.Add(x.Name));
 
+			if (cbxOCRConfigurations.Items.Count == 0)
+				cbxOCRConfigurations.Items.Insert(0, string.Format("Reading VTI OSD not supported for {0} x {1}", width, height));
+			else
+				cbxOCRConfigurations.Items.Insert(0, "No VTI OSD reading");
 
             if (!string.IsNullOrEmpty(Settings.Default.SelectedOcrConfiguration))
             {
