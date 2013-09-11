@@ -1541,8 +1541,18 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	AavAddFileTag("OSD-LAST-LINE", &buffer[0]);
 
 	float effectiveIntegrationRate = videoFrameRate / detectedIntegrationRate;
-	sprintf(&buffer[0], "%.5f", OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT);
+	sprintf(&buffer[0], "%.5f", effectiveIntegrationRate);
 	AavAddFileTag("EFFECTIVE-FRAME-RATE", &buffer[0]);
+
+	sprintf(&buffer[0], "%.2f", videoFrameRate);
+	AavAddFileTag("NATIVE-FRAME-RATE", &buffer[0]);
+
+	if (abs(videoFrameRate - 25.0) < 0.05)
+		AavAddFileTag("NATIVE-VIDEO-STANDARD", "PAL");
+	else if (abs(videoFrameRate - 29.97) < 0.05)
+		AavAddFileTag("NATIVE-VIDEO-STANDARD", "NTSC");
+	else
+		AavAddFileTag("NATIVE-VIDEO-STANDARD", "");
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
 	
