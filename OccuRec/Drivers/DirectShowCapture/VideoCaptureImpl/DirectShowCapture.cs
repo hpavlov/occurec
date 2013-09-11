@@ -177,7 +177,8 @@ namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
                 false,
                 0, 0, 1,
 				string.Empty,
-				string.Empty);
+				string.Empty,
+                iFrameRate);
 
             NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 

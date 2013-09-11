@@ -108,6 +108,7 @@ char cameraModel[128];
 char occuRecVersion[32];
 char grabberName[128];
 char videoMode[128];
+float videoFrameRate = 0;
 
 unsigned int STATUS_TAG_NUMBER_INTEGRATED_FRAMES;
 unsigned int STATUS_TAG_START_FRAME_ID;
@@ -465,10 +466,11 @@ void SetupDiffGammaMemoryTable(float diffGamma)
 	}
 }
 
-HRESULT SetupGrabberInfo(LPCTSTR szGrabberName, LPCTSTR szVideoMode)
+HRESULT SetupGrabberInfo(LPCTSTR szGrabberName, LPCTSTR szVideoMode, float frameRate)
 {
 	strcpy(&grabberName[0], (char *)szGrabberName);
 	strcpy(&videoMode[0], (char *)szVideoMode);
+	videoFrameRate = frameRate;
 
 	return S_OK;
 }
@@ -1537,6 +1539,10 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 
 	sprintf(&buffer[0], "%d", OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT);
 	AavAddFileTag("OSD-LAST-LINE", &buffer[0]);
+
+	float effectiveIntegrationRate = videoFrameRate / detectedIntegrationRate;
+	sprintf(&buffer[0], "%.5f", OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT);
+	AavAddFileTag("EFFECTIVE-FRAME-RATE", &buffer[0]);
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
 	

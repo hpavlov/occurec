@@ -216,7 +216,7 @@ namespace OccuRec.Helpers
             bool isIntegrating);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int SetupGrabberInfo(string grabberName, string videoMode);
+        private static extern int SetupGrabberInfo(string grabberName, string videoMode, float videoFrameRate);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma);
@@ -478,14 +478,14 @@ namespace OccuRec.Helpers
         public static void SetupCamera(string cameraModel, int width, int height, 
 			bool flipHorizontally, bool flipVertically,
 			bool isIntegrating, float differenceRatio, float minSignDiff, float gammaDiff,
-			string grabberName, string videoMode)
+			string grabberName, string videoMode, double frameRate)
         {
             imageWidth = width;
             imageHeight = height;
 
 			SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating);
 			SetupIntegrationDetection(differenceRatio, minSignDiff, gammaDiff);
-			SetupGrabberInfo(grabberName, videoMode);
+            SetupGrabberInfo(grabberName, videoMode, (float)frameRate);
         }
 
         public static void ReconfigureIntegrationDetection(float differenceRatio, float minSignDiff, float gammaDiff)

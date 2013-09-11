@@ -77,7 +77,8 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
                     (float)Settings.Default.MinSignatureDiff,
 					Settings.Default.GammaDiff,
 					dev.Name,
-					selectedFormat.AsSerialized());
+					selectedFormat.AsSerialized(),
+                    selectedFormat.FrameRate);
 
                 NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
 
@@ -197,7 +198,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 				hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
 				DsError.ThrowExceptionForHR(hr);
 
-                if (capFilter != null)
+				if (capFilter != null)
                     // If any of the default config items are set
                     SetConfigParms(capBuilder, capFilter, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
 
@@ -210,11 +211,12 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 
 				// Add the frame grabber to the graph
 				nullRendered = (IBaseFilter)new NullRenderer();
-                hr = filterGraph.AddFilter(nullRendered, "AAV Video Null Renderer");
+				hr = filterGraph.AddFilter(nullRendered, "AAV Video Null Renderer");
 				DsError.ThrowExceptionForHR(hr);
 
+				//TODO: TRY BUILDING A GRAPH WITHOUT A "Smart Tee"
 				// Connect everything together
-				hr = capBuilder.RenderStream(PinCategory.Preview, MediaType.Video, capFilter, baseGrabFlt, nullRendered);
+				hr = capBuilder.RenderStream(PinCategory.Capture, MediaType.Video, capFilter, baseGrabFlt, nullRendered);
 				DsError.ThrowExceptionForHR(hr);
 
 				// Now that sizes are fixed/known, store the sizes
