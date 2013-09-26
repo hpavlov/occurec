@@ -169,19 +169,6 @@ namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
 
         private void SetupGraphInternal(DsDevice dev, SystemCodecEntry compressor, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight, string fileName)
         {
-            NativeHelpers.SetupCamera(
-                Settings.Default.CameraModel,
-                iWidth, iHeight,
-                Settings.Default.HorizontalFlip,
-                Settings.Default.VerticalFlip,
-                false,
-                0, 0, 1,
-				string.Empty,
-				string.Empty,
-                iFrameRate);
-
-            NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
-
             filterGraph = (IFilterGraph2)new FilterGraph();
             mediaCtrl = filterGraph as IMediaControl;
 
@@ -211,6 +198,19 @@ namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
             SaveSizeInfo(samplGrabber);
 
             crossbar = CrossbarHelper.SetupTunerAndCrossbar(capBuilder, deviceFilter);
+
+            NativeHelpers.SetupCamera(
+                Settings.Default.CameraModel,
+                iWidth, iHeight,
+                Settings.Default.HorizontalFlip,
+                Settings.Default.VerticalFlip,
+                false,
+                0, 0, 1,
+                string.Empty,
+                string.Empty,
+                iFrameRate);
+
+            NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
         }
 
 		private IBaseFilter BuildPreviewOnlyCaptureGraph(DsDevice dev, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight)
