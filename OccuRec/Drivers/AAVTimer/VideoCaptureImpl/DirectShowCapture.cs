@@ -64,6 +64,15 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 			{
 				SetupGraphInternal(dev, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
 
+				// Now that sizes are fixed/known, store the sizes
+				SaveSizeInfo(samplGrabber);
+
+				crossbar = CrossbarHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
+
+				// Turn off clock so frames are sent as fast as possible
+				int hr = ((IMediaFilter)filterGraph).SetSyncSource(null);
+				DsError.ThrowExceptionForHR(hr);
+
 				latestBitmap = new Bitmap(iWidth, iHeight, PixelFormat.Format24bppRgb);
 				fullRect = new Rectangle(0, 0, latestBitmap.Width, latestBitmap.Height);
 
@@ -169,69 +178,60 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
             return (Bitmap)latestBitmap.Clone();
 		}
 
-        private void SetupGraphInternal(DsDevice dev, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight)
+		private void SetupGraphInternal(DsDevice dev, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight)
 		{
+			// Capture Source (Capture/Video) --> (Input) Sample Grabber (Output) --> (In) Null Renderer
+
 			filterGraph = (IFilterGraph2)new FilterGraph();
 			mediaCtrl = filterGraph as IMediaControl;
 
 			capBuilder = (ICaptureGraphBuilder2)new CaptureGraphBuilder2();
 
-			samplGrabber = (ISampleGrabber)new SampleGrabber();			
-			IBaseFilter nullRendered = null;
+			samplGrabber = (ISampleGrabber)new SampleGrabber();
+
+			IBaseFilter nullRenderer = null;
 
 			try
 			{
-				int hr = capBuilder.SetFiltergraph(filterGraph);
-				DsError.ThrowExceptionForHR(hr);
-
-                if (Settings.Default.VideoGraphDebugMode)
-                {
-                    if (rot != null)
-                    {
-                        rot.Dispose();
-                        rot = null;
-                    }
-                    rot = new DsROTEntry(filterGraph);
-                }
-
-			    // Add the video device
-				hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
+				// Add the video device
+				int hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
 				DsError.ThrowExceptionForHR(hr);
 
 				if (capFilter != null)
-                    // If any of the default config items are set
-                    SetConfigParms(capBuilder, capFilter, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
+					// If any of the default config items are set
+					SetConfigParms(capBuilder, capFilter, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
 
 				IBaseFilter baseGrabFlt = (IBaseFilter)samplGrabber;
 				ConfigureSampleGrabber(samplGrabber);
 
+				hr = filterGraph.AddFilter(baseGrabFlt, "OccuRec AVI Video Grabber");
+				DsError.ThrowExceptionForHR(hr);
+
+				// Connect the video device output to the sample grabber
+				IPin videoCaptureOutputPin = DsHelper.FindPin(capFilter, PinDirection.Output, MediaType.Video, PinCategory.Capture, "Capture");
+				IPin grabberInputPin = DsFindPin.ByDirection(baseGrabFlt, PinDirection.Input, 0);
+				hr = filterGraph.Connect(videoCaptureOutputPin, grabberInputPin);
+				DsError.ThrowExceptionForHR(hr);
+				Marshal.ReleaseComObject(videoCaptureOutputPin);
+				Marshal.ReleaseComObject(grabberInputPin);
+
 				// Add the frame grabber to the graph
-				hr = filterGraph.AddFilter(baseGrabFlt, "AAV Video Grabber");
+				nullRenderer = (IBaseFilter)new NullRenderer();
+				hr = filterGraph.AddFilter(nullRenderer, "OccuRec AVI Video Null Renderer");
 				DsError.ThrowExceptionForHR(hr);
 
-				// Add the frame grabber to the graph
-				nullRendered = (IBaseFilter)new NullRenderer();
-				hr = filterGraph.AddFilter(nullRendered, "AAV Video Null Renderer");
+				// Connect the sample grabber to the null renderer (so frame samples will be coming through)
+				IPin grabberOutputPin = DsFindPin.ByDirection(baseGrabFlt, PinDirection.Output, 0);
+				IPin renderedInputPin = DsFindPin.ByDirection(nullRenderer, PinDirection.Input, 0);
+				hr = filterGraph.Connect(grabberOutputPin, renderedInputPin);
 				DsError.ThrowExceptionForHR(hr);
-
-				//TODO: TRY BUILDING A GRAPH WITHOUT A "Smart Tee"
-				// Connect everything together
-				hr = capBuilder.RenderStream(PinCategory.Capture, MediaType.Video, capFilter, baseGrabFlt, nullRendered);
-				DsError.ThrowExceptionForHR(hr);
-
-				// Now that sizes are fixed/known, store the sizes
-				SaveSizeInfo(samplGrabber);
-
-                crossbar = CrossbarHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
-
-				// Turn off clock so frames are sent as fast as possible
-				hr = ((IMediaFilter) filterGraph).SetSyncSource(null);
-				DsError.ThrowExceptionForHR(hr);
+				Marshal.ReleaseComObject(grabberOutputPin);
+				Marshal.ReleaseComObject(renderedInputPin);
 			}
 			finally
 			{
-				if (nullRendered != null)
-					Marshal.ReleaseComObject(nullRendered);
+				if (nullRenderer != null)
+					Marshal.ReleaseComObject(nullRenderer);
 			}
 		}
 

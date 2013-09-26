@@ -235,6 +235,7 @@ namespace OccuRec
                 gbxAAVSettings.SendToBack();
                 gbxCodecs.Visible = true;
                 gbxCodecs.BringToFront();
+	            pnlFlipControls.Visible = false;
             }
             else
             {
@@ -242,6 +243,7 @@ namespace OccuRec
                 gbxCodecs.SendToBack();
                 gbxAAVSettings.Visible = true;
                 gbxAAVSettings.BringToFront();
+				pnlFlipControls.Visible = true;
             }
         }
 

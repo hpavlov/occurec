@@ -192,18 +192,19 @@ namespace OccuRec.Helpers
 			int width,
 			int height,
 			int bpp,
+			int flipMode,
 			[In] IntPtr hBitmap,
 			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,] bitmapBytes,
-			int mode);
+			short mode);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int GetColourPixelsFromBitmap(
 			int width,
 			int height,
 			int bpp,
+			int flipMode,
 			[In] IntPtr hBitmap,
-			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,,] bitmapBytes,
-            short flipMode);
+			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,,] bitmapBytes);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupCamera(
@@ -341,14 +342,14 @@ namespace OccuRec.Helpers
 			return PrepareColourBitmapForDisplay(imageArray, width, height, true);
 		}
 
-		public static object GetMonochromePixelsFromBitmap(Bitmap bitmap, LumaConversionMode conversionMode)
+		public static object GetMonochromePixelsFromBitmap(Bitmap bitmap, LumaConversionMode conversionMode, short flipMode)
 		{
 			int[,] bitmapBytes = new int[bitmap.Width, bitmap.Height];
 
 			IntPtr hBitmap = bitmap.GetHbitmap();
 			try
 			{
-				GetMonochromePixelsFromBitmap(bitmap.Width, bitmap.Height, 8, hBitmap, bitmapBytes, (int)conversionMode);
+				GetMonochromePixelsFromBitmap(bitmap.Width, bitmap.Height, 8, flipMode, hBitmap, bitmapBytes, (short)conversionMode);
 			}
 			finally
 			{
@@ -365,7 +366,7 @@ namespace OccuRec.Helpers
 			IntPtr hBitmap = bitmap.GetHbitmap();
 			try
 			{
-                GetColourPixelsFromBitmap(bitmap.Width, bitmap.Height, 8, hBitmap, bitmapBytes, (short)flipMode);
+				GetColourPixelsFromBitmap(bitmap.Width, bitmap.Height, 8, flipMode, hBitmap, bitmapBytes);
 			}
 			finally
 			{

@@ -203,20 +203,9 @@ namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
             }
 
             if (fileName != null)
-            {
-                if (compressor.Codec == SupportedCodec.Uncompressed)
-                {
-                    deviceFilter = BuildFileCaptureGraph_UncompressedOrDV(dev, compressor.Device, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight, fileName);
-                }
-                else if (compressor.Codec == SupportedCodec.XviD || compressor.Codec == SupportedCodec.HuffYuv211 || compressor.Codec == SupportedCodec.Lagarith)
-                {
-                    deviceFilter = BuildFileCaptureGraph_WithCodec(dev, compressor.Device, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight, fileName);
-                }
-            }
+				deviceFilter = BuildFileCaptureGraph(dev, compressor.Device, selectedFormat, fileName, ref iFrameRate, ref iWidth, ref iHeight);
             else
-            {
                 deviceFilter = BuildPreviewOnlyCaptureGraph(dev, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
-            }
 
             // Now that sizes are fixed/known, store the sizes
             SaveSizeInfo(samplGrabber);
@@ -224,376 +213,154 @@ namespace OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl
             crossbar = CrossbarHelper.SetupTunerAndCrossbar(capBuilder, deviceFilter);
         }
 
-        private IBaseFilter BuildPreviewOnlyCaptureGraph(DsDevice dev, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight)
-        {
-            IBaseFilter muxFilter = null;
+		private IBaseFilter BuildPreviewOnlyCaptureGraph(DsDevice dev, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight)
+		{
+			// Capture Source (Capture/Video) --> (Input) Sample Grabber (Output) --> (In) Null Renderer
 
-            try
-            {
-                IBaseFilter capFilter = null;
+			IBaseFilter nullRenderer = null;
 
-                // Add the video device
-                int hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
-                DsError.ThrowExceptionForHR(hr);
+			try
+			{
+				IBaseFilter capFilter;
 
-                if (capFilter != null)
-                    // If any of the default config items are set
-                    SetConfigParms(capBuilder, capFilter, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
+				// Add the video device
+				int hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
+				DsError.ThrowExceptionForHR(hr);
 
-                IBaseFilter baseGrabFlt = (IBaseFilter)samplGrabber;
-                ConfigureSampleGrabber(samplGrabber);
+				if (capFilter != null)
+					// If any of the default config items are set
+					SetConfigParms(capBuilder, capFilter, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
 
-                // Add the frame grabber to the graph
-                hr = filterGraph.AddFilter(baseGrabFlt, "OccuRec AVI Video Grabber");
-                DsError.ThrowExceptionForHR(hr);
+				IBaseFilter baseGrabFlt = (IBaseFilter)samplGrabber;
+				ConfigureSampleGrabber(samplGrabber);
 
-                // Add the frame grabber to the graph
-                muxFilter = (IBaseFilter)new NullRenderer();
-				hr = filterGraph.AddFilter(muxFilter, "OccuRec AVI Video Null Renderer");
-                DsError.ThrowExceptionForHR(hr);
+				hr = filterGraph.AddFilter(baseGrabFlt, "OccuRec AVI Video Grabber");
+				DsError.ThrowExceptionForHR(hr);
 
-                // Connect everything together
-                hr = capBuilder.RenderStream(PinCategory.Preview, MediaType.Video, capFilter, baseGrabFlt, muxFilter);
-                DsError.ThrowExceptionForHR(hr);
+				// Connect the video device output to the sample grabber
+				IPin videoCaptureOutputPin = DsHelper.FindPin(capFilter, PinDirection.Output, MediaType.Video, PinCategory.Capture, "Capture");
+				IPin grabberInputPin = DsFindPin.ByDirection(baseGrabFlt, PinDirection.Input, 0);
+				hr = filterGraph.Connect(videoCaptureOutputPin, grabberInputPin);
+				DsError.ThrowExceptionForHR(hr);
+				Marshal.ReleaseComObject(videoCaptureOutputPin);
+				Marshal.ReleaseComObject(grabberInputPin);
 
-                return capFilter;
-            }
-            finally
-            {
-                if (muxFilter != null)
-                    Marshal.ReleaseComObject(muxFilter);
-            }
-        }
+				// Add the frame grabber to the graph
+				nullRenderer = (IBaseFilter)new NullRenderer();
+				hr = filterGraph.AddFilter(nullRenderer, "OccuRec AVI Video Null Renderer");
+				DsError.ThrowExceptionForHR(hr);
+
+				// Connect the sample grabber to the null renderer (so frame samples will be coming through)
+				IPin grabberOutputPin = DsFindPin.ByDirection(baseGrabFlt, PinDirection.Output, 0);
+				IPin renderedInputPin = DsFindPin.ByDirection(nullRenderer, PinDirection.Input, 0);
+				hr = filterGraph.Connect(grabberOutputPin, renderedInputPin);
+				DsError.ThrowExceptionForHR(hr);
+				Marshal.ReleaseComObject(grabberOutputPin);
+				Marshal.ReleaseComObject(renderedInputPin);
+
+				return capFilter;
+			}
+			finally
+			{
+				if (nullRenderer != null)
+					Marshal.ReleaseComObject(nullRenderer);
+			}
+		}
+
+		private IBaseFilter BuildFileCaptureGraph(DsDevice dev, DsDevice compressor, VideoFormatHelper.SupportedVideoFormat selectedFormat, string fileName, ref float iFrameRate, ref int iWidth, ref int iHeight)
+		{
+			// Capture Source (Capture/Video) --> (Input) Sample Grabber (Output) --> (Input) Video Compressor (Output) --> (Input 01/Video/) AVI Mux (Output) --> (In) FileSink
 
 
-        private IBaseFilter BuildFileCaptureGraph_UncompressedOrDV(DsDevice dev, DsDevice compressor, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight, string fileName)
-        {
-            IBaseFilter compressorFilter = null;
-            IBaseFilter muxFilter = null;
-            IFileSinkFilter fileWriterFilter = null;
-            IBaseFilter nullRenderer = null;
+			IBaseFilter muxFilter = null;
+			IFileSinkFilter fileWriterFilter = null;
+			IBaseFilter compressorFilter = null;
 
-            try
-            {
-                IBaseFilter capFilter = CreateFilter(FilterCategory.VideoInputDevice, dev.Name);
+			try
+			{
+				IBaseFilter capFilter;
 
-                // Add the Video input device to the graph
-				int hr = filterGraph.AddFilter(capFilter, "OccuRec AVI Video Source");
-                DsError.ThrowExceptionForHR(hr);
+				// Add the video device
+				int hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
+				DsError.ThrowExceptionForHR(hr);
 
-                if (capFilter != null)
-                    // If any of the default config items are set
-                    SetConfigParms(capBuilder, capFilter, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
+				if (capFilter != null)
+					SetConfigParms(capBuilder, capFilter, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
 
-                if (compressor != null)
-                {
-                    compressorFilter = CreateFilter(FilterCategory.VideoCompressorCategory, compressor.Name);
+				IBaseFilter baseGrabFlt = (IBaseFilter)samplGrabber;
+				ConfigureSampleGrabber(samplGrabber);
 
-                    // Add the Video compressor filter to the graph
+				hr = filterGraph.AddFilter(baseGrabFlt, "OccuRec AVI Video Grabber");
+				DsError.ThrowExceptionForHR(hr);
+
+				// Connect the video device output to the sample grabber
+				IPin videoCaptureOutputPin = DsHelper.FindPin(capFilter, PinDirection.Output, MediaType.Video, Guid.Empty, "Capture");
+				IPin smartTeeInputPin = DsFindPin.ByDirection(baseGrabFlt, PinDirection.Input, 0);
+				hr = filterGraph.Connect(videoCaptureOutputPin, smartTeeInputPin);
+				DsError.ThrowExceptionForHR(hr);
+				Marshal.ReleaseComObject(videoCaptureOutputPin);
+				Marshal.ReleaseComObject(smartTeeInputPin);
+
+				if (compressor != null)
+					// Create the compressor
+					compressorFilter = CreateFilter(FilterCategory.VideoCompressorCategory, compressor.Name);
+
+				if (compressorFilter != null)
+				{
 					hr = filterGraph.AddFilter(compressorFilter, "OccuRec AVI Video Compressor");
-                    DsError.ThrowExceptionForHR(hr);
-                }
+					DsError.ThrowExceptionForHR(hr);
 
-                // Create a filter for the output avi file
-                hr = capBuilder.SetOutputFileName(MediaSubType.Avi, fileName, out muxFilter, out fileWriterFilter);
-                DsError.ThrowExceptionForHR(hr);
+					// Connect the sample grabber Output pin to the compressor
+					IPin grabberOutputPin = DsFindPin.ByDirection(baseGrabFlt, PinDirection.Output, 0);
+					IPin compressorInputPin = DsFindPin.ByDirection(compressorFilter, PinDirection.Input, 0);
+					hr = filterGraph.Connect(grabberOutputPin, compressorInputPin);
+					DsError.ThrowExceptionForHR(hr);
+					Marshal.ReleaseComObject(grabberOutputPin);
+					Marshal.ReleaseComObject(compressorInputPin);
 
-                IBaseFilter baseGrabFlt = (IBaseFilter)samplGrabber;
-                ConfigureSampleGrabber(samplGrabber);
+					// Create the file writer and AVI Mux (already connected to each other)
+					hr = capBuilder.SetOutputFileName(MediaSubType.Avi, fileName, out muxFilter, out fileWriterFilter);
+					DsError.ThrowExceptionForHR(hr);
 
-                // Add the frame grabber to the graph
-				hr = filterGraph.AddFilter(baseGrabFlt, "OccuRec AVI Video Grabber");
-                DsError.ThrowExceptionForHR(hr);
+					// Connect the compressor output to the AVI Mux
+					IPin compressorOutputPin = DsFindPin.ByDirection(compressorFilter, PinDirection.Output, 0);
+					IPin aviMuxVideoInputPin = DsFindPin.ByDirection(muxFilter, PinDirection.Input, 0);
+					hr = filterGraph.Connect(compressorOutputPin, aviMuxVideoInputPin);
+					DsError.ThrowExceptionForHR(hr);
+					Marshal.ReleaseComObject(compressorOutputPin);
+					Marshal.ReleaseComObject(aviMuxVideoInputPin);
+				}
+				else
+				{
+					// Create the file writer and AVI Mux (already connected to each other)
+					hr = capBuilder.SetOutputFileName(MediaSubType.Avi, fileName, out muxFilter, out fileWriterFilter);
+					DsError.ThrowExceptionForHR(hr);
 
-                // Add the frame grabber to the graph
-                nullRenderer = (IBaseFilter)new NullRenderer();
-				hr = filterGraph.AddFilter(nullRenderer, "OccuRec AVI Video Null Renderer");
-                DsError.ThrowExceptionForHR(hr);
+					// Connect the sample grabber Output pin to the AVI Mux
+					IPin grabberOutputPin = DsFindPin.ByDirection(baseGrabFlt, PinDirection.Output, 0);
+					IPin aviMuxVideoInputPin = DsFindPin.ByDirection(muxFilter, PinDirection.Input, 0);
+					hr = filterGraph.Connect(grabberOutputPin, aviMuxVideoInputPin);
+					DsError.ThrowExceptionForHR(hr);
+					Marshal.ReleaseComObject(grabberOutputPin);
+					Marshal.ReleaseComObject(aviMuxVideoInputPin);					
+				}
 
-                // Render any preview pin of the device to the sample grabber
-                hr = capBuilder.RenderStream(PinCategory.Preview, MediaType.Video, capFilter, baseGrabFlt, nullRenderer);
-                DsError.ThrowExceptionForHR(hr);
+				return capFilter;
+			}
+			finally
+			{
+				if (fileWriterFilter != null)
+					Marshal.ReleaseComObject(fileWriterFilter);
 
-                // Connect the device and compressor to the mux to render the capture part of the graph
-                hr = capBuilder.RenderStream(PinCategory.Capture, MediaType.Video, capFilter, compressorFilter, muxFilter);
-                DsError.ThrowExceptionForHR(hr);
+				if (muxFilter != null)
+					Marshal.ReleaseComObject(muxFilter);
 
-                return capFilter;
-            }
-            finally
-            {
-
-                if (compressorFilter != null)
-                    Marshal.ReleaseComObject(compressorFilter);
-
-                if (muxFilter != null)
-                    Marshal.ReleaseComObject(muxFilter);
-
-                if (fileWriterFilter != null)
-                    Marshal.ReleaseComObject(fileWriterFilter);
-
-                if (nullRenderer != null)
-                    Marshal.ReleaseComObject(nullRenderer);
-            }
-
-        }
-
-        private static string SMART_TEE_MONKIER = @"@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{CC58E280-8AA1-11D1-B3F1-00AA003761C5}";
-        private static string AVI_DECOMPRESSOR_MONKIER = @"@device:sw:{083863F1-70DE-11D0-BD40-00A0C911CE86}\{CF49D4E0-1115-11CE-B03A-0020AF0BA770}";
-
-        private IBaseFilter BuildFileCaptureGraph_WithCodec(DsDevice dev, DsDevice compressor, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight, string fileName)
-        {
-            // Capture Source (Capture/Video) --> (Input) Smart Tee (Capture) --> (Input) Video Compressor (Output) --> (Input 01/Video/) AVI Mux (Output) --> (In) FileSink
-            //                                                      \
-            //                                                       (Preview)--> [AVI Decompressor] --> (Input) Sample Grabber (Output) --> (In) Null Renderer
-            //
-            // NOTE: An AVI Decompressor will be inserted automatically between the [Smart Tee] and [Sample Grabber]
+				if (compressorFilter != null)
+					Marshal.ReleaseComObject(compressorFilter);
+			}
+		}
 
 
-            IBaseFilter muxFilter = null;
-            IFileSinkFilter fileWriterFilter = null;
-            IBaseFilter nullRenderer = null;
-            IBaseFilter smartTeeFilter = null;
-            IBaseFilter compressorFilter = null;
-
-            try
-            {
-                IBaseFilter capFilter;
-
-                // Add the video device
-                int hr = filterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
-                DsError.ThrowExceptionForHR(hr);
-
-                if (capFilter != null)
-                    // If any of the default config items are set
-                    SetConfigParms(capBuilder, capFilter, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
-
-                IBaseFilter baseGrabFlt = (IBaseFilter)samplGrabber;
-                ConfigureSampleGrabber(samplGrabber);
-
-				hr = filterGraph.AddFilter(baseGrabFlt, "OccuRec AVI Video Grabber");
-                DsError.ThrowExceptionForHR(hr);
-
-                smartTeeFilter = Marshal.BindToMoniker(SMART_TEE_MONKIER) as IBaseFilter;
-				hr = filterGraph.AddFilter(smartTeeFilter, "OccuRec AVI Video SmartTee");
-                DsError.ThrowExceptionForHR(hr);
-
-                // Connect the video device output to the splitter
-                IPin videoCaptureOutputPin = FindPin(capFilter, PinDirection.Output, MediaType.Video, PinCategory.Capture, "Capture");
-                IPin smartTeeInputPin = DsFindPin.ByDirection(smartTeeFilter, PinDirection.Input, 0);
-                hr = filterGraph.Connect(videoCaptureOutputPin, smartTeeInputPin);
-                DsError.ThrowExceptionForHR(hr);
-                Marshal.ReleaseComObject(videoCaptureOutputPin);
-                Marshal.ReleaseComObject(smartTeeInputPin);
-
-                // Connect the splitter Preview pin to the sample grabber
-                IPin smartTeePreviewPin = FindPin(smartTeeFilter, PinDirection.Output, MediaType.Video, PinCategory.Preview, "Preview");
-                IPin grabberInputPin = DsFindPin.ByDirection(baseGrabFlt, PinDirection.Input, 0);
-                hr = filterGraph.Connect(smartTeePreviewPin, grabberInputPin);
-                DsError.ThrowExceptionForHR(hr);
-                Marshal.ReleaseComObject(smartTeePreviewPin);
-                Marshal.ReleaseComObject(grabberInputPin);
-
-                // Add the frame grabber to the graph
-                nullRenderer = (IBaseFilter)new NullRenderer();
-				hr = filterGraph.AddFilter(nullRenderer, "OccuRec AVI Video Null Renderer");
-                DsError.ThrowExceptionForHR(hr);
-
-                // Connect the sample grabber to the null renderer (so frame samples will be coming through)
-                IPin grabberOutputPin = DsFindPin.ByDirection(baseGrabFlt, PinDirection.Output, 0);
-                IPin renderedInputPin = DsFindPin.ByDirection(nullRenderer, PinDirection.Input, 0);
-                hr = filterGraph.Connect(grabberOutputPin, renderedInputPin);
-                DsError.ThrowExceptionForHR(hr);
-                Marshal.ReleaseComObject(grabberOutputPin);
-                Marshal.ReleaseComObject(renderedInputPin);
-
-                // Create the compressor
-                compressorFilter = CreateFilter(FilterCategory.VideoCompressorCategory, compressor.Name);
-				hr = filterGraph.AddFilter(compressorFilter, "OccuRec AVI Video Compressor");
-                DsError.ThrowExceptionForHR(hr);
-
-                // Connect the splitter Capture pin to the compressor
-                IPin smartTeeCapturePin = FindPin(smartTeeFilter, PinDirection.Output, MediaType.Video, PinCategory.Capture, "Capture");
-                IPin compressorInputPin = DsFindPin.ByDirection(compressorFilter, PinDirection.Input, 0);
-                hr = filterGraph.Connect(smartTeeCapturePin, compressorInputPin);
-                DsError.ThrowExceptionForHR(hr);
-                Marshal.ReleaseComObject(smartTeeCapturePin);
-                Marshal.ReleaseComObject(compressorInputPin);
-
-                // Create the file writer and AVI Mux (already connected to each other)
-                hr = capBuilder.SetOutputFileName(MediaSubType.Avi, fileName, out muxFilter, out fileWriterFilter);
-                DsError.ThrowExceptionForHR(hr);
-
-                // Connect the compressor output to the AVI Mux
-                IPin compressorOutputPin = DsFindPin.ByDirection(compressorFilter, PinDirection.Output, 0);
-                IPin aviMuxVideoInputPin = DsFindPin.ByDirection(muxFilter, PinDirection.Input, 0);
-                hr = filterGraph.Connect(compressorOutputPin, aviMuxVideoInputPin);
-                DsError.ThrowExceptionForHR(hr);
-                Marshal.ReleaseComObject(compressorOutputPin);
-                Marshal.ReleaseComObject(aviMuxVideoInputPin);
-
-                return capFilter;
-            }
-            finally
-            {
-                if (fileWriterFilter != null)
-                    Marshal.ReleaseComObject(fileWriterFilter);
-
-                if (muxFilter != null)
-                    Marshal.ReleaseComObject(muxFilter);
-
-                if (compressorFilter != null)
-                    Marshal.ReleaseComObject(compressorFilter);
-
-                if (nullRenderer != null)
-                    Marshal.ReleaseComObject(nullRenderer);
-
-                if (smartTeeFilter != null)
-                    Marshal.ReleaseComObject(smartTeeFilter);
-            }
-        }
-
-        private IPin PrintInfoAndReturnPin(IBaseFilter filter, IPin pin, PinDirection direction, Guid mediaType, Guid pinCategory, string debugInfo)
-        {
-            FilterInfo fInfo;
-            int hr = filter.QueryFilterInfo(out fInfo);
-            DsError.ThrowExceptionForHR(hr);
-
-            string vendorInfo = null;
-            hr = filter.QueryVendorInfo(out vendorInfo);
-            if ((uint)hr != 0x80004001) /* Not Implemented*/
-                DsError.ThrowExceptionForHR(hr);
-
-            string mediaTypeStr = "N/A";
-            if (mediaType == MediaType.AnalogVideo)
-                mediaTypeStr = "AnalogVideo";
-            else if (mediaType == MediaType.Video)
-                mediaTypeStr = "Video";
-            else if (mediaType == MediaType.Null)
-                mediaTypeStr = "Null";
-
-            string categoryStr = "N/A";
-            if (pinCategory == PinCategory.Capture)
-                categoryStr = "Capture";
-            else if (pinCategory == PinCategory.Preview)
-                categoryStr = "Preview";
-            else if (pinCategory == PinCategory.AnalogVideoIn)
-                categoryStr = "AnalogVideoIn";
-            else if (pinCategory == PinCategory.CC)
-                categoryStr = "CC";
-
-            PinInfo pinInfo;
-            hr = pin.QueryPinInfo(out pinInfo);
-            DsError.ThrowExceptionForHR(hr);
-
-            Trace.WriteLine(string.Format("Using {0} pin '{1}' of media type '{2}' and category '{3}' {4} ({5}::{6})",
-                direction == PinDirection.Input ? "input" : "output",
-                pinInfo.name,
-                mediaTypeStr,
-                categoryStr,
-                debugInfo,
-                vendorInfo, fInfo.achName));
-
-            return pin;
-        }
-
-        private IPin FindPin(IBaseFilter filter, PinDirection direction, Guid mediaType, Guid pinCategory, string preferredName)
-        {
-            if (Guid.Empty != pinCategory)
-            {
-                int idx = 0;
-
-                do
-                {
-                    IPin pinByCategory = DsFindPin.ByCategory(filter, pinCategory, idx);
-
-                    if (pinByCategory != null)
-                    {
-                        if (IsMatchingPin(pinByCategory, direction, mediaType))
-                            return PrintInfoAndReturnPin(filter, pinByCategory, direction, mediaType, pinCategory, "found by category");
-
-                        Marshal.ReleaseComObject(pinByCategory);
-                    }
-                    else
-                        break;
-
-                    idx++;
-                }
-                while (true);
-            }
-
-            if (!string.IsNullOrEmpty(preferredName))
-            {
-                IPin pinByName = DsFindPin.ByName(filter, preferredName);
-                if (pinByName != null && IsMatchingPin(pinByName, direction, mediaType))
-                    return PrintInfoAndReturnPin(filter, pinByName, direction, mediaType, pinCategory, "found by name");
-
-                Marshal.ReleaseComObject(pinByName);
-            }
-
-            IEnumPins pinsEnum;
-            IPin[] pins = new IPin[1];
-
-            int hr = filter.EnumPins(out pinsEnum);
-            DsError.ThrowExceptionForHR(hr);
-
-            while (pinsEnum.Next(1, pins, IntPtr.Zero) == 0)
-            {
-                IPin pin = pins[0];
-                if (pin != null)
-                {
-                    if (IsMatchingPin(pin, direction, mediaType))
-                        return PrintInfoAndReturnPin(filter, pin, direction, mediaType, pinCategory, "found by direction and media type");
-
-                    Marshal.ReleaseComObject(pin);
-                }
-            }
-
-            return null;
-        }
-
-        private bool IsMatchingPin(IPin pin, PinDirection direction, Guid mediaType)
-        {
-            PinDirection pinDirection;
-            int hr = pin.QueryDirection(out pinDirection);
-            DsError.ThrowExceptionForHR(hr);
-
-            if (pinDirection != direction)
-                // The pin lacks direction
-                return false;
-
-            IPin connectedPin;
-            hr = pin.ConnectedTo(out connectedPin);
-            if ((uint)hr != 0x80040209 /* Pin is not connected */)
-                DsError.ThrowExceptionForHR(hr);
-
-            if (connectedPin != null)
-            {
-                // The pin is already connected
-                Marshal.ReleaseComObject(connectedPin);
-                return false;
-            }
-
-            IEnumMediaTypes mediaTypesEnum;
-            hr = pin.EnumMediaTypes(out mediaTypesEnum);
-            DsError.ThrowExceptionForHR(hr);
-
-            AMMediaType[] mediaTypes = new AMMediaType[1];
-
-            while (mediaTypesEnum.Next(1, mediaTypes, IntPtr.Zero) == 0)
-            {
-                Guid majorType = mediaTypes[0].majorType;
-                DsUtils.FreeAMMediaType(mediaTypes[0]);
-
-                if (majorType == mediaType)
-                {
-                    // We have found the pin we were looking for
-                    return true;
-                }
-            }
-
-            return false;
-        }
 
         private void SaveSizeInfo(ISampleGrabber sampGrabber)
         {

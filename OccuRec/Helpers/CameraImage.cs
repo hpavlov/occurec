@@ -175,7 +175,7 @@ namespace OccuRec.Helpers
 	        if (flipHorizontally) flipMode += 1;
             if (flipVertically) flipMode += 2;
 			if (sensorType == SensorType.Monochrome)
-				return NativeHelpers.GetMonochromePixelsFromBitmap(bmp, conversionMode);
+				return NativeHelpers.GetMonochromePixelsFromBitmap(bmp, conversionMode, flipMode);
 			else if (sensorType == SensorType.Color)
                 return NativeHelpers.GetColourPixelsFromBitmap(bmp, flipMode);
 			else

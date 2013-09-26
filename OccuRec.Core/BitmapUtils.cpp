@@ -182,47 +182,58 @@ HRESULT GetRGGBBayerBitmapPixels(long width, long height, long bpp, long* pixels
 	return E_NOTIMPL;
 }
 
-HRESULT GetMonochromePixelsFromBitmap(long width, long height, long bpp, HBITMAP* bitmap, long* pixels, int mode)
+HRESULT GetMonochromePixelsFromBitmap(long width, long height, long bpp, long flipMode, HBITMAP* bitmap, long* pixels, int mode)
 {
 	BITMAP bmp;
 	GetObject(bitmap, sizeof(bmp), &bmp);
-
-	long* ptrPixels = pixels;
 
 	unsigned char* buf = reinterpret_cast<unsigned char*>(bmp.bmBits);
 
 	unsigned char* ptrBuf = buf + ((width * height) - 1) * 4;
 
-    for (int i=0; i < width * height; i++)
+	for (int y=0; y < height; y++)
     {
-		if (mode == 0)
-			*ptrPixels = *(ptrBuf + 2); //R
-		else if (mode == 1)
-			*ptrPixels = *(ptrBuf + 1); //G
-		else if (mode == 2)
-			*ptrPixels = *(ptrBuf); //B
-		else if (mode == 3)
+		for (int x=0; x < width; x++)
 		{
-			// YUV Conversion (PAL & NTSC)
-			// Luma = 0.299 R + 0.587 G + 0.114 B
-			double luma = 0.299* *(ptrBuf) + 0.587* *(ptrBuf + 1) + 0.114* *(ptrBuf + 2);
+			long pixVal = 0;
+			if (mode == 0)
+				pixVal = *(ptrBuf + 2); //R
+			else if (mode == 1)
+				pixVal = *(ptrBuf + 1); //G
+			else if (mode == 2)
+				pixVal = *(ptrBuf); //B
+			else if (mode == 3)
+			{
+				// YUV Conversion (PAL & NTSC)
+				// Luma = 0.299 R + 0.587 G + 0.114 B
+				double luma = 0.299* *(ptrBuf) + 0.587* *(ptrBuf + 1) + 0.114* *(ptrBuf + 2);
+				pixVal = (long)luma;
+			}
 
-			if (luma < 0)
-				*ptrPixels = 0;
-			else if (luma > 255)
-				*ptrPixels = 255;
-			else
-				*ptrPixels = (long)luma;
+			if (flipMode == 0)
+			{
+				*(pixels + (width - 1 - x) + width * y ) = pixVal;
+			}
+			else if (flipMode == 1) /* Flip Horizontally */
+			{
+				*(pixels + x + width * y ) = pixVal;
+			}
+			else if (flipMode == 2) /* Flip Vertically */
+			{
+				*(pixels + (width - 1 - x) + width * (height - 1 - y) ) = pixVal;
+			}
+			else if (flipMode == 3) /* Flip Horizontally & Vertically */
+			{
+				*(pixels + x + width * (height - 1 - y) ) = pixVal;
+			}
+
+			ptrBuf-=4;
 		}
-
-		ptrPixels++;
-		ptrBuf-=4;
-    }
+	}
 
 	return S_OK;
 }
-
-HRESULT GetColourPixelsFromBitmap(long width, long height, long bpp, HBITMAP* bitmap, long* pixels, int flipMode)
+HRESULT GetColourPixelsFromBitmap(long width, long height, long bpp, long flipMode, HBITMAP* bitmap, long* pixels)
 {
 	BITMAP bmp;
 	GetObject(bitmap, sizeof(bmp), &bmp);
@@ -241,27 +252,28 @@ HRESULT GetColourPixelsFromBitmap(long width, long height, long bpp, HBITMAP* bi
 		{
 			if (flipMode == 0)
 			{
-				*(ptrPixelsR + x + width * y ) = *(ptrBuf + 2);
-				*(ptrPixelsG + x + width * y ) = *(ptrBuf + 1);
-				*(ptrPixelsB + x + width * y ) = *(ptrBuf);
-			}
-			else if (flipMode == 1) /* Flip Horizontally */
-			{
 				*(ptrPixelsR + (width - 1 - x) + width * y ) = *(ptrBuf + 2);
 				*(ptrPixelsG + (width - 1 - x) + width * y ) = *(ptrBuf + 1);
 				*(ptrPixelsB + (width - 1 - x) + width * y ) = *(ptrBuf);
 			}
-			else if (flipMode == 2) /* Flip Vertically */
+			else if (flipMode == 1) /* Flip Horizontally */
 			{
-				*(ptrPixelsR + x + width * (height - 1 - y) ) = *(ptrBuf + 2);
-				*(ptrPixelsG + x + width * (height - 1 - y) ) = *(ptrBuf + 1);
-				*(ptrPixelsB + x + width * (height - 1 - y) ) = *(ptrBuf);
+
+				*(ptrPixelsR + x + width * y ) = *(ptrBuf + 2);
+				*(ptrPixelsG + x + width * y ) = *(ptrBuf + 1);
+				*(ptrPixelsB + x + width * y ) = *(ptrBuf);
 			}
-			else if (flipMode == 3) /* Flip Horizontally & Vertically */
+			else if (flipMode == 2) /* Flip Vertically */
 			{
 				*(ptrPixelsR + (width - 1 - x) + width * (height - 1 - y) ) = *(ptrBuf + 2);
 				*(ptrPixelsG + (width - 1 - x) + width * (height - 1 - y) ) = *(ptrBuf + 1);
 				*(ptrPixelsB + (width - 1 - x) + width * (height - 1 - y) ) = *(ptrBuf);
+			}
+			else if (flipMode == 3) /* Flip Horizontally & Vertically */
+			{
+				*(ptrPixelsR + x + width * (height - 1 - y) ) = *(ptrBuf + 2);
+				*(ptrPixelsG + x + width * (height - 1 - y) ) = *(ptrBuf + 1);
+				*(ptrPixelsB + x + width * (height - 1 - y) ) = *(ptrBuf);
 			}
 
 			ptrBuf-=4;
