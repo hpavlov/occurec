@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using ASCOM.DriverAccess;
 using OccuRec.Helpers;
 using OccuRec.OCR;
 using OccuRec.Properties;
@@ -60,7 +61,11 @@ namespace OccuRec
 
 		    cbForceIntegrationRateRestrictions.Checked = Settings.Default.ForceIntegrationRatesRestrictions;
 
+			tbxFocuser.Text = Settings.Default.ASCOMProgIdFocuser;
+			tbxTelescope.Text = Settings.Default.ASCOMProgIdTelescope;
+
             UpdateControls();
+			UpdateASCOMControlsState();
 		}
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -103,6 +108,9 @@ namespace OccuRec
             Settings.Default.WarnForFileSystemIssues = cbxWarnForFileSystemIssues.Checked;
             Settings.Default.ForceIntegrationRatesRestrictions = cbForceIntegrationRateRestrictions.Checked;
 
+	        Settings.Default.ASCOMProgIdFocuser = tbxFocuser.Text;
+			Settings.Default.ASCOMProgIdTelescope = tbxTelescope.Text;
+
             Settings.Default.Save();
 
             DialogResult = DialogResult.OK;
@@ -135,5 +143,93 @@ namespace OccuRec
             rbManagedSim.Enabled = cbxSimulatorRunOCR.Checked;
             rbNativeOCR.Enabled = cbxSimulatorRunOCR.Checked;
         }
+
+		private static string TELESCOPE_DEVICE_TYPE = "Telescope";
+		private static string FOCUSER_DEVICE_TYPE = "Focuser";
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			var chooser = new ASCOM.Utilities.Chooser();
+			chooser.DeviceType = FOCUSER_DEVICE_TYPE;
+			string progId = chooser.Choose(null);
+
+			if (!string.IsNullOrEmpty(progId))
+				tbxFocuser.Text = progId;
+		}
+
+		private void btnSelectTelescope_Click(object sender, EventArgs e)
+		{
+			var chooser = new ASCOM.Utilities.Chooser();
+			chooser.DeviceType = TELESCOPE_DEVICE_TYPE;
+			string progId = chooser.Choose(null);
+
+			if (!string.IsNullOrEmpty(progId))
+				tbxTelescope.Text = progId;
+			
+		}
+
+		private void tbxFocuser_TextChanged(object sender, EventArgs e)
+		{
+			UpdateASCOMControlsState();
+		}
+
+		private void UpdateASCOMControlsState()
+		{
+			btnTestFocuserConnection.Enabled = !string.IsNullOrEmpty(tbxFocuser.Text);
+			btnTestTelescopeConnection.Enabled = !string.IsNullOrEmpty(tbxTelescope.Text);
+		}
+
+		private void btnTestFocuserConnection_Click(object sender, EventArgs e)
+		{
+			if (!string.IsNullOrEmpty(tbxFocuser.Text))
+			{
+				var focuser = new Focuser(tbxFocuser.Text);
+				Cursor = Cursors.WaitCursor;
+				try
+				{
+					focuser.Connected = true;
+					lblConnectedFocuserInfo.Text = string.Format("{0} ver {1}", focuser.Description, focuser.DriverVersion);
+					lblConnectedFocuserInfo.Visible = true;
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show(ex.Message);
+				}
+				finally
+				{
+					focuser.Connected = false;
+					Cursor = Cursors.Default;
+				}
+			}
+		}
+
+		private void tbxTelescope_TextChanged(object sender, EventArgs e)
+		{
+			UpdateASCOMControlsState();
+		}
+
+		private void btnTestTelescopeConnection_Click(object sender, EventArgs e)
+		{
+			if (!string.IsNullOrEmpty(tbxTelescope.Text))
+			{
+				var telescope = new Telescope(tbxTelescope.Text);
+				Cursor = Cursors.WaitCursor;
+				try
+				{
+					telescope.Connected = true;
+					lblConnectedTelescopeInfo.Text = string.Format("{0} ver {1}", telescope.Description, telescope.DriverVersion);
+					lblConnectedTelescopeInfo.Visible = true;
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show(ex.Message);
+				}
+				finally
+				{
+					telescope.Connected = false;
+					Cursor = Cursors.Default;
+				}
+			}
+		}
 	}
 }

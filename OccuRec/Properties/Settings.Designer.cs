@@ -538,5 +538,29 @@ namespace OccuRec.Properties {
                 this["PreserveVTIHeight"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ASCOMProgIdTelescope {
+            get {
+                return ((string)(this["ASCOMProgIdTelescope"]));
+            }
+            set {
+                this["ASCOMProgIdTelescope"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ASCOMProgIdFocuser {
+            get {
+                return ((string)(this["ASCOMProgIdFocuser"]));
+            }
+            set {
+                this["ASCOMProgIdFocuser"] = value;
+            }
+        }
     }
 }
