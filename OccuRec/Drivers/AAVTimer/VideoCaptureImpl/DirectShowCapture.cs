@@ -62,16 +62,32 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 		{
 			try
 			{
+                filterGraph = (IFilterGraph2)new FilterGraph();
+                mediaCtrl = filterGraph as IMediaControl;
+
+                capBuilder = (ICaptureGraphBuilder2)new CaptureGraphBuilder2();
+
+                samplGrabber = (ISampleGrabber)new SampleGrabber();
+
+                int hr = capBuilder.SetFiltergraph(filterGraph);
+                DsError.ThrowExceptionForHR(hr);
+
+                if (Settings.Default.VideoGraphDebugMode)
+                {
+                    if (rot != null)
+                    {
+                        rot.Dispose();
+                        rot = null;
+                    }
+                    rot = new DsROTEntry(filterGraph);
+                }
+
 				SetupGraphInternal(dev, selectedFormat, ref iFrameRate, ref iWidth, ref iHeight);
 
 				// Now that sizes are fixed/known, store the sizes
 				SaveSizeInfo(samplGrabber);
 
 				crossbar = CrossbarHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
-
-				// Turn off clock so frames are sent as fast as possible
-				int hr = ((IMediaFilter)filterGraph).SetSyncSource(null);
-				DsError.ThrowExceptionForHR(hr);
 
 				latestBitmap = new Bitmap(iWidth, iHeight, PixelFormat.Format24bppRgb);
 				fullRect = new Rectangle(0, 0, latestBitmap.Width, latestBitmap.Height);
@@ -181,15 +197,8 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 		private void SetupGraphInternal(DsDevice dev, VideoFormatHelper.SupportedVideoFormat selectedFormat, ref float iFrameRate, ref int iWidth, ref int iHeight)
 		{
 			// Capture Source (Capture/Video) --> (Input) Sample Grabber (Output) --> (In) Null Renderer
-
-			filterGraph = (IFilterGraph2)new FilterGraph();
-			mediaCtrl = filterGraph as IMediaControl;
-
-			capBuilder = (ICaptureGraphBuilder2)new CaptureGraphBuilder2();
-
-			samplGrabber = (ISampleGrabber)new SampleGrabber();
-
-			IBaseFilter nullRenderer = null;
+			
+            IBaseFilter nullRenderer = null;
 
 			try
 			{

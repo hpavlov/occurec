@@ -158,9 +158,10 @@ namespace OccuRec.Helpers
             }
         }
 
-        private static int FindVideoDecoderOutputPin(IAMCrossbar crossbar)
+        private static int FindVideoDecoderOutputPin(IAMCrossbar crossbar, out int routedToInputPin)
         {
             int rv = -1;
+            routedToInputPin = -1;
 
             int outputPinsCount;
             int inputPinsCount;
@@ -175,24 +176,43 @@ namespace OccuRec.Helpers
                 if (hr == 0)
                 {
                     int inputPinIndex;
-                    crossbar.get_IsRoutedTo(i, out inputPinIndex);
+                    hr = crossbar.get_IsRoutedTo(i, out inputPinIndex);
+                    DsError.ThrowExceptionForHR(hr);
 
-                    Trace.WriteLine(string.Format("Crossbar Output Pin {0}: '{1}' routed to pin {2}", i, GetPhysicalPinName(connectorType), inputPinIndex));
+                    Trace.WriteLine(string.Format("Crossbar Output Pin {0}: '{1}' routed to pin {2}, related index: {3}", i, GetPhysicalPinName(connectorType), inputPinIndex, relatedIndex));
                     if (connectorType == PhysicalConnectorType.Video_VideoDecoder)
+                    {
                         rv = i;
+                        routedToInputPin = inputPinIndex;
+                    }
                 }
             }
 
             return rv;
         }
 
+        private static string GetParentFormName(Control control)
+        {
+            Control parentControl = control;
+            while (parentControl != null && !(parentControl is Form))
+            {
+                parentControl = parentControl.Parent;
+            }
+
+            if (parentControl != null)
+                return parentControl.Name;
+            else
+                return "Unidentified";
+        }
+
         public static void LoadCrossbarSources(IAMCrossbar crossbar, ComboBox cbxCrossbarInput)
         {
             int connectedInputPin = -1;
-            int videoDecoderOutPinIndex = FindVideoDecoderOutputPin(crossbar);
+            int videoDecoderOutPinIndex = FindVideoDecoderOutputPin(crossbar, out connectedInputPin);
             cbxCrossbarInput.Enabled = videoDecoderOutPinIndex != -1;
-            if (videoDecoderOutPinIndex != -1)
-                crossbar.get_IsRoutedTo(videoDecoderOutPinIndex, out connectedInputPin);
+
+            Trace.WriteLine(string.Format("Loading crossbar dropdown on {0}\r\nVideo decoder output pin is {1} which is routed to pin {2}.",
+                GetParentFormName(cbxCrossbarInput), videoDecoderOutPinIndex, connectedInputPin));
 
             int outputPinsCount;
             int inputPinsCount;
@@ -291,7 +311,8 @@ namespace OccuRec.Helpers
                 deviceName,
                 delegate(IAMCrossbar crossbar)
                 {
-                    int videoDecoderOutPinIndex = FindVideoDecoderOutputPin(crossbar);
+                    int routedTo;
+                    int videoDecoderOutPinIndex = FindVideoDecoderOutputPin(crossbar, out routedTo);
                     int hr = crossbar.Route(videoDecoderOutPinIndex, inputPinIndex);
                     DsError.ThrowExceptionForHR(hr);
 
@@ -309,7 +330,8 @@ namespace OccuRec.Helpers
         {
             if (crossbar != null)
             {
-                int videoDecoderOutPinIndex = FindVideoDecoderOutputPin(crossbar);
+                int routedTo;
+                int videoDecoderOutPinIndex = FindVideoDecoderOutputPin(crossbar, out routedTo);
                 int hr = crossbar.Route(videoDecoderOutPinIndex, inputPinIndex);
                 DsError.ThrowExceptionForHR(hr);
 
