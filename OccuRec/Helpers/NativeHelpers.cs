@@ -226,10 +226,10 @@ namespace OccuRec.Helpers
         private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
+		private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
+		private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetCurrentImage([In, Out] byte[] bitmapPixels);
@@ -456,7 +456,7 @@ namespace OccuRec.Helpers
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
 
-            ProcessVideoFrame2(pixels, currentUtcDayAsTicks, ref frameInfo);
+            ProcessVideoFrame2(pixels, currentUtcDayAsTicks, currentUtcDayAsTicks, ref frameInfo);
 
             return frameInfo;
         }
@@ -467,7 +467,10 @@ namespace OccuRec.Helpers
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
-            ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, ref frameInfo);
+			// TODO: Get the NTP time from the internal NTP syncronised high precision clock
+	        long currentNtpTimeAsTicks = 0;
+
+            ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, currentNtpTimeAsTicks, ref frameInfo);
 
             return frameInfo;
         }

@@ -17,6 +17,7 @@ public:
 	unsigned char GpsTrackedSatellites;
 	unsigned char GpsAlamancStatus;
 	unsigned char GpsFixStatus;
+	__int64 NTPTimestamp;
 	char OcrErrorMessageStr[255];
 
 	IntegratedFrame(long totalPixelsInFrame);

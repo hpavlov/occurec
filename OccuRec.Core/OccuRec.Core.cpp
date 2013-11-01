@@ -116,6 +116,7 @@ unsigned int STATUS_TAG_END_FRAME_ID;
 unsigned int STATUS_TAG_START_TIMESTAMP;
 unsigned int STATUS_TAG_END_TIMESTAMP;
 unsigned int STATUS_TAG_SYSTEM_TIME;
+unsigned int STATUS_TAG_NTP_TIMESTAMP;
 unsigned int STATUS_TAG_GPS_TRACKED_SATELLITES;
 unsigned int STATUS_TAG_GPS_ALMANAC;
 unsigned int STATUS_TAG_GPS_FIX;
@@ -801,7 +802,7 @@ void CalculateDiffSignature2(long* pixels, float* signatureThisPrev)
 
 long detectedIntegrationRate = 0;
 
-long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks)
+long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks)
 {
 	long numItems = 0;
 
@@ -1113,7 +1114,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 	}
 }
 
-HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1131,7 +1132,7 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, FrameProc
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1208,7 +1209,7 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, rawFrame->CurrentUtcDayAsTicks);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, rawFrame->CurrentUtcDayAsTicks, rawFrame->CurrentNtpTimeAsTicks);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1314,7 +1315,7 @@ void FrameProcessingThreadProc( void* pContext )
 	};
 }
 
-HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1322,6 +1323,7 @@ HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, 
 
 	RawFrame* frame = new RawFrame(IMAGE_WIDTH, IMAGE_HEIGHT);
 	frame->CurrentUtcDayAsTicks = currentUtcDayAsTicks;
+	frame->CurrentNtpTimeAsTicks = currentNtpTimeAsTicks;
 	memcpy(&frame->BmpBits[0], &buf[0], frame->BmpBitsSize);
 
 	AddFrameToRawFrameBuffer(frame);
@@ -1329,7 +1331,7 @@ HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, 
 	return S_OK;
 }
 
-HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1349,7 +1351,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1432,12 +1434,12 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	return S_OK;
 }
 
-HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo)
 {
 	if (USE_BUFFERED_FRAME_PROCESSING)
-		return ProcessVideoFrameBuffered(bmpBits, currentUtcDayAsTicks, frameInfo);
+		return ProcessVideoFrameBuffered(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, frameInfo);
 	else
-		return ProcessVideoFrameSynchronous(bmpBits, currentUtcDayAsTicks, frameInfo);
+		return ProcessVideoFrameSynchronous(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, frameInfo);
 }
 
 long long firstRecordedFrameTimestamp = 0;
@@ -1463,6 +1465,8 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 	GetSystemTime(&sysTime);
 
 	AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime));
+
+	AavFrameAddStatusTag64(STATUS_TAG_NTP_TIMESTAMP, nextFrame->NTPTimestamp);	
 
 	if (OCR_IS_SETUP)
 	{
@@ -1570,6 +1574,7 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	STATUS_TAG_GPS_TRACKED_SATELLITES = AavDefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8);
 	STATUS_TAG_GPS_ALMANAC = AavDefineStatusSectionTag("GPSAlmanacStatus", AavTagType::UInt8);
 	STATUS_TAG_GPS_FIX = AavDefineStatusSectionTag("GPSFixStatus", AavTagType::UInt8);
+	STATUS_TAG_NTP_TIMESTAMP = AavDefineStatusSectionTag("NTPTimestamp", AavTagType::ULong64);
 
 	if (OCR_FAILED_TEST_RECORDING)
 		STATUS_TAG_OCR_TESTING_ERROR_MESSAGE = AavDefineStatusSectionTag("OcrTestingErrorMessage", AavTagType::AnsiString255);

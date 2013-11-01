@@ -5,6 +5,7 @@ public:
 	unsigned char* BmpBits;
 	long BmpBitsSize;
 	__int64 CurrentUtcDayAsTicks;
+	__int64 CurrentNtpTimeAsTicks;
 
 	RawFrame(int imageWidth, int imageHeight);
 	~RawFrame(void);
