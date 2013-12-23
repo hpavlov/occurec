@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using ASCOM.DriverAccess;
+using OccRec.ASCOMWrapper;
 using OccuRec.Helpers;
 using OccuRec.OCR;
 using OccuRec.Properties;
@@ -149,9 +149,7 @@ namespace OccuRec
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			var chooser = new ASCOM.Utilities.Chooser();
-			chooser.DeviceType = FOCUSER_DEVICE_TYPE;
-			string progId = chooser.Choose(null);
+			string progId = ASCOMClient.Instance.ChooseFocuser();
 
 			if (!string.IsNullOrEmpty(progId))
 				tbxFocuser.Text = progId;
@@ -159,13 +157,10 @@ namespace OccuRec
 
 		private void btnSelectTelescope_Click(object sender, EventArgs e)
 		{
-			var chooser = new ASCOM.Utilities.Chooser();
-			chooser.DeviceType = TELESCOPE_DEVICE_TYPE;
-			string progId = chooser.Choose(null);
+			string progId = ASCOMClient.Instance.ChooseTelescope();
 
 			if (!string.IsNullOrEmpty(progId))
 				tbxTelescope.Text = progId;
-			
 		}
 
 		private void tbxFocuser_TextChanged(object sender, EventArgs e)
@@ -183,7 +178,7 @@ namespace OccuRec
 		{
 			if (!string.IsNullOrEmpty(tbxFocuser.Text))
 			{
-				var focuser = new Focuser(tbxFocuser.Text);
+				var focuser = ASCOMClient.Instance.CreateFocuser(tbxFocuser.Text);
 				Cursor = Cursors.WaitCursor;
 				try
 				{
@@ -212,7 +207,7 @@ namespace OccuRec
 		{
 			if (!string.IsNullOrEmpty(tbxTelescope.Text))
 			{
-				var telescope = new Telescope(tbxTelescope.Text);
+				var telescope = ASCOMClient.Instance.CreateTelescope(tbxTelescope.Text);
 				Cursor = Cursors.WaitCursor;
 				try
 				{

@@ -39,22 +39,6 @@
     <ApplicationIcon>aavrec-big.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ASCOM.DeviceInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=565de7938946fba7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Windows\assembly\GAC_MSIL\ASCOM.DeviceInterfaces\6.0.0.0__565de7938946fba7\ASCOM.DeviceInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="ASCOM.DriverAccess, Version=6.0.0.0, Culture=neutral, PublicKeyToken=565de7938946fba7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Windows\assembly\GAC_MSIL\ASCOM.DriverAccess\6.0.0.0__565de7938946fba7\ASCOM.DriverAccess.dll</HintPath>
-    </Reference>
-    <Reference Include="ASCOM.Exceptions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=565de7938946fba7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Windows\assembly\GAC_MSIL\ASCOM.Exceptions\6.0.0.0__565de7938946fba7\ASCOM.Exceptions.dll</HintPath>
-    </Reference>
-    <Reference Include="ASCOM.Utilities, Version=6.0.0.0, Culture=neutral, PublicKeyToken=565de7938946fba7, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Windows\assembly\GAC_MSIL\ASCOM.Utilities\6.0.0.0__565de7938946fba7\ASCOM.Utilities.dll</HintPath>
-    </Reference>
     <Reference Include="DirectShowLib-2005">
       <HintPath>lib\DirectShowLib-2005.dll</HintPath>
     </Reference>
@@ -238,7 +222,16 @@
     </Content>
     <Content Include="TODO List.txt" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\OccRec.ASCOMWrapper\OccRec.ASCOMWrapper.csproj">
+      <Project>{49bb0397-5b5c-4a9c-b35f-e50edb22c919}</Project>
+      <Name>OccRec.ASCOMWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OccuRec.ASCOM.Interfaces\OccuRec.ASCOM.Interfaces.csproj">
+      <Project>{0376db73-de7b-4b26-941e-e5763c0dc1b2}</Project>
+      <Name>OccuRec.ASCOM.Interfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
