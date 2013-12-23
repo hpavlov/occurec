@@ -36,5 +36,10 @@ namespace OccRec.ASCOMWrapper
         {
             return m_IsolatedHelper.CreateTelescope(progId);
         }
+
+		public void ReleaseDevice(Guid deviceId)
+		{
+			m_IsolatedHelper.ReleaseDevice(deviceId);
+		}
 	}
 }

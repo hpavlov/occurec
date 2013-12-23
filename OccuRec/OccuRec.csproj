@@ -71,6 +71,12 @@
       <DependentUpon>frmChooseManualIntegrationRate.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\DsHelper.cs" />
+    <Compile Include="Tracking\AllGreys.cs" />
+    <Compile Include="Tracking\ImagePixel.cs" />
+    <Compile Include="Tracking\ITrackedObject.cs" />
+    <Compile Include="Tracking\NativeTrackedObject.cs" />
+    <Compile Include="Tracking\NativeTrackedObjectPsfFit.cs" />
+    <Compile Include="Tracking\NativeTracking.cs" />
     <Compile Include="Helpers\OverlayState.cs" />
     <Compile Include="Helpers\ImageUtils.cs" />
     <Compile Include="Helpers\NonBlockingLock.cs" />
@@ -89,6 +95,7 @@
     <Compile Include="OCR\TestStates\UncalibratedState.cs" />
     <Compile Include="StateManagement\IntegrationCalibrationState.cs" />
     <Compile Include="StateManagement\IotaVtiOcrTestingState.cs" />
+    <Compile Include="Tracking\TrackedObjectConfig.cs" />
     <Compile Include="Video\AstroDigitalVideoStream.cs" />
     <Compile Include="Video\AstroDigitalVideo\AdvFile.cs" />
     <Compile Include="Video\AstroDigitalVideo\AdvFramesIndex.cs" />

@@ -109,14 +109,22 @@ namespace OccRec.ASCOMWrapper
 
         public void ReleaseDevice(object deviceInstance)
         {
-            foreach (DeviceClient client in DeviceClients)
-            {
-                if (object.ReferenceEquals(client, deviceInstance))
-                {
-                    DeviceClients.Remove(client);
-                    client.Dispose();
-                }
-            }
+	        DeviceBase device = deviceInstance as DeviceBase;
+			if (device != null)
+			{
+				m_ASCOMHelper.ReleaseDevice(device.UniqueId);
+			}
+			else
+			{
+				foreach (DeviceClient client in DeviceClients)
+				{
+					if (object.ReferenceEquals(client, deviceInstance))
+					{
+						DeviceClients.Remove(client);
+						client.Dispose();
+					}
+				}
+			}
         }
 
 		public void Dispose()

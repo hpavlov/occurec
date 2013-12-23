@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ASCOMHelper.cs" />
+    <Compile Include="IsolatedDevice.cs" />
     <Compile Include="IsolatedFocuser.cs" />
     <Compile Include="IsolatedTelescope.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

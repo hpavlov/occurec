@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OccuRec", "OccuRec\OccuRec.csproj", "{B501E13A-44D3-4B3C-9B65-3A326FE49767}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OccuRecUpdate", "OccuRecUpdate\OccuRecUpdate.csproj", "{C4AD98C2-3E0A-4AB2-B7D1-31A5E13F2BDC}"
-	ProjectSection(ProjectDependencies) = postProject
-		{16959003-A7F6-424A-BB62-7E6914240F9B} = {16959003-A7F6-424A-BB62-7E6914240F9B}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OccuRecSelfUpdate", "OccuRecUpdate\OccuRecSelfUpdate\OccuRecSelfUpdate.csproj", "{16959003-A7F6-424A-BB62-7E6914240F9B}"
 EndProject

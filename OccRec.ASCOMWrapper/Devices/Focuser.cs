@@ -7,34 +7,14 @@ using OccuRec.ASCOM.Interfaces.Devices;
 
 namespace OccRec.ASCOMWrapper.Devices
 {
-	internal class Focuser : IASCOMFocuser
+	internal class Focuser : DeviceBase, IASCOMFocuser
 	{
 		private IASCOMFocuser m_IsolatedFocuser;
 
 		internal Focuser(IASCOMFocuser isolatedFocuser)
+			: base(isolatedFocuser)
 		{
 			m_IsolatedFocuser = isolatedFocuser;
 		}
-
-		public bool Connected
-		{
-			get { return m_IsolatedFocuser.Connected; }
-			set { m_IsolatedFocuser.Connected = value; }
-		}
-
-		public string Description
-		{
-			get { return m_IsolatedFocuser.Description; }
-		}
-
-		public string DriverVersion
-		{
-			get { return m_IsolatedFocuser.DriverVersion; }
-		}
-
-        public string ProgId
-        {
-            get { return m_IsolatedFocuser.ProgId; }
-        }
 	}
 }

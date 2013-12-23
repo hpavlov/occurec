@@ -182,6 +182,8 @@ namespace OccuRec
                 btnSelectTelescope.Enabled = false;
                 btnTestFocuserConnection.Enabled = false;
                 btnTestTelescopeConnection.Enabled = false;
+				btnClearFocuser.Enabled = false;
+				btnClearTelescope.Enabled = false;
             }
             else
             {
@@ -189,6 +191,8 @@ namespace OccuRec
                 btnSelectTelescope.Enabled = true;
                 btnTestFocuserConnection.Enabled = true;
                 btnTestTelescopeConnection.Enabled = true;
+				btnClearFocuser.Enabled = true;
+				btnClearTelescope.Enabled = true;
             }
 		}
 
@@ -301,5 +305,15 @@ namespace OccuRec
         {
             m_Initialised = true;
         }
+
+		private void btnClearFocuser_Click(object sender, EventArgs e)
+		{
+			tbxFocuser.Text = string.Empty;
+		}
+
+		private void btnClearTelescope_Click(object sender, EventArgs e)
+		{
+			tbxTelescope.Text = string.Empty;
+		}
 	}
 }

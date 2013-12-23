@@ -84,6 +84,7 @@
   <ItemGroup>
     <ClInclude Include="OccuRec.Core.h" />
     <ClInclude Include="OccuRec.IntegrationChecker.h" />
+    <ClInclude Include="OccuRec.Math.h" />
     <ClInclude Include="OccuRec.Ocr.h" />
     <ClInclude Include="aav_file.h" />
     <ClInclude Include="aav_frames_index.h" />
@@ -96,10 +97,13 @@
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="IntegratedFrame.h" />
     <ClInclude Include="IotaVtiOcr.h" />
+    <ClInclude Include="psf_fit.h" />
     <ClInclude Include="quicklz.h" />
     <ClInclude Include="RawFrame.h" />
     <ClInclude Include="raw_frame_buffer.h" />
     <ClInclude Include="recording_buffer.h" />
+    <ClInclude Include="safe_matrix.h" />
+    <ClInclude Include="simplified_tracking.h" />
     <ClInclude Include="SpinLock.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SyncLock.h" />
@@ -109,6 +113,7 @@
   <ItemGroup>
     <ClCompile Include="OccuRec.Core.cpp" />
     <ClCompile Include="OccuRec.IntegrationChecker.cpp" />
+    <ClCompile Include="OccuRec.Math.cpp" />
     <ClCompile Include="OccuRec.Ocr.cpp" />
     <ClCompile Include="aav_file.cpp" />
     <ClCompile Include="aav_frames_index.cpp" />
@@ -128,8 +133,11 @@
     </ClCompile>
     <ClCompile Include="IntegratedFrame.cpp" />
     <ClCompile Include="IotaVtiOcr.cpp" />
+    <ClCompile Include="psf_fit.cpp" />
     <ClCompile Include="quicklz.cpp" />
     <ClCompile Include="RawFrame.cpp" />
+    <ClCompile Include="safe_matrix.cpp" />
+    <ClCompile Include="simplified_tracking.cpp" />
     <ClCompile Include="SpinLock.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

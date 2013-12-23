@@ -113,19 +113,18 @@ namespace OccuRec.ASCOM
             {
                 try
                 {
-                    OnTelescopeConnecting();
-
                     if (m_ConnectedTelescope != null && m_ConnectedTelescope.ProgId != Settings.Default.ASCOMProgIdTelescope)
                     {
                         ASCOMClient.Instance.DisconnectTelescope(m_ConnectedTelescope);
                         m_ConnectedTelescope = null;
                     }
 
-                    if (m_ConnectedTelescope == null)
+					if (m_ConnectedTelescope == null && !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdTelescope))
                         m_ConnectedTelescope = ASCOMClient.Instance.CreateTelescope(Settings.Default.ASCOMProgIdTelescope);
 
                     if (m_ConnectedTelescope != null && !m_ConnectedTelescope.Connected)
                     {
+						OnTelescopeConnecting();
                         m_ConnectedTelescope.Connected = true;
                         OnTelescopeConnected();
 
@@ -143,19 +142,18 @@ namespace OccuRec.ASCOM
             {
                 try
                 {
-                    OnFocuserConnecting();
-
                     if (m_ConnectedFocuser != null && m_ConnectedFocuser.ProgId != Settings.Default.ASCOMProgIdFocuser)
                     {
                         ASCOMClient.Instance.DisconnectFocuser(m_ConnectedFocuser);
                         m_ConnectedFocuser = null;
                     }
 
-                    if (m_ConnectedFocuser == null)
+					if (m_ConnectedFocuser == null && !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdFocuser))
                         m_ConnectedFocuser = ASCOMClient.Instance.CreateFocuser(Settings.Default.ASCOMProgIdFocuser);
 
-                    if (m_ConnectedFocuser != null && !m_ConnectedTelescope.Connected)
+					if (m_ConnectedFocuser != null && !m_ConnectedFocuser.Connected)
                     {
+						OnFocuserConnecting();
                         m_ConnectedFocuser.Connected = true;
                         OnFocuserConnected();
                     }

@@ -12,5 +12,6 @@ namespace OccuRec.ASCOM.Interfaces
 		string ChooseFocuser();
 		IASCOMFocuser CreateFocuser(string progId);
         IASCOMTelescope CreateTelescope(string progId);
+		void ReleaseDevice(Guid deviceId);
 	}
 }

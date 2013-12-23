@@ -11,5 +11,6 @@ namespace OccuRec.ASCOM.Interfaces.Devices
         string Description { get; }
         string DriverVersion { get; }
         string ProgId { get; }
+		Guid UniqueId { get;}
     }
 }

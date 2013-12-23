@@ -19,7 +19,7 @@ namespace OccuRec.ASCOM.Server
 		private static string TELESCOPE_DEVICE_TYPE = "Telescope";
 		private static string FOCUSER_DEVICE_TYPE = "Focuser";
 
-		private List<IDisposable> m_ReferencedObjects = new List<IDisposable>(); 
+		private List<IsolatedDevice> m_ReferencedObjects = new List<IsolatedDevice>(); 
 
 		public string ChooseFocuser()
 		{
@@ -56,6 +56,16 @@ namespace OccuRec.ASCOM.Server
 		public void Initialise(IOccuRecHost host)
 		{
 			RemotingConfiguration.RegisterWellKnownServiceType(typeof(ASCOMHelper), "OccuRec.ASCOM.Server.Helper", WellKnownObjectMode.Singleton);
+		}
+
+		public void ReleaseDevice(Guid deviceId)
+		{
+			IsolatedDevice device = m_ReferencedObjects.SingleOrDefault(x => x.UniqueId == deviceId);
+			if (device != null)
+			{
+				device.Dispose();
+				m_ReferencedObjects.Remove(device);
+			}
 		}
 
 		public void Finalise()
