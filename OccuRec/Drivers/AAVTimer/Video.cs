@@ -388,7 +388,7 @@ namespace OccuRec.Drivers.AAVTimer
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex.GetFullErrorDescription());
+                Trace.WriteLine(ex.GetFullStackTrace());
                 throw new DriverException("Error starting the recording: " + ex.Message, ex);
             }
         }
@@ -419,7 +419,7 @@ namespace OccuRec.Drivers.AAVTimer
 			}
 			catch (Exception ex)
 			{
-                Trace.WriteLine(ex.GetFullErrorDescription());
+                Trace.WriteLine(ex.GetFullStackTrace());
 				throw new DriverException("Error starting the recording: " + ex.Message, ex);
 			}
 		}
@@ -440,7 +440,7 @@ namespace OccuRec.Drivers.AAVTimer
 			}
 			catch (Exception ex)
 			{
-                Trace.WriteLine(ex.GetFullErrorDescription());
+                Trace.WriteLine(ex.GetFullStackTrace());
 				throw new DriverException("Error stopping the recording: " + ex.Message, ex);
 			}
 		}

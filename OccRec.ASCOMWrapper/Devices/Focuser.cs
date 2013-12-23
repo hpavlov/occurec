@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OccuRec.ASCOM.Interfaces;
+using OccuRec.ASCOM.Interfaces.Devices;
 
-namespace OccRec.ASCOMWrapper
+namespace OccRec.ASCOMWrapper.Devices
 {
 	internal class Focuser : IASCOMFocuser
 	{
@@ -30,5 +31,10 @@ namespace OccRec.ASCOMWrapper
 		{
 			get { return m_IsolatedFocuser.DriverVersion; }
 		}
+
+        public string ProgId
+        {
+            get { return m_IsolatedFocuser.ProgId; }
+        }
 	}
 }

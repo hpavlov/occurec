@@ -76,7 +76,7 @@ namespace OccuRec.Helpers
 			}
 			catch (Exception ex)
 			{
-				Trace.WriteLine(ex.GetFullErrorDescription());
+				Trace.WriteLine(ex.GetFullStackTrace());
 			}
 
 			return DialogResult.OK;

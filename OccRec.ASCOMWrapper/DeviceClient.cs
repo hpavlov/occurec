@@ -9,6 +9,7 @@ using System.Security;
 using System.Security.Policy;
 using System.Text;
 using OccuRec.ASCOM.Interfaces;
+using OccuRec.ASCOM.Interfaces.System;
 
 namespace OccRec.ASCOMWrapper
 {

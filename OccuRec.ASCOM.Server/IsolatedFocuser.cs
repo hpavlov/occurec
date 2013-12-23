@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Remoting;
 using System.Text;
 using OccuRec.ASCOM.Interfaces;
+using OccuRec.ASCOM.Interfaces.Devices;
 
 namespace OccuRec.ASCOM.Server
 {
@@ -15,6 +16,7 @@ namespace OccuRec.ASCOM.Server
 		internal IsolatedFocuser(string progId)
 		{
 			m_Focuser = new global::ASCOM.DriverAccess.Focuser(progId);
+		    ProgId = progId;
 		}
 
 		public bool Connected
@@ -32,6 +34,8 @@ namespace OccuRec.ASCOM.Server
 		{
 			get { return m_Focuser.DriverVersion; }
 		}
+
+        public string ProgId { get; private set; }
 
 		public void Dispose()
 		{

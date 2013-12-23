@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OccuRec.ASCOM.Interfaces;
+using OccuRec.ASCOM.Interfaces.Devices;
 
 namespace OccRec.ASCOMWrapper
 {
 	[Serializable]
-	internal class ASCOMHelper : DeviceClient
+    internal class ASCOMHelper : DeviceClient, IASCOMHelper
 	{
 		private IASCOMHelper m_IsolatedHelper;
 		public ASCOMHelper(ASCOMClient client)
@@ -30,5 +31,10 @@ namespace OccRec.ASCOMWrapper
 		{
 			return m_IsolatedHelper.CreateFocuser(progId);
 		}
+
+        public IASCOMTelescope CreateTelescope(string progId)
+        {
+            return m_IsolatedHelper.CreateTelescope(progId);
+        }
 	}
 }

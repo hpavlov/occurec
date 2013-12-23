@@ -44,14 +44,14 @@ namespace OccuRec
 		static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
 		{
 			if (e.Exception != null)
-				Trace.WriteLine(e.Exception.GetFullErrorDescription("Application.ThreadException"));
+				Trace.WriteLine(e.Exception.GetFullStackTrace("Application.ThreadException"));
 		}
 
 	    private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
 	    {
 		    var exception = unhandledExceptionEventArgs.ExceptionObject as Exception;
 		    if (exception != null)
-				Trace.WriteLine(exception.GetFullErrorDescription("AppDomain.CurrentDomain.UnhandledException"));
+				Trace.WriteLine(exception.GetFullStackTrace("AppDomain.CurrentDomain.UnhandledException"));
 	    }
     }
 }

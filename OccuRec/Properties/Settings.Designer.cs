@@ -562,5 +562,17 @@ namespace OccuRec.Properties {
                 this["ASCOMProgIdFocuser"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ASCOMConnectWhenRunning {
+            get {
+                return ((bool)(this["ASCOMConnectWhenRunning"]));
+            }
+            set {
+                this["ASCOMConnectWhenRunning"] = value;
+            }
+        }
     }
 }

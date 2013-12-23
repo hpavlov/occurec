@@ -16,6 +16,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
+using OccRec.ASCOMWrapper;
+using OccuRec.ASCOM;
+using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Drivers;
 using OccuRec.Helpers;
 using OccuRec.OCR;
@@ -25,7 +28,7 @@ using OccuRec.StateManagement;
 
 namespace OccuRec
 {
-	public partial class frmMain : Form, IVideoCallbacks
+    public partial class frmMain : Form, IVideoCallbacks, IASCOMDeviceCallbacks
 	{
 		private VideoWrapper videoObject;
 		private bool running = false;
@@ -39,7 +42,7 @@ namespace OccuRec
 	    private CameraStateManager stateManager;
 	    private ICameraImage cameraImage;
 	    private string appVersion;
-
+	    private TelescopeController telescopeController;
 	    private OverlayManager overlayManager = null;
 	    private List<string> initializationErrorMessages = new List<string>();
  
@@ -58,6 +61,7 @@ namespace OccuRec
             stateManager.CameraDisconnected();
 
 			ThreadPool.QueueUserWorkItem(new WaitCallback(DisplayVideoFrames));
+		    telescopeController = new TelescopeController(this, this);
 
             var att = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
 		    appVersion = att.Version;
@@ -78,6 +82,10 @@ namespace OccuRec
 			// NOTE: Used to test integration detection logs against the currently used algorithm
 			tbsAddTarget.Visible = true;
 #endif
+            ASCOMClient.Instance.Initialise();
+            TelescopeConnectionChanged(ASCOMConnectionState.Disconnected);
+            FocuserConnectionChanged(ASCOMConnectionState.Disconnected);
+            telescopeController.CheckASCOMConnections();
 		}
 
 		/// <summary>
@@ -301,7 +309,10 @@ namespace OccuRec
 		private void miConfigure_Click(object sender, EventArgs e)
 		{
 			var frmSettings = new frmSettings();
-		    frmSettings.ShowDialog(this);
+		    frmSettings.TelescopeController = telescopeController;
+
+		    if (frmSettings.ShowDialog(this) == DialogResult.OK)
+		        telescopeController.CheckASCOMConnections();
 		}
 
 		private void miConnect_Click(object sender, EventArgs e)
@@ -1272,7 +1283,7 @@ namespace OccuRec
 			}
 			catch (Exception ex)
 			{
-				Trace.WriteLine(ex.GetFullErrorDescription(), "Update");
+				Trace.WriteLine(ex.GetFullStackTrace(), "Update");
 				pnlNewVersionAvailable.Enabled = true;
 			}
 		}
@@ -1409,5 +1420,55 @@ namespace OccuRec
 				overlayManager.MouseUp(e);
 		}
 
-	}
+        #region IASCOMDeviceCallbacks
+        private void RefreshASCOMStatusBarIcon(ASCOMConnectionState state, ToolStripStatusLabel label)
+        {
+            switch (state)
+            {
+                case ASCOMConnectionState.Disconnected:
+                    label.Visible = false;
+                    break;
+                case ASCOMConnectionState.Connecting:
+                    label.ForeColor = Color.Goldenrod;
+                    label.Visible = true;
+                    break;
+                case ASCOMConnectionState.Connected:
+                    label.ForeColor = Color.Green;
+                    label.Visible = true;
+                    break;
+                case ASCOMConnectionState.Disconnecting:
+                    label.ForeColor = Color.SlateGray;
+                    label.Visible = true;
+                    break;
+                case ASCOMConnectionState.NotResponding:
+                    label.ForeColor = Color.Black;
+                    label.Visible = true;
+                    break;
+
+                case ASCOMConnectionState.Errored:
+                    label.ForeColor = Color.Red;
+                    label.Visible = true;
+                    break;
+            }
+        }
+        public void TelescopeConnectionChanged(ASCOMConnectionState state)
+        {
+            RefreshASCOMStatusBarIcon(state, tssASCOMTelescope);
+        }
+
+        public void FocuserConnectionChanged(ASCOMConnectionState state)
+        {
+            RefreshASCOMStatusBarIcon(state, tssASCOMFocuser);
+        }
+
+        public void TelescopeStateUpdate(TelescopeState state)
+        {
+            tssASCOMTelescope.Text = string.Format("TEL (Alt:{0}|Az:{1})", (int)Math.Round(state.Altitude), (int)Math.Round(state.Azimuth));
+
+            Trace.WriteLine(string.Format("Altitude: {0}\r\nAzimuth: {1}\r\nAtHome: {2}\r\nAtPark: {3}\r\nCanFindHome: {4}\r\nCanPark: {5}", state.Altitude, state.Azimuth, state.AtHome, state.AtPark,
+                                          state.CanFindHome, state.CanPark));
+
+        }
+        #endregion
+    }
 }

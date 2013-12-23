@@ -8,7 +8,7 @@ namespace OccuRec.Helpers
 {
     public static class Extensions
     {
-		public static string GetFullErrorDescription(this Exception ex)
+		public static string GetFullStackTrace(this Exception ex)
 		{
 			var output = new StringBuilder();
 
@@ -17,7 +17,7 @@ namespace OccuRec.Helpers
 			return output.ToString();			
 		}
 
-		public static string GetFullErrorDescription(this Exception ex, string message)
+		public static string GetFullStackTrace(this Exception ex, string message)
 		{
 			var output = new StringBuilder(message);
 			output.Append("\r\n");

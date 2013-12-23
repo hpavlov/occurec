@@ -5,6 +5,8 @@ using System.Runtime.Remoting;
 using System.Text;
 using ASCOM;
 using OccuRec.ASCOM.Interfaces;
+using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.ASCOM.Interfaces.System;
 using NotImplementedException = System.NotImplementedException;
 using ASCOMUtilities = ASCOM.Utilities;
 using ASCOMDriverAccess = ASCOM.DriverAccess;
@@ -43,6 +45,13 @@ namespace OccuRec.ASCOM.Server
 			m_ReferencedObjects.Add(focuser);
 			return focuser;
 		}
+
+        public IASCOMTelescope CreateTelescope(string progId)
+        {
+            var telescope = new IsolatedTelescope(progId);
+            m_ReferencedObjects.Add(telescope);
+            return telescope;
+        }
 
 		public void Initialise(IOccuRecHost host)
 		{

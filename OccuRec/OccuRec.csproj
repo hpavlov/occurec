@@ -54,6 +54,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ASCOM\IASCOMDeviceCallbacks.cs" />
+    <Compile Include="ASCOM\TelescopeController.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\CommandQueue.cs" />
     <Compile Include="Commands\DelegateObjectProxy.cs" />

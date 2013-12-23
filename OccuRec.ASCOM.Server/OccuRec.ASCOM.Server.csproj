@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="ASCOMHelper.cs" />
     <Compile Include="IsolatedFocuser.cs" />
+    <Compile Include="IsolatedTelescope.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -95,7 +96,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetPath)" "$(SolutionDir)ASCOMWrapper.Tester\$(OutDir)" /Y
-xcopy "$(TargetPath)" "$(SolutionDir)OccRec\$(OutDir)" /Y</PostBuildEvent>
+xcopy "$(TargetPath)" "$(SolutionDir)$(ConfigurationName)" /Y</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

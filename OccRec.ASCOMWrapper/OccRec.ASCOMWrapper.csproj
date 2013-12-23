@@ -61,7 +61,9 @@
     <Compile Include="ASCOMClient.cs" />
     <Compile Include="ASCOMHelper.cs" />
     <Compile Include="DeviceClient.cs" />
-    <Compile Include="Focuser.cs" />
+    <Compile Include="Devices\DeviceBase.cs" />
+    <Compile Include="Devices\Telescope.cs" />
+    <Compile Include="Devices\Focuser.cs" />
     <Compile Include="OccuRecHostDelegate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrackingHandler.cs" />

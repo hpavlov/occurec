@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace OccuRec.ASCOM.Interfaces
+namespace OccuRec.ASCOM.Interfaces.System
 {
 	public interface IIsolatedDevice
 	{

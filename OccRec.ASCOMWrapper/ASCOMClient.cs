@@ -7,7 +7,9 @@ using System.Runtime.Remoting.Services;
 using System.Security;
 using System.Security.Policy;
 using System.Text;
+using OccRec.ASCOMWrapper.Devices;
 using OccuRec.ASCOM.Interfaces;
+using OccuRec.ASCOM.Interfaces.Devices;
 
 namespace OccRec.ASCOMWrapper
 {
@@ -73,8 +75,49 @@ namespace OccRec.ASCOMWrapper
 
 		public IASCOMTelescope CreateTelescope(string progId)
 		{
-			return null;
+            IASCOMTelescope isolatedTelescope = m_ASCOMHelper.CreateTelescope(progId);
+            RegisterLifetimeService(isolatedTelescope as MarshalByRefObject);
+
+            return new Telescope(isolatedTelescope);
 		}
+
+        public void DisconnectTelescope(IASCOMTelescope telescope)
+        {
+            try
+            {
+                if (telescope.Connected)
+                    telescope.Connected = false;
+            }
+            catch
+            { }
+
+            ReleaseDevice(telescope);
+        }
+
+        public void DisconnectFocuser(IASCOMFocuser fpcuser)
+        {
+            try
+            {
+                if (fpcuser.Connected)
+                    fpcuser.Connected = false;
+            }
+            catch
+            { }
+
+            ReleaseDevice(fpcuser);
+        }
+
+        public void ReleaseDevice(object deviceInstance)
+        {
+            foreach (DeviceClient client in DeviceClients)
+            {
+                if (object.ReferenceEquals(client, deviceInstance))
+                {
+                    DeviceClients.Remove(client);
+                    client.Dispose();
+                }
+            }
+        }
 
 		public void Dispose()
 		{

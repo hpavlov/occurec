@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OccuRec.ASCOM.Interfaces.Devices;
 
 namespace OccuRec.ASCOM.Interfaces
 {
@@ -10,5 +11,6 @@ namespace OccuRec.ASCOM.Interfaces
 		string ChooseTelescope();
 		string ChooseFocuser();
 		IASCOMFocuser CreateFocuser(string progId);
+        IASCOMTelescope CreateTelescope(string progId);
 	}
 }
