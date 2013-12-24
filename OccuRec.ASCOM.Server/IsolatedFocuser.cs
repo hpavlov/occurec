@@ -18,5 +18,28 @@ namespace OccuRec.ASCOM.Server
 			m_Focuser = new global::ASCOM.DriverAccess.Focuser(progId);
 			SetIsolatedDevice(m_Focuser, progId);
 		}
+
+		public FocuserState GetCurrentState()
+		{
+			var rv = new FocuserState();
+
+			rv.TempCompAvailable = m_Focuser.TempCompAvailable;
+			rv.Temperature = m_Focuser.Temperature;
+			rv.IsMoving = m_Focuser.IsMoving;
+			rv.MaxIncrement = m_Focuser.MaxIncrement;
+			rv.MaxStep = m_Focuser.MaxStep;
+			rv.Absolute = m_Focuser.Absolute;
+			rv.Link = m_Focuser.Link;
+			rv.StepSize = m_Focuser.StepSize;
+			rv.TempComp = m_Focuser.TempComp;
+			rv.Position = m_Focuser.Position;
+
+			return rv;
+		}
+
+		public void Move(int position)
+		{
+			m_Focuser.Move(position);
+		}
 	}
 }

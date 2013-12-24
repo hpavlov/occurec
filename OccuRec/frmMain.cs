@@ -79,10 +79,6 @@ namespace OccuRec
 
 		    UpdateState(null);
 
-#if DEBUG
-			// NOTE: Used to test integration detection logs against the currently used algorithm
-			tbsAddTarget.Visible = true;
-#endif
             ASCOMClient.Instance.Initialise();
             TelescopeConnectionChanged(ASCOMConnectionState.Disconnected);
             FocuserConnectionChanged(ASCOMConnectionState.Disconnected);
@@ -463,51 +459,6 @@ namespace OccuRec
                 ttsProgressBar.Visible = false;
 		}
 		
-		internal class FakeFrame : IVideoFrame
-		{
-			private static int s_Counter = -1;
-
-			public object ImageArray
-			{
-				get { return new object(); }
-			}
-
-			public object ImageArrayVariant
-			{
-				get { return null; }
-			}
-
-            public Bitmap PreviewBitmap
-            {
-                get { return null; }
-            }
-
-			public long FrameNumber
-			{
-				get
-				{
-					s_Counter++;
-					return s_Counter;
-				}
-			}
-
-			public double ExposureDuration
-			{
-				get { return 0; }
-			}
-
-			public string ExposureStartTime
-			{
-				get { return null; }
-			}
-
-			public string ImageInfo
-			{
-				get { return null; }
-			}
-		}
-
-
 		private void DisplayVideoFrames(object state)
 		{
 			while(running)
@@ -608,13 +559,59 @@ namespace OccuRec
 				gbxSchedules.Enabled = enabled;
 		}
 
+	    private bool? m_PrevStateWasDisconnected = false;
+
+		private bool ChangedToDisconnectedState()
+		{
+			if (!m_PrevStateWasDisconnected.HasValue)
+			{
+				m_PrevStateWasDisconnected = videoObject == null;
+				return videoObject == null;
+			}
+			else if (!m_PrevStateWasDisconnected.Value && videoObject == null)
+			{
+				m_PrevStateWasDisconnected = true;
+				return true;
+			}
+
+			m_PrevStateWasDisconnected = videoObject == null;
+			return false;
+		}
+
+		private bool ChangedToConnectedState()
+		{
+			if (!m_PrevStateWasDisconnected.HasValue)
+			{
+				m_PrevStateWasDisconnected = videoObject == null;
+				return videoObject != null;
+			}
+			else if (!m_PrevStateWasDisconnected.Value && videoObject != null)
+			{
+				m_PrevStateWasDisconnected = false;
+				return true;
+			}
+
+			m_PrevStateWasDisconnected = videoObject == null;
+			return false;
+		}
+
+		bool CameraSupportsSoftwareControl()
+		{
+			// TODO: Determine this from the ASCOM object
+
+			return false;
+		}
+
 		private void UpdateState(VideoFrameWrapper frame)
 		{
 		    if (IsDisposed)
                 // It is possible this method to be called during Disposing and we don't need to do anything in that case
 		        return;
 
-			if (videoObject == null)
+			// TODO: Many of things below only change their state when something changes. Rather than always resetting their state with each rendered frame, we should really 
+			//       use events to update the state!
+
+			if (ChangedToDisconnectedState())
 			{
 				tssCameraState.Text = "Disconnected";
 				tssFrameNo.Text = string.Empty;
@@ -625,10 +622,26 @@ namespace OccuRec
 				tssDroppedFrames.Visible = false;
 				tssOcrErr.Visible = false;
 
-			    tsbConnectDisconnect.ToolTipText = "Connect";
-			    tsbConnectDisconnect.Image = imageListToolbar.Images[0];
+				tsbConnectDisconnect.ToolTipText = "Connect";
+				tsbConnectDisconnect.Image = imageListToolbar.Images[0];
+
+				tbsAddTarget.Visible = false;
+				tsbAddTrackingStar.Visible = false;
+				tsSeparator2.Visible = false;
+				tsbCamControl.Visible = false;
 			}
-			else
+			else if (ChangedToConnectedState())
+			{
+				tbsAddTarget.Visible = true;
+				tsbAddTrackingStar.Visible = true;
+				tsSeparator2.Visible = true;
+				tsbCamControl.Visible = CameraSupportsSoftwareControl();
+
+                tsbConnectDisconnect.ToolTipText = "Disconnect";
+                tsbConnectDisconnect.Image = imageListToolbar.Images[1];				
+			}
+
+			if (videoObject != null)
 			{
 			    UpdateApplicationStateFromCameraState();
 
@@ -770,9 +783,6 @@ namespace OccuRec
 					btnManualIntegration.Text = "Automatic";
 				else
 					btnManualIntegration.Text = "Manual";
-
-                tsbConnectDisconnect.ToolTipText = "Disconnect";
-                tsbConnectDisconnect.Image = imageListToolbar.Images[1];
 			}
 		}
 
@@ -1338,20 +1348,7 @@ namespace OccuRec
 
 		private void tbsAddTarget_Click(object sender, EventArgs e)
 		{
-			Regex rex = new Regex("FRID:(\\d+).*DF:([0-9\\.]+)");
 
-			NativeHelpers.InitIntegrationDetectionTesting(0.269f, 0.269f);
-			string[] fileLines = File.ReadAllLines(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "INTLOG.LOG"));
-			foreach (string line in fileLines)
-			{
-				Match match = rex.Match(line);
-				if (match.Success)
-				{
-					int frameNo = int.Parse(match.Groups[1].Value);
-					float diff = float.Parse(match.Groups[2].Value);
-					NativeHelpers.IntegrationDetectionTestNextFrame(frameNo, diff);
-				}
-			}
 		}
 
 		private void btnManualIntegration_Click(object sender, EventArgs e)
@@ -1421,7 +1418,7 @@ namespace OccuRec
 		}
 
         #region IASCOMDeviceCallbacks
-        private void RefreshASCOMStatusBarIcon(ASCOMConnectionState state, ToolStripStatusLabel label)
+        private void RefreshASCOMStatusControls(ASCOMConnectionState state, ToolStripStatusLabel label)
         {
             switch (state)
             {
@@ -1451,14 +1448,17 @@ namespace OccuRec
                     break;
             }
         }
+
         public void TelescopeConnectionChanged(ASCOMConnectionState state)
         {
-            RefreshASCOMStatusBarIcon(state, tssASCOMTelescope);
+            RefreshASCOMStatusControls(state, tssASCOMTelescope);
+			tsbTelControl.Visible = state == ASCOMConnectionState.Connected;
         }
 
         public void FocuserConnectionChanged(ASCOMConnectionState state)
         {
-            RefreshASCOMStatusBarIcon(state, tssASCOMFocuser);
+            RefreshASCOMStatusControls(state, tssASCOMFocuser);
+			tsbFocControl.Visible = state == ASCOMConnectionState.Connected;
         }
 
         public void TelescopeStateUpdate(TelescopeState state)
@@ -1470,5 +1470,48 @@ namespace OccuRec
 
         }
         #endregion
+
+		private void tsbCrosshair_Click(object sender, EventArgs e)
+		{
+			Regex rex = new Regex("FRID:(\\d+).*DF:([0-9\\.]+)");
+
+			NativeHelpers.InitIntegrationDetectionTesting(0.269f, 0.269f);
+			string[] fileLines = File.ReadAllLines(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "INTLOG.LOG"));
+			foreach (string line in fileLines)
+			{
+				Match match = rex.Match(line);
+				if (match.Success)
+				{
+					int frameNo = int.Parse(match.Groups[1].Value);
+					float diff = float.Parse(match.Groups[2].Value);
+					NativeHelpers.IntegrationDetectionTestNextFrame(frameNo, diff);
+				}
+			}
+		}
+
+	    private static frmFocusControl s_FormFocuserControl = null;
+
+		private void tsbFocControl_Click(object sender, EventArgs e)
+		{
+			if (s_FormFocuserControl != null)
+			{
+				try
+				{
+					if (!s_FormFocuserControl.Visible)
+						s_FormFocuserControl.Show(this);
+				}
+				catch (Exception ex)
+				{
+					s_FormFocuserControl = null;
+				}
+			}
+
+			if (s_FormFocuserControl == null)
+			{
+				s_FormFocuserControl = new frmFocusControl();
+				s_FormFocuserControl.TelescopeController = telescopeController;
+				s_FormFocuserControl.Show(this);				
+			}
+		}
     }
 }

@@ -54,6 +54,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ASCOM\FocuserCommands.cs" />
+    <Compile Include="ASCOM\frmFocusControl.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ASCOM\frmFocusControl.Designer.cs">
+      <DependentUpon>frmFocusControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="ASCOM\IASCOMDeviceCallbacks.cs" />
     <Compile Include="ASCOM\TelescopeController.cs" />
     <Compile Include="Commands\Command.cs" />
@@ -214,6 +221,9 @@
     <Compile Include="StateManagement\LockedIntegrationCameraState.cs" />
     <Compile Include="StateManagement\NoIntegrationSupportedCameraState.cs" />
     <Compile Include="StateManagement\UndeterminedIntegrationCameraState.cs" />
+    <EmbeddedResource Include="ASCOM\frmFocusControl.resx">
+      <DependentUpon>frmFocusControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucAAV.resx">
       <DependentUpon>ucAAV.cs</DependentUpon>
     </EmbeddedResource>

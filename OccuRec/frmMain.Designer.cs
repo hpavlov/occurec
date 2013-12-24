@@ -80,7 +80,7 @@
 			this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
 			this.tbsAddTarget = new System.Windows.Forms.ToolStripButton();
 			this.tsbAddTrackingStar = new System.Windows.Forms.ToolStripButton();
-			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.tsbTelControl = new System.Windows.Forms.ToolStripButton();
 			this.tsbFocControl = new System.Windows.Forms.ToolStripButton();
 			this.tsbCamControl = new System.Windows.Forms.ToolStripButton();
@@ -105,7 +105,19 @@
 			// statusStrip
 			// 
 			this.statusStrip.BackColor = System.Drawing.SystemColors.Control;
-			this.statusStrip.Location = new System.Drawing.Point(0, 625);
+			this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ttsProgressBar,
+            this.tssCameraState,
+            this.tssFrameNo,
+            this.tssIntegrationRate,
+            this.tssDroppedFrames,
+            this.tssASCOMTelescope,
+            this.tssASCOMFocuser,
+            this.tssOcrErr,
+            this.tssRecordingFile,
+            this.tssFreeDiskSpace,
+            this.pnlNewVersionAvailable});
+			this.statusStrip.Location = new System.Drawing.Point(0, 543);
 			this.statusStrip.Name = "statusStrip";
 			this.statusStrip.Size = new System.Drawing.Size(920, 22);
 			this.statusStrip.TabIndex = 1;
@@ -674,7 +686,7 @@
             this.tsbCrosshair,
             this.tbsAddTarget,
             this.tsbAddTrackingStar,
-            this.toolStripSeparator4,
+            this.tsSeparator2,
             this.tsbTelControl,
             this.tsbFocControl,
             this.tsbCamControl});
@@ -708,6 +720,7 @@
 			this.tsbCrosshair.Size = new System.Drawing.Size(23, 22);
 			this.tsbCrosshair.ToolTipText = "Crosshair";
 			this.tsbCrosshair.Visible = false;
+			this.tsbCrosshair.Click += new System.EventHandler(this.tsbCrosshair_Click);
 			// 
 			// tbsAddTarget
 			// 
@@ -728,10 +741,10 @@
 			this.tsbAddTrackingStar.Size = new System.Drawing.Size(23, 22);
 			this.tsbAddTrackingStar.ToolTipText = "Select Guiding Star";
 			// 
-			// toolStripSeparator4
+			// tsSeparator2
 			// 
-			this.toolStripSeparator4.Name = "toolStripSeparator4";
-			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+			this.tsSeparator2.Name = "tsSeparator2";
+			this.tsSeparator2.Size = new System.Drawing.Size(6, 25);
 			// 
 			// tsbTelControl
 			// 
@@ -750,6 +763,7 @@
 			this.tsbFocControl.Name = "tsbFocControl";
 			this.tsbFocControl.Size = new System.Drawing.Size(87, 22);
 			this.tsbFocControl.Text = "Focuser Control";
+			this.tsbFocControl.Click += new System.EventHandler(this.tsbFocControl_Click);
 			// 
 			// tsbCamControl
 			// 
@@ -890,7 +904,7 @@
         private System.Windows.Forms.ToolStripStatusLabel tssASCOMFocuser;
 		private System.Windows.Forms.Panel pnlTargets;
 		private System.Windows.Forms.Panel pnlVideo;
-		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+		private System.Windows.Forms.ToolStripSeparator tsSeparator2;
 		private System.Windows.Forms.ToolStripButton tsbTelControl;
 		private System.Windows.Forms.ToolStripButton tsbFocControl;
 		private System.Windows.Forms.ToolStripButton tsbCamControl;

@@ -16,8 +16,16 @@ namespace OccuRec.ASCOM
     public enum ControllerSignals
     {
         TryConnectTelescope,
-        TryConnectFocuser
+        TryConnectFocuser,
+		GetFocuserState,
+		MoveFocuserAndGetState
     }
+
+	public struct Signal
+	{
+		public ControllerSignals Command;
+		public object Argument;
+	}
 
     public class TelescopeController : IDisposable
     {
@@ -27,7 +35,7 @@ namespace OccuRec.ASCOM
 
         private IASCOMTelescope m_ConnectedTelescope = null;
         private IASCOMFocuser m_ConnectedFocuser = null;
-        private ConcurrentQueue<ControllerSignals> m_QueuedSignals = new ConcurrentQueue<ControllerSignals>();
+		private ConcurrentQueue<Signal> m_QueuedSignals = new ConcurrentQueue<Signal>();
 
         public TelescopeController(Control mainForm, IASCOMDeviceCallbacks callbacks)
         {
@@ -38,6 +46,16 @@ namespace OccuRec.ASCOM
             ThreadPool.QueueUserWorkItem(WorkerThread);
         }
         
+		public void GetFocuserState(Action<FocuserState> callback)
+		{
+			SignalGetFocuserState(callback);
+		}
+
+		public void FocuserMove(int step, Action<FocuserState> callback)
+		{
+			SignalMoveFocuser(step, callback);
+		}
+
         public void CheckASCOMConnections()
         {
             if (Settings.Default.ASCOMConnectWhenRunning)
@@ -78,7 +96,7 @@ namespace OccuRec.ASCOM
             {
                 if (m_QueuedSignals.Count > 0)
                 {
-                    ControllerSignals signal;
+					Signal signal;
                     if (m_QueuedSignals.TryDequeue(out signal))
                     {
                         ProcessSignal(signal);
@@ -107,9 +125,9 @@ namespace OccuRec.ASCOM
             }
         }
 
-        private void ProcessSignal(ControllerSignals signal)
+		private void ProcessSignal(Signal signal)
         {
-            if (signal == ControllerSignals.TryConnectTelescope)
+            if (signal.Command == ControllerSignals.TryConnectTelescope)
             {
                 try
                 {
@@ -138,7 +156,7 @@ namespace OccuRec.ASCOM
                     Trace.WriteLine(ex.GetFullStackTrace());
                 }
             }
-            else if (signal == ControllerSignals.TryConnectFocuser)
+			else if (signal.Command == ControllerSignals.TryConnectFocuser)
             {
                 try
                 {
@@ -164,6 +182,14 @@ namespace OccuRec.ASCOM
                     Trace.WriteLine(ex.GetFullStackTrace());
                 }
             }
+			else if (signal.Command == ControllerSignals.GetFocuserState)
+			{
+				FocuserCommands.GetFocuserState(signal, m_ConnectedFocuser);
+			}
+			else if (signal.Command == ControllerSignals.MoveFocuserAndGetState)
+			{
+				FocuserCommands.MoveFocuserAndGetState(signal, m_ConnectedFocuser);
+			}
         }
 
         public void Dispose()
@@ -174,13 +200,23 @@ namespace OccuRec.ASCOM
 
         private void SignalTryConnectTelescope()
         {
-            m_QueuedSignals.Enqueue(ControllerSignals.TryConnectTelescope);
+            m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.TryConnectTelescope });
         }
 
         private void SignalTryConnectFocuser()
         {
-            m_QueuedSignals.Enqueue(ControllerSignals.TryConnectFocuser);
+			m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.TryConnectFocuser });
         }
+
+		private void SignalGetFocuserState(Action<FocuserState> callback)
+		{
+			m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.GetFocuserState, Argument = callback });
+		}
+
+		private void SignalMoveFocuser(int step, Action<FocuserState> callback)
+		{
+			m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.MoveFocuserAndGetState, Argument = new Tuple<int, Action<FocuserState>>(step, callback)});
+		}
 
         private void OnTelescopeConnecting()
         {

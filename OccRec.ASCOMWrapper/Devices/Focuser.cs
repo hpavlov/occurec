@@ -16,5 +16,15 @@ namespace OccRec.ASCOMWrapper.Devices
 		{
 			m_IsolatedFocuser = isolatedFocuser;
 		}
+
+		public FocuserState GetCurrentState()
+		{
+			return m_IsolatedFocuser.GetCurrentState();
+		}
+
+		public void Move(int position)
+		{
+			m_IsolatedFocuser.Move(position);
+		}
 	}
 }
