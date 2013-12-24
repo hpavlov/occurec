@@ -59,6 +59,18 @@
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\CommandQueue.cs" />
     <Compile Include="Commands\DelegateObjectProxy.cs" />
+    <Compile Include="Config\Panels\ucNTPTime.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucNTPTime.Designer.cs">
+      <DependentUpon>ucNTPTime.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Config\Panels\ucTraking.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucTraking.Designer.cs">
+      <DependentUpon>ucTraking.cs</DependentUpon>
+    </Compile>
     <Compile Include="Drivers\AAVSimulator\AAVPlayerImpl\AAVPlayer.cs" />
     <Compile Include="Drivers\AAVTimer\VideoFrame.cs" />
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
@@ -71,6 +83,33 @@
       <DependentUpon>frmChooseManualIntegrationRate.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\DsHelper.cs" />
+    <Compile Include="Config\Panels\SettingsPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucAAV.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucAAV.Designer.cs">
+      <DependentUpon>ucAAV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Config\Panels\ucDebug.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucDebug.Designer.cs">
+      <DependentUpon>ucDebug.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Config\Panels\ucGeneral.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucGeneral.Designer.cs">
+      <DependentUpon>ucGeneral.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Config\Panels\ucTelescopeControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucTelescopeControl.Designer.cs">
+      <DependentUpon>ucTelescopeControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Tracking\AllGreys.cs" />
     <Compile Include="Tracking\ImagePixel.cs" />
     <Compile Include="Tracking\ITrackedObject.cs" />
@@ -138,10 +177,10 @@
     <Compile Include="frmMain.designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmSettings.cs">
+    <Compile Include="Config\frmSettings.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmSettings.Designer.cs">
+    <Compile Include="Config\frmSettings.Designer.cs">
       <DependentUpon>frmSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="frmUnexpectedError.cs">
@@ -175,6 +214,24 @@
     <Compile Include="StateManagement\LockedIntegrationCameraState.cs" />
     <Compile Include="StateManagement\NoIntegrationSupportedCameraState.cs" />
     <Compile Include="StateManagement\UndeterminedIntegrationCameraState.cs" />
+    <EmbeddedResource Include="Config\Panels\ucAAV.resx">
+      <DependentUpon>ucAAV.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucDebug.resx">
+      <DependentUpon>ucDebug.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucGeneral.resx">
+      <DependentUpon>ucGeneral.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucNTPTime.resx">
+      <DependentUpon>ucNTPTime.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucTelescopeControl.resx">
+      <DependentUpon>ucTelescopeControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucTraking.resx">
+      <DependentUpon>ucTraking.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmChooseCamera.resx">
       <DependentUpon>frmChooseCamera.cs</DependentUpon>
     </EmbeddedResource>
@@ -187,7 +244,7 @@
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmSettings.resx">
+    <EmbeddedResource Include="Config\frmSettings.resx">
       <DependentUpon>frmSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmUnexpectedError.resx">

@@ -19,6 +19,7 @@ using System.Xml;
 using OccRec.ASCOMWrapper;
 using OccuRec.ASCOM;
 using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.Config;
 using OccuRec.Drivers;
 using OccuRec.Helpers;
 using OccuRec.OCR;
@@ -309,7 +310,6 @@ namespace OccuRec
 		private void miConfigure_Click(object sender, EventArgs e)
 		{
 			var frmSettings = new frmSettings();
-		    frmSettings.TelescopeController = telescopeController;
 
 		    if (frmSettings.ShowDialog(this) == DialogResult.OK)
 		        telescopeController.CheckASCOMConnections();

@@ -46,7 +46,9 @@
 			this.miCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
 			this.pnlClient = new System.Windows.Forms.Panel();
 			this.pnlVideoFrames = new System.Windows.Forms.Panel();
+			this.pnlVideo = new System.Windows.Forms.Panel();
 			this.pictureBox = new System.Windows.Forms.PictureBox();
+			this.pnlTargets = new System.Windows.Forms.Panel();
 			this.pnlVideoControls = new System.Windows.Forms.Panel();
 			this.pnlOcrTesting = new System.Windows.Forms.Panel();
 			this.btnOcrTesting = new System.Windows.Forms.Button();
@@ -78,13 +80,17 @@
 			this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
 			this.tbsAddTarget = new System.Windows.Forms.ToolStripButton();
 			this.tsbAddTrackingStar = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.tsbTelControl = new System.Windows.Forms.ToolStripButton();
+			this.tsbFocControl = new System.Windows.Forms.ToolStripButton();
+			this.tsbCamControl = new System.Windows.Forms.ToolStripButton();
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
 			this.pnlVideoFrames.SuspendLayout();
+			this.pnlVideo.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
 			this.pnlVideoControls.SuspendLayout();
 			this.pnlOcrTesting.SuspendLayout();
@@ -99,28 +105,16 @@
 			// statusStrip
 			// 
 			this.statusStrip.BackColor = System.Drawing.SystemColors.Control;
-			this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ttsProgressBar,
-            this.tssCameraState,
-            this.tssFrameNo,
-            this.tssIntegrationRate,
-            this.tssDroppedFrames,
-            this.tssASCOMTelescope,
-            this.tssASCOMFocuser,
-            this.tssOcrErr,
-            this.tssRecordingFile,
-            this.tssFreeDiskSpace,
-            this.pnlNewVersionAvailable});
-			this.statusStrip.Location = new System.Drawing.Point(0, 543);
+			this.statusStrip.Location = new System.Drawing.Point(0, 625);
 			this.statusStrip.Name = "statusStrip";
-			this.statusStrip.Size = new System.Drawing.Size(903, 22);
+			this.statusStrip.Size = new System.Drawing.Size(920, 22);
 			this.statusStrip.TabIndex = 1;
 			this.statusStrip.Text = "statusStrip1";
 			// 
 			// ttsProgressBar
 			// 
 			this.ttsProgressBar.Name = "ttsProgressBar";
-			this.ttsProgressBar.Size = new System.Drawing.Size(100, 18);
+			this.ttsProgressBar.Size = new System.Drawing.Size(100, 16);
 			this.ttsProgressBar.Step = 5;
 			this.ttsProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
 			this.ttsProgressBar.Visible = false;
@@ -253,7 +247,7 @@
             this.miHelp});
 			this.msMain.Location = new System.Drawing.Point(0, 0);
 			this.msMain.Name = "msMain";
-			this.msMain.Size = new System.Drawing.Size(903, 24);
+			this.msMain.Size = new System.Drawing.Size(920, 24);
 			this.msMain.TabIndex = 2;
 			this.msMain.Text = "menuStrip1";
 			// 
@@ -363,17 +357,27 @@
 			this.pnlClient.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pnlClient.Location = new System.Drawing.Point(0, 0);
 			this.pnlClient.Name = "pnlClient";
-			this.pnlClient.Size = new System.Drawing.Size(903, 494);
+			this.pnlClient.Size = new System.Drawing.Size(920, 576);
 			this.pnlClient.TabIndex = 4;
 			// 
 			// pnlVideoFrames
 			// 
-			this.pnlVideoFrames.Controls.Add(this.pictureBox);
+			this.pnlVideoFrames.Controls.Add(this.pnlVideo);
+			this.pnlVideoFrames.Controls.Add(this.pnlTargets);
 			this.pnlVideoFrames.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pnlVideoFrames.Location = new System.Drawing.Point(0, 0);
 			this.pnlVideoFrames.Name = "pnlVideoFrames";
-			this.pnlVideoFrames.Size = new System.Drawing.Size(703, 494);
+			this.pnlVideoFrames.Size = new System.Drawing.Size(720, 576);
 			this.pnlVideoFrames.TabIndex = 2;
+			// 
+			// pnlVideo
+			// 
+			this.pnlVideo.Controls.Add(this.pictureBox);
+			this.pnlVideo.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.pnlVideo.Location = new System.Drawing.Point(0, 0);
+			this.pnlVideo.Name = "pnlVideo";
+			this.pnlVideo.Size = new System.Drawing.Size(720, 576);
+			this.pnlVideo.TabIndex = 2;
 			// 
 			// pictureBox
 			// 
@@ -381,13 +385,21 @@
 			this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pictureBox.Location = new System.Drawing.Point(0, 0);
 			this.pictureBox.Name = "pictureBox";
-			this.pictureBox.Size = new System.Drawing.Size(703, 494);
+			this.pictureBox.Size = new System.Drawing.Size(720, 576);
 			this.pictureBox.TabIndex = 0;
 			this.pictureBox.TabStop = false;
 			this.pictureBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseDown);
 			this.pictureBox.MouseLeave += new System.EventHandler(this.pictureBox_MouseLeave);
 			this.pictureBox.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseMove);
 			this.pictureBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseUp);
+			// 
+			// pnlTargets
+			// 
+			this.pnlTargets.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.pnlTargets.Location = new System.Drawing.Point(0, 576);
+			this.pnlTargets.Name = "pnlTargets";
+			this.pnlTargets.Size = new System.Drawing.Size(720, 0);
+			this.pnlTargets.TabIndex = 1;
 			// 
 			// pnlVideoControls
 			// 
@@ -404,9 +416,9 @@
 			this.pnlVideoControls.Controls.Add(this.btnRecord);
 			this.pnlVideoControls.Dock = System.Windows.Forms.DockStyle.Right;
 			this.pnlVideoControls.Enabled = false;
-			this.pnlVideoControls.Location = new System.Drawing.Point(703, 0);
+			this.pnlVideoControls.Location = new System.Drawing.Point(720, 0);
 			this.pnlVideoControls.Name = "pnlVideoControls";
-			this.pnlVideoControls.Size = new System.Drawing.Size(200, 494);
+			this.pnlVideoControls.Size = new System.Drawing.Size(200, 576);
 			this.pnlVideoControls.TabIndex = 1;
 			// 
 			// pnlOcrTesting
@@ -459,11 +471,12 @@
 			// 
 			// gbxSchedules
 			// 
+			this.gbxSchedules.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.gbxSchedules.Controls.Add(this.pnlNextScheduledAction);
 			this.gbxSchedules.Controls.Add(this.btnClearSchedule);
 			this.gbxSchedules.Controls.Add(this.btnAddSchedule);
 			this.gbxSchedules.Controls.Add(this.lbSchedule);
-			this.gbxSchedules.Location = new System.Drawing.Point(6, 237);
+			this.gbxSchedules.Location = new System.Drawing.Point(8, 329);
 			this.gbxSchedules.Name = "gbxSchedules";
 			this.gbxSchedules.Size = new System.Drawing.Size(187, 184);
 			this.gbxSchedules.TabIndex = 12;
@@ -607,7 +620,7 @@
 			// 
 			this.lblVideoFormat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.lblVideoFormat.ForeColor = System.Drawing.Color.Navy;
-			this.lblVideoFormat.Location = new System.Drawing.Point(106, 465);
+			this.lblVideoFormat.Location = new System.Drawing.Point(106, 547);
 			this.lblVideoFormat.Name = "lblVideoFormat";
 			this.lblVideoFormat.Size = new System.Drawing.Size(77, 14);
 			this.lblVideoFormat.TabIndex = 7;
@@ -617,7 +630,7 @@
 			// 
 			this.btnStopRecording.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.btnStopRecording.Enabled = false;
-			this.btnStopRecording.Location = new System.Drawing.Point(101, 437);
+			this.btnStopRecording.Location = new System.Drawing.Point(101, 519);
 			this.btnStopRecording.Name = "btnStopRecording";
 			this.btnStopRecording.Size = new System.Drawing.Size(76, 23);
 			this.btnStopRecording.TabIndex = 5;
@@ -629,7 +642,7 @@
 			// 
 			this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(12, 465);
+			this.label5.Location = new System.Drawing.Point(12, 547);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(91, 13);
 			this.label5.TabIndex = 6;
@@ -639,7 +652,7 @@
 			// 
 			this.btnRecord.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.btnRecord.Enabled = false;
-			this.btnRecord.Location = new System.Drawing.Point(12, 437);
+			this.btnRecord.Location = new System.Drawing.Point(12, 519);
 			this.btnRecord.Name = "btnRecord";
 			this.btnRecord.Size = new System.Drawing.Size(76, 23);
 			this.btnRecord.TabIndex = 4;
@@ -660,10 +673,14 @@
             this.toolStripSeparator1,
             this.tsbCrosshair,
             this.tbsAddTarget,
-            this.tsbAddTrackingStar});
+            this.tsbAddTrackingStar,
+            this.toolStripSeparator4,
+            this.tsbTelControl,
+            this.tsbFocControl,
+            this.tsbCamControl});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 24);
 			this.toolStrip1.Name = "toolStrip1";
-			this.toolStrip1.Size = new System.Drawing.Size(903, 25);
+			this.toolStrip1.Size = new System.Drawing.Size(920, 25);
 			this.toolStrip1.TabIndex = 5;
 			this.toolStrip1.Text = "toolStrip1";
 			// 
@@ -700,7 +717,6 @@
 			this.tbsAddTarget.Name = "tbsAddTarget";
 			this.tbsAddTarget.Size = new System.Drawing.Size(23, 22);
 			this.tbsAddTarget.ToolTipText = "Select Target";
-			this.tbsAddTarget.Visible = false;
 			this.tbsAddTarget.Click += new System.EventHandler(this.tbsAddTarget_Click);
 			// 
 			// tsbAddTrackingStar
@@ -710,8 +726,39 @@
 			this.tsbAddTrackingStar.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.tsbAddTrackingStar.Name = "tsbAddTrackingStar";
 			this.tsbAddTrackingStar.Size = new System.Drawing.Size(23, 22);
-			this.tsbAddTrackingStar.ToolTipText = "Select Tracking Star";
-			this.tsbAddTrackingStar.Visible = false;
+			this.tsbAddTrackingStar.ToolTipText = "Select Guiding Star";
+			// 
+			// toolStripSeparator4
+			// 
+			this.toolStripSeparator4.Name = "toolStripSeparator4";
+			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+			// 
+			// tsbTelControl
+			// 
+			this.tsbTelControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.tsbTelControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbTelControl.Image")));
+			this.tsbTelControl.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbTelControl.Name = "tsbTelControl";
+			this.tsbTelControl.Size = new System.Drawing.Size(97, 22);
+			this.tsbTelControl.Text = "Telescope Control";
+			// 
+			// tsbFocControl
+			// 
+			this.tsbFocControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.tsbFocControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbFocControl.Image")));
+			this.tsbFocControl.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbFocControl.Name = "tsbFocControl";
+			this.tsbFocControl.Size = new System.Drawing.Size(87, 22);
+			this.tsbFocControl.Text = "Focuser Control";
+			// 
+			// tsbCamControl
+			// 
+			this.tsbCamControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.tsbCamControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbCamControl.Image")));
+			this.tsbCamControl.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbCamControl.Name = "tsbCamControl";
+			this.tsbCamControl.Size = new System.Drawing.Size(86, 22);
+			this.tsbCamControl.Text = "Camera Control";
 			// 
 			// pnlControlArea
 			// 
@@ -719,7 +766,7 @@
 			this.pnlControlArea.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.pnlControlArea.Location = new System.Drawing.Point(0, 49);
 			this.pnlControlArea.Name = "pnlControlArea";
-			this.pnlControlArea.Size = new System.Drawing.Size(903, 494);
+			this.pnlControlArea.Size = new System.Drawing.Size(920, 576);
 			this.pnlControlArea.TabIndex = 6;
 			// 
 			// imageListToolbar
@@ -738,7 +785,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(903, 565);
+			this.ClientSize = new System.Drawing.Size(920, 647);
 			this.Controls.Add(this.pnlControlArea);
 			this.Controls.Add(this.toolStrip1);
 			this.Controls.Add(this.statusStrip);
@@ -751,12 +798,11 @@
 			this.Name = "frmMain";
 			this.Text = "OccuRec ";
 			this.Load += new System.EventHandler(this.frmMain_Load);
-			this.statusStrip.ResumeLayout(false);
-			this.statusStrip.PerformLayout();
 			this.msMain.ResumeLayout(false);
 			this.msMain.PerformLayout();
 			this.pnlClient.ResumeLayout(false);
 			this.pnlVideoFrames.ResumeLayout(false);
+			this.pnlVideo.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
 			this.pnlVideoControls.ResumeLayout(false);
 			this.pnlVideoControls.PerformLayout();
@@ -842,6 +888,12 @@
 		private System.Windows.Forms.ToolStripStatusLabel tssFreeDiskSpace;
         private System.Windows.Forms.ToolStripStatusLabel tssASCOMTelescope;
         private System.Windows.Forms.ToolStripStatusLabel tssASCOMFocuser;
+		private System.Windows.Forms.Panel pnlTargets;
+		private System.Windows.Forms.Panel pnlVideo;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+		private System.Windows.Forms.ToolStripButton tsbTelControl;
+		private System.Windows.Forms.ToolStripButton tsbFocControl;
+		private System.Windows.Forms.ToolStripButton tsbCamControl;
 	}
 }
 
