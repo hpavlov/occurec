@@ -33,40 +33,33 @@ namespace OccuRec
     public partial class frmMain : Form, IVideoCallbacks, IASCOMDeviceCallbacks
 	{
 		private VideoWrapper videoObject;
-		private bool running = false;
 
 		private int imageWidth;
 		private int imageHeight;
-		private bool useVariantPixels;
 		private string recordingfileName;
 		private int framesBeforeUpdatingCameraVideoFormat = -1;
 
 	    private CameraStateManager stateManager;
-	    private ICameraImage cameraImage;
 	    private string appVersion;
 	    private ObservatoryController observatoryController;
 	    private OverlayManager overlayManager = null;
 	    private List<string> initializationErrorMessages = new List<string>();
 
         private VideoFrameInteractionController m_VideoFrameInteractionController;
- 
+        private VideoRenderingController m_VideoRenderingController;
+
 		public frmMain()
 		{
 			InitializeComponent();
 
 			statusStrip.SizingGrip = false;
 
-			running = true;
-			previewOn = true;
-
-		    cameraImage = new CameraImage();
-
 		    stateManager = new CameraStateManager();
             stateManager.CameraDisconnected();
 
-		    m_VideoFrameInteractionController = new VideoFrameInteractionController(this);
+            m_VideoRenderingController = new VideoRenderingController(this, stateManager);
+            m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
 
-			ThreadPool.QueueUserWorkItem(new WaitCallback(DisplayVideoFrames));
 		    observatoryController = new ObservatoryController(this, this);
 
             var att = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
@@ -103,7 +96,7 @@ namespace OccuRec
 			base.Dispose(disposing);
 
 			DisconnectFromCamera();
-			running = false;
+		    m_VideoRenderingController.Dispose();
 		}
 
         public void OnError(int errorCode, string errorMessage)
@@ -162,14 +155,12 @@ namespace OccuRec
 
 		private void ConnectToDriver(IVideo driverInstance)
 		{
-			videoObject = new VideoWrapper(driverInstance, this);
-
 			try
 			{
 				Cursor = Cursors.WaitCursor;
 				initializationErrorMessages.Clear();
 
-				videoObject.Connected = true;
+                videoObject = m_VideoRenderingController.ConnectToDriver(driverInstance);
 
 				if (videoObject.Connected)
 				{
@@ -339,11 +330,6 @@ namespace OccuRec
 
 		private static Font debugTextFont = new Font(FontFamily.GenericMonospace, 10);
 
-		private long lastDisplayedVideoFrameNumber = -1;
-		private bool previewOn = true;
-
-        private delegate void PaintVideoFrameDelegate(VideoFrameWrapper frame, Bitmap bmp);
-
 		private int renderedFrameCounter = 0;
 		private long startTicks = 0;
 		private long endTicks = 0;
@@ -352,7 +338,7 @@ namespace OccuRec
 		private long currentFrameNo = 0;
 
 
-        private void PaintVideoFrame(VideoFrameWrapper frame, Bitmap bmp)
+        internal void PaintVideoFrame(VideoFrameWrapper frame, Bitmap bmp)
 		{
             bool isEmptyFrame = frame == null || bmp == null;
 
@@ -465,79 +451,6 @@ namespace OccuRec
             }
             else
                 ttsProgressBar.Visible = false;
-		}
-		
-		private void DisplayVideoFrames(object state)
-		{
-			while(running)
-			{
-				if (videoObject != null &&
-					videoObject.IsConnected &&
-					previewOn)
-				{
-					try
-					{
-						IVideoFrame frame = useVariantPixels 
-								? videoObject.LastVideoFrameVariant 
-								: videoObject.LastVideoFrame;
-
-						if (frame != null)
-						{
-
-                            var frameWrapper = new VideoFrameWrapper(frame);
-
-                            if (frameWrapper.UniqueFrameId == -1 || frameWrapper.UniqueFrameId != lastDisplayedVideoFrameNumber)
-                            {
-                                stateManager.ProcessFrame(frameWrapper);
-
-                                lastDisplayedVideoFrameNumber = frameWrapper.UniqueFrameId;
-
-                                Bitmap bmp = frame.PreviewBitmap;
-
-                                if (bmp == null)
-                                {
-                                    cameraImage.SetImageArray(
-                                        useVariantPixels
-                                            ? frame.ImageArrayVariant
-                                            : frame.ImageArray,
-                                        imageWidth,
-                                        imageHeight,
-                                        videoObject.SensorType);
-
-                                    bmp = cameraImage.GetDisplayBitmap();
-                                }
-
-                                Invoke(new PaintVideoFrameDelegate(PaintVideoFrame), new object[] { frameWrapper, bmp });                                
-                            }
-						}
-					}
-                    catch (InvalidOperationException) { }
-					catch(Exception ex)
-					{
-						Trace.WriteLine(ex);
-
-						Bitmap errorBmp = new Bitmap(picVideoFrame.Width, picVideoFrame.Height);
-						using (Graphics g = Graphics.FromImage(errorBmp))
-						{
-							g.Clear(Color.MidnightBlue);
-							//g.DrawString(ex.Message, debugTextFont, Brushes.Black, 10, 10);
-							g.Save();
-						}
-						try
-						{
-							Invoke(new PaintVideoFrameDelegate(PaintVideoFrame), new object[] {null, errorBmp});
-						}
-						catch(InvalidOperationException)
-						{
-							// InvalidOperationException could be thrown when closing down the app i.e. when the form has been already disposed
-						}
-					}
-
-				}
-
-				Thread.Sleep(1);
-				Application.DoEvents();
-			}
 		}
 
         private void UpdateApplicationStateFromCameraState()

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using OccuRec.Drivers;
 
 namespace OccuRec.Controllers
 {
@@ -17,11 +18,14 @@ namespace OccuRec.Controllers
         }
 
         private frmMain m_MainForm;
+        private VideoRenderingController m_VideoRenderingController;
 
         private VideoFrameInteractiveState m_VideoFrameInteractiveState = VideoFrameInteractiveState.None;
 
-        public VideoFrameInteractionController(frmMain mainForm)
+        public VideoFrameInteractionController(frmMain mainForm, VideoRenderingController videoRenderingController)
         {
+            m_VideoRenderingController = videoRenderingController;
+
             m_MainForm = mainForm;
             m_MainForm.picVideoFrame.MouseClick +=picVideoFrame_MouseClick;
         }
@@ -49,12 +53,29 @@ namespace OccuRec.Controllers
 
         private bool SelectGuidingStar(Point location)
         {
-            return true;
+            IVideoFrame currentVideoFrame = m_VideoRenderingController.GetCurrentFrame();
+            if (currentVideoFrame != null)
+            {
+                // TODO: Find the object at the location and set it as a guiding star
+                // TODO: Inform the overlay manager that there is a new guiding star to display as overlay
+                return true;
+            }
+
+            return false;
         }
 
         private bool SelectingtTargetStar(Point location)
         {
-            return true;
+            IVideoFrame currentVideoFrame = m_VideoRenderingController.GetCurrentFrame();
+            if (currentVideoFrame != null)
+            {
+                // TODO: Find the object at the location and set it as a guiding star
+                // TODO: Inform the overlay manager that there is a new target star to display as overlay
+
+                return true;
+            }
+
+            return false;
         }
 
         private void ChangeVideoFrameInteractiveState(VideoFrameInteractiveState newState)
