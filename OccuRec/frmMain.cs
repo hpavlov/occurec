@@ -20,6 +20,7 @@ using OccRec.ASCOMWrapper;
 using OccuRec.ASCOM;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Config;
+using OccuRec.Controllers;
 using OccuRec.Drivers;
 using OccuRec.Helpers;
 using OccuRec.OCR;
@@ -46,6 +47,8 @@ namespace OccuRec
 	    private ObservatoryController observatoryController;
 	    private OverlayManager overlayManager = null;
 	    private List<string> initializationErrorMessages = new List<string>();
+
+        private VideoFrameInteractionController m_VideoFrameInteractionController;
  
 		public frmMain()
 		{
@@ -60,6 +63,8 @@ namespace OccuRec
 
 		    stateManager = new CameraStateManager();
             stateManager.CameraDisconnected();
+
+		    m_VideoFrameInteractionController = new VideoFrameInteractionController(this);
 
 			ThreadPool.QueueUserWorkItem(new WaitCallback(DisplayVideoFrames));
 		    observatoryController = new ObservatoryController(this, this);
@@ -170,7 +175,7 @@ namespace OccuRec
 				{
 					imageWidth = videoObject.Width;
 					imageHeight = videoObject.Height;
-					pictureBox.Image = new Bitmap(imageWidth, imageHeight);
+					picVideoFrame.Image = new Bitmap(imageWidth, imageHeight);
 
 					ResizeVideoFrameTo(imageWidth, imageHeight);
 					tssIntegrationRate.Visible = Settings.Default.IsIntegrating && Settings.Default.FileFormat == "AAV";
@@ -188,8 +193,8 @@ namespace OccuRec
 			}
 
 
-			pictureBox.Width = videoObject.Width;
-			pictureBox.Height = videoObject.Height;
+			picVideoFrame.Width = videoObject.Width;
+			picVideoFrame.Height = videoObject.Height;
 
 			UpdateCameraState(true);
 			
@@ -353,7 +358,7 @@ namespace OccuRec
 
 			if (isEmptyFrame)
 			{
-				using (Graphics g = Graphics.FromImage(pictureBox.Image))
+				using (Graphics g = Graphics.FromImage(picVideoFrame.Image))
 				{
 					if (bmp == null)
 						g.Clear(Color.Green);
@@ -366,7 +371,7 @@ namespace OccuRec
 					g.Save();
 				}
 
-				pictureBox.Invalidate();
+				picVideoFrame.Invalidate();
 				return;
 			}
 
@@ -385,7 +390,7 @@ namespace OccuRec
 				startTicks = DateTime.Now.Ticks;
 			}
 
-			using (Graphics g = Graphics.FromImage(pictureBox.Image))
+			using (Graphics g = Graphics.FromImage(picVideoFrame.Image))
 			{
 			    g.DrawImage(bmp, 0, 0);
 
@@ -395,7 +400,7 @@ namespace OccuRec
 			    g.Save();
 			}
 
-			pictureBox.Invalidate();
+			picVideoFrame.Invalidate();
 			bmp.Dispose();
 
 			if (framesBeforeUpdatingCameraVideoFormat >= 0)
@@ -478,6 +483,7 @@ namespace OccuRec
 
 						if (frame != null)
 						{
+
                             var frameWrapper = new VideoFrameWrapper(frame);
 
                             if (frameWrapper.UniqueFrameId == -1 || frameWrapper.UniqueFrameId != lastDisplayedVideoFrameNumber)
@@ -510,7 +516,7 @@ namespace OccuRec
 					{
 						Trace.WriteLine(ex);
 
-						Bitmap errorBmp = new Bitmap(pictureBox.Width, pictureBox.Height);
+						Bitmap errorBmp = new Bitmap(picVideoFrame.Width, picVideoFrame.Height);
 						using (Graphics g = Graphics.FromImage(errorBmp))
 						{
 							g.Clear(Color.MidnightBlue);
@@ -629,14 +635,14 @@ namespace OccuRec
 				tsbConnectDisconnect.Image = imageListToolbar.Images[0];
 
 				tbsAddTarget.Visible = false;
-				tsbAddTrackingStar.Visible = false;
+				tsbAddGuidingStar.Visible = false;
 				tsSeparator2.Visible = false;
 				tsbCamControl.Visible = false;
 			}
 			else if (ChangedToConnectedState())
 			{
 				tbsAddTarget.Visible = true;
-				tsbAddTrackingStar.Visible = true;
+				tsbAddGuidingStar.Visible = true;
 				tsSeparator2.Visible = true;
 				tsbCamControl.Visible = CameraSupportsSoftwareControl();
 
@@ -820,8 +826,8 @@ namespace OccuRec
 
 		private void ResizeVideoFrameTo(int imageWidth, int imageHeight)
 		{
-			Width = Math.Max(800, (imageWidth - pictureBox.Width) + this.Width);
-			Height = Math.Max(600, (imageHeight - pictureBox.Height) + this.Height);
+			Width = Math.Max(800, (imageWidth - picVideoFrame.Width) + this.Width);
+			Height = Math.Max(600, (imageHeight - picVideoFrame.Height) + this.Height);
 		}
 
 		private void btnImageSettings_Click(object sender, EventArgs e)
@@ -1349,11 +1355,6 @@ namespace OccuRec
 			}
 		}
 
-		private void tbsAddTarget_Click(object sender, EventArgs e)
-		{
-
-		}
-
 		private void btnManualIntegration_Click(object sender, EventArgs e)
 		{
 			if (stateManager.IsUsingManualIntegration)
@@ -1521,5 +1522,15 @@ namespace OccuRec
 				s_FormFocuserControl.Show(this);				
 			}
 		}
+
+        private void tsbAddGuidingStar_Click(object sender, EventArgs e)
+        {
+            m_VideoFrameInteractionController.ToggleSelectGuidingStar();
+        }
+
+        private void tbsAddTarget_Click(object sender, EventArgs e)
+        {
+            m_VideoFrameInteractionController.ToggleSelectGuidingStar();
+        }
     }
 }

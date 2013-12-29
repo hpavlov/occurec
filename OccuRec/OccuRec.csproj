@@ -89,6 +89,8 @@
     <Compile Include="Config\Panels\ucTraking.Designer.cs">
       <DependentUpon>ucTraking.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controllers\VideoFrameInteractionController.cs" />
+    <Compile Include="Controllers\VideoRenderingController.cs" />
     <Compile Include="Drivers\AAVSimulator\AAVPlayerImpl\AAVPlayer.cs" />
     <Compile Include="Drivers\AAVTimer\VideoFrame.cs" />
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
