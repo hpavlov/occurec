@@ -8,6 +8,7 @@ using System.Security;
 using System.Security.Policy;
 using System.Text;
 using OccRec.ASCOMWrapper.Devices;
+using OccRec.ASCOMWrapper.Interfaces;
 using OccuRec.ASCOM.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
 
@@ -31,6 +32,8 @@ namespace OccRec.ASCOMWrapper
 	[Serializable]
 	public class ASCOMClient : IDisposable
 	{
+        private static TraceSwitch TraceSwitchASCOMClient = new TraceSwitch("ASCOMClient", "ASCOMServer tracing.");
+
 		public static ASCOMClient Instance = new ASCOMClient();
 
 		internal readonly List<DeviceClient> DeviceClients = new List<DeviceClient>();
@@ -41,10 +44,13 @@ namespace OccRec.ASCOMWrapper
 
 		public void Initialise()
 		{
+            if (TraceSwitchASCOMClient.TraceVerbose)
+                Trace.WriteLine("OccuRec: ASCOMClient::Initialise()");
+
 			TrackingServices.RegisterTrackingHandler(new TrackingHandler());
 
 			m_ASCOMHelper = new ASCOMHelper(this);
-			DeviceClients.Add(m_ASCOMHelper);			
+			DeviceClients.Add(m_ASCOMHelper);
 		}
 
 
@@ -57,24 +63,36 @@ namespace OccRec.ASCOMWrapper
 
 		public string ChooseFocuser()
 		{
+            if (TraceSwitchASCOMClient.TraceVerbose)
+                Trace.WriteLine("OccuRec: ASCOMClient::ChooseFocuser()");
+
 			return m_ASCOMHelper.ChooseFocuser();
 		}
 
 		public string ChooseTelescope()
 		{
+            if (TraceSwitchASCOMClient.TraceVerbose)
+                Trace.WriteLine("OccuRec: ASCOMClient::ChooseTelescope()");
+
 			return m_ASCOMHelper.ChooseTelescope();
 		}
 
-		public IASCOMFocuser CreateFocuser(string progId)
+        public IFocuser CreateFocuser(string progId, int largeStepSize = -1, int smallStepSize = -1, int smallestStepSize = -1)
 		{
+            if (TraceSwitchASCOMClient.TraceVerbose)
+                Trace.WriteLine(string.Format("OccuRec: ASCOMClient::CreateFocuser('{0}')", progId));
+
 			IASCOMFocuser isolatedFocuser = m_ASCOMHelper.CreateFocuser(progId);
 			RegisterLifetimeService(isolatedFocuser as MarshalByRefObject);
 
-			return new Focuser(isolatedFocuser);
+            return new Focuser(isolatedFocuser, largeStepSize, smallStepSize, smallestStepSize);
 		}
 
-		public IASCOMTelescope CreateTelescope(string progId)
+        public ITelescope CreateTelescope(string progId)
 		{
+            if (TraceSwitchASCOMClient.TraceVerbose)
+                Trace.WriteLine(string.Format("OccuRec: ASCOMClient::CreateTelescope('{0}')", progId));
+
             IASCOMTelescope isolatedTelescope = m_ASCOMHelper.CreateTelescope(progId);
             RegisterLifetimeService(isolatedTelescope as MarshalByRefObject);
 
@@ -85,26 +103,38 @@ namespace OccRec.ASCOMWrapper
         {
             try
             {
+                if (TraceSwitchASCOMClient.TraceVerbose)
+                    Trace.WriteLine(string.Format("OccuRec: ASCOMClient::DisconnectTelescope('{0}')", telescope.UniqueId));
+
                 if (telescope.Connected)
                     telescope.Connected = false;
             }
-            catch
-            { }
+            catch (Exception ex)
+            {
+                if (TraceSwitchASCOMClient.TraceError)
+                    Trace.WriteLine(ex);
+            }
 
             ReleaseDevice(telescope);
         }
 
-        public void DisconnectFocuser(IASCOMFocuser fpcuser)
+        public void DisconnectFocuser(IFocuser focuser)
         {
             try
             {
-                if (fpcuser.Connected)
-                    fpcuser.Connected = false;
-            }
-            catch
-            { }
+                if (TraceSwitchASCOMClient.TraceVerbose)
+                    Trace.WriteLine(string.Format("OccuRec: ASCOMClient::DisconnectFocuser('{0}')", focuser.UniqueId));
 
-            ReleaseDevice(fpcuser);
+                if (focuser.Connected)
+                    focuser.Connected = false;
+            }
+            catch (Exception ex)
+            {
+                if (TraceSwitchASCOMClient.TraceError)
+                    Trace.WriteLine(ex);
+            }
+
+            ReleaseDevice(focuser);
         }
 
         public void ReleaseDevice(object deviceInstance)
@@ -112,10 +142,16 @@ namespace OccRec.ASCOMWrapper
 	        DeviceBase device = deviceInstance as DeviceBase;
 			if (device != null)
 			{
+                if (TraceSwitchASCOMClient.TraceVerbose)
+                    Trace.WriteLine(string.Format("OccuRec: ASCOMClient::ReleaseDevice('{0}')", device.UniqueId));
+
 				m_ASCOMHelper.ReleaseDevice(device.UniqueId);
 			}
 			else
 			{
+                if (TraceSwitchASCOMClient.TraceVerbose)
+                    Trace.WriteLine("OccuRec: ASCOMClient::ReleaseDevice(ALL)");
+
 				foreach (DeviceClient client in DeviceClients)
 				{
 					if (object.ReferenceEquals(client, deviceInstance))
@@ -129,6 +165,9 @@ namespace OccRec.ASCOMWrapper
 
 		public void Dispose()
 		{
+            if (TraceSwitchASCOMClient.TraceVerbose)
+                Trace.WriteLine("OccuRec: ASCOMClient::Dispose()");
+
 			foreach (DeviceClient client in DeviceClients)
 			{
 				try
@@ -137,7 +176,8 @@ namespace OccRec.ASCOMWrapper
 				}
 				catch (Exception ex)
 				{
-					Trace.WriteLine(ex);
+                    if (TraceSwitchASCOMClient.TraceError)
+					    Trace.WriteLine(ex);
 				}
 			}
 		}

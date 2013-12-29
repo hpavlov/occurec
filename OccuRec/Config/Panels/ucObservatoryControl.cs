@@ -8,18 +8,20 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using OccRec.ASCOMWrapper;
+using OccRec.ASCOMWrapper.Interfaces;
 using OccuRec.ASCOM;
 using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.Helpers;
 using OccuRec.Properties;
 
 namespace OccuRec.Config.Panels
 {
-	public partial class ucTelescopeControl : SettingsPanel
+	public partial class ucObservatoryControl : SettingsPanel
 	{
-		internal TelescopeController TelescopeController;
+		internal ObservatoryController ObservatoryController;
 		private bool m_Initialised = false;
 
-		public ucTelescopeControl()
+		public ucObservatoryControl()
 		{
 			InitializeComponent();
 		}
@@ -91,7 +93,7 @@ namespace OccuRec.Config.Panels
 		private void GetFocuserInfoWorker(object state)
 		{
 			string progId = state as string;
-			IASCOMFocuser focuser = null;
+			IFocuser focuser = null;
 			try
 			{
 				focuser = ASCOMClient.Instance.CreateFocuser(progId);
@@ -178,8 +180,8 @@ namespace OccuRec.Config.Panels
 
 		private void cbxLiveTelescopeMode_CheckedChanged(object sender, EventArgs e)
 		{
-			if (!cbxLiveTelescopeMode.Checked && TelescopeController != null && m_Initialised)
-				TelescopeController.DisconnectASCOMDevices();
+			if (!cbxLiveTelescopeMode.Checked && ObservatoryController != null && m_Initialised)
+				ObservatoryController.DisconnectASCOMDevices();
 
 			UpdateASCOMControlsState();
 		}

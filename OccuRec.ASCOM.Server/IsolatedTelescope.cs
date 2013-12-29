@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Remoting;
 using System.Text;
@@ -15,6 +16,7 @@ namespace OccuRec.ASCOM.Server
         internal IsolatedTelescope(string progId)
 		{
             m_Telescope = new global::ASCOM.DriverAccess.Telescope(progId);
+            Trace.WriteLine(string.Format("OccuRec: ASCOMServer::new('{0}')", progId));
 			SetIsolatedDevice(m_Telescope, progId);
 		}
 

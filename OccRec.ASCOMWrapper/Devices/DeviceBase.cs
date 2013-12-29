@@ -6,7 +6,7 @@ using OccuRec.ASCOM.Interfaces.Devices;
 
 namespace OccRec.ASCOMWrapper.Devices
 {
-	internal class DeviceBase : IASCOMDevice
+    internal class DeviceBase : IASCOMDevice
     {
 		private IASCOMDevice m_IsolatedDevice;
 
@@ -15,10 +15,24 @@ namespace OccRec.ASCOMWrapper.Devices
 			m_IsolatedDevice = isolatedDevice;
 		}
 
-		public bool Connected
+	    protected virtual void OnConnected() { }
+        protected virtual void OnDisconnected() { }
+
+	    public bool Connected
 		{
-			get { return m_IsolatedDevice.Connected; }
-			set { m_IsolatedDevice.Connected = value; }
+			get
+			{
+			    return m_IsolatedDevice.Connected;
+			}
+			set
+			{
+			    m_IsolatedDevice.Connected = value;
+
+			    if (m_IsolatedDevice.Connected)
+			        OnConnected();
+			    else
+			        OnDisconnected();
+			}
 		}
 
 		public string Description

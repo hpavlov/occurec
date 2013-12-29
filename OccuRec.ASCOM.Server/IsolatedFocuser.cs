@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Remoting;
 using System.Text;
+using System.Threading;
+using ASCOM;
 using OccuRec.ASCOM.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
 
@@ -16,6 +19,7 @@ namespace OccuRec.ASCOM.Server
 		internal IsolatedFocuser(string progId)
 		{
 			m_Focuser = new global::ASCOM.DriverAccess.Focuser(progId);
+            Trace.WriteLine(string.Format("OccuRec: ASCOMServer::new('{0}')", progId));
 			SetIsolatedDevice(m_Focuser, progId);
 		}
 
@@ -24,15 +28,44 @@ namespace OccuRec.ASCOM.Server
 			var rv = new FocuserState();
 
 			rv.TempCompAvailable = m_Focuser.TempCompAvailable;
-			rv.Temperature = m_Focuser.Temperature;
+
+            try
+            {
+                rv.Temperature = m_Focuser.Temperature;
+            }
+            catch (PropertyNotImplementedException)
+            {
+                rv.Temperature = double.NaN;
+            }
+			
 			rv.IsMoving = m_Focuser.IsMoving;
 			rv.MaxIncrement = m_Focuser.MaxIncrement;
 			rv.MaxStep = m_Focuser.MaxStep;
 			rv.Absolute = m_Focuser.Absolute;
-			rv.Link = m_Focuser.Link;
-			rv.StepSize = m_Focuser.StepSize;
+
+            try
+            {
+                rv.StepSize = m_Focuser.StepSize;
+            }
+            catch (PropertyNotImplementedException)
+            {
+                rv.StepSize = double.NaN;
+            }
+
+			
 			rv.TempComp = m_Focuser.TempComp;
-			rv.Position = m_Focuser.Position;
+
+            try
+            {
+                if (rv.Absolute)
+                    rv.Position = m_Focuser.Position;
+                else
+                    rv.Position = 0;
+            }
+            catch (PropertyNotImplementedException)
+            {
+                rv.Position = 0;
+            }
 
 			return rv;
 		}
@@ -40,6 +73,27 @@ namespace OccuRec.ASCOM.Server
 		public void Move(int position)
 		{
 			m_Focuser.Move(position);
+            Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Focuser)::Move({1})", ProgId, position));
+
+            while (m_Focuser.IsMoving)
+            {
+                Thread.Sleep(100);
+            }
 		}
+
+        public bool ChangeTempComp(bool tempComp)
+        {
+            try
+            {
+                m_Focuser.TempComp = tempComp;
+                Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Focuser):TempComp = {1}", ProgId, tempComp));
+
+                return m_Focuser.TempComp == tempComp;
+            }
+            catch (PropertyNotImplementedException)
+            { }
+
+            return false;
+        }
 	}
 }

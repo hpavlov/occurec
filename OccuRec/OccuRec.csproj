@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ASCOM\ASCOMHelper.cs" />
     <Compile Include="ASCOM\FocuserCommands.cs" />
     <Compile Include="ASCOM\frmFocusControl.cs">
       <SubType>Form</SubType>
@@ -62,15 +63,25 @@
       <DependentUpon>frmFocusControl.cs</DependentUpon>
     </Compile>
     <Compile Include="ASCOM\IASCOMDeviceCallbacks.cs" />
-    <Compile Include="ASCOM\TelescopeController.cs" />
-    <Compile Include="Commands\Command.cs" />
-    <Compile Include="Commands\CommandQueue.cs" />
-    <Compile Include="Commands\DelegateObjectProxy.cs" />
+    <Compile Include="ASCOM\ObservatoryController.cs" />
+    <Compile Include="ASCOM\TelescopeCommands.cs" />
+    <Compile Include="Config\Panels\ucFocusing.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucFocusing.Designer.cs">
+      <DependentUpon>ucFocusing.cs</DependentUpon>
+    </Compile>
     <Compile Include="Config\Panels\ucNTPTime.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Config\Panels\ucNTPTime.Designer.cs">
       <DependentUpon>ucNTPTime.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Config\Panels\ucTelescope.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucTelescope.Designer.cs">
+      <DependentUpon>ucTelescope.cs</DependentUpon>
     </Compile>
     <Compile Include="Config\Panels\ucTraking.cs">
       <SubType>UserControl</SubType>
@@ -111,11 +122,11 @@
     <Compile Include="Config\Panels\ucGeneral.Designer.cs">
       <DependentUpon>ucGeneral.cs</DependentUpon>
     </Compile>
-    <Compile Include="Config\Panels\ucTelescopeControl.cs">
+    <Compile Include="Config\Panels\ucObservatoryControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Config\Panels\ucTelescopeControl.Designer.cs">
-      <DependentUpon>ucTelescopeControl.cs</DependentUpon>
+    <Compile Include="Config\Panels\ucObservatoryControl.Designer.cs">
+      <DependentUpon>ucObservatoryControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Tracking\AllGreys.cs" />
     <Compile Include="Tracking\ImagePixel.cs" />
@@ -230,14 +241,20 @@
     <EmbeddedResource Include="Config\Panels\ucDebug.resx">
       <DependentUpon>ucDebug.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucFocusing.resx">
+      <DependentUpon>ucFocusing.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucGeneral.resx">
       <DependentUpon>ucGeneral.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucNTPTime.resx">
       <DependentUpon>ucNTPTime.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Config\Panels\ucTelescopeControl.resx">
-      <DependentUpon>ucTelescopeControl.cs</DependentUpon>
+    <EmbeddedResource Include="Config\Panels\ucObservatoryControl.resx">
+      <DependentUpon>ucObservatoryControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucTelescope.resx">
+      <DependentUpon>ucTelescope.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucTraking.resx">
       <DependentUpon>ucTraking.cs</DependentUpon>

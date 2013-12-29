@@ -23,6 +23,13 @@ namespace OccuRec.Config
 		private int m_CurrentPropertyPageId = -1;
 		private Dictionary<int, SettingsPanel> m_PropertyPages = new Dictionary<int, SettingsPanel>();
 
+	    private ucObservatoryControl m_ObservatoryControl;
+	    
+        internal ObservatoryController ObservatoryController
+	    {
+	        set { m_ObservatoryControl.ObservatoryController = value; }
+	    }
+
 		private SettingsPanel m_CurrentPanel = null;
 
 		public frmSettings()
@@ -41,11 +48,16 @@ namespace OccuRec.Config
 
 			m_PropertyPages.Add(1, new ucAAV());
 			m_PropertyPages.Add(2, new ucNTPTime());
-			m_PropertyPages.Add(3, new ucTelescopeControl());
+
+            m_ObservatoryControl = new ucObservatoryControl();
+            m_PropertyPages.Add(3, m_ObservatoryControl);
+
 			m_PropertyPages.Add(4, new ucTraking());
+            m_PropertyPages.Add(6, new ucTelescope());
+            m_PropertyPages.Add(7, new ucFocusing());
 
 #if !DEBUG
-		    tabControl.TabPages.Remove(tabDebug);
+            tvSettings.Nodes.RemoveByKey("ndDebug");
 #else
 			m_PropertyPages.Add(5, new ucDebug());
 #endif

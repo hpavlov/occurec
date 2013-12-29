@@ -21,5 +21,6 @@ namespace OccuRec.ASCOM
         void TelescopeConnectionChanged(ASCOMConnectionState state);
         void FocuserConnectionChanged(ASCOMConnectionState state);
         void TelescopeStateUpdate(TelescopeState state);
+        void FocuserStateUpdated(FocuserState state);
     }
 }

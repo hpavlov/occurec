@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using OccRec.ASCOMWrapper.Devices;
+using OccRec.ASCOMWrapper.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Helpers;
 
@@ -10,22 +12,7 @@ namespace OccuRec.ASCOM
 {
 	internal static class FocuserCommands
 	{
-		private static void SafeCallbackActionCall<TArgument>(Action<TArgument> callback, TArgument value)
-		{
-			if (callback != null)
-			{
-				try
-				{
-					callback(value);
-				}
-				catch (Exception ex)
-				{
-					Trace.WriteLine(ex.GetFullStackTrace());
-				}
-			}			
-		}
-
-		internal static void GetFocuserState(Signal signal, IASCOMFocuser focuser)
+		internal static void GetFocuserState(Signal signal, IFocuser focuser)
 		{
 			try
 			{
@@ -34,11 +21,11 @@ namespace OccuRec.ASCOM
 				{
 					FocuserState state = focuser.GetCurrentState();
 
-					SafeCallbackActionCall(callback, state);
+                    ASCOMHelper.SafeCallbackActionCall(callback, state);
 				}
 				else
 				{
-					SafeCallbackActionCall(callback, null);
+                    ASCOMHelper.SafeCallbackActionCall(callback, null);
 				}
 
 			}
@@ -48,25 +35,52 @@ namespace OccuRec.ASCOM
 			}		
 		}
 
-		internal static void MoveFocuserAndGetState(Signal signal, IASCOMFocuser focuser)
+        internal static void MoveFocuserAndGetState(Signal signal, bool moveIn, IFocuser focuser)
 		{
 			try
 			{
-				var tuple = signal.Argument as Tuple<int, Action<FocuserState>>;
-				Action<FocuserState> callback = tuple != null ? tuple.Item2 as Action<FocuserState>: null;
-				int position = tuple != null ? Convert.ToInt32(tuple.Item1) : 0;
+                if (signal.Command == ControllerSignals.MoveFocuserAndGetState)
+                {
+                    var tuple = signal.Argument as Tuple<int, Action<FocuserState>>;
+                    Action<FocuserState> callback = tuple != null ? tuple.Item2 as Action<FocuserState> : null;
+                    int step = tuple != null ? (int)tuple.Item1: 0;
 
-				if (focuser != null && focuser.Connected)
-				{
-					focuser.Move(position);
-					FocuserState state = focuser.GetCurrentState();
+                    if (focuser != null && focuser.Connected)
+                    {
+                        focuser.Move(step);
 
-					SafeCallbackActionCall(callback, state);
-				}
-				else
-				{
-					SafeCallbackActionCall(callback, null);
-				}
+                        FocuserState state = focuser.GetCurrentState();
+
+                        ASCOMHelper.SafeCallbackActionCall(callback, state);
+                    }
+                    else
+                    {
+                        ASCOMHelper.SafeCallbackActionCall(callback, null);
+                    }
+                }
+                else
+                {
+                    var tuple = signal.Argument as Tuple<FocuserStepSize, Action<FocuserState>>;
+                    Action<FocuserState> callback = tuple != null ? tuple.Item2 as Action<FocuserState> : null;
+                    FocuserStepSize stepSize = tuple != null ? (FocuserStepSize)tuple.Item1 : FocuserStepSize.Small;
+
+                    if (focuser != null && focuser.Connected)
+                    {
+                        if (moveIn)
+                            focuser.MoveIn(stepSize);
+                        else
+                            focuser.MoveOut(stepSize);
+
+                        FocuserState state = focuser.GetCurrentState();
+
+                        ASCOMHelper.SafeCallbackActionCall(callback, state);
+                    }
+                    else
+                    {
+                        ASCOMHelper.SafeCallbackActionCall(callback, null);
+                    }
+                }
+
 			}
 			catch (Exception ex)
 			{

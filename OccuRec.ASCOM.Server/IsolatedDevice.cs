@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Remoting;
 using System.Text;
@@ -27,7 +28,11 @@ namespace OccuRec.ASCOM.Server
 		public bool Connected
 		{
 			get { return m_Device.Connected; }
-			set { m_Device.Connected = value; }
+			set
+			{
+			    m_Device.Connected = value;
+                Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}::Connected = {1}", ProgId, value));
+			}
 		}
 
 		public string Description
@@ -45,7 +50,9 @@ namespace OccuRec.ASCOM.Server
 			m_Device.Connected = false;
 			m_Device.Dispose();
 
-			RemotingServices.Disconnect(this);			
+            Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}::Dispose()", ProgId));
+
+		    RemotingServices.Disconnect(this);
 		}
 
 		public void Dispose()

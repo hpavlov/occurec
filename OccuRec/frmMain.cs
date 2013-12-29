@@ -43,7 +43,7 @@ namespace OccuRec
 	    private CameraStateManager stateManager;
 	    private ICameraImage cameraImage;
 	    private string appVersion;
-	    private TelescopeController telescopeController;
+	    private ObservatoryController observatoryController;
 	    private OverlayManager overlayManager = null;
 	    private List<string> initializationErrorMessages = new List<string>();
  
@@ -62,7 +62,7 @@ namespace OccuRec
             stateManager.CameraDisconnected();
 
 			ThreadPool.QueueUserWorkItem(new WaitCallback(DisplayVideoFrames));
-		    telescopeController = new TelescopeController(this, this);
+		    observatoryController = new ObservatoryController(this, this);
 
             var att = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
 		    appVersion = att.Version;
@@ -82,7 +82,7 @@ namespace OccuRec
             ASCOMClient.Instance.Initialise();
             TelescopeConnectionChanged(ASCOMConnectionState.Disconnected);
             FocuserConnectionChanged(ASCOMConnectionState.Disconnected);
-            telescopeController.CheckASCOMConnections();
+            observatoryController.CheckASCOMConnections();
 		}
 
 		/// <summary>
@@ -306,9 +306,10 @@ namespace OccuRec
 		private void miConfigure_Click(object sender, EventArgs e)
 		{
 			var frmSettings = new frmSettings();
+		    frmSettings.ObservatoryController = observatoryController;
 
 		    if (frmSettings.ShowDialog(this) == DialogResult.OK)
-		        telescopeController.CheckASCOMConnections();
+		        observatoryController.CheckASCOMConnections();
 		}
 
 		private void miConnect_Click(object sender, EventArgs e)
@@ -318,6 +319,8 @@ namespace OccuRec
                 MessageBox.Show("Output Video Location is invalid.", "OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 var frmSettings = new frmSettings();
+                frmSettings.ObservatoryController = observatoryController;
+
                 frmSettings.ShowDialog(this);
             }
             else
@@ -1469,6 +1472,11 @@ namespace OccuRec
                                           state.CanFindHome, state.CanPark));
 
         }
+
+        public void FocuserStateUpdated(FocuserState state)
+        {
+
+        }
         #endregion
 
 		private void tsbCrosshair_Click(object sender, EventArgs e)
@@ -1509,7 +1517,7 @@ namespace OccuRec
 			if (s_FormFocuserControl == null)
 			{
 				s_FormFocuserControl = new frmFocusControl();
-				s_FormFocuserControl.TelescopeController = telescopeController;
+				s_FormFocuserControl.TelescopeController = observatoryController;
 				s_FormFocuserControl.Show(this);				
 			}
 		}

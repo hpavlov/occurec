@@ -33,5 +33,6 @@ namespace OccuRec.ASCOM.Interfaces.Devices
     {
 	    FocuserState GetCurrentState();
 	    void Move(int position);
+        bool ChangeTempComp(bool tempComp);
     }
 }
