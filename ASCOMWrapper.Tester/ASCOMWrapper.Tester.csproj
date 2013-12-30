@@ -98,9 +98,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OccRec.ASCOMWrapper\OccRec.ASCOMWrapper.csproj">
+    <ProjectReference Include="..\OccRec.ASCOMWrapper\OccuRec.ASCOM.Wrapper.csproj">
       <Project>{49bb0397-5b5c-4a9c-b35f-e50edb22c919}</Project>
-      <Name>OccRec.ASCOMWrapper</Name>
+      <Name>OccuRec.ASCOM.Wrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\OccuRec.ASCOM.Interfaces\OccuRec.ASCOM.Interfaces.csproj">
       <Project>{0376db73-de7b-4b26-941e-e5763c0dc1b2}</Project>

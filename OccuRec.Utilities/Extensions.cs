@@ -8,9 +8,8 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
-using OccuRec.Tracking;
 
-namespace OccuRec.Helpers
+namespace OccuRec.Utilities
 {
     public static class Extensions
     {

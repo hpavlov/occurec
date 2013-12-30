@@ -62,6 +62,12 @@
     <Compile Include="ASCOM\frmFocusControl.Designer.cs">
       <DependentUpon>frmFocusControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="ASCOM\frmTelescopeControl.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ASCOM\frmTelescopeControl.Designer.cs">
+      <DependentUpon>frmTelescopeControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="ASCOM\IASCOMDeviceCallbacks.cs" />
     <Compile Include="ASCOM\ObservatoryController.cs" />
     <Compile Include="ASCOM\TelescopeCommands.cs" />
@@ -220,7 +226,6 @@
     <Compile Include="Helpers\VideoWrapper.cs" />
     <Compile Include="Helpers\ZipUnzip.cs" />
     <Compile Include="Helpers\UpdateManager.cs" />
-    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Scheduling\frmAddScheduleEntry.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -236,6 +241,9 @@
     <Compile Include="StateManagement\UndeterminedIntegrationCameraState.cs" />
     <EmbeddedResource Include="ASCOM\frmFocusControl.resx">
       <DependentUpon>frmFocusControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ASCOM\frmTelescopeControl.resx">
+      <DependentUpon>frmTelescopeControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucAAV.resx">
       <DependentUpon>ucAAV.cs</DependentUpon>
@@ -318,13 +326,17 @@
     <Content Include="TODO List.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OccRec.ASCOMWrapper\OccRec.ASCOMWrapper.csproj">
+    <ProjectReference Include="..\OccRec.ASCOMWrapper\OccuRec.ASCOM.Wrapper.csproj">
       <Project>{49bb0397-5b5c-4a9c-b35f-e50edb22c919}</Project>
-      <Name>OccRec.ASCOMWrapper</Name>
+      <Name>OccuRec.ASCOM.Wrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\OccuRec.ASCOM.Interfaces\OccuRec.ASCOM.Interfaces.csproj">
       <Project>{0376db73-de7b-4b26-941e-e5763c0dc1b2}</Project>
       <Name>OccuRec.ASCOM.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OccuRec.Utilities\OccuRec.Utilities.csproj">
+      <Project>{bd4c4c04-d0c5-46aa-b0df-9fa2c1ece01a}</Project>
+      <Name>OccuRec.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

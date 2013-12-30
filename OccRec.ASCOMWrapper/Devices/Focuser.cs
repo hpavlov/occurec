@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using OccRec.ASCOMWrapper.Interfaces;
+using OccuRec.ASCOM.Wrapper.Interfaces;
 using OccuRec.ASCOM.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
 
-namespace OccRec.ASCOMWrapper.Devices
+namespace OccuRec.ASCOM.Wrapper.Devices
 {
     internal class Focuser : DeviceBase, IFocuser
 	{

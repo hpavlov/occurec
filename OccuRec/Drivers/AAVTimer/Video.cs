@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using OccuRec.Drivers;
 using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
 using OccuRec.Helpers;
+using OccuRec.Utilities;
 
 namespace OccuRec.Drivers.AAVTimer
 {

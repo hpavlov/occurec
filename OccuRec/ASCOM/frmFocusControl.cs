@@ -7,16 +7,17 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using OccRec.ASCOMWrapper.Devices;
-using OccRec.ASCOMWrapper.Interfaces;
+using OccuRec.ASCOM.Wrapper.Devices;
+using OccuRec.ASCOM.Wrapper.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Helpers;
+using OccuRec.Utilities;
 
 namespace OccuRec.ASCOM
 {
 	public partial class frmFocusControl : Form
 	{
-		internal ObservatoryController TelescopeController;
+		internal ObservatoryController ObservatoryController;
 
 		public frmFocusControl()
 		{
@@ -25,7 +26,7 @@ namespace OccuRec.ASCOM
 
 		private void frmFocusControl_Shown(object sender, EventArgs e)
 		{
-			TelescopeController.GetFocuserState(UpdateFocuserStateOutOfThread);
+			ObservatoryController.GetFocuserState(UpdateFocuserStateOutOfThread);
 		}
 
 		private void UpdateFocuserStateOutOfThread(FocuserState state)
@@ -34,7 +35,7 @@ namespace OccuRec.ASCOM
 		}
 
 		private void UpdateFocuserState(FocuserState state)
-		{			
+		{
 			if (state != null)
 			{
 				Trace.WriteLine(state.AsXmlString());
@@ -44,7 +45,7 @@ namespace OccuRec.ASCOM
                 Text = state.Absolute ? "Focus Control - Absolte" : "Focus Control - Relative";
 				if (!state.TempCompAvailable)
 				{
-					cbxTempComp.Visible = false;
+                    cbxTempComp.Visible = false;
                     m_SettingTempCompValue = true;
                     try
                     {
@@ -54,8 +55,6 @@ namespace OccuRec.ASCOM
                     {
                         m_SettingTempCompValue = false;
                     }
-					
-					lblTemp.Visible = false;
 				}
 				else
 				{
@@ -69,9 +68,17 @@ namespace OccuRec.ASCOM
                     {
                         m_SettingTempCompValue = false;
                     }
-					lblTemp.Text = state.Temperature.ToString("0.0") + "°";
-					lblTemp.Visible = true;
 				}
+
+                if (double.IsNaN(state.Temperature))
+                {
+                    lblTemp.Visible = false;
+                }
+                else
+                {
+                    lblTemp.Text = state.Temperature.ToString("0.0") + "°";
+                    lblTemp.Visible = true;
+                }
 
 				lblPosition.Text = state.Position.ToString();
 
@@ -87,8 +94,10 @@ namespace OccuRec.ASCOM
 		{
 			btnInSmall.Enabled = enabled;
             btnInLarge.Enabled = enabled;
+            btnInLargest.Enabled = enabled;
 			btnOutSmall.Enabled = enabled;
             btnOutLarge.Enabled = enabled;
+            btnOutLargest.Enabled = enabled;
 			cbxTempComp.Enabled = enabled;
             btnMove.Enabled = enabled;
             btnFocusTarget.Enabled = enabled;
@@ -100,50 +109,50 @@ namespace OccuRec.ASCOM
         {
             if (!m_SettingTempCompValue)
             {
-                TelescopeController.FocuserSetTempComp(cbxTempComp.Checked, UpdateFocuserStateOutOfThread);
+                ObservatoryController.FocuserSetTempComp(cbxTempComp.Checked, UpdateFocuserStateOutOfThread);
             }
         }
 
         private void btnMove_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            TelescopeController.FocuserMove((int)nudMove.Value, UpdateFocuserStateOutOfThread);
+            ObservatoryController.FocuserMove((int)nudMove.Value, UpdateFocuserStateOutOfThread);
         }
 
         private void btnInSmall_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            TelescopeController.FocuserMoveIn(FocuserStepSize.Smallest, UpdateFocuserStateOutOfThread);
+            ObservatoryController.FocuserMoveIn(FocuserStepSize.Smallest, UpdateFocuserStateOutOfThread);
         }
 
         private void btnOutSmall_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            TelescopeController.FocuserMoveOut(FocuserStepSize.Smallest, UpdateFocuserStateOutOfThread);
+            ObservatoryController.FocuserMoveOut(FocuserStepSize.Smallest, UpdateFocuserStateOutOfThread);
         }
 
         private void btnInLarge_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            TelescopeController.FocuserMoveIn(FocuserStepSize.Small, UpdateFocuserStateOutOfThread);
+            ObservatoryController.FocuserMoveIn(FocuserStepSize.Small, UpdateFocuserStateOutOfThread);
         }
 
         private void btnOutLarge_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            TelescopeController.FocuserMoveOut(FocuserStepSize.Small, UpdateFocuserStateOutOfThread);
+            ObservatoryController.FocuserMoveOut(FocuserStepSize.Small, UpdateFocuserStateOutOfThread);
         }
 
         private void btnInLargest_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            TelescopeController.FocuserMoveIn(FocuserStepSize.Large, UpdateFocuserStateOutOfThread);
+            ObservatoryController.FocuserMoveIn(FocuserStepSize.Large, UpdateFocuserStateOutOfThread);
         }
 
         private void btnOutLargest_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            TelescopeController.FocuserMoveOut(FocuserStepSize.Large, UpdateFocuserStateOutOfThread);
+            ObservatoryController.FocuserMoveOut(FocuserStepSize.Large, UpdateFocuserStateOutOfThread);
         }
 	}
 }

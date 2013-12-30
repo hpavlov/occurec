@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using OccuRec.Helpers;
 using OccuRec.Properties;
+using OccuRec.Utilities;
 
 namespace OccuRec.Config.Panels
 {

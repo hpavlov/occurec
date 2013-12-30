@@ -8,6 +8,7 @@ using System.Threading;
 using ASCOM;
 using OccuRec.ASCOM.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.Utilities;
 
 namespace OccuRec.ASCOM.Server
 {
@@ -19,7 +20,6 @@ namespace OccuRec.ASCOM.Server
 		internal IsolatedFocuser(string progId)
 		{
 			m_Focuser = new global::ASCOM.DriverAccess.Focuser(progId);
-            Trace.WriteLine(string.Format("OccuRec: ASCOMServer::new('{0}')", progId));
 			SetIsolatedDevice(m_Focuser, progId);
 		}
 
@@ -72,8 +72,15 @@ namespace OccuRec.ASCOM.Server
 
 		public void Move(int position)
 		{
-			m_Focuser.Move(position);
             Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Focuser)::Move({1})", ProgId, position));
+            try
+            {
+                m_Focuser.Move(position);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.GetFullStackTrace());
+            }
 
             while (m_Focuser.IsMoving)
             {

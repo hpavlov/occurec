@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using OccuRec.Helpers;
 using OccuRec.Properties;
+using OccuRec.Utilities;
 
 namespace OccuRec.Config.Panels
 {
@@ -21,11 +22,19 @@ namespace OccuRec.Config.Panels
         public override void LoadSettings()
         {
             nudTelescopePingRate.SetNUDValue(Settings.Default.TelescopePingRateSeconds);
+            nudPulseDuration.SetNUDValue(Settings.Default.TelPulseDuration);
+            nudPulseGuideFast.SetNUDValue(Settings.Default.TelPulseFastRate);
+            nudPulseSlowRate.SetNUDValue(Settings.Default.TelPulseSlowRate);
+            nudPulseSlowestRate.SetNUDValue(Settings.Default.TelPulseSlowestRate);
         }
 
         public override void SaveSettings()
         {
             Settings.Default.TelescopePingRateSeconds = (int)nudTelescopePingRate.Value;
+            Settings.Default.TelPulseDuration = (int)nudPulseDuration.Value;
+            Settings.Default.TelPulseFastRate = (float)nudPulseGuideFast.Value;
+            Settings.Default.TelPulseSlowRate = (float)nudPulseSlowRate.Value;
+            Settings.Default.TelPulseSlowestRate = (float)nudPulseSlowestRate.Value;
         }
     }
 }

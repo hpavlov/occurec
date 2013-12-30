@@ -5,7 +5,7 @@ using System.Text;
 using OccuRec.ASCOM.Interfaces;
 using OccuRec.ASCOM.Interfaces.System;
 
-namespace OccRec.ASCOMWrapper
+namespace OccuRec.ASCOM.Wrapper
 {
 	[Serializable]
 	public class OccuRecHostDelegate : IOccuRecHost

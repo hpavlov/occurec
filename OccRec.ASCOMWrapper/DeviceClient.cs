@@ -10,12 +10,16 @@ using System.Security.Policy;
 using System.Text;
 using OccuRec.ASCOM.Interfaces;
 using OccuRec.ASCOM.Interfaces.System;
+using OccuRec.Utilities;
 
-namespace OccRec.ASCOMWrapper
+namespace OccuRec.ASCOM.Wrapper
 {
 	[Serializable]
 	internal class DeviceClient : IDisposable
 	{
+        private static TraceSwitch TraceSwitchASCOMClient = new TraceSwitch("ASCOMClient", "ASCOMServer tracing.");
+
+        private static string APP_DOMAIN_PREFIX = "OccuRec.ASCOM.Isolation.";
 		private AppDomain m_HostDomain;
 		private string m_DomainName;
 		private AssemblyName m_AssemblyName;
@@ -33,7 +37,7 @@ namespace OccRec.ASCOMWrapper
 				ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile
 			};
 
-			m_DomainName = string.Format("OccuRec.ASCOM.Isolation.{0}.v{1}", m_AssemblyName.Name, m_AssemblyName.Version != null ? m_AssemblyName.Version.ToString() : "XX");
+            m_DomainName = string.Format("{0}{1}.v{2}", APP_DOMAIN_PREFIX, m_AssemblyName.Name, m_AssemblyName.Version != null ? m_AssemblyName.Version.ToString() : "XX");
 
 			var e = new Evidence();
 			e.AddHostEvidence(new Zone(SecurityZone.MyComputer));
@@ -43,6 +47,7 @@ namespace OccRec.ASCOMWrapper
 			m_HostDomain.AssemblyResolve += m_HostDomain_AssemblyResolve;
 			m_HostDomain.ReflectionOnlyAssemblyResolve += m_HostDomain_AssemblyResolve;
 			m_HostDomain.UnhandledException += m_HostDomain_UnhandledException;
+            m_HostDomain.DomainUnload += m_HostDomain_DomainUnload;
 
 			object obj = m_HostDomain.CreateInstanceAndUnwrap(tokens[1], tokens[0]);
 
@@ -52,12 +57,19 @@ namespace OccRec.ASCOMWrapper
 			m_Instance.Initialise(new OccuRecHostDelegate(tokens[0], ascomClient));
 		}
 
+        void m_HostDomain_DomainUnload(object sender, EventArgs e)
+        {
+            if (TraceSwitchASCOMClient.TraceVerbose)
+                Trace.WriteLine(string.Format("OccuRec: AppDomain('{0}').DomainUnload()", m_DomainName.Replace(APP_DOMAIN_PREFIX, "")));
+        }
+
 
 		void m_HostDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{
 			if (e.ExceptionObject is Exception)
 			{
-				Trace.WriteLine(((Exception)e.ExceptionObject));
+                if (TraceSwitchASCOMClient.TraceError)
+                    Trace.WriteLine(string.Format("OccuRec: AppDomain('{0}').UnhandledException = {1}", m_DomainName.Replace(APP_DOMAIN_PREFIX, ""), ((Exception)e.ExceptionObject).GetFullStackTrace()));
 			}
 		}
 

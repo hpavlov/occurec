@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using OccuRec.ASCOM.Interfaces.Devices;
 
-namespace OccRec.ASCOMWrapper.Devices
+namespace OccuRec.ASCOM.Wrapper.Devices
 {
     internal class DeviceBase : IASCOMDevice
     {

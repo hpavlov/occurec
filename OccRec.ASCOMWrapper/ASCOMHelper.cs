@@ -5,7 +5,7 @@ using System.Text;
 using OccuRec.ASCOM.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
 
-namespace OccRec.ASCOMWrapper
+namespace OccuRec.ASCOM.Wrapper
 {
 	[Serializable]
     internal class ASCOMHelper : DeviceClient, IASCOMHelper

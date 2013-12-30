@@ -756,6 +756,7 @@
             this.tsbTelControl.Name = "tsbTelControl";
             this.tsbTelControl.Size = new System.Drawing.Size(107, 22);
             this.tsbTelControl.Text = "Telescope Control";
+            this.tsbTelControl.Click += new System.EventHandler(this.tsbTelControl_Click);
             // 
             // tsbFocControl
             // 

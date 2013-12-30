@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using OccRec.ASCOMWrapper;
+using OccuRec.ASCOM.Wrapper;
 using OccuRec.ASCOM;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Config.Panels;

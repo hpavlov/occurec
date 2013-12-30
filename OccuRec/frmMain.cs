@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
-using OccRec.ASCOMWrapper;
+using OccuRec.ASCOM.Wrapper;
 using OccuRec.ASCOM;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Config;
@@ -27,6 +27,7 @@ using OccuRec.OCR;
 using OccuRec.Properties;
 using OccuRec.Scheduling;
 using OccuRec.StateManagement;
+using OccuRec.Utilities;
 
 namespace OccuRec
 {
@@ -97,6 +98,7 @@ namespace OccuRec
 
 			DisconnectFromCamera();
 		    m_VideoRenderingController.Dispose();
+            ASCOMClient.Instance.Dispose();
 		}
 
         public void OnError(int errorCode, string errorMessage)
@@ -1382,9 +1384,7 @@ namespace OccuRec
         {
             tssASCOMTelescope.Text = string.Format("TEL (Alt:{0}|Az:{1})", (int)Math.Round(state.Altitude), (int)Math.Round(state.Azimuth));
 
-            Trace.WriteLine(string.Format("Altitude: {0}\r\nAzimuth: {1}\r\nAtHome: {2}\r\nAtPark: {3}\r\nCanFindHome: {4}\r\nCanPark: {5}", state.Altitude, state.Azimuth, state.AtHome, state.AtPark,
-                                          state.CanFindHome, state.CanPark));
-
+            Trace.WriteLine(state.AsSerialized().OuterXml);
         }
 
         public void FocuserStateUpdated(FocuserState state)
@@ -1431,10 +1431,35 @@ namespace OccuRec
 			if (s_FormFocuserControl == null)
 			{
 				s_FormFocuserControl = new frmFocusControl();
-				s_FormFocuserControl.TelescopeController = observatoryController;
-				s_FormFocuserControl.Show(this);				
+				s_FormFocuserControl.ObservatoryController = observatoryController;
+				s_FormFocuserControl.Show(this);
 			}
 		}
+
+        private static frmTelescopeControl s_FormTelescopeControl = null;
+
+        private void tsbTelControl_Click(object sender, EventArgs e)
+        {
+            if (s_FormTelescopeControl != null)
+            {
+                try
+                {
+                    if (!s_FormTelescopeControl.Visible)
+                        s_FormTelescopeControl.Show(this);
+                }
+                catch (Exception ex)
+                {
+                    s_FormTelescopeControl = null;
+                }
+            }
+
+            if (s_FormTelescopeControl == null)
+            {
+                s_FormTelescopeControl = new frmTelescopeControl();
+                s_FormTelescopeControl.ObservatoryController = observatoryController;
+                s_FormTelescopeControl.Show(this);
+            }
+        }
 
         private void tsbAddGuidingStar_Click(object sender, EventArgs e)
         {
@@ -1445,5 +1470,6 @@ namespace OccuRec
         {
             m_VideoFrameInteractionController.ToggleSelectGuidingStar();
         }
+
     }
 }

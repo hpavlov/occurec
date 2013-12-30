@@ -12,6 +12,7 @@ using System.Text;
 using System.Windows.Forms;
 using OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl;
 using OccuRec.Helpers;
+using OccuRec.Utilities;
 
 namespace OccuRec.Drivers.DirectShowCapture
 {

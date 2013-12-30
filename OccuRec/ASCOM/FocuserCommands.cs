@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using OccRec.ASCOMWrapper.Devices;
-using OccRec.ASCOMWrapper.Interfaces;
+using OccuRec.ASCOM.Wrapper.Devices;
+using OccuRec.ASCOM.Wrapper.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Helpers;
+using OccuRec.Utilities;
 
 namespace OccuRec.ASCOM
 {

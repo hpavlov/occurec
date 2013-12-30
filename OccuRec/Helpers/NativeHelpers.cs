@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using OccuRec.OCR;
 using OccuRec.Properties;
+using OccuRec.Utilities;
 
 namespace OccuRec.Helpers
 {
@@ -621,13 +622,23 @@ namespace OccuRec.Helpers
                 }
                 catch (Exception ex)
                 {
-                    videoFrame = new Bitmap(imageWidth, imageHeight);
-                    using (Graphics g = Graphics.FromImage(videoFrame))
+                    try
                     {
-                        g.Clear(Color.White);
-                        g.DrawString(ex.Message, s_ErrorFont, Brushes.Red, 10, 10);
-                        g.Save();
+                        videoFrame = new Bitmap(imageWidth, imageHeight);
+                        using (Graphics g = Graphics.FromImage(videoFrame))
+                        {
+                            g.Clear(Color.White);
+                            g.DrawString(ex.Message, s_ErrorFont, Brushes.Red, 10, 10);
+                            g.Save();
+                        }
+
                     }
+                    catch(Exception ex2)
+                    {
+                        Trace.WriteLine(ex2.GetFullStackTrace());
+                    }
+
+                    Trace.WriteLine(ex.GetFullStackTrace());
                 }
             }
 

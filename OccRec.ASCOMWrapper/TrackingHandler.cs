@@ -6,7 +6,7 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Services;
 using System.Text;
 
-namespace OccRec.ASCOMWrapper
+namespace OccuRec.ASCOM.Wrapper
 {
 	internal class TrackingHandler : ITrackingHandler
 	{

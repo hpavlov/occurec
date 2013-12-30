@@ -7,12 +7,12 @@ using System.Runtime.Remoting.Services;
 using System.Security;
 using System.Security.Policy;
 using System.Text;
-using OccRec.ASCOMWrapper.Devices;
-using OccRec.ASCOMWrapper.Interfaces;
+using OccuRec.ASCOM.Wrapper.Devices;
+using OccuRec.ASCOM.Wrapper.Interfaces;
 using OccuRec.ASCOM.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
 
-namespace OccRec.ASCOMWrapper
+namespace OccuRec.ASCOM.Wrapper
 {
 	internal class RemotingClientSponsor : MarshalByRefObject, ISponsor
 	{
@@ -88,7 +88,7 @@ namespace OccRec.ASCOMWrapper
             return new Focuser(isolatedFocuser, largeStepSize, smallStepSize, smallestStepSize);
 		}
 
-        public ITelescope CreateTelescope(string progId)
+        public ITelescope CreateTelescope(string progId, float slowestRate = float.NaN, float slowRate = float.NaN, float fastRate = float.NaN)
 		{
             if (TraceSwitchASCOMClient.TraceVerbose)
                 Trace.WriteLine(string.Format("OccuRec: ASCOMClient::CreateTelescope('{0}')", progId));
@@ -96,7 +96,7 @@ namespace OccRec.ASCOMWrapper
             IASCOMTelescope isolatedTelescope = m_ASCOMHelper.CreateTelescope(progId);
             RegisterLifetimeService(isolatedTelescope as MarshalByRefObject);
 
-            return new Telescope(isolatedTelescope);
+            return new Telescope(isolatedTelescope, slowestRate, slowRate, fastRate);
 		}
 
         public void DisconnectTelescope(IASCOMTelescope telescope)
@@ -180,6 +180,9 @@ namespace OccRec.ASCOMWrapper
 					    Trace.WriteLine(ex);
 				}
 			}
+
+            if (m_ASCOMHelper != null)
+                m_ASCOMHelper.Dispose();
 		}
 	}
 }

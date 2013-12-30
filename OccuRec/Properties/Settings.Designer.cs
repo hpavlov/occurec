@@ -673,7 +673,7 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        [global::System.Configuration.DefaultSettingValueAttribute("500")]
         public int FocuserSmallStep {
             get {
                 return ((int)(this["FocuserSmallStep"]));
@@ -685,7 +685,7 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("500")]
+        [global::System.Configuration.DefaultSettingValueAttribute("5000")]
         public int FocuserLargeStep {
             get {
                 return ((int)(this["FocuserLargeStep"]));
@@ -697,7 +697,7 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
         public int FocuserSmallestStep {
             get {
                 return ((int)(this["FocuserSmallestStep"]));
@@ -716,6 +716,54 @@ namespace OccuRec.Properties {
             }
             set {
                 this["TelescopePingRateSeconds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public int TelPulseDuration {
+            get {
+                return ((int)(this["TelPulseDuration"]));
+            }
+            set {
+                this["TelPulseDuration"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public float TelPulseFastRate {
+            get {
+                return ((float)(this["TelPulseFastRate"]));
+            }
+            set {
+                this["TelPulseFastRate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public float TelPulseSlowRate {
+            get {
+                return ((float)(this["TelPulseSlowRate"]));
+            }
+            set {
+                this["TelPulseSlowRate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public float TelPulseSlowestRate {
+            get {
+                return ((float)(this["TelPulseSlowestRate"]));
+            }
+            set {
+                this["TelPulseSlowestRate"] = value;
             }
         }
     }

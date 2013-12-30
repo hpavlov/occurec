@@ -16,8 +16,6 @@ namespace OccuRec.ASCOM.Interfaces.Devices
 
 		public bool Absolute;
 
-		public bool Link;
-
 		public int MaxIncrement;
 
 		public double MaxStep;

@@ -30,6 +30,8 @@
 		{
             this.cbxTempComp = new System.Windows.Forms.CheckBox();
             this.pnlFocuserControls = new System.Windows.Forms.Panel();
+            this.btnInLargest = new System.Windows.Forms.Button();
+            this.btnOutLargest = new System.Windows.Forms.Button();
             this.btnOutLarge = new System.Windows.Forms.Button();
             this.btnOutSmall = new System.Windows.Forms.Button();
             this.btnInSmall = new System.Windows.Forms.Button();
@@ -41,8 +43,6 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.gbxTargetControl = new System.Windows.Forms.GroupBox();
             this.btnFocusTarget = new System.Windows.Forms.Button();
-            this.btnOutLargest = new System.Windows.Forms.Button();
-            this.btnInLargest = new System.Windows.Forms.Button();
             this.pnlFocuserControls.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudMove)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -77,6 +77,28 @@
             this.pnlFocuserControls.Name = "pnlFocuserControls";
             this.pnlFocuserControls.Size = new System.Drawing.Size(332, 119);
             this.pnlFocuserControls.TabIndex = 2;
+            // 
+            // btnInLargest
+            // 
+            this.btnInLargest.Location = new System.Drawing.Point(10, 6);
+            this.btnInLargest.Name = "btnInLargest";
+            this.btnInLargest.Size = new System.Drawing.Size(38, 23);
+            this.btnInLargest.TabIndex = 14;
+            this.btnInLargest.Tag = "";
+            this.btnInLargest.Text = "<<<";
+            this.btnInLargest.UseVisualStyleBackColor = true;
+            this.btnInLargest.Click += new System.EventHandler(this.btnInLargest_Click);
+            // 
+            // btnOutLargest
+            // 
+            this.btnOutLargest.Location = new System.Drawing.Point(282, 6);
+            this.btnOutLargest.Name = "btnOutLargest";
+            this.btnOutLargest.Size = new System.Drawing.Size(38, 23);
+            this.btnOutLargest.TabIndex = 13;
+            this.btnOutLargest.Tag = "";
+            this.btnOutLargest.Text = ">>>";
+            this.btnOutLargest.UseVisualStyleBackColor = true;
+            this.btnOutLargest.Click += new System.EventHandler(this.btnOutLargest_Click);
             // 
             // btnOutLarge
             // 
@@ -163,7 +185,6 @@
             this.lblPosition.Name = "lblPosition";
             this.lblPosition.Size = new System.Drawing.Size(59, 13);
             this.lblPosition.TabIndex = 5;
-            this.lblPosition.Text = "123456";
             this.lblPosition.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lblTemp
@@ -206,33 +227,11 @@
             this.btnFocusTarget.Text = "Refocus Target";
             this.btnFocusTarget.UseVisualStyleBackColor = true;
             // 
-            // btnOutLargest
-            // 
-            this.btnOutLargest.Location = new System.Drawing.Point(282, 6);
-            this.btnOutLargest.Name = "btnOutLargest";
-            this.btnOutLargest.Size = new System.Drawing.Size(38, 23);
-            this.btnOutLargest.TabIndex = 13;
-            this.btnOutLargest.Tag = "";
-            this.btnOutLargest.Text = ">>>";
-            this.btnOutLargest.UseVisualStyleBackColor = true;
-            this.btnOutLargest.Click += new System.EventHandler(this.btnOutLargest_Click);
-            // 
-            // btnInLargest
-            // 
-            this.btnInLargest.Location = new System.Drawing.Point(10, 6);
-            this.btnInLargest.Name = "btnInLargest";
-            this.btnInLargest.Size = new System.Drawing.Size(38, 23);
-            this.btnInLargest.TabIndex = 14;
-            this.btnInLargest.Tag = "";
-            this.btnInLargest.Text = "<<<";
-            this.btnInLargest.UseVisualStyleBackColor = true;
-            this.btnInLargest.Click += new System.EventHandler(this.btnInLargest_Click);
-            // 
             // frmFocusControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(367, 250);
+            this.ClientSize = new System.Drawing.Size(367, 248);
             this.Controls.Add(this.gbxTargetControl);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
