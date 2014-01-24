@@ -78,10 +78,10 @@ namespace OccuRec
 
 		    UpdateState(null);
 
-            ASCOMClient.Instance.Initialise();
-            TelescopeConnectionChanged(ASCOMConnectionState.Disconnected);
-            FocuserConnectionChanged(ASCOMConnectionState.Disconnected);
-            observatoryController.CheckASCOMConnections();
+			ASCOMClient.Instance.Initialise(Settings.Default.ASCOMLoadInSeparateAppDomain);
+			TelescopeConnectionChanged(ASCOMConnectionState.Disconnected);
+			FocuserConnectionChanged(ASCOMConnectionState.Disconnected);
+			observatoryController.CheckASCOMConnections();
 		}
 
 		/// <summary>

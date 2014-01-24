@@ -42,14 +42,14 @@ namespace OccuRec.ASCOM.Wrapper
 
 		internal RemotingClientSponsor RemotingClientSponsor = new RemotingClientSponsor();
 
-		public void Initialise()
+		public void Initialise(bool useIsolationMode)
 		{
             if (TraceSwitchASCOMClient.TraceVerbose)
                 Trace.WriteLine("OccuRec: ASCOMClient::Initialise()");
 
 			TrackingServices.RegisterTrackingHandler(new TrackingHandler());
 
-			m_ASCOMHelper = new ASCOMHelper(this);
+			m_ASCOMHelper = new ASCOMHelper(this, useIsolationMode);
 			DeviceClients.Add(m_ASCOMHelper);
 		}
 

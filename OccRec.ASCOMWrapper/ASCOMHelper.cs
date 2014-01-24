@@ -11,9 +11,13 @@ namespace OccuRec.ASCOM.Wrapper
     internal class ASCOMHelper : DeviceClient, IASCOMHelper
 	{
 		private IASCOMHelper m_IsolatedHelper;
-		public ASCOMHelper(ASCOMClient client)
+		public ASCOMHelper(ASCOMClient client, bool loadIsolated)
 		{
-			LoadInAppDomain("OccuRec.ASCOM.Server.ASCOMHelper, OccuRec.ASCOM.Server", client);
+			if (loadIsolated)
+				LoadInAppDomain("OccuRec.ASCOM.Server.ASCOMHelper, OccuRec.ASCOM.Server", client);
+			else
+				LoadInCurrentDomain("OccuRec.ASCOM.Server.ASCOMHelper, OccuRec.ASCOM.Server", client);
+
 			m_IsolatedHelper = m_Instance as IASCOMHelper;
 		}
 

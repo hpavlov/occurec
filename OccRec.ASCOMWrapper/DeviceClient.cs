@@ -57,12 +57,24 @@ namespace OccuRec.ASCOM.Wrapper
 			m_Instance.Initialise(new OccuRecHostDelegate(tokens[0], ascomClient));
 		}
 
+		protected void LoadInCurrentDomain(string fullTypeName, ASCOMClient ascomClient)
+		{
+			string[] tokens = fullTypeName.Split(new char[] { ',' }, 2);
+			m_AssemblyName = new AssemblyName(tokens[1]);
+
+			m_HostDomain = null;
+			Assembly asm = Assembly.Load(m_AssemblyName);
+			object obj = asm.CreateInstance(tokens[0]);
+
+			m_Instance = (IIsolatedDevice)obj;
+			m_Instance.Initialise(new OccuRecHostDelegate(tokens[0], ascomClient));
+		}
+
         void m_HostDomain_DomainUnload(object sender, EventArgs e)
         {
             if (TraceSwitchASCOMClient.TraceVerbose)
                 Trace.WriteLine(string.Format("OccuRec: AppDomain('{0}').DomainUnload()", m_DomainName.Replace(APP_DOMAIN_PREFIX, "")));
         }
-
 
 		void m_HostDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
 		{

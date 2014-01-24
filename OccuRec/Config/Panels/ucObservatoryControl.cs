@@ -29,6 +29,7 @@ namespace OccuRec.Config.Panels
 		public override void LoadSettings()
 		{
 			cbxLiveTelescopeMode.Checked = Settings.Default.ASCOMConnectWhenRunning;
+			cbxUseAppDomainIsolation.Checked = Settings.Default.ASCOMLoadInSeparateAppDomain;
 			tbxFocuser.Text = Settings.Default.ASCOMProgIdFocuser;
 			tbxTelescope.Text = Settings.Default.ASCOMProgIdTelescope;
 
@@ -41,6 +42,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.ASCOMProgIdFocuser = tbxFocuser.Text;
 			Settings.Default.ASCOMProgIdTelescope = tbxTelescope.Text;
 			Settings.Default.ASCOMConnectWhenRunning = cbxLiveTelescopeMode.Checked;
+			Settings.Default.ASCOMLoadInSeparateAppDomain = cbxUseAppDomainIsolation.Checked;
 		}
 
 		private void btnSelectTelescope_Click(object sender, EventArgs e)
