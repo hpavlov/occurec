@@ -71,6 +71,7 @@
     <Compile Include="ASCOM\IASCOMDeviceCallbacks.cs" />
     <Compile Include="ASCOM\ObservatoryController.cs" />
     <Compile Include="ASCOM\TelescopeCommands.cs" />
+    <Compile Include="ASCOM\ThreadIsolationInvoker.cs" />
     <Compile Include="Config\Panels\ucFocusing.cs">
       <SubType>UserControl</SubType>
     </Compile>
