@@ -85,16 +85,32 @@ namespace OccuRec.ASCOM
             SignalTelescopePulseGuide(direction, rate, Settings.Default.TelPulseDuration, callback);
         }
 
-		public void CheckASCOMConnections()
-		{
-			if (Settings.Default.ASCOMConnectWhenRunning)
-			{
-				SignalTryConnectTelescope();
-				SignalTryConnectFocuser();
-			}
-		}
+        public bool IsConnectedToObservatory()
+        {
+            return m_ConnectedTelescope != null || m_ConnectedFocuser != null;
+        }
 
-        public void DisconnectASCOMDevices()
+        public bool IsConnectedToTelescope()
+        {
+            return m_ConnectedTelescope != null;
+        }
+
+        public bool IsConnectedToFocuser()
+        {
+            return m_ConnectedFocuser != null;
+        }
+
+        public void TryConnectTelescope()
+        {
+            SignalTryConnectTelescope();
+        }
+
+        public void DisconnectTelescope()
+        {
+            DisconnectTelescope(null);
+        }
+
+        public void DisconnectTelescope(Action onDisconnected)
         {
             if (m_ConnectedTelescope != null)
             {
@@ -103,9 +119,23 @@ namespace OccuRec.ASCOM
                     ASCOMClient.Instance.DisconnectTelescope(m_ConnectedTelescope);
                     m_ConnectedTelescope = null;
                     OnTelescopeDisconnected();
+                    if (onDisconnected != null) onDisconnected();
                 }));
             }
+        }
 
+        public void TryConnectFocuser()
+        {
+            SignalTryConnectFocuser();
+        }
+
+        public void DisconnectFocuser()
+        {
+            DisconnectFocuser(null);
+        }
+
+        public void DisconnectFocuser(Action onDisconnected)
+        {
             if (m_ConnectedFocuser != null)
             {
                 m_MainUIThreadControl.Invoke(new Action(delegate()
@@ -113,8 +143,16 @@ namespace OccuRec.ASCOM
                     ASCOMClient.Instance.DisconnectFocuser(m_ConnectedFocuser);
                     m_ConnectedFocuser = null;
                     OnFocuserDisconnected();
+                    if (onDisconnected != null) onDisconnected();
                 }));
             }
+        }
+
+        public void DisconnectASCOMDevices()
+        {
+            DisconnectTelescope();
+
+            DisconnectFocuser();
         }
 
         private void WorkerThread(object state)
@@ -135,6 +173,7 @@ namespace OccuRec.ASCOM
                 if (nextOneMinCheckUTC <= DateTime.UtcNow)
                 {
                     PerformTelescopePingActions();
+                    PerformFocuserPingActions();
 
                     if (Settings.Default.TelescopePingRateSeconds > 0)
                         nextOneMinCheckUTC = DateTime.UtcNow.AddSeconds(Settings.Default.TelescopePingRateSeconds);
@@ -150,6 +189,15 @@ namespace OccuRec.ASCOM
             {
                 TelescopeState state = m_ConnectedTelescope.GetCurrentState();
                 OnTelescopeState(state);
+            }
+        }
+
+        private void PerformFocuserPingActions()
+        {
+            if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
+            {
+                FocuserState state = m_ConnectedFocuser.GetCurrentState();
+                OnFocuserState(state);
             }
         }
 

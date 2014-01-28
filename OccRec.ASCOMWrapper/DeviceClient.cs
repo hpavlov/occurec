@@ -106,10 +106,12 @@ namespace OccuRec.ASCOM.Wrapper
 
 		public void Dispose()
 		{
-			if (m_Instance != null)
-				m_Instance.Finalise();
+		    if (m_Instance != null)
+		        m_Instance.Finalise();
 
-			if (m_HostDomain != null)
+            m_Instance = null;
+
+		    if (m_HostDomain != null)
 				AppDomain.Unload(m_HostDomain);
 
 			m_HostDomain = null;

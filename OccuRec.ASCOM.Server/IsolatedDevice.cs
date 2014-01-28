@@ -6,6 +6,7 @@ using System.Runtime.Remoting;
 using System.Text;
 using ASCOM.DriverAccess;
 using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.Utilities;
 
 namespace OccuRec.ASCOM.Server
 {
@@ -60,10 +61,17 @@ namespace OccuRec.ASCOM.Server
 
 		protected virtual void Dispose(bool disposing)
 		{
-			m_Device.Connected = false;
-			m_Device.Dispose();
-
             Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}::Dispose()", ProgId));
+
+            try
+            {
+                m_Device.Connected = false;
+                m_Device.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.GetFullStackTrace());
+            }
 
 		    RemotingServices.Disconnect(this);
 		}

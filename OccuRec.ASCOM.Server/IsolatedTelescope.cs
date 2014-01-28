@@ -66,7 +66,7 @@ namespace OccuRec.ASCOM.Server
                 catch (Exception)
                 {
                     rv.TargetDeclination = double.NaN;
-                } 
+                }
             }
             catch (Exception ex)
             {

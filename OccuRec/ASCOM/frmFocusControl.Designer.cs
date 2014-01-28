@@ -43,6 +43,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.gbxTargetControl = new System.Windows.Forms.GroupBox();
             this.btnFocusTarget = new System.Windows.Forms.Button();
+            this.btnDisconnect = new System.Windows.Forms.Button();
             this.pnlFocuserControls.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudMove)).BeginInit();
             this.groupBox1.SuspendLayout();
@@ -212,7 +213,7 @@
             this.gbxTargetControl.Controls.Add(this.btnFocusTarget);
             this.gbxTargetControl.Location = new System.Drawing.Point(11, 154);
             this.gbxTargetControl.Name = "gbxTargetControl";
-            this.gbxTargetControl.Size = new System.Drawing.Size(344, 84);
+            this.gbxTargetControl.Size = new System.Drawing.Size(344, 75);
             this.gbxTargetControl.TabIndex = 4;
             this.gbxTargetControl.TabStop = false;
             this.gbxTargetControl.Text = "Target Control";
@@ -227,11 +228,22 @@
             this.btnFocusTarget.Text = "Refocus Target";
             this.btnFocusTarget.UseVisualStyleBackColor = true;
             // 
+            // btnDisconnect
+            // 
+            this.btnDisconnect.Location = new System.Drawing.Point(280, 235);
+            this.btnDisconnect.Name = "btnDisconnect";
+            this.btnDisconnect.Size = new System.Drawing.Size(75, 23);
+            this.btnDisconnect.TabIndex = 13;
+            this.btnDisconnect.Text = "Disconnect";
+            this.btnDisconnect.UseVisualStyleBackColor = true;
+            this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
+            // 
             // frmFocusControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(367, 248);
+            this.ClientSize = new System.Drawing.Size(367, 266);
+            this.Controls.Add(this.btnDisconnect);
             this.Controls.Add(this.gbxTargetControl);
             this.Controls.Add(this.groupBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
@@ -267,5 +279,6 @@
         private System.Windows.Forms.Button btnFocusTarget;
         private System.Windows.Forms.Button btnInLargest;
         private System.Windows.Forms.Button btnOutLargest;
+        private System.Windows.Forms.Button btnDisconnect;
 	}
 }

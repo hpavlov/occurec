@@ -37,10 +37,16 @@ namespace OccuRec.Config
 			InitializeComponent();
 
 			InitAllPropertyPages();
-
-			foreach (SettingsPanel panel in m_PropertyPages.Values)
-				panel.LoadSettings();
 		}
+
+        internal frmSettings(ObservatoryController observatoryController)
+            : this()
+        {
+            ObservatoryController = observatoryController;
+
+            foreach (SettingsPanel panel in m_PropertyPages.Values)
+                panel.LoadSettings();
+        }
 
 		private void InitAllPropertyPages()
 		{

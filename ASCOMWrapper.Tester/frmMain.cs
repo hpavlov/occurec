@@ -30,7 +30,7 @@ namespace ASCOMWrapper.Tester
 		private void frmMain_Load(object sender, EventArgs e)
 		{
 			m_Client = new ASCOMClient();
-			m_Client.Initialise();
+			m_Client.Initialise(false);
 		}
 
 		private void button2_Click(object sender, EventArgs e)

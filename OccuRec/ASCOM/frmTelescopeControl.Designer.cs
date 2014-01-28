@@ -40,6 +40,7 @@
             this.btnPulseNorth3 = new System.Windows.Forms.Button();
             this.btnPulseSouth2 = new System.Windows.Forms.Button();
             this.btnPulseSouth3 = new System.Windows.Forms.Button();
+            this.btnDisconnect = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnPulseNorth
@@ -163,11 +164,22 @@
             this.btnPulseSouth3.UseVisualStyleBackColor = true;
             this.btnPulseSouth3.Click += new System.EventHandler(this.btnPulseSouth3_Click);
             // 
+            // btnDisconnect
+            // 
+            this.btnDisconnect.Location = new System.Drawing.Point(12, 278);
+            this.btnDisconnect.Name = "btnDisconnect";
+            this.btnDisconnect.Size = new System.Drawing.Size(75, 23);
+            this.btnDisconnect.TabIndex = 12;
+            this.btnDisconnect.Text = "Disconnect";
+            this.btnDisconnect.UseVisualStyleBackColor = true;
+            this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
+            // 
             // frmTelescopeControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(305, 255);
+            this.ClientSize = new System.Drawing.Size(305, 313);
+            this.Controls.Add(this.btnDisconnect);
             this.Controls.Add(this.btnPulseSouth3);
             this.Controls.Add(this.btnPulseSouth2);
             this.Controls.Add(this.btnPulseNorth3);
@@ -204,5 +216,6 @@
         private System.Windows.Forms.Button btnPulseNorth3;
         private System.Windows.Forms.Button btnPulseSouth2;
         private System.Windows.Forms.Button btnPulseSouth3;
+        private System.Windows.Forms.Button btnDisconnect;
     }
 }

@@ -137,9 +137,6 @@
     <Setting Name="ASCOMProgIdFocuser" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="ASCOMConnectWhenRunning" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="Saturation8Bit" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">250</Value>
     </Setting>

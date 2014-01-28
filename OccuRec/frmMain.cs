@@ -81,7 +81,7 @@ namespace OccuRec
 			ASCOMClient.Instance.Initialise(Settings.Default.ASCOMLoadInSeparateAppDomain);
 			TelescopeConnectionChanged(ASCOMConnectionState.Disconnected);
 			FocuserConnectionChanged(ASCOMConnectionState.Disconnected);
-			observatoryController.CheckASCOMConnections();
+		    UpdateASCOMConnectivityState();
 		}
 
 		/// <summary>
@@ -303,11 +303,10 @@ namespace OccuRec
 
 		private void miConfigure_Click(object sender, EventArgs e)
 		{
-			var frmSettings = new frmSettings();
-		    frmSettings.ObservatoryController = observatoryController;
+            var frmSettings = new frmSettings(observatoryController);
 
-		    if (frmSettings.ShowDialog(this) == DialogResult.OK)
-		        observatoryController.CheckASCOMConnections();
+		    frmSettings.ShowDialog(this);
+            UpdateASCOMConnectivityState();
 		}
 
 		private void miConnect_Click(object sender, EventArgs e)
@@ -552,17 +551,17 @@ namespace OccuRec
 				tbsAddTarget.Visible = false;
 				tsbAddGuidingStar.Visible = false;
 				tsSeparator2.Visible = false;
-				tsbCamControl.Visible = false;
+				tsbCamControl.Enabled = false;
 			}
 			else if (ChangedToConnectedState())
 			{
 				tbsAddTarget.Visible = true;
 				tsbAddGuidingStar.Visible = true;
 				tsSeparator2.Visible = true;
-				tsbCamControl.Visible = CameraSupportsSoftwareControl();
+                tsbCamControl.Enabled = CameraSupportsSoftwareControl();
 
                 tsbConnectDisconnect.ToolTipText = "Disconnect";
-                tsbConnectDisconnect.Image = imageListToolbar.Images[1];				
+                tsbConnectDisconnect.Image = imageListToolbar.Images[1];
 			}
 
 			if (videoObject != null)
@@ -1366,30 +1365,82 @@ namespace OccuRec
                     label.Visible = true;
                     break;
             }
+
+            tsbTelControl.Enabled = true;
+            tsbFocControl.Enabled = true;
         }
 
         public void TelescopeConnectionChanged(ASCOMConnectionState state)
         {
             RefreshASCOMStatusControls(state, tssASCOMTelescope);
-			tsbTelControl.Visible = state == ASCOMConnectionState.Connected;
+            if (state == ASCOMConnectionState.Connected)
+            {
+                tsbTelControl.Text = "Telescope Control";
+                tsbTelControl.Enabled = true;
+            }
+            else if (state == ASCOMConnectionState.Disconnected)
+            {
+                tsbTelControl.Text = "Telescope Connect";
+                tsbTelControl.Enabled = true;
+                m_LastTelescopeState = null;
+                UpdateTelescopeAndFocuserState();
+            }
+            else
+            {
+                tsbTelControl.Enabled = false;
+            }
         }
 
         public void FocuserConnectionChanged(ASCOMConnectionState state)
         {
             RefreshASCOMStatusControls(state, tssASCOMFocuser);
-			tsbFocControl.Visible = state == ASCOMConnectionState.Connected;
+            if (state == ASCOMConnectionState.Connected)
+            {
+                tsbFocControl.Text = "Focuser Control";
+                tsbFocControl.Enabled = true;
+            }
+            else if (state == ASCOMConnectionState.Disconnected)
+            {
+                tsbFocControl.Text = "Focuser Connect";
+                tsbFocControl.Enabled = true;
+                m_LastFocuserState = null;
+                UpdateTelescopeAndFocuserState();
+            }
+            else
+            {
+                tsbFocControl.Enabled = false;
+            }
         }
 
         public void TelescopeStateUpdate(TelescopeState state)
         {
-            tssASCOMTelescope.Text = string.Format("TEL (Alt:{0}|Az:{1})", (int)Math.Round(state.Altitude), (int)Math.Round(state.Azimuth));
+            m_LastTelescopeState = state;
+            UpdateTelescopeAndFocuserState();
 
             Trace.WriteLine(state.AsSerialized().OuterXml);
         }
 
         public void FocuserStateUpdated(FocuserState state)
         {
+            m_LastFocuserState = state;
+            UpdateTelescopeAndFocuserState();
 
+            Trace.WriteLine(state.AsSerialized().OuterXml);
+        }
+
+        private TelescopeState m_LastTelescopeState = null;
+        private FocuserState m_LastFocuserState = null;
+
+        private void UpdateTelescopeAndFocuserState()
+        {
+            if (m_LastFocuserState != null && !double.IsNaN(m_LastFocuserState.Temperature) && m_LastTelescopeState != null)
+                tslTelFocStatus.Text = string.Format("ALT: {0}°| AZ: {1}° | TEMP: {2}°", (int)Math.Round(m_LastTelescopeState.Altitude), (int)Math.Round(m_LastTelescopeState.Azimuth), m_LastFocuserState.Temperature.ToString("0.0"));
+            else if (m_LastTelescopeState != null)
+                tslTelFocStatus.Text = string.Format("ALT: {0}° | AZ: {1}°", (int)Math.Round(m_LastTelescopeState.Altitude), (int)Math.Round(m_LastTelescopeState.Azimuth));
+            else if (m_LastFocuserState != null && !double.IsNaN(m_LastFocuserState.Temperature))
+                tslTelFocStatus.Text = string.Format("TEMP: {0}°", m_LastFocuserState.Temperature.ToString("0.0"));
+            else
+                tslTelFocStatus.Text = string.Empty;
         }
         #endregion
 
@@ -1415,49 +1466,65 @@ namespace OccuRec
 
 		private void tsbFocControl_Click(object sender, EventArgs e)
 		{
-			if (s_FormFocuserControl != null)
-			{
-				try
-				{
-					if (!s_FormFocuserControl.Visible)
-						s_FormFocuserControl.Show(this);
-				}
-				catch (Exception ex)
-				{
-					s_FormFocuserControl = null;
-				}
-			}
+		    if (!observatoryController.IsConnectedToFocuser())
+		    {
+		        observatoryController.TryConnectFocuser();
+                tsbFocControl.Enabled = false;
+		    }
+		    else
+		    {
+                if (s_FormFocuserControl != null)
+                {
+                    try
+                    {
+                        if (!s_FormFocuserControl.Visible)
+                            s_FormFocuserControl.Show(this);
+                    }
+                    catch (Exception ex)
+                    {
+                        s_FormFocuserControl = null;
+                    }
+                }
 
-			if (s_FormFocuserControl == null)
-			{
-				s_FormFocuserControl = new frmFocusControl();
-				s_FormFocuserControl.ObservatoryController = observatoryController;
-				s_FormFocuserControl.Show(this);
-			}
+                if (s_FormFocuserControl == null)
+                {
+                    s_FormFocuserControl = new frmFocusControl();
+                    s_FormFocuserControl.ObservatoryController = observatoryController;
+                    s_FormFocuserControl.Show(this);
+                }
+		    }
 		}
 
         private static frmTelescopeControl s_FormTelescopeControl = null;
 
         private void tsbTelControl_Click(object sender, EventArgs e)
         {
-            if (s_FormTelescopeControl != null)
+            if (!observatoryController.IsConnectedToTelescope())
             {
-                try
-                {
-                    if (!s_FormTelescopeControl.Visible)
-                        s_FormTelescopeControl.Show(this);
-                }
-                catch (Exception ex)
-                {
-                    s_FormTelescopeControl = null;
-                }
+                observatoryController.TryConnectTelescope();
+                tsbTelControl.Enabled = false;
             }
-
-            if (s_FormTelescopeControl == null)
+            else
             {
-                s_FormTelescopeControl = new frmTelescopeControl();
-                s_FormTelescopeControl.ObservatoryController = observatoryController;
-                s_FormTelescopeControl.Show(this);
+                if (s_FormTelescopeControl != null)
+                {
+                    try
+                    {
+                        if (!s_FormTelescopeControl.Visible)
+                            s_FormTelescopeControl.Show(this);
+                    }
+                    catch (Exception ex)
+                    {
+                        s_FormTelescopeControl = null;
+                    }
+                }
+
+                if (s_FormTelescopeControl == null)
+                {
+                    s_FormTelescopeControl = new frmTelescopeControl();
+                    s_FormTelescopeControl.ObservatoryController = observatoryController;
+                    s_FormTelescopeControl.Show(this);
+                }
             }
         }
 
@@ -1469,6 +1536,12 @@ namespace OccuRec
         private void tbsAddTarget_Click(object sender, EventArgs e)
         {
             m_VideoFrameInteractionController.ToggleSelectGuidingStar();
+        }
+
+        private void UpdateASCOMConnectivityState()
+        {
+            tsbFocControl.Enabled = !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdFocuser);
+            tsbTelControl.Enabled = !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdTelescope);
         }
 
     }

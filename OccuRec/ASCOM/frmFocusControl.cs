@@ -154,5 +154,11 @@ namespace OccuRec.ASCOM
             DisableEnableControls(false);
             ObservatoryController.FocuserMoveOut(FocuserStepSize.Large, UpdateFocuserStateOutOfThread);
         }
+
+        private void btnDisconnect_Click(object sender, EventArgs e)
+        {
+            ObservatoryController.DisconnectFocuser();
+            Close();
+        }
 	}
 }

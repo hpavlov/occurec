@@ -28,7 +28,6 @@ namespace OccuRec.Config.Panels
 
 		public override void LoadSettings()
 		{
-			cbxLiveTelescopeMode.Checked = Settings.Default.ASCOMConnectWhenRunning;
 			cbxUseAppDomainIsolation.Checked = Settings.Default.ASCOMLoadInSeparateAppDomain;
 			tbxFocuser.Text = Settings.Default.ASCOMProgIdFocuser;
 			tbxTelescope.Text = Settings.Default.ASCOMProgIdTelescope;
@@ -41,7 +40,6 @@ namespace OccuRec.Config.Panels
 		{
 			Settings.Default.ASCOMProgIdFocuser = tbxFocuser.Text;
 			Settings.Default.ASCOMProgIdTelescope = tbxTelescope.Text;
-			Settings.Default.ASCOMConnectWhenRunning = cbxLiveTelescopeMode.Checked;
 			Settings.Default.ASCOMLoadInSeparateAppDomain = cbxUseAppDomainIsolation.Checked;
 		}
 
@@ -63,24 +61,50 @@ namespace OccuRec.Config.Panels
 			btnTestFocuserConnection.Enabled = !string.IsNullOrEmpty(tbxFocuser.Text);
 			btnTestTelescopeConnection.Enabled = !string.IsNullOrEmpty(tbxTelescope.Text);
 
-			if (cbxLiveTelescopeMode.Checked)
+            if (ObservatoryController.IsConnectedToTelescope())
 			{
-				btnSelectFocuser.Enabled = false;
 				btnSelectTelescope.Enabled = false;
-				btnTestFocuserConnection.Enabled = false;
 				btnTestTelescopeConnection.Enabled = false;
-				btnClearFocuser.Enabled = false;
 				btnClearTelescope.Enabled = false;
+                btnConfigureTelescope.Enabled = false;
+                btnDisconnectTelescope.Visible = true;
+			    btnDisconnectTelescope.Enabled = true;
 			}
 			else
 			{
-				btnSelectFocuser.Enabled = true;
-				btnSelectTelescope.Enabled = true;
-				btnTestFocuserConnection.Enabled = true;
-				btnTestTelescopeConnection.Enabled = true;
-				btnClearFocuser.Enabled = true;
-				btnClearTelescope.Enabled = true;
+                btnSelectTelescope.Enabled = true;
+                btnTestTelescopeConnection.Enabled = true;
+                btnClearTelescope.Enabled = true;
+                btnConfigureTelescope.Enabled = true;
+                btnDisconnectTelescope.Visible = false;
 			}
+
+            if (ObservatoryController.IsConnectedToFocuser())
+            {
+                btnSelectFocuser.Enabled = false;
+                btnTestFocuserConnection.Enabled = false;
+                btnClearFocuser.Enabled = false;
+                btnConfigureFocuser.Enabled = false;
+                btnDisconnectFocuser.Visible = true;
+                btnDisconnectFocuser.Enabled = true;
+            }
+            else
+            {
+                btnSelectFocuser.Enabled = true;
+                btnTestFocuserConnection.Enabled = true;
+                btnClearFocuser.Enabled = true;
+                btnConfigureFocuser.Enabled = true;
+                btnDisconnectFocuser.Visible = false;
+            }
+
+		    if (ObservatoryController.IsConnectedToObservatory())
+		    {
+		        cbxUseAppDomainIsolation.Enabled = false;
+		    }
+		    else
+		    {
+                cbxUseAppDomainIsolation.Enabled = true;
+		    }
 		}
 
 		private void btnTestFocuserConnection_Click(object sender, EventArgs e)
@@ -180,14 +204,6 @@ namespace OccuRec.Config.Panels
 			Cursor = Cursors.Default;
 		}
 
-		private void cbxLiveTelescopeMode_CheckedChanged(object sender, EventArgs e)
-		{
-			if (!cbxLiveTelescopeMode.Checked && ObservatoryController != null && m_Initialised)
-				ObservatoryController.DisconnectASCOMDevices();
-
-			UpdateASCOMControlsState();
-		}
-
 		private void btnClearFocuser_Click(object sender, EventArgs e)
 		{
 			tbxFocuser.Text = string.Empty;
@@ -205,5 +221,23 @@ namespace OccuRec.Config.Panels
 			if (!string.IsNullOrEmpty(progId))
 				tbxFocuser.Text = progId;
 		}
+
+        private void btnDisconnectFocuser_Click(object sender, EventArgs e)
+        {
+            if (ObservatoryController.IsConnectedToFocuser())
+            {
+                ObservatoryController.DisconnectFocuser(() => UpdateASCOMControlsState());
+                btnDisconnectFocuser.Enabled = false;
+            }
+        }
+
+        private void btnDisconnectTelescope_Click(object sender, EventArgs e)
+        {
+            if (ObservatoryController.IsConnectedToTelescope())
+            {
+                ObservatoryController.DisconnectTelescope(() => UpdateASCOMControlsState());
+                btnDisconnectTelescope.Enabled = false;
+            }
+        }
 	}
 }
