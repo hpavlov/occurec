@@ -48,3 +48,10 @@ EXPORTS
 	;TrackerGetTargetState
 	TrackerInitialiseNewTracking
 	ConfigureSaturationLevels
+
+	; PSFFitting
+	SolveLinearSystem
+	SolveLinearSystemFast
+	LinearSystemFastInitialiseSolution
+	DoNonLinearPfsFit
+	ConfigureSaturationLevels

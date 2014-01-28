@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.Drivers;
+using OccuRec.Helpers;
+using OccuRec.Tracking;
 
 namespace OccuRec.Controllers
 {
@@ -56,9 +58,28 @@ namespace OccuRec.Controllers
             IVideoFrame currentVideoFrame = m_VideoRenderingController.GetCurrentFrame();
             if (currentVideoFrame != null)
             {
-                // TODO: Find the object at the location and set it as a guiding star
-                // TODO: Inform the overlay manager that there is a new guiding star to display as overlay
-                return true;
+				// Find the object at the location and set it as a guiding star                
+				var astroImg = new AstroImage(currentVideoFrame, m_VideoRenderingController.Width, m_VideoRenderingController.Height);
+	            uint[,] areaPixels = astroImg.GetMeasurableAreaPixels(location.X, location.Y);
+
+	            PSFFit psfFit = new PSFFit(location.X, location.Y);
+				psfFit.Fit(areaPixels);
+				if (psfFit.IsSolved && psfFit.Certainty > 0.5)
+				{
+					// Inform the overlay manager that there is a new guiding star to display as overlay
+					// TODO: Keep track of all objects in Managed Code
+					//       Update the positions stored in managed code each time there is a tracked frame
+					//       When adding a new object, get the positions of the previous objects from the last tracked frame
+					//       Run all tracking in unmanaged code 
+					//       Run tracking only twice a second (configurable)
+
+					return true;
+				}
+				else
+				{
+					// NOTE: Too faint to be used as a guiding star
+				}
+				
             }
 
             return false;

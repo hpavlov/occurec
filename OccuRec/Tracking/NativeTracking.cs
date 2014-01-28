@@ -60,33 +60,33 @@ namespace OccuRec.Tracking
 
 	internal static class NativeTracking
 	{
-		private const string LIBRARY_TANGRA_CORE = "TangraCore";
+		private const string OCCUREC_CORE_DLL_NAME = "OccuRec.Core.dll";
 
-		[DllImport(LIBRARY_TANGRA_CORE, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		// DLL_PUBLIC long TrackerSettings(double maxElongation, double minFWHM, double maxFWHM, double minCertainty);
 		private static extern int TrackerSettings(double maxElongation, double minFWHM, double maxFWHM, double minCertainty);
 
-		[DllImport(LIBRARY_TANGRA_CORE, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		// DLL_PUBLIC long TrackerNewConfiguration(long width, long height, long numTrackedObjects, bool isFullDisappearance);
 		private static extern int TrackerNewConfiguration(int width, int height, int numTrackedObjects, bool isFullDisappearance);
 
-		[DllImport(LIBRARY_TANGRA_CORE, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		// DLL_PUBLIC long TrackerNextFrame(long frameId, unsigned long* pixels);
 		private static extern int TrackerNextFrame(int frameId, [In, Out] uint[] pixels);
 
-		[DllImport(LIBRARY_TANGRA_CORE, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		// DLL_PUBLIC long TrackerConfigureObject(long objectId, bool isFixedAperture, bool isOccultedStar, double startingX, double startingY, double apertureInPixels);
 		private static extern int TrackerConfigureObject(int objectId, bool isFixedAperture, bool isOccultedStar, double startingX, double startingY, double apertureInPixels);
 
-		[DllImport(LIBRARY_TANGRA_CORE, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		// DLL_PUBLIC long TrackerGetTargetState(long objectId, NativeTrackedObjectInfo* trackingInfo, NativePsfFitInfo* psfInfo, double* residuals);
 		private static extern int TrackerGetTargetState(int objectId, [In, Out] NativeTrackedObjectInfo trackingInfo, [In, Out] NativePsfFitInfo psfInfo, [In, Out] double[] residuals);
 
-		[DllImport(LIBRARY_TANGRA_CORE, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		//DLL_PUBLIC void ConfigureSaturationLevels(unsigned long saturation8Bit, unsigned long saturation12Bit, unsigned long saturation14Bit);
 		private static extern int ConfigureSaturationLevels(ulong saturation8Bit, ulong saturation12Bit, ulong saturation14Bit);
 
-		[DllImport(LIBRARY_TANGRA_CORE, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		//DLL_PUBLIC long TrackerInitialiseNewTracking();
 		private static extern int TrackerInitialiseNewTracking();
 

@@ -129,6 +129,7 @@
     <Compile Include="frmChooseManualIntegrationRate.Designer.cs">
       <DependentUpon>frmChooseManualIntegrationRate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\AstroImage.cs" />
     <Compile Include="Helpers\DsHelper.cs" />
     <Compile Include="Config\Panels\SettingsPanel.cs">
       <SubType>UserControl</SubType>
@@ -160,6 +161,9 @@
     <Compile Include="Tracking\AllGreys.cs" />
     <Compile Include="Tracking\ImagePixel.cs" />
     <Compile Include="Tracking\ITrackedObject.cs" />
+    <Compile Include="Tracking\LinearRegression.cs" />
+    <Compile Include="Tracking\MinimalVideoFrame.cs" />
+    <Compile Include="Tracking\NativePSFFitting.cs" />
     <Compile Include="Tracking\NativeTrackedObject.cs" />
     <Compile Include="Tracking\NativeTrackedObjectPsfFit.cs" />
     <Compile Include="Tracking\NativeTracking.cs" />
@@ -181,6 +185,8 @@
     <Compile Include="OCR\TestStates\UncalibratedState.cs" />
     <Compile Include="StateManagement\IntegrationCalibrationState.cs" />
     <Compile Include="StateManagement\IotaVtiOcrTestingState.cs" />
+    <Compile Include="Tracking\PSFFit.cs" />
+    <Compile Include="Tracking\SafeMatrix.cs" />
     <Compile Include="Tracking\TrackedObjectConfig.cs" />
     <Compile Include="Video\AstroDigitalVideoStream.cs" />
     <Compile Include="Video\AstroDigitalVideo\AdvFile.cs" />

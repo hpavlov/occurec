@@ -9,14 +9,13 @@ using System.Windows.Forms;
 using OccuRec.Drivers;
 using OccuRec.Helpers;
 using OccuRec.StateManagement;
+using OccuRec.Tracking;
 
 namespace OccuRec.Controllers
 {
     public class VideoRenderingController : IDisposable
     {
         private frmMain m_MainForm;
-
-        private bool useVariantPixels;
 
         private bool running = true;
         private bool previewOn = true;
@@ -60,11 +59,26 @@ namespace OccuRec.Controllers
             return videoObject;
         }
 
+	    private IVideoFrame m_LastRenderedFrame = null;
+	    private object m_SyncLock = new object();
+
         internal IVideoFrame GetCurrentFrame()
         {
-            // TODO: Provide a thread safe 'cached' version of the current IVideoFrame
-            throw new NotImplementedException();
+			lock (m_SyncLock)
+			{
+				return new MinimalVideoFrame(m_LastRenderedFrame);
+			}
         }
+
+	    internal int Width
+	    {
+			get { return imageWidth; }
+	    }
+
+		internal int Height
+		{
+			get { return imageHeight; }
+		}
 
         private void DisplayVideoFrames(object state)
         {
@@ -76,12 +90,14 @@ namespace OccuRec.Controllers
                 {
                     try
                     {
-                        IVideoFrame frame = useVariantPixels
-                                ? videoObject.LastVideoFrameVariant
-                                : videoObject.LastVideoFrame;
+                        IVideoFrame frame = videoObject.LastVideoFrame;
 
                         if (frame != null)
                         {
+							lock (m_SyncLock)
+							{
+								m_LastRenderedFrame = frame;	
+							}                      
 
                             var frameWrapper = new VideoFrameWrapper(frame);
 
@@ -96,9 +112,7 @@ namespace OccuRec.Controllers
                                 if (bmp == null)
                                 {
                                     cameraImage.SetImageArray(
-                                        useVariantPixels
-                                            ? frame.ImageArrayVariant
-                                            : frame.ImageArray,
+										frame.ImageArray,
                                         imageWidth,
                                         imageHeight,
                                         videoObject.SensorType);
