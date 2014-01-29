@@ -27,6 +27,7 @@ using OccuRec.OCR;
 using OccuRec.Properties;
 using OccuRec.Scheduling;
 using OccuRec.StateManagement;
+using OccuRec.Tracking;
 using OccuRec.Utilities;
 
 namespace OccuRec
@@ -1531,11 +1532,13 @@ namespace OccuRec
         private void tsbAddGuidingStar_Click(object sender, EventArgs e)
         {
             m_VideoFrameInteractionController.ToggleSelectGuidingStar();
+
+	        tbsAddTarget.Enabled = TrackingContext.Current.GuidingStar != null;
         }
 
         private void tbsAddTarget_Click(object sender, EventArgs e)
         {
-            m_VideoFrameInteractionController.ToggleSelectGuidingStar();
+            m_VideoFrameInteractionController.ToggleSelectTargetStar();
         }
 
         private void UpdateASCOMConnectivityState()

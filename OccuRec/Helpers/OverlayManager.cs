@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.Properties;
+using OccuRec.Tracking;
 
 namespace OccuRec.Helpers
 {
@@ -102,6 +103,32 @@ namespace OccuRec.Helpers
 					else
 						timestampMeasurement = SizeF.Empty;
 				}				
+			}
+
+			if (TrackingContext.Current.IsTracking)
+			{
+				if (TrackingContext.Current.TargetStar != null)
+				{
+					float aperture = (float)TrackingContext.Current.TargetStarConfig.ApertureInPixels;
+
+					if (TrackingContext.Current.TargetStar.X > aperture && TrackingContext.Current.TargetStar.X < imageWidth - aperture &&
+						TrackingContext.Current.TargetStar.Y > aperture && TrackingContext.Current.TargetStar.Y < imageHeight - aperture)
+					{
+						g.DrawEllipse(TrackingContext.Current.TargetStarConfig.IsFixedAperture ? Pens.Fuchsia : Pens.Turquoise, TrackingContext.Current.TargetStar.X - aperture, TrackingContext.Current.TargetStar.Y - aperture, 2 * aperture, 2 * aperture);	
+					}
+				}
+
+				if (TrackingContext.Current.GuidingStar != null)
+				{
+					// Variable aperture for guiding stars based on current FWHM
+					float aperture = (float)TrackingContext.Current.GuidingStar.FWHM * 1.5f;
+
+					if (TrackingContext.Current.GuidingStar.X > aperture && TrackingContext.Current.GuidingStar.X < imageWidth - aperture &&
+						TrackingContext.Current.GuidingStar.Y > aperture && TrackingContext.Current.GuidingStar.Y < imageHeight - aperture)
+					{
+						g.DrawEllipse(Pens.Lime, TrackingContext.Current.GuidingStar.X - aperture, TrackingContext.Current.GuidingStar.Y - aperture, 2 * aperture, 2 * aperture);
+					} 
+				}
 			}
         }
 

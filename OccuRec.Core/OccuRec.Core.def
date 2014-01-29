@@ -48,6 +48,8 @@ EXPORTS
 	;TrackerGetTargetState
 	TrackerInitialiseNewTracking
 	ConfigureSaturationLevels
+	EnableTracking
+	DisableTracking
 
 	; PSFFitting
 	SolveLinearSystem

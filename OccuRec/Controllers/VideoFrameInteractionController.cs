@@ -29,11 +29,16 @@ namespace OccuRec.Controllers
             m_VideoRenderingController = videoRenderingController;
 
             m_MainForm = mainForm;
-            m_MainForm.picVideoFrame.MouseClick +=picVideoFrame_MouseClick;
+            m_MainForm.picVideoFrame.MouseDown +=picVideoFrame_MouseClick;
+
+			TrackingContext.Current.Reset();
         }
 
         void picVideoFrame_MouseClick(object sender, MouseEventArgs e)
         {
+			bool shiftHeld = Control.ModifierKeys == Keys.Shift;
+			bool controlHeld = Control.ModifierKeys == Keys.Control;
+
              if (e.Button != MouseButtons.Left)
              {
                  ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
@@ -42,18 +47,18 @@ namespace OccuRec.Controllers
              {
                  if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingGuidingStar)
                  {
-                     if (SelectGuidingStar(e.Location))
+					 if (SelectGuidingStar(e.Location, shiftHeld, controlHeld))
                          ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
                  }
                  else if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingtTargetStar)
                  {
-                     if (SelectingtTargetStar(e.Location))
+					 if (SelectingtTargetStar(e.Location, shiftHeld, controlHeld))
                          ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
                  }
              }
         }
 
-        private bool SelectGuidingStar(Point location)
+        private bool SelectGuidingStar(Point location, bool shiftHeld, bool controlHeld)
         {
             IVideoFrame currentVideoFrame = m_VideoRenderingController.GetCurrentFrame();
             if (currentVideoFrame != null)
@@ -66,12 +71,15 @@ namespace OccuRec.Controllers
 				psfFit.Fit(areaPixels);
 				if (psfFit.IsSolved && psfFit.Certainty > 0.5)
 				{
-					// Inform the overlay manager that there is a new guiding star to display as overlay
-					// TODO: Keep track of all objects in Managed Code
-					//       Update the positions stored in managed code each time there is a tracked frame
-					//       When adding a new object, get the positions of the previous objects from the last tracked frame
-					//       Run all tracking in unmanaged code 
-					//       Run tracking only twice a second (configurable)
+					TrackingContext.Current.GuidingStar = new LastTrackedPosition()
+					{
+						FWHM = (float)psfFit.FWHM,
+						X = (float)psfFit.XCenter,
+						Y = (float)psfFit.YCenter,
+						IsFixed = false
+					};
+
+					TrackingContext.Current.ReConfigureNativeTracking(m_VideoRenderingController.Width, m_VideoRenderingController.Height);
 
 					return true;
 				}
@@ -85,18 +93,32 @@ namespace OccuRec.Controllers
             return false;
         }
 
-        private bool SelectingtTargetStar(Point location)
+		private bool SelectingtTargetStar(Point location, bool shiftHeld, bool controlHeld)
         {
-            IVideoFrame currentVideoFrame = m_VideoRenderingController.GetCurrentFrame();
-            if (currentVideoFrame != null)
-            {
-                // TODO: Find the object at the location and set it as a guiding star
-                // TODO: Inform the overlay manager that there is a new target star to display as overlay
+			IVideoFrame currentVideoFrame = m_VideoRenderingController.GetCurrentFrame();
+			if (currentVideoFrame != null)
+			{      
+				var astroImg = new AstroImage(currentVideoFrame, m_VideoRenderingController.Width, m_VideoRenderingController.Height);
+				uint[,] areaPixels = astroImg.GetMeasurableAreaPixels(location.X, location.Y);
 
-                return true;
-            }
+				PSFFit psfFit = new PSFFit(location.X, location.Y);
+				psfFit.Fit(areaPixels);
 
-            return false;
+				TrackingContext.Current.TargetStar = new LastTrackedPosition()
+				{
+					FWHM = (float)psfFit.FWHM,
+					X = (float)psfFit.XCenter,
+					Y = (float)psfFit.YCenter
+				};
+
+				TrackingContext.Current.TargetStar.IsFixed = !psfFit.IsSolved || psfFit.Certainty < 0.2 || shiftHeld;
+				TrackingContext.Current.ReConfigureNativeTracking(m_VideoRenderingController.Width, m_VideoRenderingController.Height);
+
+				return true;
+
+			}
+
+			return false;
         }
 
         private void ChangeVideoFrameInteractiveState(VideoFrameInteractiveState newState)

@@ -108,6 +108,14 @@ namespace OccuRec.Helpers
 		public int OcrWorking;
 		public int OcrErrorsSinceLastReset;
 	    public int UserIntegratonRateHint;
+		public float TrkdTargetXPos;
+		public float TrkdTargetYPos;
+		public float TrkdTargetFWHM;
+		public float TrkdTargetMeasurement;
+		public float TrkdGuidingXPos;
+		public float TrkdGuidingYPos;
+		public float TrkdGuidingFWHM;
+		public float TrkdGuidingMeasurement;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -133,6 +141,14 @@ namespace OccuRec.Helpers
 		public int OcrWorking;
 		public int OcrErrorsSinceLastReset;
 	    public int UserIntegratonRateHint;
+		public float TrkdTargetXPos;
+		public float TrkdTargetYPos;
+		public float TrkdTargetFWHM;
+		public float TrkdTargetMeasurement;
+		public float TrkdGuidingXPos;
+		public float TrkdGuidingYPos;
+		public float TrkdGuidingFWHM;
+		public float TrkdGuidingMeasurement;
 		
 		public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
         {
@@ -165,6 +181,14 @@ namespace OccuRec.Helpers
 			OcrWorking = imgStatus.OcrWorking;
 			OcrErrorsSinceLastReset = imgStatus.OcrErrorsSinceLastReset;
 			UserIntegratonRateHint = imgStatus.UserIntegratonRateHint;
+			TrkdGuidingXPos = imgStatus.TrkdGuidingXPos;
+			TrkdGuidingYPos = imgStatus.TrkdGuidingYPos;
+			TrkdGuidingFWHM = imgStatus.TrkdGuidingFWHM;
+			TrkdGuidingMeasurement = imgStatus.TrkdGuidingMeasurement;
+			TrkdTargetXPos = imgStatus.TrkdTargetXPos;
+			TrkdTargetYPos = imgStatus.TrkdTargetYPos;
+			TrkdTargetFWHM = imgStatus.TrkdTargetFWHM;
+			TrkdTargetMeasurement = imgStatus.TrkdTargetMeasurement;
 		}
     };
 
@@ -285,6 +309,12 @@ namespace OccuRec.Helpers
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int DisableOcrProcessing();
+
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		private static extern int EnableTracking(int targetObjectId, int guidingObjectId, int frequency);
+
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		private static extern int DisableTracking();
 
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory")]
         public static extern void CopyMemory(IntPtr Destination, IntPtr Source, [MarshalAs(UnmanagedType.U4)] uint Length);
@@ -603,6 +633,16 @@ namespace OccuRec.Helpers
         {
             DisableOcrProcessing();
         }
+
+		public static void StopTracking()
+		{
+			DisableTracking();
+		}
+
+		public static void StartTracking(int targetObjectId, int guidingObjectId, int frequency)
+		{
+			EnableTracking(targetObjectId, guidingObjectId, frequency);
+		}
 
         public static Bitmap GetCurrentImage(out ImageStatus status)
         {

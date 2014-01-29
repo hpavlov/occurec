@@ -28,6 +28,7 @@ namespace OccuRec.Config.Panels
 			nudMinFWHM.SetNUDValue((double)Settings.Default.TrackingMinFWHM);
 			nudMaxFWHM.SetNUDValue((double)Settings.Default.TrackingMaxFWHM);
 			nudDetectionCertainty.SetNUDValue((double)Settings.Default.TrackingMinCertainty);
+			cbxTrackingFrequency.SetCBXIndex(Settings.Default.TrackingFrequency);
 		}
 
 		public override void SaveSettings()
@@ -38,6 +39,8 @@ namespace OccuRec.Config.Panels
 			Settings.Default.TrackingMinFWHM = (double)nudMinFWHM.Value;
 			Settings.Default.TrackingMaxFWHM = (double)nudMaxFWHM.Value;
 			Settings.Default.TrackingMinCertainty = (double)nudDetectionCertainty.Value;
+			Settings.Default.TrackingFrequency = cbxTrackingFrequency.SelectedIndex;
+			if (Settings.Default.TrackingFrequency == -1) Settings.Default.TrackingFrequency = 0;
 		}
 
 		private void cbxTestPSFElongation_CheckedChanged(object sender, EventArgs e)

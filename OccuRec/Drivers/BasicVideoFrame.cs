@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using OccuRec.Helpers;
 using OccuRec.Properties;
+using OccuRec.Tracking;
 
 namespace OccuRec.Drivers
 {
@@ -117,7 +118,12 @@ namespace OccuRec.Drivers
 				if (status.UserIntegratonRateHint > 0)
 				{
 					rv.imageInfo += string.Format(";USRI:{0}", status.UserIntegratonRateHint);
-				}				
+				}
+
+				if (TrackingContext.Current.IsTracking)
+				{
+					TrackingContext.Current.UpdateFromFrameStatus(fameNumber, status);
+				}
             }
 
             return rv;
