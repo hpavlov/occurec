@@ -113,11 +113,13 @@ namespace OccuRec.Helpers
 		public float TrkdTargetYPos;
 		public float TrkdTargetFWHM;
 		public float TrkdTargetMeasurement;
+	    public int TrkdTargetHasSaturatedPixels;
         public int TrkdGuidingIsLocated;
 		public float TrkdGuidingXPos;
 		public float TrkdGuidingYPos;
 		public float TrkdGuidingFWHM;
 		public float TrkdGuidingMeasurement;
+		public int TrkdGuidingHasSaturatedPixels;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -148,11 +150,13 @@ namespace OccuRec.Helpers
 		public float TrkdTargetYPos;
 		public float TrkdTargetFWHM;
 		public float TrkdTargetMeasurement;
+	    public int TrkdTargetHasSaturatedPixels;
         public int TrkdGuidingIsLocated;
 		public float TrkdGuidingXPos;
 		public float TrkdGuidingYPos;
 		public float TrkdGuidingFWHM;
 		public float TrkdGuidingMeasurement;
+		public int TrkdGuidingHasSaturatedPixels;
 		
 		public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
         {
@@ -174,6 +178,8 @@ namespace OccuRec.Helpers
             rv.TrkdTargetMeasurement = cloneFrom.TrkdTargetMeasurement;
             rv.TrkdTargetIsLocated = cloneFrom.TrkdTargetIsLocated;
             rv.TrkdGuidingIsLocated = cloneFrom.TrkdGuidingIsLocated;
+			rv.TrkdTargetHasSaturatedPixels = cloneFrom.TrkdTargetHasSaturatedPixels;
+			rv.TrkdGuidingHasSaturatedPixels = cloneFrom.TrkdGuidingHasSaturatedPixels;
             return rv;
         }
 
@@ -205,6 +211,8 @@ namespace OccuRec.Helpers
 			TrkdTargetMeasurement = imgStatus.TrkdTargetMeasurement;
             TrkdTargetIsLocated = imgStatus.TrkdTargetIsLocated;
             TrkdGuidingIsLocated = imgStatus.TrkdGuidingIsLocated;
+			TrkdTargetHasSaturatedPixels = imgStatus.TrkdTargetHasSaturatedPixels;
+			TrkdGuidingHasSaturatedPixels = imgStatus.TrkdGuidingHasSaturatedPixels;
 		}
     };
 
@@ -327,7 +335,7 @@ namespace OccuRec.Helpers
         private static extern int DisableOcrProcessing();
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int EnableTracking(int targetObjectId, int guidingObjectId, int frequency);
+		private static extern int EnableTracking(int targetObjectId, int guidingObjectId, int frequency, float targetAperture, float guidingAperture);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int DisableTracking();
@@ -655,9 +663,9 @@ namespace OccuRec.Helpers
 			DisableTracking();
 		}
 
-		public static void StartTracking(int targetObjectId, int guidingObjectId, int frequency)
+		public static void StartTracking(int targetObjectId, int guidingObjectId, int frequency, float targetAperture, float guidingAperture)
 		{
-			EnableTracking(targetObjectId, guidingObjectId, frequency);
+			EnableTracking(targetObjectId, guidingObjectId, frequency, targetAperture, guidingAperture);
 		}
 
         public static Bitmap GetCurrentImage(out ImageStatus status)

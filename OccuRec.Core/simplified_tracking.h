@@ -109,3 +109,13 @@ HRESULT TrackerNextFrame(long frameId, unsigned long* pixels);
 HRESULT TrackerNextFrame_int8(long frameId, unsigned char* pixels);
 HRESULT TrackerGetTargetState(long objectId, NativeTrackedObjectInfo* trackingInfo, NativePsfFitInfo* psfInfo, double* residuals);
 HRESULT TrackerInitialiseNewTracking();
+
+float MeasureObjectUsingAperturePhotometry(
+	unsigned long* data, float aperture, 
+	long nWidth, long nHeight, float x0, float y0, unsigned long saturationValue,
+	float* totalPixels, bool* hasSaturatedPixels);
+
+float MeasureObjectUsingAperturePhotometry_int8(
+	unsigned char* data, float aperture, 
+	long nWidth, long nHeight, float x0, float y0, unsigned char saturationValue,
+	float* totalPixels, bool* hasSaturatedPixels);

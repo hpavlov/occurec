@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows.Forms;
 using OccuRec.Drivers;
 using OccuRec.Helpers;
+using OccuRec.Properties;
 using OccuRec.Tracking;
 
 namespace OccuRec.Controllers
@@ -69,7 +70,7 @@ namespace OccuRec.Controllers
 
 	            PSFFit psfFit = new PSFFit(location.X, location.Y);
 				psfFit.Fit(areaPixels);
-				if (psfFit.IsSolved && psfFit.Certainty > 0.5)
+				if (psfFit.IsSolved && psfFit.Certainty > Settings.Default.TrackingMinGuidingCertainty)
 				{
 					TrackingContext.Current.GuidingStar = new LastTrackedPosition()
 					{
@@ -86,6 +87,7 @@ namespace OccuRec.Controllers
 				else
 				{
 					// NOTE: Too faint to be used as a guiding star
+					MessageBox.Show(m_MainForm, "This object is not bright enought for a Guiding star.", "OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 				
             }
@@ -111,7 +113,7 @@ namespace OccuRec.Controllers
 					Y = (float)psfFit.YCenter
 				};
 
-				TrackingContext.Current.TargetStar.IsFixed = !psfFit.IsSolved || psfFit.Certainty < 0.2 || controlHeld;
+				TrackingContext.Current.TargetStar.IsFixed = !psfFit.IsSolved || psfFit.Certainty < Settings.Default.TrackingMinForcedFixedObjCertainty || controlHeld;
 				TrackingContext.Current.ReConfigureNativeTracking(m_VideoRenderingController.Width, m_VideoRenderingController.Height);
 
 				return true;

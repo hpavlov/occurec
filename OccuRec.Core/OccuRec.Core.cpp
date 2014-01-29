@@ -20,6 +20,7 @@
 #include "OccuRec.IntegrationChecker.h"
 
 #include "simplified_tracking.h"
+#include "OccuRec.Math.h"
 
 using namespace OccuOcr;
 
@@ -42,6 +43,8 @@ bool RUN_TRACKING = false;
 long TRACKED_TARGET_ID = -1;
 long TRACKED_GUIDING_ID = -1;
 long TRACKING_FREQUENCY = 1;
+float TRACKED_TARGET_APERTURE = 10;
+float TRACKED_GUIDING_APERTURE = 10;
 long OCR_FRAME_TOP_ODD;
 long OCR_FRAME_TOP_EVEN;
 long OCR_CHAR_WIDTH;
@@ -608,6 +611,8 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->TrkdGuidingMeasurement = latestImageStatus.TrkdGuidingMeasurement;
 	imageStatus->TrkdGuidingIsLocated = latestImageStatus.TrkdGuidingIsLocated;
 	imageStatus->TrkdTargetIsLocated = latestImageStatus.TrkdTargetIsLocated;
+	imageStatus->TrkdTargetHasSaturatedPixels = latestImageStatus.TrkdTargetHasSaturatedPixels;
+	imageStatus->TrkdGuidingHasSaturatedPixels = latestImageStatus.TrkdGuidingHasSaturatedPixels;
 
 	return S_OK;
 }
@@ -1149,6 +1154,9 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 		NativeTrackedObjectInfo trackingInfo;
 		NativePsfFitInfo psfInfo;
 		double residuals[1024];
+		float totalReading;
+		float totalPixels;
+		bool hasSaturatedPixels;
 
 		if (TRACKED_TARGET_ID > -1)
 		{
@@ -1158,7 +1166,14 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 			latestImageStatus.TrkdTargetXPos = trackingInfo.CenterXDouble;
 			latestImageStatus.TrkdTargetYPos = trackingInfo.CenterYDouble;
 			latestImageStatus.TrkdTargetFWHM = psfInfo.FWHM;
-			latestImageStatus.TrkdTargetMeasurement = psfInfo.FWHM;
+
+			if (NULL != pixelsChar)
+				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, &totalPixels, &hasSaturatedPixels);
+			else
+				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, &totalPixels, &hasSaturatedPixels);
+			
+			latestImageStatus.TrkdTargetMeasurement = totalReading;
+			latestImageStatus.TrkdTargetHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;
 		}
 		
 		if (TRACKED_GUIDING_ID > -1)
@@ -1169,7 +1184,14 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 			latestImageStatus.TrkdGuidingXPos = trackingInfo.CenterXDouble;
 			latestImageStatus.TrkdGuidingYPos = trackingInfo.CenterYDouble;
 			latestImageStatus.TrkdGuidingFWHM = psfInfo.FWHM;
-			latestImageStatus.TrkdGuidingMeasurement = psfInfo.FWHM;
+
+			if (NULL != pixelsChar)
+				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, &totalPixels, &hasSaturatedPixels);
+			else
+				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, &totalPixels, &hasSaturatedPixels);
+			
+			latestImageStatus.TrkdGuidingMeasurement = totalReading;
+			latestImageStatus.TrkdGuidingHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;
 		}
 
 		trackedThisIntegrationPeriod = true;
@@ -1754,12 +1776,14 @@ HRESULT DisableOcrProcessing()
 	return S_OK;
 }
 
-HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency)
+HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency, float targetAperture, float guidingAperture)
 {
 	RUN_TRACKING = true;
 	TRACKED_TARGET_ID = targetObjectId;
 	TRACKED_GUIDING_ID = guidingObjectId;
 	TRACKING_FREQUENCY = frequency;
+	TRACKED_TARGET_APERTURE = targetAperture;
+	TRACKED_GUIDING_APERTURE = guidingAperture;
 
 	return S_OK;
 }

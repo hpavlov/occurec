@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "psf_fit.h"
+#include "math.h"
 
 static double MAX_ELONGATION;
 static double MIN_FWHM;
@@ -544,6 +545,108 @@ HRESULT TrackerNextFrame_int8(long frameId, unsigned char* pixels)
 	}
 	
 	return -2;
+}
+
+float MeasureObjectUsingAperturePhotometry(
+	unsigned long* data, float aperture, 
+	long nWidth, long nHeight, float x0, float y0, unsigned long saturationValue,
+	float* totalPixels, bool* hasSaturatedPixels)
+{
+    float totalReading = 0;
+    *totalPixels = 0;
+	*hasSaturatedPixels = false;
+
+    for (int x = 0; x < nWidth; x++)
+	{
+        for (int y = 0; y < nHeight; y++)
+        {
+            double dist = sqrt((x0 - x) * (x0 - x) + (y0 - y) * (y0 - y));
+            if (dist + 1.5 <= aperture)
+            {
+                // If the point plus 1 pixel diagonal is still in the aperture
+                // then add the reading directly
+
+                totalReading += *(data + x + nWidth* y);
+
+                *totalPixels++;
+
+				if (*(data + x + nWidth* y) >= saturationValue) 
+					*hasSaturatedPixels = true;
+            }
+            else if (dist - 1.5 <= aperture)
+            {
+                float subpixels = 0;
+
+                // Represent the pixels as 5x5 subpixels with 5 times lesses intencity and then add up
+                for (int dx = -2; dx <= 2; dx++)
+                    for (int dy = -2; dy <= 2; dy++)
+                    {
+                        double xx = x + dx / 5.0;
+                        double yy = y + dy / 5.0;
+                        dist = sqrt((x0 - xx) * (x0 - xx) + (y0 - yy) * (y0 - yy));
+                        if (dist <= aperture)
+                            subpixels += 1.0f / 25;
+                    }
+
+                totalReading += *(data + x + nWidth* y) * subpixels;
+
+                *totalPixels += subpixels;
+            }
+        }
+	}
+
+	return totalReading;
+}
+
+float MeasureObjectUsingAperturePhotometry_int8(
+	unsigned char* data, float aperture, 
+	long nWidth, long nHeight, float x0, float y0, unsigned char saturationValue,
+	float* totalPixels, bool* hasSaturatedPixels)
+{
+    float totalReading = 0;
+    *totalPixels = 0;
+	*hasSaturatedPixels = false;
+
+    for (int x = 0; x < nWidth; x++)
+	{
+        for (int y = 0; y < nHeight; y++)
+        {
+            double dist = sqrt((x0 - x) * (x0 - x) + (y0 - y) * (y0 - y));
+            if (dist + 1.5 <= aperture)
+            {
+                // If the point plus 1 pixel diagonal is still in the aperture
+                // then add the reading directly
+
+                totalReading += *(data + x + nWidth* y);
+
+                *totalPixels++;
+
+				if (*(data + x + nWidth* y) >= saturationValue) 
+					*hasSaturatedPixels = true;
+            }
+            else if (dist - 1.5 <= aperture)
+            {
+                float subpixels = 0;
+
+                // Represent the pixels as 5x5 subpixels with 5 times lesses intencity and then add up
+                for (int dx = -2; dx <= 2; dx++)
+                    for (int dy = -2; dy <= 2; dy++)
+                    {
+                        double xx = x + dx / 5.0;
+                        double yy = y + dy / 5.0;
+                        dist = sqrt((x0 - xx) * (x0 - xx) + (y0 - yy) * (y0 - yy));
+                        if (dist <= aperture)
+                            subpixels += 1.0f / 25;
+                    }
+
+                totalReading += *(data + x + nWidth* y) * subpixels;
+
+                *totalPixels += subpixels;
+            }
+        }
+	}
+
+	return totalReading;
 }
 
 

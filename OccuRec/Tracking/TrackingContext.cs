@@ -25,6 +25,8 @@ namespace OccuRec.Tracking
 		public float FWHM;
 		public bool IsFixed;
         public bool IsLocated;
+		public bool HasSaturatedPixels;
+		public float Measurement;
 	}
 
 	internal class TrackingContext
@@ -89,7 +91,7 @@ namespace OccuRec.Tracking
 					TrackingType = TrackingType.OccultedStar,
 					ApertureStartingX = TargetStar.X,
 					ApertureStartingY = TargetStar.Y,
-					ApertureInPixels = TargetStar.FWHM * 1.5
+					ApertureInPixels = TargetStar.FWHM * Settings.Default.TrackingApertureInFWHM
 				};
 
 				NativeTracking.ConfigureTrackedObject(TrackedObjectId, TargetStarConfig);
@@ -104,7 +106,7 @@ namespace OccuRec.Tracking
 					TrackingType = TrackingType.GuidingStar,
 					ApertureStartingX = GuidingStar.X,
 					ApertureStartingY = GuidingStar.Y,
-					ApertureInPixels = GuidingStar.FWHM * 1.5
+					ApertureInPixels = GuidingStar.FWHM * Settings.Default.TrackingApertureInFWHM
 				};
 
 				NativeTracking.ConfigureTrackedObject(GuidingObjectId, GuidingStarConfig);
@@ -115,7 +117,9 @@ namespace OccuRec.Tracking
 			// Start running the tracking on new video frames
 			int frequency = GetFrequencyFromTrackingFrequency((TrackingFrequency)Settings.Default.TrackingFrequency);
 
-			NativeHelpers.StartTracking(TrackedObjectId, GuidingObjectId, frequency);
+			NativeHelpers.StartTracking(TrackedObjectId, GuidingObjectId, frequency,
+				TargetStarConfig != null ? (float)TargetStarConfig.ApertureInPixels : 0,
+				GuidingStarConfig != null ? (float)GuidingStarConfig.ApertureInPixels : 0);
 
 			IsTracking = true;
 		}
@@ -164,7 +168,9 @@ namespace OccuRec.Tracking
 					Y = status.TrkdTargetYPos,
 					FWHM = status.TrkdTargetFWHM,
 					IsLocated = status.TrkdTargetIsLocated > 0,
-					IsFixed = isFixed
+					IsFixed = isFixed,
+					HasSaturatedPixels = status.TrkdTargetHasSaturatedPixels > 0,
+					Measurement = status.TrkdTargetMeasurement,
 				};
 
 				updatedMade = true;
@@ -178,7 +184,9 @@ namespace OccuRec.Tracking
 					Y = status.TrkdGuidingYPos,
 					FWHM = status.TrkdGuidingFWHM,
 					IsLocated = status.TrkdGuidingIsLocated > 0,
-					IsFixed = false
+					IsFixed = false,
+					HasSaturatedPixels = status.TrkdGuidingHasSaturatedPixels > 0,
+					Measurement = status.TrkdGuidingMeasurement,
 				};
 
 				updatedMade = true;
@@ -202,7 +210,9 @@ namespace OccuRec.Tracking
 					Y = status.TrkdTargetYPos,
 					FWHM = status.TrkdTargetFWHM,
                     IsLocated = status.TrkdTargetIsLocated > 0,
-					IsFixed = isFixed
+					IsFixed = isFixed,
+					HasSaturatedPixels = status.TrkdTargetHasSaturatedPixels > 0,
+					Measurement = status.TrkdTargetMeasurement
 				};
 
 				updatedMade = true;
@@ -216,7 +226,9 @@ namespace OccuRec.Tracking
 					Y = status.TrkdGuidingYPos,
 					FWHM = status.TrkdGuidingFWHM,
                     IsLocated = status.TrkdGuidingIsLocated > 0,
-					IsFixed = false
+					IsFixed = false,
+					HasSaturatedPixels = status.TrkdGuidingHasSaturatedPixels > 0,
+					Measurement = status.TrkdGuidingMeasurement
 				};
 
 				updatedMade = true;

@@ -778,5 +778,41 @@ namespace OccuRec.Properties {
                 this["TrackingFrequency"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.4")]
+        public float TrackingMinForcedFixedObjCertainty {
+            get {
+                return ((float)(this["TrackingMinForcedFixedObjCertainty"]));
+            }
+            set {
+                this["TrackingMinForcedFixedObjCertainty"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.7")]
+        public float TrackingMinGuidingCertainty {
+            get {
+                return ((float)(this["TrackingMinGuidingCertainty"]));
+            }
+            set {
+                this["TrackingMinGuidingCertainty"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.5")]
+        public float TrackingApertureInFWHM {
+            get {
+                return ((float)(this["TrackingApertureInFWHM"]));
+            }
+            set {
+                this["TrackingApertureInFWHM"] = value;
+            }
+        }
     }
 }

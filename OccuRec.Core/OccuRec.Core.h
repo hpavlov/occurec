@@ -36,11 +36,13 @@ struct ImageStatus
 	float TrkdTargetYPos;
 	float TrkdTargetFWHM;
 	float TrkdTargetMeasurement;
+	long TrkdTargetHasSaturatedPixels;
 	long TrkdGuidingIsLocated;
 	float TrkdGuidingXPos;
 	float TrkdGuidingYPos;
 	float TrkdGuidingFWHM;
 	float TrkdGuidingMeasurement;
+	long TrkdGuidingHasSaturatedPixels;
 };
 
 struct FrameProcessingStatus
@@ -106,5 +108,5 @@ HRESULT GetIntegrationCalibrationDataConfig(long* gammasLength, long* signatures
 HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas);
 HRESULT InitNewIntegrationPeriodTesting(float differenceRatio, float minimumDifference);
 HRESULT TestNewIntegrationPeriod(__int64 frameNo, float diffSignature, bool* isNew);
-HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency);
+HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency, float targetAperture, float guidingAperture);
 HRESULT DisableTracking();

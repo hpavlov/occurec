@@ -115,22 +115,34 @@ namespace OccuRec.Helpers
 					if (TrackingContext.Current.TargetStar.X > aperture && TrackingContext.Current.TargetStar.X < imageWidth - aperture &&
 						TrackingContext.Current.TargetStar.Y > aperture && TrackingContext.Current.TargetStar.Y < imageHeight - aperture)
 					{
-					    pen = TrackingContext.Current.TargetStarConfig.IsFixedAperture ? Pens.Fuchsia : Pens.Turquoise;
+					    pen = TrackingContext.Current.TargetStarConfig.IsFixedAperture ? Pens.Orange : Pens.Turquoise;
 					    if (!TrackingContext.Current.GuidingStar.IsLocated) pen = Pens.DarkGray;
 						g.DrawEllipse(pen, TrackingContext.Current.TargetStar.X - aperture, TrackingContext.Current.TargetStar.Y - aperture, 2 * aperture, 2 * aperture);
+
+						if (TrackingContext.Current.TargetStar.HasSaturatedPixels)
+						{
+							float apertureOuter = aperture + 2.5f;
+							g.DrawEllipse(Pens.Red, TrackingContext.Current.TargetStar.X - apertureOuter, TrackingContext.Current.TargetStar.Y - apertureOuter, 2 * apertureOuter, 2 * apertureOuter);
+						}
 					}
 				}
 
 				if (TrackingContext.Current.GuidingStar != null)
 				{
 					// Variable aperture for guiding stars based on current FWHM
-					float aperture = (float)TrackingContext.Current.GuidingStar.FWHM * 1.5f;
+					float aperture = (float)TrackingContext.Current.GuidingStar.FWHM * Settings.Default.TrackingApertureInFWHM;
 
 					if (TrackingContext.Current.GuidingStar.X > aperture && TrackingContext.Current.GuidingStar.X < imageWidth - aperture &&
 						TrackingContext.Current.GuidingStar.Y > aperture && TrackingContext.Current.GuidingStar.Y < imageHeight - aperture)
 					{
 					    pen = TrackingContext.Current.GuidingStar.IsLocated ? Pens.Lime : Pens.DarkGray;
                         g.DrawEllipse(pen, TrackingContext.Current.GuidingStar.X - aperture, TrackingContext.Current.GuidingStar.Y - aperture, 2 * aperture, 2 * aperture);
+
+						if (TrackingContext.Current.GuidingStar.HasSaturatedPixels)
+						{
+							float apertureOuter = aperture + 2.5f;
+							g.DrawEllipse(Pens.Red, TrackingContext.Current.GuidingStar.X - apertureOuter, TrackingContext.Current.GuidingStar.Y - apertureOuter, 2 * apertureOuter, 2 * apertureOuter);
+						}
 					} 
 				}
 			}
