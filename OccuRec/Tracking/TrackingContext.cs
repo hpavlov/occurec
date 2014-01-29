@@ -163,6 +163,7 @@ namespace OccuRec.Tracking
 					X = status.TrkdTargetXPos,
 					Y = status.TrkdTargetYPos,
 					FWHM = status.TrkdTargetFWHM,
+					IsLocated = status.TrkdTargetIsLocated > 0,
 					IsFixed = isFixed
 				};
 
@@ -176,6 +177,7 @@ namespace OccuRec.Tracking
 					X = status.TrkdGuidingXPos,
 					Y = status.TrkdGuidingYPos,
 					FWHM = status.TrkdGuidingFWHM,
+					IsLocated = status.TrkdGuidingIsLocated > 0,
 					IsFixed = false
 				};
 

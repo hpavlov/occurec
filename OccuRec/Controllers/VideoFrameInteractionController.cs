@@ -36,8 +36,8 @@ namespace OccuRec.Controllers
 
         void picVideoFrame_MouseClick(object sender, MouseEventArgs e)
         {
-            bool shiftHeld = (Control.ModifierKeys | Keys.Shift) != 0;
-            bool controlHeld = (Control.ModifierKeys | Keys.Control) != 0;
+			bool shiftHeld = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
+			bool controlHeld = (Control.ModifierKeys & Keys.Control) == Keys.Control;
 
              if (e.Button != MouseButtons.Left)
              {
@@ -111,7 +111,7 @@ namespace OccuRec.Controllers
 					Y = (float)psfFit.YCenter
 				};
 
-				TrackingContext.Current.TargetStar.IsFixed = !psfFit.IsSolved || psfFit.Certainty < 0.2 || shiftHeld;
+				TrackingContext.Current.TargetStar.IsFixed = !psfFit.IsSolved || psfFit.Certainty < 0.2 || controlHeld;
 				TrackingContext.Current.ReConfigureNativeTracking(m_VideoRenderingController.Width, m_VideoRenderingController.Height);
 
 				return true;

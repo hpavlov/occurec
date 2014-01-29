@@ -606,6 +606,8 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->TrkdGuidingYPos = latestImageStatus.TrkdGuidingYPos;
 	imageStatus->TrkdGuidingFWHM = latestImageStatus.TrkdGuidingFWHM;
 	imageStatus->TrkdGuidingMeasurement = latestImageStatus.TrkdGuidingMeasurement;
+	imageStatus->TrkdGuidingIsLocated = latestImageStatus.TrkdGuidingIsLocated;
+	imageStatus->TrkdTargetIsLocated = latestImageStatus.TrkdTargetIsLocated;
 
 	return S_OK;
 }
