@@ -36,8 +36,8 @@ namespace OccuRec.Controllers
 
         void picVideoFrame_MouseClick(object sender, MouseEventArgs e)
         {
-			bool shiftHeld = Control.ModifierKeys == Keys.Shift;
-			bool controlHeld = Control.ModifierKeys == Keys.Control;
+            bool shiftHeld = (Control.ModifierKeys | Keys.Shift) != 0;
+            bool controlHeld = (Control.ModifierKeys | Keys.Control) != 0;
 
              if (e.Button != MouseButtons.Left)
              {

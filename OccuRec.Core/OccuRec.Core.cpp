@@ -1151,6 +1151,8 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 		if (TRACKED_TARGET_ID > -1)
 		{
 			TrackerGetTargetState(0, &trackingInfo, &psfInfo, &residuals[0]);
+
+			latestImageStatus.TrkdTargetIsLocated = trackingInfo.IsLocated;
 			latestImageStatus.TrkdTargetXPos = trackingInfo.CenterXDouble;
 			latestImageStatus.TrkdTargetYPos = trackingInfo.CenterYDouble;
 			latestImageStatus.TrkdTargetFWHM = psfInfo.FWHM;
@@ -1161,6 +1163,7 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 		{
 			TrackerGetTargetState(TRACKED_GUIDING_ID, &trackingInfo, &psfInfo, &residuals[0]);
 
+			latestImageStatus.TrkdGuidingIsLocated = trackingInfo.IsLocated;
 			latestImageStatus.TrkdGuidingXPos = trackingInfo.CenterXDouble;
 			latestImageStatus.TrkdGuidingYPos = trackingInfo.CenterYDouble;
 			latestImageStatus.TrkdGuidingFWHM = psfInfo.FWHM;

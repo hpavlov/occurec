@@ -558,6 +558,7 @@ namespace OccuRec
 			{
 				tbsAddTarget.Visible = true;
 				tsbAddGuidingStar.Visible = true;
+			    tbsAddTarget.Enabled = false;
 				tsSeparator2.Visible = true;
                 tsbCamControl.Enabled = CameraSupportsSoftwareControl();
 
@@ -600,6 +601,7 @@ namespace OccuRec
 					}
 				}
 
+                tbsAddTarget.Enabled = TrackingContext.Current.GuidingStar != null;
 #if DEBUG
 				if (!double.IsNaN(renderFps))
 				{
@@ -1532,8 +1534,6 @@ namespace OccuRec
         private void tsbAddGuidingStar_Click(object sender, EventArgs e)
         {
             m_VideoFrameInteractionController.ToggleSelectGuidingStar();
-
-	        tbsAddTarget.Enabled = TrackingContext.Current.GuidingStar != null;
         }
 
         private void tbsAddTarget_Click(object sender, EventArgs e)

@@ -31,10 +31,12 @@ struct ImageStatus
 	long OcrWorking;
 	long OcrErrorsSinceLastReset;
 	long UserIntegratonRateHint;
+	long TrkdTargetIsLocated;
 	float TrkdTargetXPos;
 	float TrkdTargetYPos;
 	float TrkdTargetFWHM;
 	float TrkdTargetMeasurement;
+	long TrkdGuidingIsLocated;
 	float TrkdGuidingXPos;
 	float TrkdGuidingYPos;
 	float TrkdGuidingFWHM;

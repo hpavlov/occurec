@@ -108,10 +108,12 @@ namespace OccuRec.Helpers
 		public int OcrWorking;
 		public int OcrErrorsSinceLastReset;
 	    public int UserIntegratonRateHint;
+        public int TrkdTargetIsLocated;
 		public float TrkdTargetXPos;
 		public float TrkdTargetYPos;
 		public float TrkdTargetFWHM;
 		public float TrkdTargetMeasurement;
+        public int TrkdGuidingIsLocated;
 		public float TrkdGuidingXPos;
 		public float TrkdGuidingYPos;
 		public float TrkdGuidingFWHM;
@@ -141,10 +143,12 @@ namespace OccuRec.Helpers
 		public int OcrWorking;
 		public int OcrErrorsSinceLastReset;
 	    public int UserIntegratonRateHint;
+        public int TrkdTargetIsLocated;
 		public float TrkdTargetXPos;
 		public float TrkdTargetYPos;
 		public float TrkdTargetFWHM;
 		public float TrkdTargetMeasurement;
+        public int TrkdGuidingIsLocated;
 		public float TrkdGuidingXPos;
 		public float TrkdGuidingYPos;
 		public float TrkdGuidingFWHM;
@@ -160,6 +164,16 @@ namespace OccuRec.Helpers
             rv.CurrentSignatureRatio = cloneFrom.CurrentSignatureRatio;
             rv.PerformedAction = cloneFrom.PerformedAction;
             rv.PerformedActionProgress = cloneFrom.PerformedActionProgress;
+            rv.TrkdGuidingXPos = cloneFrom.TrkdGuidingXPos;
+            rv.TrkdGuidingYPos = cloneFrom.TrkdGuidingYPos;
+            rv.TrkdGuidingFWHM = cloneFrom.TrkdGuidingFWHM;
+            rv.TrkdGuidingMeasurement = cloneFrom.TrkdGuidingMeasurement;
+            rv.TrkdTargetXPos = cloneFrom.TrkdTargetXPos;
+            rv.TrkdTargetYPos = cloneFrom.TrkdTargetYPos;
+            rv.TrkdTargetFWHM = cloneFrom.TrkdTargetFWHM;
+            rv.TrkdTargetMeasurement = cloneFrom.TrkdTargetMeasurement;
+            rv.TrkdTargetIsLocated = cloneFrom.TrkdTargetIsLocated;
+            rv.TrkdGuidingIsLocated = cloneFrom.TrkdGuidingIsLocated;
             return rv;
         }
 
@@ -189,6 +203,8 @@ namespace OccuRec.Helpers
 			TrkdTargetYPos = imgStatus.TrkdTargetYPos;
 			TrkdTargetFWHM = imgStatus.TrkdTargetFWHM;
 			TrkdTargetMeasurement = imgStatus.TrkdTargetMeasurement;
+            TrkdTargetIsLocated = imgStatus.TrkdTargetIsLocated;
+            TrkdGuidingIsLocated = imgStatus.TrkdGuidingIsLocated;
 		}
     };
 

@@ -334,20 +334,21 @@ namespace OccuRec.Tracking
 				Fit(intensity);
 		}
 
-#if WIN32
+	    private static bool FULLY_NATIVE_PSF_FIT = true;
+
 		public void Fit(uint[,] intensity)
         {
             try
             {
 	            if (FittingMethod == PSFFittingMethod.NonLinearFit)
 	            {
-					if (TangraConfig.Settings.Tuning.PsfMode == TangraConfig.PSFFittingMode.FullyNative)
+                    if (FULLY_NATIVE_PSF_FIT)
 						NonLinearFitNative(intensity);
 					else
-						NonLinearFit(intensity, TangraConfig.Settings.Tuning.PsfMode == TangraConfig.PSFFittingMode.NativeMatrixManagedFitting);
+						NonLinearFit(intensity, true);
 	            }
 	            else if (FittingMethod == PSFFittingMethod.NonLinearAsymetricFit)
-					NonLinearAsymetricFit(intensity, TangraConfig.Settings.Tuning.PsfMode == TangraConfig.PSFFittingMode.NativeMatrixManagedFitting);
+					NonLinearAsymetricFit(intensity, true);
 	            else if (FittingMethod == PSFFittingMethod.LinearFitOfAveragedModel)
 		            LinearFitOfAveragedModel(intensity);
             }
@@ -357,30 +358,6 @@ namespace OccuRec.Tracking
                 m_IsSolved = false;
             }
         }
-#else
-		// NOTE: Native PSF Fitting for now is not supported on non Windows Platforms
-
-		public void Fit(uint[,] intensity)
-		{
-			try
-			{
-				if (FittingMethod == PSFFittingMethod.NonLinearFit)
-				{
-					NonLinearFit(intensity, false);
-				}
-				else if (FittingMethod == PSFFittingMethod.NonLinearAsymetricFit)
-					NonLinearAsymetricFit(intensity, false);
-				else if (FittingMethod == PSFFittingMethod.LinearFitOfAveragedModel)
-					LinearFitOfAveragedModel(intensity);
-			}
-			catch (Exception)
-			{
-				// singular matrix, etc
-				m_IsSolved = false;
-			}
-		}
-
-#endif
 
 		private void NonLinearFitNative(uint[,] intensity)
 		{

@@ -107,6 +107,7 @@ namespace OccuRec.Helpers
 
 			if (TrackingContext.Current.IsTracking)
 			{
+			    Pen pen;
 				if (TrackingContext.Current.TargetStar != null)
 				{
 					float aperture = (float)TrackingContext.Current.TargetStarConfig.ApertureInPixels;
@@ -114,7 +115,9 @@ namespace OccuRec.Helpers
 					if (TrackingContext.Current.TargetStar.X > aperture && TrackingContext.Current.TargetStar.X < imageWidth - aperture &&
 						TrackingContext.Current.TargetStar.Y > aperture && TrackingContext.Current.TargetStar.Y < imageHeight - aperture)
 					{
-						g.DrawEllipse(TrackingContext.Current.TargetStarConfig.IsFixedAperture ? Pens.Fuchsia : Pens.Turquoise, TrackingContext.Current.TargetStar.X - aperture, TrackingContext.Current.TargetStar.Y - aperture, 2 * aperture, 2 * aperture);	
+					    pen = TrackingContext.Current.TargetStarConfig.IsFixedAperture ? Pens.Fuchsia : Pens.Turquoise;
+					    if (!TrackingContext.Current.GuidingStar.IsLocated) pen = Pens.DarkGray;
+						g.DrawEllipse(pen, TrackingContext.Current.TargetStar.X - aperture, TrackingContext.Current.TargetStar.Y - aperture, 2 * aperture, 2 * aperture);
 					}
 				}
 
@@ -126,7 +129,8 @@ namespace OccuRec.Helpers
 					if (TrackingContext.Current.GuidingStar.X > aperture && TrackingContext.Current.GuidingStar.X < imageWidth - aperture &&
 						TrackingContext.Current.GuidingStar.Y > aperture && TrackingContext.Current.GuidingStar.Y < imageHeight - aperture)
 					{
-						g.DrawEllipse(Pens.Lime, TrackingContext.Current.GuidingStar.X - aperture, TrackingContext.Current.GuidingStar.Y - aperture, 2 * aperture, 2 * aperture);
+					    pen = TrackingContext.Current.GuidingStar.IsLocated ? Pens.Lime : Pens.DarkGray;
+                        g.DrawEllipse(pen, TrackingContext.Current.GuidingStar.X - aperture, TrackingContext.Current.GuidingStar.Y - aperture, 2 * aperture, 2 * aperture);
 					} 
 				}
 			}
