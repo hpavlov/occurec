@@ -38,6 +38,8 @@
 			this.nudMaxFWHM = new System.Windows.Forms.NumericUpDown();
 			this.label1 = new System.Windows.Forms.Label();
 			this.nudMinFWHM = new System.Windows.Forms.NumericUpDown();
+			this.label2 = new System.Windows.Forms.Label();
+			this.cbxTrackingFrequency = new System.Windows.Forms.ComboBox();
 			((System.ComponentModel.ISupportInitialize)(this.nudDetectionCertainty)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxElongation)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxFWHM)).BeginInit();
@@ -189,10 +191,38 @@
             0,
             0});
 			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(18, 163);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(67, 13);
+			this.label2.TabIndex = 64;
+			this.label2.Text = "Track every ";
+			// 
+			// cbxTrackingFrequency
+			// 
+			this.cbxTrackingFrequency.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cbxTrackingFrequency.FormattingEnabled = true;
+			this.cbxTrackingFrequency.Items.AddRange(new object[] {
+            "frame",
+            "2-nd frame",
+            "3-rd frame",
+            "4-th frame",
+            "5-th frame",
+            "10-th frame",
+            "20-th frame"});
+			this.cbxTrackingFrequency.Location = new System.Drawing.Point(91, 160);
+			this.cbxTrackingFrequency.Name = "cbxTrackingFrequency";
+			this.cbxTrackingFrequency.Size = new System.Drawing.Size(96, 21);
+			this.cbxTrackingFrequency.TabIndex = 65;
+			// 
 			// ucTraking
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.cbxTrackingFrequency);
+			this.Controls.Add(this.label2);
 			this.Controls.Add(this.label8);
 			this.Controls.Add(this.nudDetectionCertainty);
 			this.Controls.Add(this.label7);
@@ -226,5 +256,7 @@
 		private System.Windows.Forms.NumericUpDown nudMaxFWHM;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.NumericUpDown nudMinFWHM;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.ComboBox cbxTrackingFrequency;
 	}
 }

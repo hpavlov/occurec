@@ -27,6 +27,10 @@ namespace OccuRec.Scheduling
 			nudSchHours.Value = datetime.Hour;
 			nudSchMinutes.Value = datetime.Minute;
 			nudSchSeconds.Value = datetime.Second;
+
+			nudMidHours.Value = datetime.Hour;
+			nudMidMins.Value = datetime.Minute;
+			nudMidSecs.Value = datetime.Second;
 		}
 
 		private DateTime GetTime()
@@ -48,31 +52,83 @@ namespace OccuRec.Scheduling
 			return dateTime;
 		}
 
+		private DateTime GetTimeFromMidTime()
+		{
+			DateTime dateTimeNow = Settings.Default.DisplayTimeInUT ? DateTime.UtcNow : DateTime.Now;
+			DateTime dateTime = dateTimeNow.Date;
+			dateTime = dateTime.AddHours((int)nudMidHours.Value);
+			dateTime = dateTime.AddMinutes((int)nudMidMins.Value);
+			dateTime = dateTime.AddSeconds((int)nudMidSecs.Value);
+
+			if (dateTimeNow > dateTime &&
+				new TimeSpan(dateTimeNow.Ticks - dateTime.Ticks).TotalHours > 1)
+			{
+				// Make sure operations scheduled 'after midnight' work correctly
+				// as long as they are not more than 23 hours in future
+				dateTime = dateTime.AddDays(1);
+			}
+
+			int wingInSecs = (int)nudWingsMinutes.Value * 60 + (int)nudWingsSeconds.Value;
+
+			return dateTime.AddSeconds(-1 * wingInSecs);
+		}
+
         private void button1_Click(object sender, EventArgs e)
         {
-	        DateTime scheduleTime = GetTime();
+			if (tcEntryType.SelectedTab == tabStartDuration)
+			{
+				ScheduleByStartDuration();
+			}
+			else if (tcEntryType.SelectedTab == tabMidTimeWings)
+			{
+				ScheduleByMidTimeWings();
+			}
+        }
+
+		private void ScheduleByStartDuration()
+		{
+			DateTime scheduleTime = GetTime();
 
 			if ((Settings.Default.DisplayTimeInUT && scheduleTime < DateTime.UtcNow) ||
 				(!Settings.Default.DisplayTimeInUT && scheduleTime < DateTime.Now))
-            {
-                MessageBox.Show("Start time must be in future");
-                nudSchSeconds.Focus();
-                return;
-            }
+			{
+				MessageBox.Show("Start time must be in future");
+				nudSchSeconds.Focus();
+				return;
+			}
 
 			int duration = (int)nudDurMinutes.Value * 60 + (int)nudDurSeconds.Value;
 
-            if (Settings.Default.DisplayTimeInUT)
+			if (Settings.Default.DisplayTimeInUT)
 				Scheduler.ScheduleRecording(scheduleTime.ToLocalTime(), duration);
-            else
+			else
 				Scheduler.ScheduleRecording(scheduleTime, duration);
 
-            DialogResult = DialogResult.OK;
-            Close();
-        }
+			DialogResult = DialogResult.OK;
+			Close();			
+		}
 
-		private void frmAddScheduleEntry_Load(object sender, EventArgs e)
+		private void ScheduleByMidTimeWings()
 		{
+			DateTime scheduleTime = GetTimeFromMidTime();
+
+			if ((Settings.Default.DisplayTimeInUT && scheduleTime < DateTime.UtcNow) ||
+				(!Settings.Default.DisplayTimeInUT && scheduleTime < DateTime.Now))
+			{
+				MessageBox.Show("Start time must be in future");
+				nudSchSeconds.Focus();
+				return;
+			}
+
+			int duration = 2 * ((int)nudWingsMinutes.Value * 60 + (int)nudWingsSeconds.Value);
+
+			if (Settings.Default.DisplayTimeInUT)
+				Scheduler.ScheduleRecording(scheduleTime.ToLocalTime(), duration);
+			else
+				Scheduler.ScheduleRecording(scheduleTime, duration);
+
+			DialogResult = DialogResult.OK;
+			Close();
 
 		}
     }

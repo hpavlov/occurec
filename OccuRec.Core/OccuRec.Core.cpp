@@ -19,6 +19,8 @@
 #include "OccuRec.Ocr.h"
 #include "OccuRec.IntegrationChecker.h"
 
+#include "simplified_tracking.h"
+
 using namespace OccuOcr;
 
 #define MEDIAN_CALC_ROWS_FROM 10
@@ -36,6 +38,10 @@ bool INTEGRATION_DETECTION_TUNING = false;
 
 
 bool OCR_IS_SETUP = false;
+bool RUN_TRACKING = false;
+long TRACKED_TARGET_ID = -1;
+long TRACKED_GUIDING_ID = -1;
+long TRACKING_FREQUENCY = 1;
 long OCR_FRAME_TOP_ODD;
 long OCR_FRAME_TOP_EVEN;
 long OCR_CHAR_WIDTH;
@@ -79,6 +85,7 @@ unsigned char* prtPreviousDiffArea = NULL;
 __int64 numberOfDiffSignaturesCalculated; 
 long numberOfIntegratedFrames;
 bool lastFrameWasNewIntegrationPeriod;
+bool trackedThisIntegrationPeriod = false;
 
 double* integratedPixels = NULL;
 
@@ -590,6 +597,15 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->OcrWorking = latestImageStatus.OcrWorking;
 	imageStatus->OcrErrorsSinceLastReset = latestImageStatus.OcrErrorsSinceLastReset;
 	imageStatus->UserIntegratonRateHint = latestImageStatus.UserIntegratonRateHint;
+
+	imageStatus->TrkdTargetXPos = latestImageStatus.TrkdTargetXPos;
+	imageStatus->TrkdTargetYPos = latestImageStatus.TrkdTargetYPos;
+	imageStatus->TrkdTargetFWHM = latestImageStatus.TrkdTargetFWHM;
+	imageStatus->TrkdTargetMeasurement = latestImageStatus.TrkdTargetMeasurement;
+	imageStatus->TrkdGuidingXPos = latestImageStatus.TrkdGuidingXPos;
+	imageStatus->TrkdGuidingYPos = latestImageStatus.TrkdGuidingYPos;
+	imageStatus->TrkdGuidingFWHM = latestImageStatus.TrkdGuidingFWHM;
+	imageStatus->TrkdGuidingMeasurement = latestImageStatus.TrkdGuidingMeasurement;
 
 	return S_OK;
 }
@@ -1114,6 +1130,53 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 	}
 }
 
+void HandleTracking(unsigned char* pixelsChar, long* pixels)
+{
+	if (RUN_TRACKING && 
+		idxFrameNumber % TRACKING_FREQUENCY == 0 &&
+		!trackedThisIntegrationPeriod)
+	{
+		// Run the tracking
+		if (NULL != pixelsChar)
+			TrackerNextFrame_int8(idxFrameNumber, pixelsChar);
+		else
+			TrackerNextFrame(idxFrameNumber, (unsigned long*)pixels);
+
+		// Update the status fields
+
+		NativeTrackedObjectInfo trackingInfo;
+		NativePsfFitInfo psfInfo;
+		double residuals[1024];
+
+		if (TRACKED_TARGET_ID > -1)
+		{
+			TrackerGetTargetState(0, &trackingInfo, &psfInfo, &residuals[0]);
+			latestImageStatus.TrkdTargetXPos = trackingInfo.CenterXDouble;
+			latestImageStatus.TrkdTargetYPos = trackingInfo.CenterYDouble;
+			latestImageStatus.TrkdTargetFWHM = psfInfo.FWHM;
+			latestImageStatus.TrkdTargetMeasurement = psfInfo.FWHM;
+		}
+		
+		if (TRACKED_GUIDING_ID > -1)
+		{
+			TrackerGetTargetState(TRACKED_GUIDING_ID, &trackingInfo, &psfInfo, &residuals[0]);
+
+			latestImageStatus.TrkdGuidingXPos = trackingInfo.CenterXDouble;
+			latestImageStatus.TrkdGuidingYPos = trackingInfo.CenterYDouble;
+			latestImageStatus.TrkdGuidingFWHM = psfInfo.FWHM;
+			latestImageStatus.TrkdGuidingMeasurement = psfInfo.FWHM;
+		}
+
+		trackedThisIntegrationPeriod = true;
+	}
+	else
+	{
+		// This is how we tell OccuRec that there is no tracking info in the ImageStatus
+		latestImageStatus.TrkdTargetFWHM = 0;
+		latestImageStatus.TrkdGuidingFWHM = 0;
+	}
+}
+
 HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
@@ -1190,6 +1253,10 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 c
 	frameInfo->IntegratedFrameNo = idxIntegratedFrameNumber;
 	frameInfo->IntegratedFramesSoFar = numberOfIntegratedFrames;
 
+	HandleTracking(NULL, pixels);
+
+	if (lastFrameWasNewIntegrationPeriod)
+		trackedThisIntegrationPeriod = false;
 	return S_OK;
 }
 
@@ -1223,6 +1290,7 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	long stride = 3 * IMAGE_WIDTH;
 	unsigned char* ptrPixelItt = rawFrame->BmpBits + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;
+	unsigned char* pixelsChar = ptrPixelItt;
 
 	double* ptrPixels = integratedPixels;
 
@@ -1282,6 +1350,11 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	idxLastFrameNumber = idxFrameNumber;
 	//idxLastFrameTimestamp = currentUtcDayAsTicks
+
+	HandleTracking(pixelsChar, NULL);
+
+	if (lastFrameWasNewIntegrationPeriod)
+		trackedThisIntegrationPeriod = false;
 }
 
 void ProcessBufferedVideoFrame()
@@ -1672,6 +1745,23 @@ HRESULT StartOcrTesting(LPCTSTR szFileName)
 HRESULT DisableOcrProcessing()
 {
 	OCR_IS_SETUP = false;
+
+	return S_OK;
+}
+
+HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency)
+{
+	RUN_TRACKING = true;
+	TRACKED_TARGET_ID = targetObjectId;
+	TRACKED_GUIDING_ID = guidingObjectId;
+	TRACKING_FREQUENCY = frequency;
+
+	return S_OK;
+}
+
+HRESULT DisableTracking()
+{
+	RUN_TRACKING = false;
 
 	return S_OK;
 }

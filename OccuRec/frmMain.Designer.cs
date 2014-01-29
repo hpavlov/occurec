@@ -131,7 +131,7 @@
 			// ttsProgressBar
 			// 
 			this.ttsProgressBar.Name = "ttsProgressBar";
-			this.ttsProgressBar.Size = new System.Drawing.Size(100, 18);
+			this.ttsProgressBar.Size = new System.Drawing.Size(100, 16);
 			this.ttsProgressBar.Step = 5;
 			this.ttsProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
 			this.ttsProgressBar.Visible = false;
@@ -689,8 +689,8 @@
             this.tsbConnectDisconnect,
             this.toolStripSeparator1,
             this.tsbCrosshair,
-            this.tbsAddTarget,
             this.tsbAddGuidingStar,
+            this.tbsAddTarget,
             this.tsSeparator2,
             this.tsbTelControl,
             this.toolStripSeparator5,
@@ -734,6 +734,7 @@
 			// tbsAddTarget
 			// 
 			this.tbsAddTarget.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.tbsAddTarget.Enabled = false;
 			this.tbsAddTarget.Image = ((System.Drawing.Image)(resources.GetObject("tbsAddTarget.Image")));
 			this.tbsAddTarget.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.tbsAddTarget.Name = "tbsAddTarget";

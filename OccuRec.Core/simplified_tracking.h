@@ -87,6 +87,7 @@ private:
 	unsigned long* m_AreaPixels;
 	
 	unsigned long* GetPixelsArea(unsigned long* pixels, long centerX, long centerY, long squareWidth);
+	unsigned long* GetPixelsAreaInt8(unsigned char* pixels, long centerX, long centerY, long squareWidth);
 	
 public:
 	SimplifiedTracker(long width, long height, long numTrackedObjects, bool isFullDisappearance);
@@ -96,6 +97,7 @@ public:
 	void UpdatePsfFittingMethod();
 	void InitialiseNewTracking();
 	void NextFrame(int frameNo, unsigned long* pixels);
+	void NextFrameInt8(int frameNo, unsigned char* pixels);
 	long TrackerGetTargetState(long objectId, NativeTrackedObjectInfo* trackingInfo, NativePsfFitInfo* psfInfo, double* residuals);
 	bool IsTrackedSuccessfully();
 };
@@ -104,5 +106,6 @@ HRESULT TrackerSettings(double maxElongation, double minFWHM, double maxFWHM, do
 HRESULT TrackerNewConfiguration(long width, long height, long numTrackedObjects, bool isFullDisappearance);
 HRESULT TrackerConfigureObject(long objectId, bool isFixedAperture, bool isOccultedStar, double startingX, double startingY, double apertureInPixels);
 HRESULT TrackerNextFrame(long frameId, unsigned long* pixels);
+HRESULT TrackerNextFrame_int8(long frameId, unsigned char* pixels);
 HRESULT TrackerGetTargetState(long objectId, NativeTrackedObjectInfo* trackingInfo, NativePsfFitInfo* psfInfo, double* residuals);
 HRESULT TrackerInitialiseNewTracking();

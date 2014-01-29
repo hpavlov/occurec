@@ -188,6 +188,7 @@
     <Compile Include="Tracking\PSFFit.cs" />
     <Compile Include="Tracking\SafeMatrix.cs" />
     <Compile Include="Tracking\TrackedObjectConfig.cs" />
+    <Compile Include="Tracking\TrackingContext.cs" />
     <Compile Include="Video\AstroDigitalVideoStream.cs" />
     <Compile Include="Video\AstroDigitalVideo\AdvFile.cs" />
     <Compile Include="Video\AstroDigitalVideo\AdvFramesIndex.cs" />

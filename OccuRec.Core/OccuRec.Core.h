@@ -31,6 +31,14 @@ struct ImageStatus
 	long OcrWorking;
 	long OcrErrorsSinceLastReset;
 	long UserIntegratonRateHint;
+	float TrkdTargetXPos;
+	float TrkdTargetYPos;
+	float TrkdTargetFWHM;
+	float TrkdTargetMeasurement;
+	float TrkdGuidingXPos;
+	float TrkdGuidingYPos;
+	float TrkdGuidingFWHM;
+	float TrkdGuidingMeasurement;
 };
 
 struct FrameProcessingStatus
@@ -96,3 +104,5 @@ HRESULT GetIntegrationCalibrationDataConfig(long* gammasLength, long* signatures
 HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas);
 HRESULT InitNewIntegrationPeriodTesting(float differenceRatio, float minimumDifference);
 HRESULT TestNewIntegrationPeriod(__int64 frameNo, float diffSignature, bool* isNew);
+HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency);
+HRESULT DisableTracking();

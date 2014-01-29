@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
 using OccuRec.Helpers;
+using OccuRec.Tracking;
 
 namespace OccuRec.Drivers.AAVTimer
 {
@@ -131,6 +132,11 @@ namespace OccuRec.Drivers.AAVTimer
 			if (cameraFrame.ImageStatus.UserIntegratonRateHint > 0)
 			{
 				rv.imageInfo += string.Format(";USRI:{0}", cameraFrame.ImageStatus.UserIntegratonRateHint);
+			}
+
+			if (TrackingContext.Current.IsTracking)
+			{
+				TrackingContext.Current.UpdateFromFrameStatus(cameraFrame.FrameNumber, cameraFrame.ImageStatus);
 			}
 			return rv;
 		}
