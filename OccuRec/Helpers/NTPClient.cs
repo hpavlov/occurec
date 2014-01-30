@@ -6,13 +6,14 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
 
 namespace OccuRec.Helpers
 {
     public class NTPClient
     {
         // http://stackoverflow.com/questions/1193955/how-to-query-an-ntp-server-using-c
-        public static DateTime GetNetworkTime(string ntpServer)
+        public static DateTime GetNetworkTime(string ntpServer, out float latencyInMilliseconds)
         {
             // NTP message size - 16 bytes of the digest (RFC 2030)
             var ntpData = new byte[48];
@@ -28,9 +29,17 @@ namespace OccuRec.Helpers
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
             socket.Connect(ipEndPoint);
-
+	        long startTicks = 0;
+			long endTicks = 0;
+			long clockFrequency = 0;
+			Profiler.QueryPerformanceFrequency(ref clockFrequency);
+			Profiler.QueryPerformanceCounter(ref startTicks);
             socket.Send(ntpData);
             socket.Receive(ntpData);
+			Profiler.QueryPerformanceCounter(ref endTicks);
+
+			latencyInMilliseconds = (endTicks - startTicks) * 1000.0f / clockFrequency;
+
             socket.Close();
 
             //Offset to get to the "Transmit Timestamp" field (time at which the reply 

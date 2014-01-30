@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Data;
 using System.Linq;
@@ -25,6 +26,11 @@ namespace OccuRec.Config.Panels
 		public override void SaveSettings()
 		{
 			Settings.Default.NTPServer = tbxNTPServer.Text;
+		}
+
+		private void llblFindNTP_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Process.Start("http://www.pool.ntp.org/en/");
 		}
 	}
 }

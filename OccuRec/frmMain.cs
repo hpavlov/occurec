@@ -874,7 +874,8 @@ namespace OccuRec
         {
             try
             {
-                DateTime networkUTCTime = NTPClient.GetNetworkTime(Settings.Default.NTPServer);
+	            float latencyInMilliseconds;
+				DateTime networkUTCTime = NTPClient.GetNetworkTime(Settings.Default.NTPServer, out latencyInMilliseconds);
                 NTPClient.SetTime(networkUTCTime);
             }
             catch (Exception ex)
