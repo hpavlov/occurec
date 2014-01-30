@@ -43,6 +43,8 @@ struct ImageStatus
 	float TrkdGuidingFWHM;
 	float TrkdGuidingMeasurement;
 	long TrkdGuidingHasSaturatedPixels;
+	double TrkdTargetResiduals[290];
+	double TrkdGuidingResiduals[290];
 };
 
 struct FrameProcessingStatus

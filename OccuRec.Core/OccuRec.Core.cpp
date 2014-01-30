@@ -624,6 +624,11 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->TrkdTargetHasSaturatedPixels = latestImageStatus.TrkdTargetHasSaturatedPixels;
 	imageStatus->TrkdGuidingHasSaturatedPixels = latestImageStatus.TrkdGuidingHasSaturatedPixels;
 
+	if (latestImageStatus.TrkdGuidingIsLocated)
+		memcpy(imageStatus->TrkdGuidingResiduals, latestImageStatus.TrkdGuidingResiduals, 289 * sizeof(double));
+	if (latestImageStatus.TrkdTargetIsLocated)
+		memcpy(imageStatus->TrkdTargetResiduals, &latestImageStatus.TrkdTargetResiduals, 289 * sizeof(double));
+
 	return S_OK;
 }
 
@@ -1170,7 +1175,7 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 
 		if (TRACKED_TARGET_ID > -1)
 		{
-			TrackerGetTargetState(0, &trackingInfo, &psfInfo, &residuals[0]);
+			TrackerGetTargetState(0, &trackingInfo, &psfInfo, &latestImageStatus.TrkdTargetResiduals[0]);
 
 			latestImageStatus.TrkdTargetIsLocated = trackingInfo.IsLocated;
 			latestImageStatus.TrkdTargetXPos = trackingInfo.CenterXDouble;
@@ -1183,12 +1188,12 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
 			
 			latestImageStatus.TrkdTargetMeasurement = totalReading;
-			latestImageStatus.TrkdTargetHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;
+			latestImageStatus.TrkdTargetHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;			
 		}
 		
 		if (TRACKED_GUIDING_ID > -1)
 		{
-			TrackerGetTargetState(TRACKED_GUIDING_ID, &trackingInfo, &psfInfo, &residuals[0]);
+			TrackerGetTargetState(TRACKED_GUIDING_ID, &trackingInfo, &psfInfo, &latestImageStatus.TrkdGuidingResiduals[0]);
 
 			latestImageStatus.TrkdGuidingIsLocated = trackingInfo.IsLocated;
 			latestImageStatus.TrkdGuidingXPos = trackingInfo.CenterXDouble;

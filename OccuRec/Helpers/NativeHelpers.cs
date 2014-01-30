@@ -120,6 +120,12 @@ namespace OccuRec.Helpers
 		public float TrkdGuidingFWHM;
 		public float TrkdGuidingMeasurement;
 		public int TrkdGuidingHasSaturatedPixels;
+
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 290)]
+		public double[] TrkdTargetResiduals;
+
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 290)]
+		public double[] TrkdGuidingResiduals;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -157,6 +163,12 @@ namespace OccuRec.Helpers
 		public float TrkdGuidingFWHM;
 		public float TrkdGuidingMeasurement;
 		public int TrkdGuidingHasSaturatedPixels;
+
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 290)]
+		public double[] TrkdTargetResiduals;
+
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 290)]
+		public double[] TrkdGuidingResiduals;
 		
 		public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
         {
@@ -180,6 +192,8 @@ namespace OccuRec.Helpers
             rv.TrkdGuidingIsLocated = cloneFrom.TrkdGuidingIsLocated;
 			rv.TrkdTargetHasSaturatedPixels = cloneFrom.TrkdTargetHasSaturatedPixels;
 			rv.TrkdGuidingHasSaturatedPixels = cloneFrom.TrkdGuidingHasSaturatedPixels;
+			rv.TrkdTargetResiduals = cloneFrom.TrkdTargetResiduals;
+			rv.TrkdGuidingResiduals = cloneFrom.TrkdGuidingResiduals;
             return rv;
         }
 
@@ -213,6 +227,8 @@ namespace OccuRec.Helpers
             TrkdGuidingIsLocated = imgStatus.TrkdGuidingIsLocated;
 			TrkdTargetHasSaturatedPixels = imgStatus.TrkdTargetHasSaturatedPixels;
 			TrkdGuidingHasSaturatedPixels = imgStatus.TrkdGuidingHasSaturatedPixels;
+			TrkdTargetResiduals = imgStatus.TrkdTargetResiduals;
+			TrkdGuidingResiduals = imgStatus.TrkdGuidingResiduals;
 		}
     };
 
@@ -507,6 +523,8 @@ namespace OccuRec.Helpers
         public static FrameProcessingStatus ProcessVideoFrame2(int[,] pixels)
         {
             var frameInfo = new FrameProcessingStatus();
+	        frameInfo.TrkdTargetResiduals = new double[290];
+			frameInfo.TrkdGuidingResiduals = new double[290];
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
@@ -519,6 +537,8 @@ namespace OccuRec.Helpers
         public static FrameProcessingStatus ProcessVideoFrame(IntPtr bitmapData)
         {
             var frameInfo = new FrameProcessingStatus();
+			frameInfo.TrkdTargetResiduals = new double[290];
+			frameInfo.TrkdGuidingResiduals = new double[290];
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
