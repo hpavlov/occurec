@@ -613,11 +613,11 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 
 	imageStatus->TrkdTargetXPos = latestImageStatus.TrkdTargetXPos;
 	imageStatus->TrkdTargetYPos = latestImageStatus.TrkdTargetYPos;
-	imageStatus->TrkdTargetFWHM = latestImageStatus.TrkdTargetFWHM;
+	imageStatus->TrkdTargetIsTracked = latestImageStatus.TrkdTargetIsTracked;
 	imageStatus->TrkdTargetMeasurement = latestImageStatus.TrkdTargetMeasurement;
 	imageStatus->TrkdGuidingXPos = latestImageStatus.TrkdGuidingXPos;
 	imageStatus->TrkdGuidingYPos = latestImageStatus.TrkdGuidingYPos;
-	imageStatus->TrkdGuidingFWHM = latestImageStatus.TrkdGuidingFWHM;
+	imageStatus->TrkdGuidingIsTracked = latestImageStatus.TrkdGuidingIsTracked;
 	imageStatus->TrkdGuidingMeasurement = latestImageStatus.TrkdGuidingMeasurement;
 	imageStatus->TrkdGuidingIsLocated = latestImageStatus.TrkdGuidingIsLocated;
 	imageStatus->TrkdTargetIsLocated = latestImageStatus.TrkdTargetIsLocated;
@@ -625,9 +625,15 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->TrkdGuidingHasSaturatedPixels = latestImageStatus.TrkdGuidingHasSaturatedPixels;
 
 	if (latestImageStatus.TrkdGuidingIsLocated)
+	{
 		memcpy(imageStatus->TrkdGuidingResiduals, latestImageStatus.TrkdGuidingResiduals, 289 * sizeof(double));
+		memcpy(&imageStatus->TrkdGuidingPsfInfo, &latestImageStatus.TrkdGuidingPsfInfo, sizeof(NativePsfFitInfo));
+	}
 	if (latestImageStatus.TrkdTargetIsLocated)
+	{
 		memcpy(imageStatus->TrkdTargetResiduals, &latestImageStatus.TrkdTargetResiduals, 289 * sizeof(double));
+		memcpy(&imageStatus->TrkdTargetPsfInfo, &latestImageStatus.TrkdTargetPsfInfo, sizeof(NativePsfFitInfo));
+	}
 
 	return S_OK;
 }
@@ -1167,7 +1173,6 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 		// Update the status fields
 
 		NativeTrackedObjectInfo trackingInfo;
-		NativePsfFitInfo psfInfo;
 		double residuals[1024];
 		float totalReading;
 		float totalPixels;
@@ -1175,12 +1180,12 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 
 		if (TRACKED_TARGET_ID > -1)
 		{
-			TrackerGetTargetState(0, &trackingInfo, &psfInfo, &latestImageStatus.TrkdTargetResiduals[0]);
+			TrackerGetTargetState(0, &trackingInfo, &latestImageStatus.TrkdTargetPsfInfo, &latestImageStatus.TrkdTargetResiduals[0]);
 
 			latestImageStatus.TrkdTargetIsLocated = trackingInfo.IsLocated;
 			latestImageStatus.TrkdTargetXPos = trackingInfo.CenterXDouble;
 			latestImageStatus.TrkdTargetYPos = trackingInfo.CenterYDouble;
-			latestImageStatus.TrkdTargetFWHM = psfInfo.FWHM;
+			latestImageStatus.TrkdTargetIsTracked = 1;
 
 			if (NULL != pixelsChar)
 				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
@@ -1193,12 +1198,12 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 		
 		if (TRACKED_GUIDING_ID > -1)
 		{
-			TrackerGetTargetState(TRACKED_GUIDING_ID, &trackingInfo, &psfInfo, &latestImageStatus.TrkdGuidingResiduals[0]);
+			TrackerGetTargetState(TRACKED_GUIDING_ID, &trackingInfo, &latestImageStatus.TrkdGuidingPsfInfo, &latestImageStatus.TrkdGuidingResiduals[0]);
 
 			latestImageStatus.TrkdGuidingIsLocated = trackingInfo.IsLocated;
 			latestImageStatus.TrkdGuidingXPos = trackingInfo.CenterXDouble;
 			latestImageStatus.TrkdGuidingYPos = trackingInfo.CenterYDouble;
-			latestImageStatus.TrkdGuidingFWHM = psfInfo.FWHM;
+			latestImageStatus.TrkdGuidingIsTracked = 1;
 
 			if (NULL != pixelsChar)
 				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
@@ -1214,8 +1219,8 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 	else
 	{
 		// This is how we tell OccuRec that there is no tracking info in the ImageStatus
-		latestImageStatus.TrkdTargetFWHM = 0;
-		latestImageStatus.TrkdGuidingFWHM = 0;
+		latestImageStatus.TrkdTargetIsTracked = 0;
+		latestImageStatus.TrkdGuidingIsTracked = 0;
 	}
 }
 

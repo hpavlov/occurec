@@ -132,8 +132,7 @@ namespace OccuRec.Helpers
 
 				if (TrackingContext.Current.GuidingStar != null)
 				{
-					// Variable aperture for guiding stars based on current FWHM
-					float aperture = (float)TrackingContext.Current.GuidingStar.FWHM * Settings.Default.TrackingApertureInFWHM;
+					float aperture = (float)TrackingContext.Current.GuidingStarConfig.ApertureInPixels;
 
 					if (TrackingContext.Current.GuidingStar.X > aperture && TrackingContext.Current.GuidingStar.X < imageWidth - aperture &&
 						TrackingContext.Current.GuidingStar.Y > aperture && TrackingContext.Current.GuidingStar.Y < imageHeight - aperture)
@@ -146,7 +145,10 @@ namespace OccuRec.Helpers
 							float apertureOuter = aperture + 2.5f;
 							g.DrawEllipse(Pens.Red, TrackingContext.Current.GuidingStar.X - apertureOuter, TrackingContext.Current.GuidingStar.Y - apertureOuter, 2 * apertureOuter, 2 * apertureOuter);
 						}
-					} 
+
+					}
+
+
 				}
 
 				analysisManager.DisplayData(g, imageWidth, imageHeight);

@@ -11,6 +11,7 @@
 #endif
 
 #include "OccuRec.Ocr.h"
+#include "simplified_tracking.h"
 
 using namespace OccuOcr;
 
@@ -34,15 +35,17 @@ struct ImageStatus
 	long TrkdTargetIsLocated;
 	float TrkdTargetXPos;
 	float TrkdTargetYPos;
-	float TrkdTargetFWHM;
+	long TrkdTargetIsTracked;
 	float TrkdTargetMeasurement;
 	long TrkdTargetHasSaturatedPixels;
 	long TrkdGuidingIsLocated;
 	float TrkdGuidingXPos;
 	float TrkdGuidingYPos;
-	float TrkdGuidingFWHM;
+	long TrkdGuidingIsTracked;
 	float TrkdGuidingMeasurement;
 	long TrkdGuidingHasSaturatedPixels;
+	NativePsfFitInfo TrkdTargetPsfInfo;
+	NativePsfFitInfo TrkdGuidingPsfInfo;
 	double TrkdTargetResiduals[290];
 	double TrkdGuidingResiduals[290];
 };

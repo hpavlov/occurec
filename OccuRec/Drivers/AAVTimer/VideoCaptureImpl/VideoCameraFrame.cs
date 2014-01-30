@@ -18,6 +18,6 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 
 		public VideoFrameLayout ImageLayout;
 
-	    public ImageStatus ImageStatus;
+		public ImageStatus ImageStatus;
 	}
 }

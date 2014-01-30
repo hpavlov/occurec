@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using OccuRec.OCR;
 using OccuRec.Properties;
+using OccuRec.Tracking;
 using OccuRec.Utilities;
 
 namespace OccuRec.Helpers
@@ -111,15 +112,19 @@ namespace OccuRec.Helpers
         public int TrkdTargetIsLocated;
 		public float TrkdTargetXPos;
 		public float TrkdTargetYPos;
-		public float TrkdTargetFWHM;
+		public int TrkdTargetIsTracked;
 		public float TrkdTargetMeasurement;
 	    public int TrkdTargetHasSaturatedPixels;
         public int TrkdGuidingIsLocated;
 		public float TrkdGuidingXPos;
 		public float TrkdGuidingYPos;
-		public float TrkdGuidingFWHM;
+		public int TrkdGuidingIsTracked;
 		public float TrkdGuidingMeasurement;
 		public int TrkdGuidingHasSaturatedPixels;
+
+		public NativePsfFitInfo TrkdTargetPsfInfo = new NativePsfFitInfo();
+
+		public NativePsfFitInfo TrkdGuidingPsfInfo = new NativePsfFitInfo();
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 290)]
 		public double[] TrkdTargetResiduals;
@@ -154,15 +159,18 @@ namespace OccuRec.Helpers
         public int TrkdTargetIsLocated;
 		public float TrkdTargetXPos;
 		public float TrkdTargetYPos;
-		public float TrkdTargetFWHM;
+		public int TrkdTargetIsTracked;
 		public float TrkdTargetMeasurement;
 	    public int TrkdTargetHasSaturatedPixels;
         public int TrkdGuidingIsLocated;
 		public float TrkdGuidingXPos;
 		public float TrkdGuidingYPos;
-		public float TrkdGuidingFWHM;
+		public int TrkdGuidingIsTracked;
 		public float TrkdGuidingMeasurement;
 		public int TrkdGuidingHasSaturatedPixels;
+
+		public NativePsfFitInfo TrkdTargetPsfInfo;
+		public NativePsfFitInfo TrkdGuidingPsfInfo;
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 290)]
 		public double[] TrkdTargetResiduals;
@@ -182,11 +190,11 @@ namespace OccuRec.Helpers
             rv.PerformedActionProgress = cloneFrom.PerformedActionProgress;
             rv.TrkdGuidingXPos = cloneFrom.TrkdGuidingXPos;
             rv.TrkdGuidingYPos = cloneFrom.TrkdGuidingYPos;
-            rv.TrkdGuidingFWHM = cloneFrom.TrkdGuidingFWHM;
+			rv.TrkdGuidingIsTracked = cloneFrom.TrkdGuidingIsTracked;
             rv.TrkdGuidingMeasurement = cloneFrom.TrkdGuidingMeasurement;
             rv.TrkdTargetXPos = cloneFrom.TrkdTargetXPos;
             rv.TrkdTargetYPos = cloneFrom.TrkdTargetYPos;
-            rv.TrkdTargetFWHM = cloneFrom.TrkdTargetFWHM;
+			rv.TrkdTargetIsTracked = cloneFrom.TrkdTargetIsTracked;
             rv.TrkdTargetMeasurement = cloneFrom.TrkdTargetMeasurement;
             rv.TrkdTargetIsLocated = cloneFrom.TrkdTargetIsLocated;
             rv.TrkdGuidingIsLocated = cloneFrom.TrkdGuidingIsLocated;
@@ -217,11 +225,11 @@ namespace OccuRec.Helpers
 			UserIntegratonRateHint = imgStatus.UserIntegratonRateHint;
 			TrkdGuidingXPos = imgStatus.TrkdGuidingXPos;
 			TrkdGuidingYPos = imgStatus.TrkdGuidingYPos;
-			TrkdGuidingFWHM = imgStatus.TrkdGuidingFWHM;
+			TrkdGuidingIsTracked = imgStatus.TrkdGuidingIsTracked;
 			TrkdGuidingMeasurement = imgStatus.TrkdGuidingMeasurement;
 			TrkdTargetXPos = imgStatus.TrkdTargetXPos;
 			TrkdTargetYPos = imgStatus.TrkdTargetYPos;
-			TrkdTargetFWHM = imgStatus.TrkdTargetFWHM;
+			TrkdTargetIsTracked = imgStatus.TrkdTargetIsTracked;
 			TrkdTargetMeasurement = imgStatus.TrkdTargetMeasurement;
             TrkdTargetIsLocated = imgStatus.TrkdTargetIsLocated;
             TrkdGuidingIsLocated = imgStatus.TrkdGuidingIsLocated;
@@ -229,6 +237,8 @@ namespace OccuRec.Helpers
 			TrkdGuidingHasSaturatedPixels = imgStatus.TrkdGuidingHasSaturatedPixels;
 			TrkdTargetResiduals = imgStatus.TrkdTargetResiduals;
 			TrkdGuidingResiduals = imgStatus.TrkdGuidingResiduals;
+			TrkdTargetPsfInfo = imgStatus.TrkdTargetPsfInfo;
+			TrkdGuidingPsfInfo = imgStatus.TrkdGuidingPsfInfo;
 		}
     };
 
@@ -525,6 +535,8 @@ namespace OccuRec.Helpers
             var frameInfo = new FrameProcessingStatus();
 	        frameInfo.TrkdTargetResiduals = new double[290];
 			frameInfo.TrkdGuidingResiduals = new double[290];
+			frameInfo.TrkdTargetPsfInfo = new NativePsfFitInfo();
+			frameInfo.TrkdGuidingPsfInfo = new NativePsfFitInfo();
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
@@ -539,6 +551,8 @@ namespace OccuRec.Helpers
             var frameInfo = new FrameProcessingStatus();
 			frameInfo.TrkdTargetResiduals = new double[290];
 			frameInfo.TrkdGuidingResiduals = new double[290];
+			frameInfo.TrkdTargetPsfInfo = new NativePsfFitInfo();
+			frameInfo.TrkdGuidingPsfInfo = new NativePsfFitInfo();
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 

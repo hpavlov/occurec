@@ -150,7 +150,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 
 		public bool GetCurrentFrame(out VideoCameraFrame cameraFrame)
 		{
-		    ImageStatus status;
+			ImageStatus status;
 			Bitmap bmp = dsCapture.GetNextFrame(out status);
 
 			if (bmp != null)

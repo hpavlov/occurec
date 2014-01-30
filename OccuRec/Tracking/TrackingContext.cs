@@ -161,7 +161,7 @@ namespace OccuRec.Tracking
 		{
 			bool updatedMade = false;
 
-			if (TrackedObjectId != -1 && status.TrkdTargetFWHM > 0)
+			if (TrackedObjectId != -1 && status.TrkdTargetIsTracked > 0)
 			{
 				bool isFixed = TargetStar.IsFixed;
                 bool isFullD = TargetStar.IsFullDisapearance;
@@ -170,7 +170,7 @@ namespace OccuRec.Tracking
 				{
 					X = status.TrkdTargetXPos,
 					Y = status.TrkdTargetYPos,
-					FWHM = status.TrkdTargetFWHM,
+					FWHM = status.TrkdTargetPsfInfo.FWHM,
 					IsLocated = status.TrkdTargetIsLocated > 0,
 					IsFixed = isFixed,
                     IsFullDisapearance = isFullD,
@@ -181,13 +181,13 @@ namespace OccuRec.Tracking
 				updatedMade = true;
 			}
 
-			if (GuidingObjectId != -1 && status.TrkdGuidingFWHM > 0)
+			if (GuidingObjectId != -1 && status.TrkdGuidingIsTracked > 0)
 			{
 				GuidingStar = new LastTrackedPosition()
 				{
 					X = status.TrkdGuidingXPos,
 					Y = status.TrkdGuidingYPos,
-					FWHM = status.TrkdGuidingFWHM,
+					FWHM = status.TrkdGuidingPsfInfo.FWHM,
 					IsLocated = status.TrkdGuidingIsLocated > 0,
 					IsFixed = false,
 					HasSaturatedPixels = status.TrkdGuidingHasSaturatedPixels > 0,
@@ -205,7 +205,7 @@ namespace OccuRec.Tracking
 		{
 			bool updatedMade = false;
 
-			if (TrackedObjectId != -1 && status.TrkdTargetFWHM > 0)
+			if (TrackedObjectId != -1 && status.TrkdTargetIsTracked > 0)
 			{
 				bool isFixed = TargetStar.IsFixed;
                 bool isFullD = TargetStar.IsFullDisapearance;
@@ -214,7 +214,7 @@ namespace OccuRec.Tracking
 				{
 					X = status.TrkdTargetXPos,
 					Y = status.TrkdTargetYPos,
-					FWHM = status.TrkdTargetFWHM,
+					FWHM = status.TrkdTargetPsfInfo.FWHM,
                     IsLocated = status.TrkdTargetIsLocated > 0,
 					IsFixed = isFixed,
                     IsFullDisapearance = isFullD,
@@ -225,13 +225,13 @@ namespace OccuRec.Tracking
 				updatedMade = true;
 			}
 
-			if (GuidingObjectId != -1 && status.TrkdGuidingFWHM > 0)
+			if (GuidingObjectId != -1 && status.TrkdGuidingIsTracked > 0)
 			{
 				GuidingStar = new LastTrackedPosition()
 				{
 					X = status.TrkdGuidingXPos,
 					Y = status.TrkdGuidingYPos,
-					FWHM = status.TrkdGuidingFWHM,
+					FWHM = status.TrkdGuidingPsfInfo.FWHM,
                     IsLocated = status.TrkdGuidingIsLocated > 0,
 					IsFixed = false,
 					HasSaturatedPixels = status.TrkdGuidingHasSaturatedPixels > 0,
