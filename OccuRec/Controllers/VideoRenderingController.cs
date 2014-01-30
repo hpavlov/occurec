@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using OccuRec.Drivers;
+using OccuRec.FrameAnalysis;
 using OccuRec.Helpers;
 using OccuRec.StateManagement;
 using OccuRec.Tracking;
@@ -30,11 +31,13 @@ namespace OccuRec.Controllers
         private int imageHeight;
         private VideoWrapper videoObject;
         private CameraStateManager stateManager;
+	    private FrameAnalysisManager analysisManager;
 
-        public VideoRenderingController(frmMain mainForm, CameraStateManager stateManager)
+		public VideoRenderingController(frmMain mainForm, CameraStateManager stateManager, FrameAnalysisManager analysisManager)
         {
             m_MainForm = mainForm;
             this.stateManager = stateManager;
+			this.analysisManager = analysisManager;
 
             running = true;
             previewOn = true;
@@ -104,6 +107,7 @@ namespace OccuRec.Controllers
                             if (frameWrapper.UniqueFrameId == -1 || frameWrapper.UniqueFrameId != lastDisplayedVideoFrameNumber)
                             {
                                 stateManager.ProcessFrame(frameWrapper);
+								analysisManager.ProcessFrame(frameWrapper);
 
                                 lastDisplayedVideoFrameNumber = frameWrapper.UniqueFrameId;
 

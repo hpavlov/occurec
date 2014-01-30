@@ -22,6 +22,7 @@ using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Config;
 using OccuRec.Controllers;
 using OccuRec.Drivers;
+using OccuRec.FrameAnalysis;
 using OccuRec.Helpers;
 using OccuRec.OCR;
 using OccuRec.Properties;
@@ -42,6 +43,7 @@ namespace OccuRec
 		private int framesBeforeUpdatingCameraVideoFormat = -1;
 
 	    private CameraStateManager stateManager;
+	    private FrameAnalysisManager m_AnalysisManager;
 	    private string appVersion;
 	    private ObservatoryController observatoryController;
 	    private OverlayManager overlayManager = null;
@@ -59,7 +61,9 @@ namespace OccuRec
 		    stateManager = new CameraStateManager();
             stateManager.CameraDisconnected();
 
-            m_VideoRenderingController = new VideoRenderingController(this, stateManager);
+			m_AnalysisManager = new FrameAnalysisManager();
+
+			m_VideoRenderingController = new VideoRenderingController(this, stateManager, m_AnalysisManager);
             m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
 
 		    observatoryController = new ObservatoryController(this, this);
@@ -175,7 +179,7 @@ namespace OccuRec
 					tssIntegrationRate.Visible = Settings.Default.IsIntegrating && Settings.Default.FileFormat == "AAV";
 					pnlAAV.Visible = Settings.Default.FileFormat == "AAV";
 
-					overlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages);
+					overlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager);
 				}
 
                 stateManager.CameraConnected(driverInstance, overlayManager, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");

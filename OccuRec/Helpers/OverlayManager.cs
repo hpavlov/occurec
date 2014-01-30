@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using OccuRec.FrameAnalysis;
 using OccuRec.Properties;
 using OccuRec.Tracking;
 
@@ -24,14 +25,16 @@ namespace OccuRec.Helpers
 	    private int framesWithoutTimestams;
 
 	    private OverlayState overlayState;
+	    private FrameAnalysisManager analysisManager;
 
         private object syncRoot = new object();
 
-        public OverlayManager(int width, int height, List<string> initializationErrorMessages)
+		public OverlayManager(int width, int height, List<string> initializationErrorMessages, FrameAnalysisManager analysisManager)
         {
             imageWidth = width;
             imageHeight = height;
             currentOcrStamp = null;
+			this.analysisManager = analysisManager;
 
             foreach (string message in initializationErrorMessages)
                 errorMessagesQueue.Enqueue(message);
@@ -145,6 +148,8 @@ namespace OccuRec.Helpers
 						}
 					} 
 				}
+
+				analysisManager.DisplayData(g, imageWidth, imageHeight);
 			}
         }
 

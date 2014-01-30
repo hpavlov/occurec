@@ -123,6 +123,8 @@
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
     <Compile Include="Drivers\AVISimulator\Video.cs" />
     <Compile Include="Drivers\BasicVideoFrame.cs" />
+    <Compile Include="FrameAnalysis\FrameAnalysisManager.cs" />
+    <Compile Include="FrameAnalysis\TargetSignalMonitor.cs" />
     <Compile Include="frmChooseManualIntegrationRate.cs">
       <SubType>Form</SubType>
     </Compile>
