@@ -108,5 +108,5 @@ HRESULT GetIntegrationCalibrationDataConfig(long* gammasLength, long* signatures
 HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas);
 HRESULT InitNewIntegrationPeriodTesting(float differenceRatio, float minimumDifference);
 HRESULT TestNewIntegrationPeriod(__int64 frameNo, float diffSignature, bool* isNew);
-HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency, float targetAperture, float guidingAperture);
+HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency, float targetAperture, float guidingAperture, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture);
 HRESULT DisableTracking();

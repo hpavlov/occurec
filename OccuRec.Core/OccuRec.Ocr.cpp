@@ -403,8 +403,9 @@ void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 {
 	if (m_MedianComputationValues.size() > 0)
 	{
-		std::sort(m_MedianComputationValues.begin(), m_MedianComputationValues.end());
-		long medianValue = m_MedianComputationValues[m_MedianComputationValues.size() / 2];
+		size_t n = m_MedianComputationValues.size() / 2;
+		std::nth_element(m_MedianComputationValues.begin(), m_MedianComputationValues.begin()+n, m_MedianComputationValues.end());
+		long medianValue = m_MedianComputationValues[n];
 
 		int position = 0;
 		map<char,  CharRecognizer*>::iterator itCharProc = OddFieldChars.begin();

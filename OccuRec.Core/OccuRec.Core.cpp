@@ -45,6 +45,8 @@ long TRACKED_GUIDING_ID = -1;
 long TRACKING_FREQUENCY = 1;
 float TRACKED_TARGET_APERTURE = 10;
 float TRACKED_GUIDING_APERTURE = 10;
+float TRACKING_BG_INNER_RADIUS = 2;
+long TRACKING_BG_MIN_NUM_PIXELS = 200;
 long OCR_FRAME_TOP_ODD;
 long OCR_FRAME_TOP_EVEN;
 long OCR_CHAR_WIDTH;
@@ -1168,9 +1170,9 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 			latestImageStatus.TrkdTargetFWHM = psfInfo.FWHM;
 
 			if (NULL != pixelsChar)
-				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, &totalPixels, &hasSaturatedPixels);
+				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
 			else
-				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, &totalPixels, &hasSaturatedPixels);
+				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
 			
 			latestImageStatus.TrkdTargetMeasurement = totalReading;
 			latestImageStatus.TrkdTargetHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;
@@ -1186,9 +1188,9 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 			latestImageStatus.TrkdGuidingFWHM = psfInfo.FWHM;
 
 			if (NULL != pixelsChar)
-				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, &totalPixels, &hasSaturatedPixels);
+				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
 			else
-				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, &totalPixels, &hasSaturatedPixels);
+				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
 			
 			latestImageStatus.TrkdGuidingMeasurement = totalReading;
 			latestImageStatus.TrkdGuidingHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;
@@ -1776,7 +1778,7 @@ HRESULT DisableOcrProcessing()
 	return S_OK;
 }
 
-HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency, float targetAperture, float guidingAperture)
+HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency, float targetAperture, float guidingAperture, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture)
 {
 	RUN_TRACKING = true;
 	TRACKED_TARGET_ID = targetObjectId;
@@ -1784,6 +1786,9 @@ HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency
 	TRACKING_FREQUENCY = frequency;
 	TRACKED_TARGET_APERTURE = targetAperture;
 	TRACKED_GUIDING_APERTURE = guidingAperture;
+
+	TRACKING_BG_INNER_RADIUS = innerRadiusOfBackgroundApertureInSignalApertures;
+	TRACKING_BG_MIN_NUM_PIXELS = numberOfPixelsInBackgroundAperture;
 
 	return S_OK;
 }

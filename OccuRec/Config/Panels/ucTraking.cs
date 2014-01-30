@@ -32,6 +32,8 @@ namespace OccuRec.Config.Panels
 			nudApertureInFWHM.SetNUDValue((double)Settings.Default.TrackingApertureInFWHM);
 			nudMinCertGuidingStar.SetNUDValue((double)Settings.Default.TrackingMinGuidingCertainty);
 			nudMinCertFixedObject.SetNUDValue((double)Settings.Default.TrackingMinForcedFixedObjCertainty);
+			nudInnerAnulusInApertures.SetNUDValue((double)Settings.Default.TrackingInnerRadiusOfAnnulus);
+			nudMinimumAnulusPixels.SetNUDValue((decimal)Settings.Default.TrackingMinNumberPixelsInAnnulus);
 		}
 
 		public override void SaveSettings()
@@ -47,6 +49,8 @@ namespace OccuRec.Config.Panels
 			Settings.Default.TrackingApertureInFWHM = (float)nudApertureInFWHM.Value;
 			Settings.Default.TrackingMinGuidingCertainty = (float)nudMinCertGuidingStar.Value;
 			Settings.Default.TrackingMinForcedFixedObjCertainty = (float)nudMinCertFixedObject.Value;
+			Settings.Default.TrackingInnerRadiusOfAnnulus = (float)nudInnerAnulusInApertures.Value;
+			Settings.Default.TrackingMinNumberPixelsInAnnulus = (int) nudMinimumAnulusPixels.Value;
 		}
 
 		private void cbxTestPSFElongation_CheckedChanged(object sender, EventArgs e)

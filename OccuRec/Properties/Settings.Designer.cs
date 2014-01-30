@@ -814,5 +814,29 @@ namespace OccuRec.Properties {
                 this["TrackingApertureInFWHM"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public float TrackingInnerRadiusOfAnnulus {
+            get {
+                return ((float)(this["TrackingInnerRadiusOfAnnulus"]));
+            }
+            set {
+                this["TrackingInnerRadiusOfAnnulus"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("350")]
+        public int TrackingMinNumberPixelsInAnnulus {
+            get {
+                return ((int)(this["TrackingMinNumberPixelsInAnnulus"]));
+            }
+            set {
+                this["TrackingMinNumberPixelsInAnnulus"] = value;
+            }
+        }
     }
 }

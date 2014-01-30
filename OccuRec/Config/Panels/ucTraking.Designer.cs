@@ -47,6 +47,11 @@
 			this.label9 = new System.Windows.Forms.Label();
 			this.nudApertureInFWHM = new System.Windows.Forms.NumericUpDown();
 			this.label10 = new System.Windows.Forms.Label();
+			this.nudInnerAnulusInApertures = new System.Windows.Forms.NumericUpDown();
+			this.nudMinimumAnulusPixels = new System.Windows.Forms.NumericUpDown();
+			this.label11 = new System.Windows.Forms.Label();
+			this.label12 = new System.Windows.Forms.Label();
+			this.label13 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.nudDetectionCertainty)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxElongation)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxFWHM)).BeginInit();
@@ -54,6 +59,8 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudMinCertGuidingStar)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMinCertFixedObject)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudApertureInFWHM)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudInnerAnulusInApertures)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudMinimumAnulusPixels)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// label8
@@ -332,10 +339,62 @@
 			this.label10.TabIndex = 72;
 			this.label10.Text = "FWHM";
 			// 
+			// nudInnerAnulusInApertures
+			// 
+			this.nudInnerAnulusInApertures.DecimalPlaces = 1;
+			this.nudInnerAnulusInApertures.Location = new System.Drawing.Point(204, 193);
+			this.nudInnerAnulusInApertures.Name = "nudInnerAnulusInApertures";
+			this.nudInnerAnulusInApertures.Size = new System.Drawing.Size(47, 20);
+			this.nudInnerAnulusInApertures.TabIndex = 77;
+			// 
+			// nudMinimumAnulusPixels
+			// 
+			this.nudMinimumAnulusPixels.Location = new System.Drawing.Point(204, 225);
+			this.nudMinimumAnulusPixels.Maximum = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+			this.nudMinimumAnulusPixels.Name = "nudMinimumAnulusPixels";
+			this.nudMinimumAnulusPixels.Size = new System.Drawing.Size(47, 20);
+			this.nudMinimumAnulusPixels.TabIndex = 76;
+			// 
+			// label11
+			// 
+			this.label11.AutoSize = true;
+			this.label11.Location = new System.Drawing.Point(54, 228);
+			this.label11.Name = "label11";
+			this.label11.Size = new System.Drawing.Size(144, 13);
+			this.label11.TabIndex = 75;
+			this.label11.Text = "Pixels in Background Anulus:";
+			// 
+			// label12
+			// 
+			this.label12.AutoSize = true;
+			this.label12.Location = new System.Drawing.Point(260, 196);
+			this.label12.Name = "label12";
+			this.label12.Size = new System.Drawing.Size(81, 13);
+			this.label12.TabIndex = 74;
+			this.label12.Text = "signal apertures";
+			// 
+			// label13
+			// 
+			this.label13.AutoSize = true;
+			this.label13.Location = new System.Drawing.Point(20, 195);
+			this.label13.Name = "label13";
+			this.label13.Size = new System.Drawing.Size(178, 13);
+			this.label13.TabIndex = 73;
+			this.label13.Text = "Inner Radius of Background Anulus:";
+			// 
 			// ucTraking
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.nudInnerAnulusInApertures);
+			this.Controls.Add(this.nudMinimumAnulusPixels);
+			this.Controls.Add(this.label11);
+			this.Controls.Add(this.label12);
+			this.Controls.Add(this.label13);
 			this.Controls.Add(this.label10);
 			this.Controls.Add(this.label9);
 			this.Controls.Add(this.nudApertureInFWHM);
@@ -356,7 +415,7 @@
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.nudMinFWHM);
 			this.Name = "ucTraking";
-			this.Size = new System.Drawing.Size(460, 217);
+			this.Size = new System.Drawing.Size(460, 271);
 			((System.ComponentModel.ISupportInitialize)(this.nudDetectionCertainty)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxElongation)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxFWHM)).EndInit();
@@ -364,6 +423,8 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudMinCertGuidingStar)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMinCertFixedObject)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudApertureInFWHM)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudInnerAnulusInApertures)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudMinimumAnulusPixels)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -390,5 +451,10 @@
 		private System.Windows.Forms.Label label9;
 		private System.Windows.Forms.NumericUpDown nudApertureInFWHM;
 		private System.Windows.Forms.Label label10;
+		private System.Windows.Forms.NumericUpDown nudInnerAnulusInApertures;
+		private System.Windows.Forms.NumericUpDown nudMinimumAnulusPixels;
+		private System.Windows.Forms.Label label11;
+		private System.Windows.Forms.Label label12;
+		private System.Windows.Forms.Label label13;
 	}
 }

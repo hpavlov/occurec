@@ -119,7 +119,8 @@ namespace OccuRec.Tracking
 
 			NativeHelpers.StartTracking(TrackedObjectId, GuidingObjectId, frequency,
 				TargetStarConfig != null ? (float)TargetStarConfig.ApertureInPixels : 0,
-				GuidingStarConfig != null ? (float)GuidingStarConfig.ApertureInPixels : 0);
+				GuidingStarConfig != null ? (float)GuidingStarConfig.ApertureInPixels : 0,
+				Settings.Default.TrackingInnerRadiusOfAnnulus, Settings.Default.TrackingMinNumberPixelsInAnnulus);
 
 			IsTracking = true;
 		}

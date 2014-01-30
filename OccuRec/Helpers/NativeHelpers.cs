@@ -335,7 +335,7 @@ namespace OccuRec.Helpers
         private static extern int DisableOcrProcessing();
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int EnableTracking(int targetObjectId, int guidingObjectId, int frequency, float targetAperture, float guidingAperture);
+		private static extern int EnableTracking(int targetObjectId, int guidingObjectId, int frequency, float targetAperture, float guidingAperture, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int DisableTracking();
@@ -663,9 +663,9 @@ namespace OccuRec.Helpers
 			DisableTracking();
 		}
 
-		public static void StartTracking(int targetObjectId, int guidingObjectId, int frequency, float targetAperture, float guidingAperture)
+		public static void StartTracking(int targetObjectId, int guidingObjectId, int frequency, float targetAperture, float guidingAperture, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture)
 		{
-			EnableTracking(targetObjectId, guidingObjectId, frequency, targetAperture, guidingAperture);
+			EnableTracking(targetObjectId, guidingObjectId, frequency, targetAperture, guidingAperture, innerRadiusOfBackgroundApertureInSignalApertures, numberOfPixelsInBackgroundAperture);
 		}
 
         public static Bitmap GetCurrentImage(out ImageStatus status)

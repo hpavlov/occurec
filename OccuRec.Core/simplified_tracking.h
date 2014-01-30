@@ -112,10 +112,10 @@ HRESULT TrackerInitialiseNewTracking();
 
 float MeasureObjectUsingAperturePhotometry(
 	unsigned long* data, float aperture, 
-	long nWidth, long nHeight, float x0, float y0, unsigned long saturationValue,
+	long nWidth, long nHeight, float x0, float y0, unsigned long saturationValue, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture,
 	float* totalPixels, bool* hasSaturatedPixels);
 
 float MeasureObjectUsingAperturePhotometry_int8(
 	unsigned char* data, float aperture, 
-	long nWidth, long nHeight, float x0, float y0, unsigned char saturationValue,
+	long nWidth, long nHeight, float x0, float y0, unsigned char saturationValue, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture,
 	float* totalPixels, bool* hasSaturatedPixels);

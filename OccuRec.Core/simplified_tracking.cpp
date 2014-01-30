@@ -3,7 +3,16 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "psf_fit.h"
+
+#define _USE_MATH_DEFINES
 #include "math.h"
+
+#include <vector>
+#include <map>
+#include <algorithm>
+
+using namespace std;
+
 
 static double MAX_ELONGATION;
 static double MIN_FWHM;
@@ -549,12 +558,16 @@ HRESULT TrackerNextFrame_int8(long frameId, unsigned char* pixels)
 
 float MeasureObjectUsingAperturePhotometry(
 	unsigned long* data, float aperture, 
-	long nWidth, long nHeight, float x0, float y0, unsigned long saturationValue,
+	long nWidth, long nHeight, float x0, float y0, unsigned long saturationValue, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture,
 	float* totalPixels, bool* hasSaturatedPixels)
 {
     float totalReading = 0;
     *totalPixels = 0;
 	*hasSaturatedPixels = false;
+	vector<unsigned long> allBackgroundReadings;
+
+	float innerRadius = (float)(innerRadiusOfBackgroundApertureInSignalApertures * aperture);
+    float outernRadius = (float)sqrt(numberOfPixelsInBackgroundAperture/M_PI + innerRadius * innerRadius);
 
     for (int x = 0; x < nWidth; x++)
 	{
@@ -592,20 +605,34 @@ float MeasureObjectUsingAperturePhotometry(
 
                 *totalPixels += subpixels;
             }
+
+			if (dist >= innerRadius && dist <= outernRadius)
+            {
+                unsigned long reading = *(data + x + nWidth* y);
+				allBackgroundReadings.push_back(reading);
+            }
         }
 	}
 
-	return totalReading;
+	size_t n = allBackgroundReadings.size() / 2;
+	std::nth_element(allBackgroundReadings.begin(), allBackgroundReadings.begin()+n, allBackgroundReadings.end());
+	long medianBackground = allBackgroundReadings[n];
+
+	return totalReading - (medianBackground *  *totalPixels);
 }
 
 float MeasureObjectUsingAperturePhotometry_int8(
 	unsigned char* data, float aperture, 
-	long nWidth, long nHeight, float x0, float y0, unsigned char saturationValue,
+	long nWidth, long nHeight, float x0, float y0, unsigned char saturationValue, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture,
 	float* totalPixels, bool* hasSaturatedPixels)
 {
     float totalReading = 0;
     *totalPixels = 0;
 	*hasSaturatedPixels = false;
+	vector<unsigned char> allBackgroundReadings;
+
+	float innerRadius = (float)(innerRadiusOfBackgroundApertureInSignalApertures * aperture);
+    float outernRadius = (float)sqrt(numberOfPixelsInBackgroundAperture/M_PI + innerRadius * innerRadius);
 
     for (int x = 0; x < nWidth; x++)
 	{
@@ -643,10 +670,20 @@ float MeasureObjectUsingAperturePhotometry_int8(
 
                 *totalPixels += subpixels;
             }
+
+			if (dist >= innerRadius && dist <= outernRadius)
+            {
+                unsigned char reading = *(data + x + nWidth* y);
+				allBackgroundReadings.push_back(reading);
+            }
         }
 	}
 
-	return totalReading;
+	size_t n = allBackgroundReadings.size() / 2;
+	std::nth_element(allBackgroundReadings.begin(), allBackgroundReadings.begin()+n, allBackgroundReadings.end());
+	unsigned char medianBackground = allBackgroundReadings[n];
+
+	return totalReading - (medianBackground *  *totalPixels);
 }
 
 
