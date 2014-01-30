@@ -22,9 +22,15 @@ namespace OccuRec.FrameAnalysis
 		private object m_SyncLock = new object();
 		private Bitmap m_BufferImage;
 
+		private Bitmap m_PsfBitmap;
+		private Rectangle m_PsfBitmapRect;
+
 		public TargetSignalMonitor()
 		{
 			m_BufferImage = new Bitmap(204, 54, PixelFormat.Format32bppRgb);
+
+			m_PsfBitmap = new Bitmap(100, 100, PixelFormat.Format32bppRgb);
+			m_PsfBitmapRect = new Rectangle(0, 0, m_PsfBitmap.Width, m_PsfBitmap.Height);
 		}
 
 		public void ProcessFrame(VideoFrameWrapper frame)
@@ -73,7 +79,7 @@ namespace OccuRec.FrameAnalysis
 
 					using (Graphics gBuff = Graphics.FromImage(m_BufferImage))
 					{
-						gBuff.Clear(Color.DimGray);
+						gBuff.Clear(Color.Gray);
 						gBuff.DrawRectangle(Pens.Blue, 0, 0, 203, 53);
 
 						if (!float.IsNaN(scaleY) && !float.IsInfinity(scaleY))
@@ -95,7 +101,19 @@ namespace OccuRec.FrameAnalysis
 					g.DrawImage(m_BufferImage, imageWidth - 209, 5);
 					
 				}
-			}			
+			}
+
+			if (TrackingContext.Current.TargetStar != null &&
+				TrackingContext.Current.TargetStar.IsLocated)
+			{
+				using (Graphics gPsf = Graphics.FromImage(m_PsfBitmap))
+				{
+					TrackingContext.Current.TargetStar.PsfFit.DrawGraph(gPsf, m_PsfBitmapRect, TrackingContext.Current.TargetStar.Bpp);
+					gPsf.Save();
+				}
+
+				g.DrawImage(m_PsfBitmap, imageWidth - 5 - m_PsfBitmapRect.Width, 54 + 5 + 5);
+			}
 		}
 	}
 }

@@ -53,6 +53,13 @@ namespace OccuRec.Controllers
             }
         }
 
+	    private int m_Bpp;
+
+		internal void OnNewVideoSource(VideoWrapper videWrapper)
+		{
+			m_Bpp = int.Parse(videWrapper.CameraBitDepth);
+		}
+
         private void SetupSelectedObjectInNonUIThread(object state)
         {
             // We need to do this on a non UI thread so we can block the thread waiting for the current image to be provided
@@ -90,7 +97,7 @@ namespace OccuRec.Controllers
 				psfFit.Fit(areaPixels);
 				if (psfFit.IsSolved && psfFit.Certainty > Settings.Default.TrackingMinGuidingCertainty)
 				{
-					TrackingContext.Current.GuidingStar = new LastTrackedPosition()
+					TrackingContext.Current.GuidingStar = new LastTrackedPosition(m_Bpp)
 					{
 						FWHM = (float)psfFit.FWHM,
 						X = (float)psfFit.XCenter,
@@ -124,7 +131,7 @@ namespace OccuRec.Controllers
 				PSFFit psfFit = new PSFFit(location.X, location.Y);
 				psfFit.Fit(areaPixels);
 
-				TrackingContext.Current.TargetStar = new LastTrackedPosition()
+				TrackingContext.Current.TargetStar = new LastTrackedPosition(m_Bpp)
 				{
 					FWHM = (float)psfFit.FWHM,
 					X = (float)psfFit.XCenter,

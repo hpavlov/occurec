@@ -20,6 +20,7 @@ namespace OccuRec.Tracking
 
 	internal class LastTrackedPosition
 	{
+		public readonly int Bpp;
 		public float X;
 		public float Y;
 		public float FWHM;
@@ -28,6 +29,14 @@ namespace OccuRec.Tracking
         public bool IsLocated;
 		public bool HasSaturatedPixels;
 		public float Measurement;
+
+		public NativeTrackedObjectPsfFit PsfFit;
+
+		public LastTrackedPosition(int bpp)
+		{
+			Bpp = bpp;
+			PsfFit = new NativeTrackedObjectPsfFit(bpp);
+		}
 	}
 
 	internal class TrackingContext
@@ -163,36 +172,26 @@ namespace OccuRec.Tracking
 
 			if (TrackedObjectId != -1 && status.TrkdTargetIsTracked > 0)
 			{
-				bool isFixed = TargetStar.IsFixed;
-                bool isFullD = TargetStar.IsFullDisapearance;
-
-				TargetStar = new LastTrackedPosition()
-				{
-					X = status.TrkdTargetXPos,
-					Y = status.TrkdTargetYPos,
-					FWHM = status.TrkdTargetPsfInfo.FWHM,
-					IsLocated = status.TrkdTargetIsLocated > 0,
-					IsFixed = isFixed,
-                    IsFullDisapearance = isFullD,
-					HasSaturatedPixels = status.TrkdTargetHasSaturatedPixels > 0,
-					Measurement = status.TrkdTargetMeasurement,
-				};
+				TargetStar.X = status.TrkdTargetXPos;
+				TargetStar.Y = status.TrkdTargetYPos;
+				TargetStar.FWHM = status.TrkdTargetPsfInfo.FWHM;
+				TargetStar.IsLocated = status.TrkdTargetIsLocated > 0;
+				TargetStar.HasSaturatedPixels = status.TrkdTargetHasSaturatedPixels > 0;
+				TargetStar.Measurement = status.TrkdTargetMeasurement;
+				TargetStar.PsfFit.LoadFromNativePsfFitInfo(status.TrkdTargetPsfInfo, status.TrkdTargetResiduals);
 
 				updatedMade = true;
 			}
 
 			if (GuidingObjectId != -1 && status.TrkdGuidingIsTracked > 0)
 			{
-				GuidingStar = new LastTrackedPosition()
-				{
-					X = status.TrkdGuidingXPos,
-					Y = status.TrkdGuidingYPos,
-					FWHM = status.TrkdGuidingPsfInfo.FWHM,
-					IsLocated = status.TrkdGuidingIsLocated > 0,
-					IsFixed = false,
-					HasSaturatedPixels = status.TrkdGuidingHasSaturatedPixels > 0,
-					Measurement = status.TrkdGuidingMeasurement,
-				};
+				GuidingStar.X = status.TrkdGuidingXPos;
+				GuidingStar.Y = status.TrkdGuidingYPos;
+				GuidingStar.FWHM = status.TrkdGuidingPsfInfo.FWHM;
+				GuidingStar.IsLocated = status.TrkdGuidingIsLocated > 0;
+				GuidingStar.HasSaturatedPixels = status.TrkdGuidingHasSaturatedPixels > 0;
+				GuidingStar.Measurement = status.TrkdGuidingMeasurement;
+				GuidingStar.PsfFit.LoadFromNativePsfFitInfo(status.TrkdGuidingPsfInfo, status.TrkdGuidingResiduals);
 
 				updatedMade = true;
 			}
@@ -207,36 +206,26 @@ namespace OccuRec.Tracking
 
 			if (TrackedObjectId != -1 && status.TrkdTargetIsTracked > 0)
 			{
-				bool isFixed = TargetStar.IsFixed;
-                bool isFullD = TargetStar.IsFullDisapearance;
-
-				TargetStar = new LastTrackedPosition()
-				{
-					X = status.TrkdTargetXPos,
-					Y = status.TrkdTargetYPos,
-					FWHM = status.TrkdTargetPsfInfo.FWHM,
-                    IsLocated = status.TrkdTargetIsLocated > 0,
-					IsFixed = isFixed,
-                    IsFullDisapearance = isFullD,
-					HasSaturatedPixels = status.TrkdTargetHasSaturatedPixels > 0,
-					Measurement = status.TrkdTargetMeasurement
-				};
+				TargetStar.X = status.TrkdTargetXPos;
+				TargetStar.Y = status.TrkdTargetYPos;
+				TargetStar.FWHM = status.TrkdTargetPsfInfo.FWHM;
+				TargetStar.IsLocated = status.TrkdTargetIsLocated > 0;
+				TargetStar.HasSaturatedPixels = status.TrkdTargetHasSaturatedPixels > 0;
+				TargetStar.Measurement = status.TrkdTargetMeasurement;
+				TargetStar.PsfFit.LoadFromNativePsfFitInfo(status.TrkdTargetPsfInfo, status.TrkdTargetResiduals);
 
 				updatedMade = true;
 			}
 
 			if (GuidingObjectId != -1 && status.TrkdGuidingIsTracked > 0)
 			{
-				GuidingStar = new LastTrackedPosition()
-				{
-					X = status.TrkdGuidingXPos,
-					Y = status.TrkdGuidingYPos,
-					FWHM = status.TrkdGuidingPsfInfo.FWHM,
-                    IsLocated = status.TrkdGuidingIsLocated > 0,
-					IsFixed = false,
-					HasSaturatedPixels = status.TrkdGuidingHasSaturatedPixels > 0,
-					Measurement = status.TrkdGuidingMeasurement
-				};
+				GuidingStar.X = status.TrkdGuidingXPos;
+				GuidingStar.Y = status.TrkdGuidingYPos;
+				GuidingStar.FWHM = status.TrkdGuidingPsfInfo.FWHM;
+				GuidingStar.IsLocated = status.TrkdGuidingIsLocated > 0;
+				GuidingStar.HasSaturatedPixels = status.TrkdGuidingHasSaturatedPixels > 0;
+				GuidingStar.Measurement = status.TrkdGuidingMeasurement;
+				GuidingStar.PsfFit.LoadFromNativePsfFitInfo(status.TrkdGuidingPsfInfo, status.TrkdGuidingResiduals);
 
 				updatedMade = true;
 			}

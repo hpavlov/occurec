@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -145,10 +146,7 @@ namespace OccuRec.Helpers
 							float apertureOuter = aperture + 2.5f;
 							g.DrawEllipse(Pens.Red, TrackingContext.Current.GuidingStar.X - apertureOuter, TrackingContext.Current.GuidingStar.Y - apertureOuter, 2 * apertureOuter, 2 * apertureOuter);
 						}
-
 					}
-
-
 				}
 
 				analysisManager.DisplayData(g, imageWidth, imageHeight);

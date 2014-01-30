@@ -180,6 +180,7 @@ namespace OccuRec
 					pnlAAV.Visible = Settings.Default.FileFormat == "AAV";
 
 					overlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager);
+					m_VideoFrameInteractionController.OnNewVideoSource(videoObject);
 				}
 
                 stateManager.CameraConnected(driverInstance, overlayManager, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");
