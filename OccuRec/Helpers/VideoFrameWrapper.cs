@@ -98,5 +98,10 @@ namespace OccuRec.Helpers
         {
             get { return videoFrame.ImageInfo; }
         }
+
+        public object ImageArray
+        {
+            get { return videoFrame.ImageArray; }
+        }
     }
 }

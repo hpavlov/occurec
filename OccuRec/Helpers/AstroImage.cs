@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using OccuRec.Drivers;
@@ -14,7 +16,8 @@ namespace OccuRec.Helpers
 
 		public AstroImage(IVideoFrame videoFrame, int width, int height)
 		{
-			m_Pixels = (int[,]) videoFrame.ImageArray;
+            m_Pixels = (int[,]) videoFrame.ImageArray;
+
 			m_Width = width;
 			m_Height = height;
 		}

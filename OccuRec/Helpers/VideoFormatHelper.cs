@@ -155,6 +155,7 @@ namespace OccuRec.Helpers
                     IntPtr taskMemPointer = Marshal.AllocCoTaskMem(iSize);
 
                     AMMediaType pmtConfig = null;
+                    Trace.WriteLine(string.Format("Video formats supported by {0}:", deviceName));
                     for (int iFormat = 0; iFormat < iCount; iFormat++)
                     {
                         IntPtr ptr = IntPtr.Zero;

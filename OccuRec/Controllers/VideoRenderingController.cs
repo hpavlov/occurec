@@ -11,6 +11,7 @@ using OccuRec.FrameAnalysis;
 using OccuRec.Helpers;
 using OccuRec.StateManagement;
 using OccuRec.Tracking;
+using OccuRec.Utilities;
 
 namespace OccuRec.Controllers
 {
@@ -62,15 +63,20 @@ namespace OccuRec.Controllers
             return videoObject;
         }
 
-	    private IVideoFrame m_LastRenderedFrame = null;
-	    private object m_SyncLock = new object();
+        private MinimalVideoFrame m_LastRenderedFrame = null;
+
+        private bool m_VideoFrameCopyRequested = false;
+        private ManualResetEvent m_GetNextVideoFrameSignal = new ManualResetEvent(true);
 
         internal IVideoFrame GetCurrentFrame()
         {
-			lock (m_SyncLock)
-			{
-				return new MinimalVideoFrame(m_LastRenderedFrame);
-			}
+            m_GetNextVideoFrameSignal.Reset();
+            m_LastRenderedFrame = null;
+            m_VideoFrameCopyRequested = true;
+
+            m_GetNextVideoFrameSignal.WaitOne();
+
+		    return m_LastRenderedFrame;
         }
 
 	    internal int Width
@@ -97,11 +103,6 @@ namespace OccuRec.Controllers
 
                         if (frame != null)
                         {
-							lock (m_SyncLock)
-							{
-								m_LastRenderedFrame = frame;	
-							}                      
-
                             var frameWrapper = new VideoFrameWrapper(frame);
 
                             if (frameWrapper.UniqueFrameId == -1 || frameWrapper.UniqueFrameId != lastDisplayedVideoFrameNumber)
@@ -124,14 +125,14 @@ namespace OccuRec.Controllers
                                     bmp = cameraImage.GetDisplayBitmap();
                                 }
 
-                                m_MainForm.Invoke(new PaintVideoFrameDelegate(m_MainForm.PaintVideoFrame), new object[] { frameWrapper, bmp });
+                                m_MainForm.Invoke(new PaintVideoFrameDelegate(PaintVideoFrameCallback), new object[] { frameWrapper, bmp });
                             }
                         }
                     }
                     catch (InvalidOperationException) { }
                     catch (Exception ex)
                     {
-                        Trace.WriteLine(ex);
+                        Trace.WriteLine(ex.GetFullStackTrace());
 
                         Bitmap errorBmp = new Bitmap(m_MainForm.picVideoFrame.Width, m_MainForm.picVideoFrame.Height);
                         using (Graphics g = Graphics.FromImage(errorBmp))
@@ -155,6 +156,28 @@ namespace OccuRec.Controllers
                 Thread.Sleep(1);
                 Application.DoEvents();
             }
+        }
+
+        private void PaintVideoFrameCallback(VideoFrameWrapper frame, Bitmap bmp)
+        {
+            if (m_VideoFrameCopyRequested)
+            {
+                try
+                {
+                    m_LastRenderedFrame = new MinimalVideoFrame(frame, new Bitmap(bmp));
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex.GetFullStackTrace());
+                }
+                finally
+                {
+                    m_VideoFrameCopyRequested = false;
+                    m_GetNextVideoFrameSignal.Set();
+                }
+            }
+
+            m_MainForm.PaintVideoFrame(frame, bmp);
         }
 
         public void Dispose()

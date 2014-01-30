@@ -113,6 +113,7 @@ ImageStatus latestDetectedIntegrationFrameImageStatus;
 
 unsigned char* firstIntegratedFramePixels = NULL;
 unsigned char* lastIntegratedFramePixels = NULL;
+unsigned char* currTrackedFramePixels = NULL;
 
 HANDLE hRecordingThread = NULL;
 bool recording = false;
@@ -542,6 +543,13 @@ HRESULT SetupCamera(
 		lastIntegratedFramePixels = NULL;
 	}
 	lastIntegratedFramePixels = (unsigned char*)malloc(IMAGE_TOTAL_PIXELS);
+
+	if (NULL != currTrackedFramePixels)
+	{
+		delete currTrackedFramePixels;
+		currTrackedFramePixels = NULL;
+	}
+	currTrackedFramePixels = (unsigned char*)malloc(IMAGE_TOTAL_PIXELS);
 
 	idxFrameNumber = 0;
 	numberOfDiffSignaturesCalculated = 0;
@@ -1319,11 +1327,11 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	long stride = 3 * IMAGE_WIDTH;
 	unsigned char* ptrPixelItt = rawFrame->BmpBits + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;
-	unsigned char* pixelsChar = ptrPixelItt;
 
 	double* ptrPixels = integratedPixels;
 
 	unsigned char* ptrFirstOrLastFrameCopy = NULL;
+	unsigned char* ptrCurrTrackedFramePixels = currTrackedFramePixels;
 
 	if (isNewIntegrationPeriod)
 	{
@@ -1364,11 +1372,13 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 			// Saving the first/last frame raw pixels for OCR-ing
 			*ptrFirstOrLastFrameCopy = thisPixel;
+			*ptrCurrTrackedFramePixels = thisPixel;
 
 		    *ptrPixels += thisPixel;
 
 			ptrPixels++;
 			ptrFirstOrLastFrameCopy++;
+			ptrCurrTrackedFramePixels++;
 			ptrPixelItt+=3;
 		}
 
@@ -1380,7 +1390,7 @@ void ProcessRawFrame(RawFrame* rawFrame)
 	idxLastFrameNumber = idxFrameNumber;
 	//idxLastFrameTimestamp = currentUtcDayAsTicks
 
-	HandleTracking(pixelsChar, NULL);
+	HandleTracking(currTrackedFramePixels, NULL);
 
 	if (lastFrameWasNewIntegrationPeriod)
 		trackedThisIntegrationPeriod = false;

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using OccuRec.Drivers;
 using OccuRec.Helpers;
 using OccuRec.Properties;
 using OccuRec.Tracking;
+using OccuRec.Utilities;
 
 namespace OccuRec.Controllers
 {
@@ -40,23 +43,38 @@ namespace OccuRec.Controllers
 			bool shiftHeld = (Control.ModifierKeys & Keys.Shift) == Keys.Shift;
 			bool controlHeld = (Control.ModifierKeys & Keys.Control) == Keys.Control;
 
-             if (e.Button != MouseButtons.Left)
-             {
-                 ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
-             }
-             else
-             {
-                 if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingGuidingStar)
-                 {
-					 if (SelectGuidingStar(e.Location, shiftHeld, controlHeld))
-                         ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
-                 }
-                 else if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingtTargetStar)
-                 {
-					 if (SelectingtTargetStar(e.Location, shiftHeld, controlHeld))
-                         ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
-                 }
-             }
+            if (e.Button != MouseButtons.Left)
+            {
+                ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
+            }
+            else
+            {
+                ThreadPool.QueueUserWorkItem(SetupSelectedObjectInNonUIThread, new Tuple<Point, bool, bool>(e.Location, shiftHeld, controlHeld));
+            }
+        }
+
+        private void SetupSelectedObjectInNonUIThread(object state)
+        {
+            // We need to do this on a non UI thread so we can block the thread waiting for the current image to be provided
+            try
+            {
+                var typedState = (Tuple<Point, bool, bool>)state;
+
+                if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingGuidingStar)
+                {
+                    if (SelectGuidingStar(typedState.Item1, typedState.Item2, typedState.Item3))
+                        ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
+                }
+                else if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingtTargetStar)
+                {
+                    if (SelectingtTargetStar(typedState.Item1, typedState.Item2, typedState.Item3))
+                        ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.GetFullStackTrace());
+            }
         }
 
         private bool SelectGuidingStar(Point location, bool shiftHeld, bool controlHeld)
