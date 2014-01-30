@@ -581,7 +581,7 @@ float MeasureObjectUsingAperturePhotometry(
 
                 totalReading += *(data + x + nWidth* y);
 
-                *totalPixels++;
+                (*totalPixels) += 1;
 
 				if (*(data + x + nWidth* y) >= saturationValue) 
 					*hasSaturatedPixels = true;
@@ -603,7 +603,7 @@ float MeasureObjectUsingAperturePhotometry(
 
                 totalReading += *(data + x + nWidth* y) * subpixels;
 
-                *totalPixels += subpixels;
+                (*totalPixels) += subpixels;
             }
 
 			if (dist >= innerRadius && dist <= outernRadius)
@@ -646,7 +646,7 @@ float MeasureObjectUsingAperturePhotometry_int8(
 
                 totalReading += *(data + x + nWidth* y);
 
-                *totalPixels++;
+                (*totalPixels) += 1;
 
 				if (*(data + x + nWidth* y) >= saturationValue) 
 					*hasSaturatedPixels = true;
@@ -668,7 +668,7 @@ float MeasureObjectUsingAperturePhotometry_int8(
 
                 totalReading += *(data + x + nWidth* y) * subpixels;
 
-                *totalPixels += subpixels;
+                (*totalPixels) += subpixels;
             }
 
 			if (dist >= innerRadius && dist <= outernRadius)
