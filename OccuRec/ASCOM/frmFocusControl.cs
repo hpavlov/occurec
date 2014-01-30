@@ -31,7 +31,12 @@ namespace OccuRec.ASCOM
 
 		private void UpdateFocuserStateOutOfThread(FocuserState state)
 		{
-			Invoke(new Action<FocuserState>(UpdateFocuserState), state);
+		    try
+		    {
+		        Invoke(new Action<FocuserState>(UpdateFocuserState), state);
+		    }
+		    catch (ObjectDisposedException)
+		    { }
 		}
 
 		private void UpdateFocuserState(FocuserState state)

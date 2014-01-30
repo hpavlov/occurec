@@ -47,6 +47,10 @@
             this.cbxUseAppDomainIsolation = new System.Windows.Forms.CheckBox();
             this.btnDisconnectFocuser = new System.Windows.Forms.Button();
             this.btnDisconnectTelescope = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
+            this.nudTelescopePingRate = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.nudTelescopePingRate)).BeginInit();
             this.SuspendLayout();
             // 
             // btnConfigureTelescope
@@ -57,6 +61,7 @@
             this.btnConfigureTelescope.TabIndex = 29;
             this.btnConfigureTelescope.Text = "Configure";
             this.btnConfigureTelescope.UseVisualStyleBackColor = true;
+            this.btnConfigureTelescope.Click += new System.EventHandler(this.btnConfigureTelescope_Click);
             // 
             // btnConfigureFocuser
             // 
@@ -66,11 +71,12 @@
             this.btnConfigureFocuser.TabIndex = 28;
             this.btnConfigureFocuser.Text = "Configure";
             this.btnConfigureFocuser.UseVisualStyleBackColor = true;
+            this.btnConfigureFocuser.Click += new System.EventHandler(this.btnConfigureFocuser_Click);
             // 
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(3, 259);
+            this.checkBox2.Location = new System.Drawing.Point(6, 298);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(161, 17);
             this.checkBox2.TabIndex = 27;
@@ -81,7 +87,7 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(3, 236);
+            this.checkBox1.Location = new System.Drawing.Point(6, 275);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(148, 17);
             this.checkBox1.TabIndex = 26;
@@ -237,10 +243,48 @@
             this.btnDisconnectTelescope.UseVisualStyleBackColor = true;
             this.btnDisconnectTelescope.Click += new System.EventHandler(this.btnDisconnectTelescope_Click);
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(165, 240);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(24, 13);
+            this.label2.TabIndex = 35;
+            this.label2.Text = "sec";
+            // 
+            // nudTelescopePingRate
+            // 
+            this.nudTelescopePingRate.Location = new System.Drawing.Point(107, 238);
+            this.nudTelescopePingRate.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.nudTelescopePingRate.Name = "nudTelescopePingRate";
+            this.nudTelescopePingRate.Size = new System.Drawing.Size(52, 20);
+            this.nudTelescopePingRate.TabIndex = 34;
+            this.nudTelescopePingRate.Value = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(3, 240);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(98, 13);
+            this.label3.TabIndex = 33;
+            this.label3.Text = "Check status every";
+            // 
             // ucObservatoryControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.nudTelescopePingRate);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.btnDisconnectTelescope);
             this.Controls.Add(this.btnDisconnectFocuser);
             this.Controls.Add(this.cbxUseAppDomainIsolation);
@@ -262,6 +306,7 @@
             this.Controls.Add(this.btnSelectFocuser);
             this.Name = "ucObservatoryControl";
             this.Size = new System.Drawing.Size(570, 328);
+            ((System.ComponentModel.ISupportInitialize)(this.nudTelescopePingRate)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -288,5 +333,8 @@
 		private System.Windows.Forms.CheckBox cbxUseAppDomainIsolation;
         private System.Windows.Forms.Button btnDisconnectFocuser;
         private System.Windows.Forms.Button btnDisconnectTelescope;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.NumericUpDown nudTelescopePingRate;
+        private System.Windows.Forms.Label label3;
 	}
 }

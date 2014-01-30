@@ -21,7 +21,6 @@ namespace OccuRec.Config.Panels
 
         public override void LoadSettings()
         {
-            nudTelescopePingRate.SetNUDValue(Settings.Default.TelescopePingRateSeconds);
             nudPulseDuration.SetNUDValue(Settings.Default.TelPulseDuration);
             nudPulseGuideFast.SetNUDValue(Settings.Default.TelPulseFastRate);
             nudPulseSlowRate.SetNUDValue(Settings.Default.TelPulseSlowRate);
@@ -29,8 +28,7 @@ namespace OccuRec.Config.Panels
         }
 
         public override void SaveSettings()
-        {
-            Settings.Default.TelescopePingRateSeconds = (int)nudTelescopePingRate.Value;
+        {            
             Settings.Default.TelPulseDuration = (int)nudPulseDuration.Value;
             Settings.Default.TelPulseFastRate = (float)nudPulseGuideFast.Value;
             Settings.Default.TelPulseSlowRate = (float)nudPulseSlowRate.Value;

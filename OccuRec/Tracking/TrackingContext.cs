@@ -24,6 +24,7 @@ namespace OccuRec.Tracking
 		public float Y;
 		public float FWHM;
 		public bool IsFixed;
+        public bool IsFullDisapearance;
         public bool IsLocated;
 		public bool HasSaturatedPixels;
 		public float Measurement;
@@ -77,7 +78,7 @@ namespace OccuRec.Tracking
 			if (GuidingStar != null) numObjects++;
 			if (TargetStar != null) numObjects++;
 
-			NativeTracking.InitNewTracker(width, height, numObjects, true /* Always Init as Full Disappearance*/);
+            NativeTracking.InitNewTracker(width, height, numObjects, TargetStar != null && TargetStar.IsFullDisapearance);
 
 			TrackedObjectId = -1;
 			GuidingObjectId = -1;
@@ -88,6 +89,7 @@ namespace OccuRec.Tracking
 				TargetStarConfig = new TrackedObjectConfig()
 				{
 					IsFixedAperture = TargetStar.IsFixed,
+                    IsFullDisapearance = TargetStar.IsFullDisapearance,
 					TrackingType = TrackingType.OccultedStar,
 					ApertureStartingX = TargetStar.X,
 					ApertureStartingY = TargetStar.Y,
@@ -162,6 +164,7 @@ namespace OccuRec.Tracking
 			if (TrackedObjectId != -1 && status.TrkdTargetFWHM > 0)
 			{
 				bool isFixed = TargetStar.IsFixed;
+                bool isFullD = TargetStar.IsFullDisapearance;
 
 				TargetStar = new LastTrackedPosition()
 				{
@@ -170,6 +173,7 @@ namespace OccuRec.Tracking
 					FWHM = status.TrkdTargetFWHM,
 					IsLocated = status.TrkdTargetIsLocated > 0,
 					IsFixed = isFixed,
+                    IsFullDisapearance = isFullD,
 					HasSaturatedPixels = status.TrkdTargetHasSaturatedPixels > 0,
 					Measurement = status.TrkdTargetMeasurement,
 				};
@@ -204,6 +208,7 @@ namespace OccuRec.Tracking
 			if (TrackedObjectId != -1 && status.TrkdTargetFWHM > 0)
 			{
 				bool isFixed = TargetStar.IsFixed;
+                bool isFullD = TargetStar.IsFullDisapearance;
 
 				TargetStar = new LastTrackedPosition()
 				{
@@ -212,6 +217,7 @@ namespace OccuRec.Tracking
 					FWHM = status.TrkdTargetFWHM,
                     IsLocated = status.TrkdTargetIsLocated > 0,
 					IsFixed = isFixed,
+                    IsFullDisapearance = isFullD,
 					HasSaturatedPixels = status.TrkdTargetHasSaturatedPixels > 0,
 					Measurement = status.TrkdTargetMeasurement
 				};

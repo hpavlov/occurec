@@ -24,6 +24,7 @@ namespace OccuRec.Config.Panels
             nudFocuserSmallestStep.SetNUDValue(Settings.Default.FocuserSmallestStep);
             nudFocuserSmallStep.SetNUDValue(Settings.Default.FocuserSmallStep);
             nudFocuserLargeStep.SetNUDValue(Settings.Default.FocuserLargeStep);
+            cbxTempIn.SelectedIndex = cbxTempIn.Items.IndexOf(Settings.Default.FocuserTemperatureIn);
         }
 
         public override void SaveSettings()
@@ -31,6 +32,7 @@ namespace OccuRec.Config.Panels
             Settings.Default.FocuserSmallestStep = (int)nudFocuserSmallestStep.Value;
             Settings.Default.FocuserSmallStep = (int)nudFocuserSmallStep.Value;
             Settings.Default.FocuserLargeStep = (int)nudFocuserLargeStep.Value;
+            Settings.Default.FocuserTemperatureIn = (string)cbxTempIn.SelectedItem;
         }
     }
 }

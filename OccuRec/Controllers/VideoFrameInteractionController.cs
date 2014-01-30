@@ -132,6 +132,7 @@ namespace OccuRec.Controllers
 				};
 
 				TrackingContext.Current.TargetStar.IsFixed = !psfFit.IsSolved || psfFit.Certainty < Settings.Default.TrackingMinForcedFixedObjCertainty || controlHeld;
+			    TrackingContext.Current.TargetStar.IsFullDisapearance = shiftHeld;
 				TrackingContext.Current.ReConfigureNativeTracking(m_VideoRenderingController.Width, m_VideoRenderingController.Height);
 
 				return true;

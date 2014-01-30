@@ -32,13 +32,16 @@ namespace OccuRec.Helpers
 	        long startTicks = 0;
 			long endTicks = 0;
 			long clockFrequency = 0;
+            latencyInMilliseconds = 0;
+
 			Profiler.QueryPerformanceFrequency(ref clockFrequency);
-			Profiler.QueryPerformanceCounter(ref startTicks);
+
+            Profiler.QueryPerformanceCounter(ref startTicks);
             socket.Send(ntpData);
             socket.Receive(ntpData);
-			Profiler.QueryPerformanceCounter(ref endTicks);
+            Profiler.QueryPerformanceCounter(ref endTicks);
 
-			latencyInMilliseconds = (endTicks - startTicks) * 1000.0f / clockFrequency;
+            latencyInMilliseconds += (endTicks - startTicks) * 1000.0f / clockFrequency;
 
             socket.Close();
 

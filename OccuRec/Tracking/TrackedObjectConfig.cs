@@ -15,7 +15,8 @@ namespace OccuRec.Tracking
 	internal class TrackedObjectConfig
 	{
 		public bool IsFixedAperture { get; set; }
-		public TrackingType TrackingType { get; set; }
+        public bool IsFullDisapearance { get; set; }
+	    public TrackingType TrackingType { get; set; }
 		public double ApertureStartingX { get; set; }
 		public double ApertureStartingY { get; set; }
 		public double ApertureInPixels { get; set; }

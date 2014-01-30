@@ -13,6 +13,7 @@ using OccuRec.ASCOM;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Helpers;
 using OccuRec.Properties;
+using OccuRec.Utilities;
 
 namespace OccuRec.Config.Panels
 {
@@ -31,6 +32,7 @@ namespace OccuRec.Config.Panels
 			cbxUseAppDomainIsolation.Checked = Settings.Default.ASCOMLoadInSeparateAppDomain;
 			tbxFocuser.Text = Settings.Default.ASCOMProgIdFocuser;
 			tbxTelescope.Text = Settings.Default.ASCOMProgIdTelescope;
+            nudTelescopePingRate.SetNUDValue(Settings.Default.TelescopePingRateSeconds);
 
 			m_Initialised = true;
 			UpdateASCOMControlsState();
@@ -38,6 +40,7 @@ namespace OccuRec.Config.Panels
 
 		public override void SaveSettings()
 		{
+            Settings.Default.TelescopePingRateSeconds = (int)nudTelescopePingRate.Value;
 			Settings.Default.ASCOMProgIdFocuser = tbxFocuser.Text;
 			Settings.Default.ASCOMProgIdTelescope = tbxTelescope.Text;
 			Settings.Default.ASCOMLoadInSeparateAppDomain = cbxUseAppDomainIsolation.Checked;
@@ -238,6 +241,16 @@ namespace OccuRec.Config.Panels
                 ObservatoryController.DisconnectTelescope(() => UpdateASCOMControlsState());
                 btnDisconnectTelescope.Enabled = false;
             }
+        }
+
+        private void btnConfigureFocuser_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnConfigureTelescope_Click(object sender, EventArgs e)
+        {
+
         }
 	}
 }

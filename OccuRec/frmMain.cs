@@ -1442,11 +1442,11 @@ namespace OccuRec
         private void UpdateTelescopeAndFocuserState()
         {
             if (m_LastFocuserState != null && !double.IsNaN(m_LastFocuserState.Temperature) && m_LastTelescopeState != null)
-                tslTelFocStatus.Text = string.Format("ALT: {0}°| AZ: {1}° | TEMP: {2}°", (int)Math.Round(m_LastTelescopeState.Altitude), (int)Math.Round(m_LastTelescopeState.Azimuth), m_LastFocuserState.Temperature.ToString("0.0"));
+                tslTelFocStatus.Text = string.Format("Alt: {0}°| Az: {1}° | Temp: {2}° {3}", (int)Math.Round(m_LastTelescopeState.Altitude), (int)Math.Round(m_LastTelescopeState.Azimuth), m_LastFocuserState.Temperature.ToString("0.0"), Settings.Default.FocuserTemperatureIn);
             else if (m_LastTelescopeState != null)
-                tslTelFocStatus.Text = string.Format("ALT: {0}° | AZ: {1}°", (int)Math.Round(m_LastTelescopeState.Altitude), (int)Math.Round(m_LastTelescopeState.Azimuth));
+                tslTelFocStatus.Text = string.Format("Alt: {0}° | Az: {1}°", (int)Math.Round(m_LastTelescopeState.Altitude), (int)Math.Round(m_LastTelescopeState.Azimuth));
             else if (m_LastFocuserState != null && !double.IsNaN(m_LastFocuserState.Temperature))
-                tslTelFocStatus.Text = string.Format("TEMP: {0}°", m_LastFocuserState.Temperature.ToString("0.0"));
+                tslTelFocStatus.Text = string.Format("Temp: {0}° {1}", m_LastFocuserState.Temperature.ToString("0.0"), Settings.Default.FocuserTemperatureIn);
             else
                 tslTelFocStatus.Text = string.Empty;
         }
