@@ -17,7 +17,7 @@ namespace OccuRec.ASCOM
 {
 	public partial class frmFocusControl : Form
 	{
-		internal ObservatoryController ObservatoryController;
+		internal IObservatoryController ObservatoryController;
 
 		public frmFocusControl()
 		{

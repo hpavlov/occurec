@@ -24,8 +24,8 @@ namespace OccuRec.Config
 		private Dictionary<int, SettingsPanel> m_PropertyPages = new Dictionary<int, SettingsPanel>();
 
 	    private ucObservatoryControl m_ObservatoryControl;
-	    
-        internal ObservatoryController ObservatoryController
+
+		internal IObservatoryController ObservatoryController
 	    {
 	        set { m_ObservatoryControl.ObservatoryController = value; }
 	    }
@@ -39,7 +39,7 @@ namespace OccuRec.Config
 			InitAllPropertyPages();
 		}
 
-        internal frmSettings(ObservatoryController observatoryController)
+		internal frmSettings(IObservatoryController observatoryController)
             : this()
         {
             ObservatoryController = observatoryController;

@@ -19,7 +19,7 @@ namespace OccuRec.Config.Panels
 {
 	public partial class ucObservatoryControl : SettingsPanel
 	{
-		internal ObservatoryController ObservatoryController;
+		internal IObservatoryController ObservatoryController;
 		private bool m_Initialised = false;
 
 		public ucObservatoryControl()
@@ -35,7 +35,7 @@ namespace OccuRec.Config.Panels
             nudTelescopePingRate.SetNUDValue(Settings.Default.TelescopePingRateSeconds);
 
 			m_Initialised = true;
-			UpdateASCOMControlsState();
+			UpdateASCOMControlsState(null);
 		}
 
 		public override void SaveSettings()
@@ -56,10 +56,10 @@ namespace OccuRec.Config.Panels
 
 		private void tbxFocuser_TextChanged(object sender, EventArgs e)
 		{
-			UpdateASCOMControlsState();
+			UpdateASCOMControlsState(null);
 		}
 
-		private void UpdateASCOMControlsState()
+		private void UpdateASCOMControlsState(ObservatoryControllerCallbackArgs args)
 		{
 			btnTestFocuserConnection.Enabled = !string.IsNullOrEmpty(tbxFocuser.Text);
 			btnTestTelescopeConnection.Enabled = !string.IsNullOrEmpty(tbxTelescope.Text);
@@ -158,7 +158,7 @@ namespace OccuRec.Config.Panels
 
 		private void tbxTelescope_TextChanged(object sender, EventArgs e)
 		{
-			UpdateASCOMControlsState();
+			UpdateASCOMControlsState(null);
 		}
 
 		private void btnTestTelescopeConnection_Click(object sender, EventArgs e)
@@ -229,7 +229,7 @@ namespace OccuRec.Config.Panels
         {
             if (ObservatoryController.IsConnectedToFocuser())
             {
-                ObservatoryController.DisconnectFocuser(() => UpdateASCOMControlsState());
+                ObservatoryController.DisconnectFocuser(CallType.Async, UpdateASCOMControlsState);
                 btnDisconnectFocuser.Enabled = false;
             }
         }
@@ -238,7 +238,7 @@ namespace OccuRec.Config.Panels
         {
             if (ObservatoryController.IsConnectedToTelescope())
             {
-                ObservatoryController.DisconnectTelescope(() => UpdateASCOMControlsState());
+				ObservatoryController.DisconnectTelescope(CallType.Async, UpdateASCOMControlsState);
                 btnDisconnectTelescope.Enabled = false;
             }
         }

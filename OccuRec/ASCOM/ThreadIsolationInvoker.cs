@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Windows.Forms;
 using OccuRec.Utilities;
 
 namespace OccuRec.ASCOM
@@ -17,6 +18,9 @@ namespace OccuRec.ASCOM
 			public object[] Arguments;
 			public object ReturnValue;
 			public bool InvocationCompleted;
+			public SynchronizationContext SynchronisationContext;
+			public Control CallbackControl;
+			public CallbackAction Callback;
 		}
 
 		private static object s_SyncLock = new object();
@@ -51,6 +55,14 @@ namespace OccuRec.ASCOM
 					{
 						item.ReturnValue = item.Delegate.DynamicInvoke(item.Arguments);
 						item.InvocationCompleted = true;
+
+						if (item.Callback != null)
+						{
+							if (item.SynchronisationContext != null)
+								item.SynchronisationContext.Post((s) => item.Callback.DynamicInvoke(new ObservatoryControllerCallbackArgs()), null);
+							else if (item.CallbackControl != null)
+								item.CallbackControl.BeginInvoke(item.Callback, new ObservatoryControllerCallbackArgs());
+						}
 					}
 				}
 			}
@@ -208,6 +220,35 @@ namespace OccuRec.ASCOM
 			s_Queue.Enqueue(item);
 
 			SpinWait.SpinUntil(() => item.InvocationCompleted);
+		}
+
+		protected void IsolatedAction(Action action, CallType callType, CallbackAction callback, Control callbackUIControl)
+		{			
+			var item = new InvocationDescriptor()
+			{
+				Delegate = callback,
+				Arguments = new object[] { },
+				ReturnValue = null,
+				InvocationCompleted = false
+			};
+
+			if (callback != null)
+			{
+				if (callType != CallType.Async)
+					throw new InvalidOperationException("Callbacks are only supported with Async calls.");
+
+				item.Callback = callback;
+
+				if (callbackUIControl != null)
+					item.CallbackControl = callbackUIControl;
+				else
+					item.SynchronisationContext = WindowsFormsSynchronizationContext.Current;
+			}
+
+			s_Queue.Enqueue(item);
+
+			if (callType == CallType.Sync)
+				SpinWait.SpinUntil(() => item.InvocationCompleted);
 		}
 	}
 }

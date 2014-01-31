@@ -13,7 +13,7 @@ namespace OccuRec.ASCOM
 {
     public partial class frmTelescopeControl : Form
     {
-        internal ObservatoryController ObservatoryController;
+        internal IObservatoryController ObservatoryController;
 
         public frmTelescopeControl()
         {

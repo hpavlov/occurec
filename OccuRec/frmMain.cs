@@ -42,11 +42,11 @@ namespace OccuRec
 		private string recordingfileName;
 		private int framesBeforeUpdatingCameraVideoFormat = -1;
 
-	    private CameraStateManager stateManager;
+	    private CameraStateManager m_StateManager;
 	    private FrameAnalysisManager m_AnalysisManager;
 	    private string appVersion;
-	    private ObservatoryController observatoryController;
-	    private OverlayManager overlayManager = null;
+		private IObservatoryController m_ObservatoryController;
+	    private OverlayManager m_OverlayManager = null;
 	    private List<string> initializationErrorMessages = new List<string>();
 
         private VideoFrameInteractionController m_VideoFrameInteractionController;
@@ -58,15 +58,15 @@ namespace OccuRec
 
 			statusStrip.SizingGrip = false;
 
-		    stateManager = new CameraStateManager();
-            stateManager.CameraDisconnected();
+		    m_StateManager = new CameraStateManager();
+            m_StateManager.CameraDisconnected();
 
 			m_AnalysisManager = new FrameAnalysisManager();
 
-			m_VideoRenderingController = new VideoRenderingController(this, stateManager, m_AnalysisManager);
+			m_VideoRenderingController = new VideoRenderingController(this, m_StateManager, m_AnalysisManager);
             m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
 
-		    observatoryController = new ObservatoryController(this, this);
+		    m_ObservatoryController = new ObservatoryController(this, this);
 
             var att = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
 		    appVersion = att.Version;
@@ -108,8 +108,8 @@ namespace OccuRec
 
         public void OnError(int errorCode, string errorMessage)
         {
-            if (overlayManager != null)
-                overlayManager.OnError(errorCode, errorMessage);
+            if (m_OverlayManager != null)
+                m_OverlayManager.OnError(errorCode, errorMessage);
             else
                 initializationErrorMessages.Add(errorMessage);
         }
@@ -117,10 +117,10 @@ namespace OccuRec
         public void OnEvent(int eventId, string eventData)
         {
             if (eventId == 1)
-                stateManager.RegisterOcrError();
+                m_StateManager.RegisterOcrError();
 
-            if (overlayManager != null)
-                overlayManager.OnEvent(eventId, eventData);
+            if (m_OverlayManager != null)
+                m_OverlayManager.OnEvent(eventId, eventData);
         }
 
 
@@ -179,11 +179,11 @@ namespace OccuRec
 					tssIntegrationRate.Visible = Settings.Default.IsIntegrating && Settings.Default.FileFormat == "AAV";
 					pnlAAV.Visible = Settings.Default.FileFormat == "AAV";
 
-					overlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager);
+					m_OverlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager);
 					m_VideoFrameInteractionController.OnNewVideoSource(videoObject);
 				}
 
-                stateManager.CameraConnected(driverInstance, overlayManager, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");
+                m_StateManager.CameraConnected(driverInstance, m_OverlayManager, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");
 				UpdateScheduleDisplay();
 			}
 			finally
@@ -209,12 +209,12 @@ namespace OccuRec
 
 			UpdateCameraState(false);
 		    tssIntegrationRate.Visible = false;
-		    stateManager.CameraDisconnected();
+		    m_StateManager.CameraDisconnected();
 
-            if (overlayManager != null)
+            if (m_OverlayManager != null)
             {
-                overlayManager.Finalise();
-                overlayManager = null;
+                m_OverlayManager.Finalise();
+                m_OverlayManager = null;
             }
 		}
 
@@ -309,7 +309,7 @@ namespace OccuRec
 
 		private void miConfigure_Click(object sender, EventArgs e)
 		{
-            var frmSettings = new frmSettings(observatoryController);
+            var frmSettings = new frmSettings(m_ObservatoryController);
 
 		    frmSettings.ShowDialog(this);
             UpdateASCOMConnectivityState();
@@ -322,7 +322,7 @@ namespace OccuRec
                 MessageBox.Show("Output Video Location is invalid.", "OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 var frmSettings = new frmSettings();
-                frmSettings.ObservatoryController = observatoryController;
+                frmSettings.ObservatoryController = m_ObservatoryController;
 
                 frmSettings.ShowDialog(this);
             }
@@ -358,8 +358,8 @@ namespace OccuRec
 					else
 						g.DrawImage(bmp, 0, 0);
 
-                    if (overlayManager != null)
-    				    overlayManager.ProcessFrame(g);
+                    if (m_OverlayManager != null)
+    				    m_OverlayManager.ProcessFrame(g);
 
 					g.Save();
 				}
@@ -387,8 +387,8 @@ namespace OccuRec
 			{
 			    g.DrawImage(bmp, 0, 0);
 
-                if (overlayManager != null)
-			        overlayManager.ProcessFrame(g);
+                if (m_OverlayManager != null)
+			        m_OverlayManager.ProcessFrame(g);
 
 			    g.Save();
 			}
@@ -404,9 +404,9 @@ namespace OccuRec
 				lblVideoFormat.Text = videoObject.CameraVideoFormat;
 			}
 
-            if (stateManager.ProvidesOcredTimestamps)
+            if (m_StateManager.ProvidesOcredTimestamps)
             {
-				if (stateManager.OcrErrors > 0)
+				if (m_StateManager.OcrErrors > 0)
 				{
 					if (tssOcrErr.Tag == null || (int)tssOcrErr.Tag != 2)
 					{
@@ -414,7 +414,7 @@ namespace OccuRec
 						tssOcrErr.Tag = (int) 2;
 					}
 
-					tssOcrErr.Text = string.Format("OCR ERR {0}", stateManager.OcrErrors);	
+					tssOcrErr.Text = string.Format("OCR ERR {0}", m_StateManager.OcrErrors);	
 					
 				}
 				else
@@ -436,9 +436,9 @@ namespace OccuRec
                     tssOcrErr.Visible = false;
             }
 
-            if (stateManager.DroppedFrames != 0)
+            if (m_StateManager.DroppedFrames != 0)
             {
-                tssDroppedFrames.Text = string.Format("{0} Dropped", stateManager.DroppedFrames);
+                tssDroppedFrames.Text = string.Format("{0} Dropped", m_StateManager.DroppedFrames);
 
                 if (!tssDroppedFrames.Visible)
                     tssDroppedFrames.Visible = true;
@@ -579,12 +579,12 @@ namespace OccuRec
 				{
 					if (!tssFrameNo.Visible) tssFrameNo.Visible = true;
 
-					if (stateManager.IsIntegrationLocked)
+					if (m_StateManager.IsIntegrationLocked)
 						tssFrameNo.Text = frame.IntegratedFrameNo.ToString("Integrated Frame: 0", CultureInfo.InvariantCulture);
 					else
 						tssFrameNo.Text = frame.FrameNumber.ToString("Current Frame: 0", CultureInfo.InvariantCulture);
 
-					if (stateManager.IsIntegrationLocked)
+					if (m_StateManager.IsIntegrationLocked)
 					{
 						if (!string.IsNullOrEmpty(frame.ImageInfo))
 						{
@@ -642,7 +642,7 @@ namespace OccuRec
                 else if (
                     videoObject.State == VideoCameraState.videoCameraRunning && 
                     lbSchedule.Items.Count == 0 && 
-                    (stateManager.CanStartRecording || Settings.Default.IntegrationDetectionTuning))
+                    (m_StateManager.CanStartRecording || Settings.Default.IntegrationDetectionTuning))
                 {
                     tssRecordingFile.Visible = false;
 					tssFreeDiskSpace.Visible = false;
@@ -659,17 +659,17 @@ namespace OccuRec
 
 				btnLockIntegration.Enabled = 
 					(
-						stateManager.CanLockIntegrationNow && 
-						stateManager.IntegrationRate > 0 && 
+						m_StateManager.CanLockIntegrationNow && 
+						m_StateManager.IntegrationRate > 0 && 
 						(frame == null || !frame.PerformedAction.HasValue || frame.PerformedAction.Value == 0)
                      ) 
-					|| stateManager.IsIntegrationLocked;
+					|| m_StateManager.IsIntegrationLocked;
 
-				btnCalibrateIntegration.Visible = !stateManager.IsIntegrationLocked;
-				btnManualIntegration.Visible = !stateManager.IsIntegrationLocked;
-				if (!stateManager.IsIntegrationLocked && stateManager.PercentDoneDetectingIntegration < 100)
+				btnCalibrateIntegration.Visible = !m_StateManager.IsIntegrationLocked;
+				btnManualIntegration.Visible = !m_StateManager.IsIntegrationLocked;
+				if (!m_StateManager.IsIntegrationLocked && m_StateManager.PercentDoneDetectingIntegration < 100)
 				{
-					pbarIntDetPercentDone.Value = stateManager.PercentDoneDetectingIntegration;
+					pbarIntDetPercentDone.Value = m_StateManager.PercentDoneDetectingIntegration;
 					if (!pbarIntDetPercentDone.Visible) pbarIntDetPercentDone.Visible = true;
 				}
 				else if (pbarIntDetPercentDone.Visible) pbarIntDetPercentDone.Visible = false;
@@ -681,14 +681,14 @@ namespace OccuRec
 					// When there is an action in progress, then don't show anything
 					btnLockIntegration.Text = "Busy ...";
 				}
-				else if (stateManager.IntegrationRate > 0 && stateManager.IsValidIntegrationRate && !stateManager.IsIntegrationLocked && stateManager.CanLockIntegrationNow)
-                    btnLockIntegration.Text = string.Format("Lock at x{0} Frames", stateManager.IntegrationRate);
-                else if (stateManager.IsIntegrationLocked)
+				else if (m_StateManager.IntegrationRate > 0 && m_StateManager.IsValidIntegrationRate && !m_StateManager.IsIntegrationLocked && m_StateManager.CanLockIntegrationNow)
+                    btnLockIntegration.Text = string.Format("Lock at x{0} Frames", m_StateManager.IntegrationRate);
+                else if (m_StateManager.IsIntegrationLocked)
                     btnLockIntegration.Text = "Unlock";
                 else
                     btnLockIntegration.Text = "Checking Integration ...";
 
-                if (stateManager.IsCalibratingIntegration)
+                if (m_StateManager.IsCalibratingIntegration)
 				{
 					btnCalibrateIntegration.Text = "Cancel Calibration";
 					tssCameraState.Text = "Calibrating";
@@ -710,7 +710,7 @@ namespace OccuRec
 					EnsureSchedulesState(true);
                 }
 
-				if (stateManager.IsUsingManualIntegration)
+				if (m_StateManager.IsUsingManualIntegration)
 					btnManualIntegration.Text = "Automatic";
 				else
 					btnManualIntegration.Text = "Manual";
@@ -735,14 +735,14 @@ namespace OccuRec
 		{
 			if (videoObject != null)
 			{
-			    bool wasLocked = stateManager.IsIntegrationLocked;
+			    bool wasLocked = m_StateManager.IsIntegrationLocked;
 
 				videoObject.StopRecording();
 
 				UpdateState(null);
 
                 if (wasLocked)
-                    stateManager.UnlockIntegration();
+                    m_StateManager.UnlockIntegration();
 			}
 		}
 
@@ -760,10 +760,10 @@ namespace OccuRec
 
         private void btnLockIntegration_Click(object sender, EventArgs e)
         {
-            if (stateManager.IsIntegrationLocked)
-                stateManager.UnlockIntegration();
-            else if (stateManager.CanLockIntegrationNow)
-                stateManager.LockIntegration();
+            if (m_StateManager.IsIntegrationLocked)
+                m_StateManager.UnlockIntegration();
+            else if (m_StateManager.CanLockIntegrationNow)
+                m_StateManager.LockIntegration();
         }
 
 
@@ -777,7 +777,7 @@ namespace OccuRec
                 {
                     if (videoObject != null)
                     {
-						recordingfileName = stateManager.StartRecordingOCRTestingFile();
+						recordingfileName = m_StateManager.StartRecordingOCRTestingFile();
                     }
                         
                 }
@@ -818,10 +818,10 @@ namespace OccuRec
                     case ScheduledAction.StartRecording:
                         if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning)
                         {
-							if (Settings.Default.FileFormat == "AAV" && !stateManager.IsIntegrationLocked)
+							if (Settings.Default.FileFormat == "AAV" && !m_StateManager.IsIntegrationLocked)
 							{
 								// If the integration hasn't been locked then try to lock it
-							    stateManager.LockIntegration();
+							    m_StateManager.LockIntegration();
 							}
 
                             string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
@@ -860,12 +860,12 @@ namespace OccuRec
                 nextNTPSyncTime = DateTime.UtcNow.AddMinutes(10);
             }
 
-			if (stateManager.IsRecordingOcrTestFile && videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
+			if (m_StateManager.IsRecordingOcrTestFile && videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
 			{
 				// NOTE: If we have been recording OCR test file and there are more than MaxErrorCount OCR errors then stop the recording
-				if (stateManager.OcrErrors > Settings.Default.OcrMaxErrorsPerCameraTestRun)
+				if (m_StateManager.OcrErrors > Settings.Default.OcrMaxErrorsPerCameraTestRun)
 				{
-					stateManager.StopRecordingOCRTestingFile();
+					m_StateManager.StopRecordingOCRTestingFile();
 					UpdateState(null);
 				}				
 			}
@@ -1262,9 +1262,9 @@ namespace OccuRec
 
 		private void btnCalibrateIntegration_Click(object sender, EventArgs e)
 		{
-			if (stateManager.IsCalibratingIntegration)
+			if (m_StateManager.IsCalibratingIntegration)
 			{
-				stateManager.CancelIntegrationCalibration(true);
+				m_StateManager.CancelIntegrationCalibration(true);
 			}
 			else if (
 				videoObject != null &&
@@ -1274,13 +1274,13 @@ namespace OccuRec
 					"Integration Detection Calibration", 
 					MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.OK)
 			{
-				stateManager.BeginIntegrationCalibration(4);
+				m_StateManager.BeginIntegrationCalibration(4);
 			}
 		}
 
 		private void btnManualIntegration_Click(object sender, EventArgs e)
 		{
-			if (stateManager.IsUsingManualIntegration)
+			if (m_StateManager.IsUsingManualIntegration)
 			{
 				NativeHelpers.SetManualIntegrationRateHint(0);
 			}
@@ -1322,26 +1322,26 @@ namespace OccuRec
 
 		private void pictureBox_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (overlayManager != null)
-				overlayManager.MouseMove(e);
+			if (m_OverlayManager != null)
+				m_OverlayManager.MouseMove(e);
 		}
 
 		private void pictureBox_MouseLeave(object sender, EventArgs e)
 		{
-			if (overlayManager != null)
-				overlayManager.MouseLeave(e);
+			if (m_OverlayManager != null)
+				m_OverlayManager.MouseLeave(e);
 		}
 
 		private void pictureBox_MouseDown(object sender, MouseEventArgs e)
 		{
-			if (overlayManager != null)
-				overlayManager.MouseDown(e);
+			if (m_OverlayManager != null)
+				m_OverlayManager.MouseDown(e);
 		}
 
 		private void pictureBox_MouseUp(object sender, MouseEventArgs e)
 		{
-			if (overlayManager != null)
-				overlayManager.MouseUp(e);
+			if (m_OverlayManager != null)
+				m_OverlayManager.MouseUp(e);
 		}
 
         #region IASCOMDeviceCallbacks
@@ -1475,9 +1475,9 @@ namespace OccuRec
 
 		private void tsbFocControl_Click(object sender, EventArgs e)
 		{
-		    if (!observatoryController.IsConnectedToFocuser())
+		    if (!m_ObservatoryController.IsConnectedToFocuser())
 		    {
-		        observatoryController.TryConnectFocuser();
+		        m_ObservatoryController.TryConnectFocuser();
                 tsbFocControl.Enabled = false;
 		    }
 		    else
@@ -1498,7 +1498,7 @@ namespace OccuRec
                 if (s_FormFocuserControl == null)
                 {
                     s_FormFocuserControl = new frmFocusControl();
-                    s_FormFocuserControl.ObservatoryController = observatoryController;
+                    s_FormFocuserControl.ObservatoryController = m_ObservatoryController;
                     s_FormFocuserControl.Show(this);
                 }
 		    }
@@ -1508,9 +1508,9 @@ namespace OccuRec
 
         private void tsbTelControl_Click(object sender, EventArgs e)
         {
-            if (!observatoryController.IsConnectedToTelescope())
+            if (!m_ObservatoryController.IsConnectedToTelescope())
             {
-                observatoryController.TryConnectTelescope();
+                m_ObservatoryController.TryConnectTelescope();
                 tsbTelControl.Enabled = false;
             }
             else
@@ -1531,7 +1531,7 @@ namespace OccuRec
                 if (s_FormTelescopeControl == null)
                 {
                     s_FormTelescopeControl = new frmTelescopeControl();
-                    s_FormTelescopeControl.ObservatoryController = observatoryController;
+                    s_FormTelescopeControl.ObservatoryController = m_ObservatoryController;
                     s_FormTelescopeControl.Show(this);
                 }
             }
