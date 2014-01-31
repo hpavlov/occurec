@@ -16,25 +16,15 @@ using OccuRec.Utilities;
 
 namespace OccuRec.ASCOM
 {
-    public enum ControllerSignals
+    public enum ASCOMConnectionState
     {
-        TryConnectTelescope,
-        TryConnectFocuser,
-        GetFocuserState,
-        GetTelescopeState,
-        GetTelescopeCapabilities,
-        TelescopePulseGuide,
-        MoveFocuserInAndGetState,
-        MoveFocuserOutAndGetState,
-        MoveFocuserAndGetState,
-        FocuserSetTempCompAndGetState
+        Connecting,
+        Connected,
+        Disconnecting,
+        Disconnected,
+        NotResponding,
+        Errored
     }
-
-    public struct Signal
-	{
-		public ControllerSignals Command;
-		public object Argument;
-	}
 
 	public enum CallType
 	{
@@ -44,13 +34,23 @@ namespace OccuRec.ASCOM
 
 	public class ObservatoryControllerCallbackArgs : EventArgs
 	{
-		
+        public ObservatoryControllerCallbackArgs(object returnValue)
+        {
+            ReturnValue = returnValue;
+        }
+
+	    public object ReturnValue;
 	}
 
 	public delegate void CallbackAction(ObservatoryControllerCallbackArgs args);
 
 	public interface IObservatoryController
 	{
+        event Action<ASCOMConnectionState> TelescopeConnectionChanged;
+        event Action<ASCOMConnectionState> FocuserConnectionChanged;
+        event Action<TelescopeState> TelescopeStateUpdated;
+        event Action<FocuserState> FocuserStateUpdated;
+
 		bool IsConnectedToObservatory();
 		bool IsConnectedToTelescope();
 		bool IsConnectedToFocuser();
@@ -58,442 +58,23 @@ namespace OccuRec.ASCOM
 		void DisconnectFocuser(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 		void TryConnectFocuser(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 		void TryConnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+        void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+        void FocuserMoveIn(FocuserStepSize stepSize, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+        void FocuserMoveOut(FocuserStepSize stepSize, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+        void FocuserMove(int step, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+        void FocuserSetTempComp(bool useTempComp, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+        void GetFocuserState(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 	}
-
-    internal class ObservatoryControllerOld : ThreadIsolatedInvoker, IDisposable
-    {
-        private bool m_Active = false;
-        private readonly Control m_MainUIThreadControl = null;
-        private readonly IASCOMDeviceCallbacks m_CallbacksObject = null;
-
-        private ITelescope m_ConnectedTelescope = null;
-        private IFocuser m_ConnectedFocuser = null;
-		private ConcurrentQueue<Signal> m_QueuedSignals = new ConcurrentQueue<Signal>();
-
-		public ObservatoryControllerOld(Control mainForm, IASCOMDeviceCallbacks callbacks)
-        {
-            m_MainUIThreadControl = mainForm;
-            m_CallbacksObject = callbacks;
-
-            m_Active = true;
-            ThreadPool.QueueUserWorkItem(WorkerThread);
-        }
-        
-		public void GetFocuserState(Action<FocuserState> callback)
-		{
-			SignalGetFocuserState(callback);
-		}
-
-		public void FocuserMoveIn(FocuserStepSize stepSize, Action<FocuserState> callback)
-		{
-            SignalMoveFocuserIn(stepSize, callback);
-		}
-
-        public void FocuserMoveOut(FocuserStepSize stepSize, Action<FocuserState> callback)
-        {
-            SignalMoveFocuserOut(stepSize, callback);
-        }
-
-        public void FocuserSetTempComp(bool tempComp, Action<FocuserState> callback)
-        {
-            SignalFocuserSetTempComp(tempComp, callback);
-        }
-
-        public void FocuserMove(int position, Action<FocuserState> callback)
-        {
-            SignalMoveFocuser(position, callback);
-        }
-
-        public void TelescopePulseGuide(GuideDirections direction, PulseRate rate, Action callback)
-        {
-            SignalTelescopePulseGuide(direction, rate, Settings.Default.TelPulseDuration, callback);
-        }
-
-        public bool IsConnectedToObservatory()
-        {
-            return m_ConnectedTelescope != null || m_ConnectedFocuser != null;
-        }
-
-        public bool IsConnectedToTelescope()
-        {
-            return m_ConnectedTelescope != null;
-        }
-
-        public bool IsConnectedToFocuser()
-        {
-            return m_ConnectedFocuser != null;
-        }
-
-        public void TryConnectTelescope()
-        {
-            SignalTryConnectTelescope();
-        }
-
-        public void DisconnectTelescope()
-        {
-            DisconnectTelescope(null);
-        }
-
-        public void DisconnectTelescope(Action onDisconnected)
-        {
-            if (m_ConnectedTelescope != null)
-            {
-                m_MainUIThreadControl.Invoke(new Action(delegate()
-                {
-                    ASCOMClient.Instance.DisconnectTelescope(m_ConnectedTelescope);
-                    m_ConnectedTelescope = null;
-                    OnTelescopeDisconnected();
-                    if (onDisconnected != null) onDisconnected();
-                }));
-            }
-        }
-
-        public void TryConnectFocuser()
-        {
-            SignalTryConnectFocuser();
-        }
-
-        public void DisconnectFocuser()
-        {
-            DisconnectFocuser(null);
-        }
-
-        public void DisconnectFocuser(Action onDisconnected)
-        {
-            if (m_ConnectedFocuser != null)
-            {
-                m_MainUIThreadControl.Invoke(new Action(delegate()
-                {
-                    ASCOMClient.Instance.DisconnectFocuser(m_ConnectedFocuser);
-                    m_ConnectedFocuser = null;
-                    OnFocuserDisconnected();
-                    if (onDisconnected != null) onDisconnected();
-                }));
-            }
-        }
-
-        public void DisconnectASCOMDevices()
-        {
-            DisconnectTelescope();
-
-            DisconnectFocuser();
-        }
-
-        private void WorkerThread(object state)
-        {
-            DateTime nextOneMinCheckUTC = DateTime.UtcNow;
-
-            while (m_Active)
-            {
-                if (m_QueuedSignals.Count > 0)
-                {
-					Signal signal;
-                    if (m_QueuedSignals.TryDequeue(out signal))
-                    {
-                        ProcessSignal(signal);
-                    }
-                }
-
-                if (nextOneMinCheckUTC <= DateTime.UtcNow)
-                {
-                    PerformTelescopePingActions();
-                    PerformFocuserPingActions();
-
-                    if (Settings.Default.TelescopePingRateSeconds > 0)
-                        nextOneMinCheckUTC = DateTime.UtcNow.AddSeconds(Settings.Default.TelescopePingRateSeconds);
-                }
-
-                Thread.Sleep(1);
-            }
-        }
-
-        private void PerformTelescopePingActions()
-        {
-            if (m_ConnectedTelescope != null && m_ConnectedTelescope.Connected)
-            {
-                TelescopeState state = m_ConnectedTelescope.GetCurrentState();
-                OnTelescopeState(state);
-            }
-        }
-
-        private void PerformFocuserPingActions()
-        {
-            if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
-            {
-                FocuserState state = m_ConnectedFocuser.GetCurrentState();
-                OnFocuserState(state);
-            }
-        }
-
-		private void ProcessSignal(Signal signal)
-        {
-            if (signal.Command == ControllerSignals.TryConnectTelescope)
-            {
-                try
-                {
-                    if (m_ConnectedTelescope != null && m_ConnectedTelescope.ProgId != Settings.Default.ASCOMProgIdTelescope)
-                    {
-                        ASCOMClient.Instance.DisconnectTelescope(m_ConnectedTelescope);
-                        m_ConnectedTelescope = null;
-                    }
-
-					if (m_ConnectedTelescope == null && !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdTelescope))
-                        m_ConnectedTelescope = ASCOMClient.Instance.CreateTelescope(Settings.Default.ASCOMProgIdTelescope, Settings.Default.TelPulseSlowestRate, Settings.Default.TelPulseSlowRate, Settings.Default.TelPulseFastRate);
-
-                    if (m_ConnectedTelescope != null)
-                    {
-                        if (!m_ConnectedTelescope.Connected)
-                        {
-						    OnTelescopeConnecting();
-                            m_ConnectedTelescope.Connected = true;
-                            OnTelescopeConnected();
-                        }
-
-                        TelescopeState state = m_ConnectedTelescope.GetCurrentState();
-                        OnTelescopeState(state);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    OnTelescopeErrored();
-                    Trace.WriteLine(ex.GetFullStackTrace());
-                }
-            }
-			else if (signal.Command == ControllerSignals.TryConnectFocuser)
-            {
-                try
-                {
-                    if (m_ConnectedFocuser != null && m_ConnectedFocuser.ProgId != Settings.Default.ASCOMProgIdFocuser)
-                    {
-                        ASCOMClient.Instance.DisconnectFocuser(m_ConnectedFocuser);
-                        m_ConnectedFocuser = null;
-                    }
-
-                    if (m_ConnectedFocuser == null && !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdFocuser))
-                    {
-                        m_ConnectedFocuser = ASCOMClient.Instance.CreateFocuser(
-                            Settings.Default.ASCOMProgIdFocuser,
-                            Settings.Default.FocuserLargeStep,
-                            Settings.Default.FocuserSmallStep,
-                            Settings.Default.FocuserSmallestStep);
-                    }
-
-                    if (m_ConnectedFocuser != null)
-                    {
-                        if (!m_ConnectedFocuser.Connected)
-                        {
-                            OnFocuserConnecting();
-                            m_ConnectedFocuser.Connected = true;
-                            OnFocuserConnected();
-                        }
-
-                        FocuserState state = m_ConnectedFocuser.GetCurrentState();
-                        OnFocuserState(state);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    OnFocuserErrored();
-                    Trace.WriteLine(ex.GetFullStackTrace());
-                }
-            }
-			else if (signal.Command == ControllerSignals.GetFocuserState)
-			{
-				FocuserCommands.GetFocuserState(signal, m_ConnectedFocuser);
-			}
-            else if (signal.Command == ControllerSignals.GetTelescopeState)
-            {
-                TelescopeCommands.GetTelescopeState(signal, m_ConnectedTelescope);
-            }
-            else if (signal.Command == ControllerSignals.GetTelescopeCapabilities)
-            {
-                TelescopeCommands.GetTelescopeCapabilities(signal, m_ConnectedTelescope);
-            }
-            else if (signal.Command == ControllerSignals.TelescopePulseGuide)
-            {
-                TelescopeCommands.PulseGuide(signal, m_ConnectedTelescope);
-            }
-			else if (
-                signal.Command == ControllerSignals.MoveFocuserInAndGetState ||
-                signal.Command == ControllerSignals.MoveFocuserOutAndGetState ||
-                signal.Command == ControllerSignals.MoveFocuserAndGetState)
-			{
-                FocuserCommands.MoveFocuserAndGetState(signal, signal.Command == ControllerSignals.MoveFocuserInAndGetState, m_ConnectedFocuser);
-			}
-        }
-
-        public void Dispose()
-        {
-            m_Active = false;
-            Thread.Sleep(100);
-        }
-
-        private void SignalTryConnectTelescope()
-        {
-            m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.TryConnectTelescope });
-        }
-
-        private void SignalTryConnectFocuser()
-        {
-			m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.TryConnectFocuser });
-        }
-
-		private void SignalGetFocuserState(Action<FocuserState> callback)
-		{
-			m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.GetFocuserState, Argument = callback });
-		}
-
-        private void SignalMoveFocuserIn(FocuserStepSize stepSize, Action<FocuserState> callback)
-		{
-            m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.MoveFocuserInAndGetState, Argument = new Tuple<FocuserStepSize, Action<FocuserState>>(stepSize, callback) });
-		}
-
-        private void SignalMoveFocuserOut(FocuserStepSize stepSize, Action<FocuserState> callback)
-        {
-            m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.MoveFocuserOutAndGetState, Argument = new Tuple<FocuserStepSize, Action<FocuserState>>(stepSize, callback) });
-        }
-
-        private void SignalMoveFocuser(int position, Action<FocuserState> callback)
-        {
-            m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.MoveFocuserAndGetState, Argument = new Tuple<int, Action<FocuserState>>(position, callback) });
-        }
-
-        private void SignalFocuserSetTempComp(bool tempComp, Action<FocuserState> callback)
-        {
-            m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.FocuserSetTempCompAndGetState, Argument = new Tuple<bool, Action<FocuserState>>(tempComp, callback) });
-        }
-
-        private void SignalTelescopePulseGuide(GuideDirections direction, PulseRate rate, int durationMilliseconds, Action callback)
-        {
-            m_QueuedSignals.Enqueue(new Signal() { Command = ControllerSignals.TelescopePulseGuide, Argument = new Tuple<GuideDirections, PulseRate, int, Action>(direction, rate, durationMilliseconds, callback) });
-        }
-
-        private void OnTelescopeConnecting()
-        {
-            ShieldedInvoke(() =>
-                m_MainUIThreadControl.Invoke(
-                    new Action(
-                        () => m_CallbacksObject.TelescopeConnectionChanged(ASCOMConnectionState.Connecting))
-                )
-            );
-        }
-
-        private void OnFocuserConnecting()
-        {
-            ShieldedInvoke(() =>
-                m_MainUIThreadControl.Invoke(
-                    new Action(
-                        () => m_CallbacksObject.FocuserConnectionChanged(ASCOMConnectionState.Connecting))
-                )
-            );
-        }
-
-        private void OnTelescopeConnected()
-        {
-            ShieldedInvoke(() =>
-                m_MainUIThreadControl.Invoke(
-                    new Action(
-                        () => m_CallbacksObject.TelescopeConnectionChanged(ASCOMConnectionState.Connected))
-                )
-            );
-        }
-
-        private void OnFocuserConnected()
-        {
-            ShieldedInvoke(() =>
-                m_MainUIThreadControl.Invoke(
-                    new Action(
-                        () => m_CallbacksObject.FocuserConnectionChanged(ASCOMConnectionState.Connected))
-                )
-            );
-        }
-
-        private void OnTelescopeDisconnected()
-        {
-            ShieldedInvoke(() =>
-                m_MainUIThreadControl.Invoke(
-                    new Action(
-                        () => m_CallbacksObject.TelescopeConnectionChanged(ASCOMConnectionState.Disconnected))
-                )
-            );
-        }
-
-        private void OnFocuserDisconnected()
-        {
-            ShieldedInvoke(() =>
-                m_MainUIThreadControl.Invoke(
-                    new Action(
-                        () => m_CallbacksObject.FocuserConnectionChanged(ASCOMConnectionState.Disconnected))
-                )
-            );
-        }
-
-        private void OnTelescopeErrored()
-        {
-            ShieldedInvoke(() =>
-                m_MainUIThreadControl.Invoke(
-                    new Action(
-                        () => m_CallbacksObject.TelescopeConnectionChanged(ASCOMConnectionState.Errored))
-                )
-            );
-        }
-
-        private void OnFocuserErrored()
-        {
-            ShieldedInvoke(() =>
-                m_MainUIThreadControl.Invoke(
-                    new Action(
-                        () => m_CallbacksObject.FocuserConnectionChanged(ASCOMConnectionState.Errored))
-                )
-            );
-        }
-
-        private void OnTelescopeState(TelescopeState state)
-        {
-            ShieldedInvoke(() =>
-                m_MainUIThreadControl.Invoke(
-                    new Action(
-                        () => m_CallbacksObject.TelescopeStateUpdate(state))
-                )
-            );
-        }
-
-        private void OnFocuserState(FocuserState state)
-        {
-            ShieldedInvoke(() =>
-                m_MainUIThreadControl.Invoke(
-                  new Action(
-                    () => m_CallbacksObject.FocuserStateUpdated(state))
-                )
-            );
-        }
-
-        private void ShieldedInvoke(Action action)
-        {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex);
-            }
-        }
-    }
 
 	internal class ObservatoryController : ThreadIsolatedInvoker, IObservatoryController, IDisposable
 	{
-		private readonly Control m_DeviceCallbacksUIControl = null;
-		private readonly IASCOMDeviceCallbacks m_DeviceCallbacksObject = null;
-
 		private ITelescope m_ConnectedTelescope = null;
 		private IFocuser m_ConnectedFocuser = null;
 
-		public ObservatoryController(Control mainForm, IASCOMDeviceCallbacks callbacks)
-		{
-			m_DeviceCallbacksUIControl = mainForm;
-			m_DeviceCallbacksObject = callbacks;			
-		}
+        public event Action<ASCOMConnectionState> TelescopeConnectionChanged;
+        public event Action<ASCOMConnectionState> FocuserConnectionChanged;
+        public event Action<TelescopeState> TelescopeStateUpdated;
+        public event Action<FocuserState> FocuserStateUpdated;
 
 		public void TryConnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
 		{
@@ -521,13 +102,19 @@ namespace OccuRec.ASCOM
 
 						TelescopeState state = m_ConnectedTelescope.GetCurrentState();
 						OnTelescopeState(state);
+
+					    return state;
 					}
+
+				    return null;
 				}
 				catch (Exception ex)
 				{
 					OnTelescopeErrored();
 					Trace.WriteLine(ex.GetFullStackTrace());
-				}			
+
+				    return ex;
+				}
 			},
 			callType, callback, callbackUIControl);
 		}
@@ -564,33 +151,22 @@ namespace OccuRec.ASCOM
 
 						FocuserState state = m_ConnectedFocuser.GetCurrentState();
 						OnFocuserState(state);
+
+                        return state;
 					}
+
+				    return null;
 				}
 				catch (Exception ex)
 				{
 					OnFocuserErrored();
 					Trace.WriteLine(ex.GetFullStackTrace());
-				}			
+
+				    return ex;
+				}
 
 			},
 			callType, callback, callbackUIControl);
-		}
-
-		public void GetFocuserState(Action<FocuserState> callback)
-		{
-			IsolatedActionAsync(() =>
-				{
-					if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
-					{
-						FocuserState state = m_ConnectedFocuser.GetCurrentState();
-
-						m_DeviceCallbacksUIControl.Invoke(new Action<FocuserState, Action<FocuserState>>((x, y) => ASCOMHelper.SafeCallbackActionCall(y, x)), callback, state);
-					}
-					else
-					{
-						m_DeviceCallbacksUIControl.Invoke(new Action<FocuserState, Action<FocuserState>>((x, y) => ASCOMHelper.SafeCallbackActionCall(y, x)), callback, null);
-					}
-				});
 		}
 
 		public bool IsConnectedToObservatory()
@@ -623,10 +199,14 @@ namespace OccuRec.ASCOM
 				catch (Exception ex)
 				{
 					OnTelescopeErrored();
-					Trace.WriteLine(ex.GetFullStackTrace());					
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+				    return ex;
 				}
 
 				OnTelescopeDisconnected();
+
+                return null;
 			},
 			callType, callback, callbackUIControl);
 		}
@@ -647,249 +227,241 @@ namespace OccuRec.ASCOM
 				{
 					OnFocuserErrored();
 					Trace.WriteLine(ex.GetFullStackTrace());
+
+                    return ex;
 				}
 
 				OnFocuserDisconnected();
+
+			    return null;
 			},
 			callType, callback, callbackUIControl);
 		}
 
-		//private void MoveFocuserAndGetState()
-		//{
-		//	IsolatedActionAsync(() =>
-		//		{
-		//			try
-		//			{
-		//				if (signal.Command == ControllerSignals.MoveFocuserAndGetState)
-		//				{
-		//					var tuple = signal.Argument as Tuple<int, Action<FocuserState>>;
-		//					Action<FocuserState> callback = tuple != null ? tuple.Item2 as Action<FocuserState> : null;
-		//					int step = tuple != null ? (int)tuple.Item1 : 0;
+        public void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+        {
+            IsolatedAction((x, y) =>
+            {
+                try
+                {
+                    if (m_ConnectedTelescope != null)
+                    {
+                        m_ConnectedTelescope.PulseGuide(x, y, Settings.Default.TelPulseDuration);
+                    }
 
-		//					if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
-		//					{
-		//						m_ConnectedFocuser.Move(step);
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    OnTelescopeErrored();
+                    Trace.WriteLine(ex.GetFullStackTrace());
 
-		//						FocuserState state = m_ConnectedFocuser.GetCurrentState();
+                    return ex;
+                }
+            },
+            direction, pulseRate, callType, callback, callbackUIControl);
+        }
 
-		//						ASCOMHelper.SafeCallbackActionCall(callback, state);
-		//					}
-		//					else
-		//					{
-		//						ASCOMHelper.SafeCallbackActionCall(callback, null);
-		//					}
-		//				}
-		//				else
-		//				{
-		//					var tuple = signal.Argument as Tuple<FocuserStepSize, Action<FocuserState>>;
-		//					Action<FocuserState> callback = tuple != null ? tuple.Item2 as Action<FocuserState> : null;
-		//					FocuserStepSize stepSize = tuple != null ? (FocuserStepSize)tuple.Item1 : FocuserStepSize.Small;
+        public void FocuserMoveIn(FocuserStepSize stepSize, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+        {
+            IsolatedAction((x) =>
+            {
+                try
+                {
+                    if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
+                    {
+                        m_ConnectedFocuser.MoveIn(x);
 
-		//					if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
-		//					{
-		//						if (moveIn)
-		//							m_ConnectedFocuser.MoveIn(stepSize);
-		//						else
-		//							m_ConnectedFocuser.MoveOut(stepSize);
+                        FocuserState state = m_ConnectedFocuser.GetCurrentState();
 
-		//						FocuserState state = m_ConnectedFocuser.GetCurrentState();
+                        OnFocuserState(state);
 
-		//						ASCOMHelper.SafeCallbackActionCall(callback, state);
-		//					}
-		//					else
-		//					{
-		//						ASCOMHelper.SafeCallbackActionCall(callback, null);
-		//					}
-		//				}
+                        return state;
+                    }
 
-		//			}
-		//			catch (Exception ex)
-		//			{
-		//				Trace.WriteLine(ex.GetFullStackTrace());
-		//			}
-					
-		//		});
-		//}
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    OnTelescopeErrored();
+                    Trace.WriteLine(ex.GetFullStackTrace());
 
-		public void FocuserMoveIn(FocuserStepSize stepSize, Action<FocuserState> callback)
-		{
-			throw new NotImplementedException();
+                    return ex;
+                }
+            },
+            stepSize, callType, callback, callbackUIControl);
+            
+        }
 
-			//IsolatedActionAsync(() =>
-			//{
-			//	if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
-			//	{
-			//		FocuserState state = m_ConnectedFocuser.GetCurrentState();
+        public void FocuserMoveOut(FocuserStepSize stepSize, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+        {
+            IsolatedAction((x) =>
+            {
+                try
+                {
+                    if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
+                    {
+                        m_ConnectedFocuser.MoveOut(x);
 
-			//		m_MainUIThreadControl.Invoke(new Action<FocuserState, Action<FocuserState>>((x, y) => ASCOMHelper.SafeCallbackActionCall(y, x)), callback, state);
-			//	}
-			//	else
-			//	{
-			//		m_MainUIThreadControl.Invoke(new Action<FocuserState, Action<FocuserState>>((x, y) => ASCOMHelper.SafeCallbackActionCall(y, x)), callback, null);
-			//	}
-			//});
+                        FocuserState state = m_ConnectedFocuser.GetCurrentState();
 
-			//SignalMoveFocuserIn(stepSize, callback);			
-		}
+                        OnFocuserState(state);
 
-		public void FocuserMoveOut(FocuserStepSize stepSize, Action<FocuserState> callback)
-		{
-			throw new NotImplementedException();
-			//SignalMoveFocuserOut(stepSize, callback);
-		}
+                        return state;
+                    }
 
-		public void FocuserSetTempComp(bool tempComp, Action<FocuserState> callback)
-		{
-			throw new NotImplementedException(); 
-			//SignalFocuserSetTempComp(tempComp, callback);
-		}
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    OnTelescopeErrored();
+                    Trace.WriteLine(ex.GetFullStackTrace());
 
-		public void FocuserMove(int position, Action<FocuserState> callback)
-		{
-			throw new NotImplementedException(); 
-			//SignalMoveFocuser(position, callback);
-		}
+                    return ex;
+                }
+            },
+            stepSize, callType, callback, callbackUIControl);
+        }
 
-		public void TelescopePulseGuide(GuideDirections direction, PulseRate rate, Action callback)
-		{
-			throw new NotImplementedException(); 
-			//SignalTelescopePulseGuide(direction, rate, Settings.Default.TelPulseDuration, callback);
-		}
-		//private void Test()
-		//{
-		//	if (signal.Command == ControllerSignals.TryConnectTelescope)
-		//	{
-				
-		//	}
-		//	else if (signal.Command == ControllerSignals.TryConnectFocuser)
-		//	{
+        public void FocuserMove(int step, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+        {
+            IsolatedAction((x) =>
+            {
+                try
+                {
+                    if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
+                    {
+                        m_ConnectedFocuser.Move(x);
 
-		//	}
-		//	else if (signal.Command == ControllerSignals.GetFocuserState)
-		//	{
-				
-		//	}
-		//	else if (signal.Command == ControllerSignals.GetTelescopeState)
-		//	{
-		//		TelescopeCommands.GetTelescopeState(signal, m_ConnectedTelescope);
-		//	}
-		//	else if (signal.Command == ControllerSignals.GetTelescopeCapabilities)
-		//	{
-		//		TelescopeCommands.GetTelescopeCapabilities(signal, m_ConnectedTelescope);
-		//	}
-		//	else if (signal.Command == ControllerSignals.TelescopePulseGuide)
-		//	{
-		//		TelescopeCommands.PulseGuide(signal, m_ConnectedTelescope);
-		//	}
-		//	else if (
-		//		signal.Command == ControllerSignals.MoveFocuserInAndGetState ||
-		//		signal.Command == ControllerSignals.MoveFocuserOutAndGetState ||
-		//		signal.Command == ControllerSignals.MoveFocuserAndGetState)
-		//	{
-		//		FocuserCommands.MoveFocuserAndGetState(signal, signal.Command == ControllerSignals.MoveFocuserInAndGetState, m_ConnectedFocuser);
-		//	}			
-		//}
+                        FocuserState state = m_ConnectedFocuser.GetCurrentState();
+
+                        OnFocuserState(state);
+
+                        return state;
+                    }
+
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    OnTelescopeErrored();
+                    Trace.WriteLine(ex.GetFullStackTrace());
+
+                    return ex;
+                }
+            },
+            step, callType, callback, callbackUIControl);
+        }
+
+        public void FocuserSetTempComp(bool useTempComp, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+        {
+            IsolatedAction((x) =>
+            {
+                try
+                {
+                    if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
+                    {
+                        m_ConnectedFocuser.ChangeTempComp(x);
+
+                        FocuserState state = m_ConnectedFocuser.GetCurrentState();
+
+                        OnFocuserState(state);
+
+                        return state;
+                    }
+
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    OnTelescopeErrored();
+                    Trace.WriteLine(ex.GetFullStackTrace());
+
+                    return ex;
+                }
+            },
+            useTempComp, callType, callback, callbackUIControl);
+        }
+
+        public void GetFocuserState(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+        {
+            IsolatedAction(() =>
+            {
+                try
+                {
+                    if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
+                    {
+                        FocuserState state = m_ConnectedFocuser.GetCurrentState();
+
+                        OnFocuserState(state);
+
+                        return state;
+                    }
+
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    OnTelescopeErrored();
+                    Trace.WriteLine(ex.GetFullStackTrace());
+
+                    return ex;
+                }
+            },
+            callType, callback, callbackUIControl);
+        }
+
 
 
 		#region UI Callbacks
 		private void OnTelescopeConnecting()
 		{
-			ShieldedInvoke(() =>
-				m_DeviceCallbacksUIControl.Invoke(
-					new Action(
-						() => m_DeviceCallbacksObject.TelescopeConnectionChanged(ASCOMConnectionState.Connecting))
-				)
-			);
+            RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Connecting);
 		}
 
 		private void OnFocuserConnecting()
 		{
-			ShieldedInvoke(() =>
-				m_DeviceCallbacksUIControl.Invoke(
-					new Action(
-						() => m_DeviceCallbacksObject.FocuserConnectionChanged(ASCOMConnectionState.Connecting))
-				)
-			);
+            RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Connecting);
 		}
 
 		private void OnTelescopeConnected()
 		{
-			ShieldedInvoke(() =>
-				m_DeviceCallbacksUIControl.Invoke(
-					new Action(
-						() => m_DeviceCallbacksObject.TelescopeConnectionChanged(ASCOMConnectionState.Connected))
-				)
-			);
+            RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Connected);
 		}
 
 		private void OnFocuserConnected()
 		{
-			ShieldedInvoke(() =>
-				m_DeviceCallbacksUIControl.Invoke(
-					new Action(
-						() => m_DeviceCallbacksObject.FocuserConnectionChanged(ASCOMConnectionState.Connected))
-				)
-			);
+            RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Connected);
 		}
 
 		private void OnTelescopeDisconnected()
 		{
-			ShieldedInvoke(() =>
-				m_DeviceCallbacksUIControl.Invoke(
-					new Action(
-						() => m_DeviceCallbacksObject.TelescopeConnectionChanged(ASCOMConnectionState.Disconnected))
-				)
-			);
+            RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Disconnected);
 		}
 
 		private void OnFocuserDisconnected()
 		{
-			ShieldedInvoke(() =>
-				m_DeviceCallbacksUIControl.Invoke(
-					new Action(
-						() => m_DeviceCallbacksObject.FocuserConnectionChanged(ASCOMConnectionState.Disconnected))
-				)
-			);
+            RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Disconnected);
 		}
 
 		private void OnTelescopeErrored()
 		{
-			ShieldedInvoke(() =>
-				m_DeviceCallbacksUIControl.Invoke(
-					new Action(
-						() => m_DeviceCallbacksObject.TelescopeConnectionChanged(ASCOMConnectionState.Errored))
-				)
-			);
+            RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Errored);
 		}
 
 		private void OnFocuserErrored()
 		{
-			ShieldedInvoke(() =>
-				m_DeviceCallbacksUIControl.Invoke(
-					new Action(
-						() => m_DeviceCallbacksObject.FocuserConnectionChanged(ASCOMConnectionState.Errored))
-				)
-			);
+            RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Errored);
 		}
 
 		private void OnTelescopeState(TelescopeState state)
 		{
-			ShieldedInvoke(() =>
-				m_DeviceCallbacksUIControl.Invoke(
-					new Action(
-						() => m_DeviceCallbacksObject.TelescopeStateUpdate(state))
-				)
-			);
+            RaiseEvent(TelescopeStateUpdated, state);
 		}
 
 		private void OnFocuserState(FocuserState state)
 		{
-			ShieldedInvoke(() =>
-				m_DeviceCallbacksUIControl.Invoke(
-				  new Action(
-					() => m_DeviceCallbacksObject.FocuserStateUpdated(state))
-				)
-			);
+            RaiseEvent(FocuserStateUpdated, state);
 		}
 
 		#endregion

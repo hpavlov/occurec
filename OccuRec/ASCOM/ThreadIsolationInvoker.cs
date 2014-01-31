@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -58,176 +59,72 @@ namespace OccuRec.ASCOM
 
 						if (item.Callback != null)
 						{
-							if (item.SynchronisationContext != null)
-								item.SynchronisationContext.Post((s) => item.Callback.DynamicInvoke(new ObservatoryControllerCallbackArgs()), null);
-							else if (item.CallbackControl != null)
-								item.CallbackControl.BeginInvoke(item.Callback, new ObservatoryControllerCallbackArgs());
+                            try
+                            {
+                                if (item.SynchronisationContext != null)
+                                    item.SynchronisationContext.Post((s) => item.Callback.DynamicInvoke(new ObservatoryControllerCallbackArgs(item.ReturnValue)), null);
+                                else if (item.CallbackControl != null)
+                                    item.CallbackControl.BeginInvoke(item.Callback, new ObservatoryControllerCallbackArgs(item.ReturnValue));
+                            }
+		                    catch (ObjectDisposedException)
+		                    { }
 						}
 					}
 				}
 			}
 		}
 
-		public static void ShieldedInvoke<TArgument>(Action<TArgument> callback, TArgument value)
-		{
-			if (callback != null)
-			{
-				try
-				{
-					callback(value);
-				}
-				catch (Exception ex)
-				{
-					Trace.WriteLine(ex.GetFullStackTrace());
-				}
-			}
-		}
+        public static void ShieldedInvoke<TArgument>(Action<TArgument> callback, TArgument value)
+        {
+            if (callback != null)
+            {
+                try
+                {
+                    callback(value);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex.GetFullStackTrace());
+                }
+            }
+        }
 
-		public static void ShieldedInvoke(Action callback)
-		{
-			if (callback != null)
-			{
-				try
-				{
-					callback();
-				}
-				catch (Exception ex)
-				{
-					Trace.WriteLine(ex.GetFullStackTrace());
-				}
-			}
-		}
+        public static void ShieldedInvoke(Action callback)
+        {
+            if (callback != null)
+            {
+                try
+                {
+                    callback();
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex.GetFullStackTrace());
+                }
+            }
+        }
 
-		protected TResult IsolatedFunc<TResult>(Func<TResult> callback)
-		{
-			var item = new InvocationDescriptor()
-			{
-				Delegate = callback,
-				Arguments = new object[] { },
-				ReturnValue = null,
-				InvocationCompleted = false
-			};
+        protected void IsolatedAction<T>(Func<T, object> action, T value1, CallType callType, CallbackAction callback, Control callbackUIControl)
+        {
+            IsolatedActionInternal(action, callType, callback, callbackUIControl, new object[] { value1 });
+        }
 
-			s_Queue.Enqueue(item);
+        protected void IsolatedAction<T1, T2>(Func<T1, T2, object> action, T1 value1, T2 value2, CallType callType, CallbackAction callback, Control callbackUIControl)
+        {
+            IsolatedActionInternal(action, callType, callback, callbackUIControl, new object[] { value1, value2 });
+        }
 
-			SpinWait.SpinUntil(() => item.InvocationCompleted);
-			return (TResult)item.ReturnValue;
-		}
+	    protected void IsolatedAction(Func<object> action, CallType callType, CallbackAction callback, Control callbackUIControl)
+	    {
+            IsolatedActionInternal(action, callType, callback, callbackUIControl, new object[] { });
+	    }
 
-		protected TResult IsolatedFunc<TResult, T>(Func<T, TResult> callback, T value1)
-		{
-			var item = new InvocationDescriptor()
-			{
-				Delegate = callback,
-				Arguments = new object[] { value1 },
-				ReturnValue = null,
-				InvocationCompleted = false
-			};
-
-			s_Queue.Enqueue(item);
-
-			SpinWait.SpinUntil(() => item.InvocationCompleted);
-			return (TResult)item.ReturnValue;
-		}
-
-		protected TResult IsolatedFunc<TResult, T1, T2>(Func<T1, T2, TResult> callback, T1 value1, T2 value2)
+	    private void IsolatedActionInternal(Delegate action, CallType callType, CallbackAction callback, Control callbackUIControl, object[] arguments)
 		{
 			var item = new InvocationDescriptor()
 			{
-				Delegate = callback,
-				Arguments = new object[] { value1, value2 },
-				ReturnValue = null,
-				InvocationCompleted = false
-			};
-
-			s_Queue.Enqueue(item);
-
-			SpinWait.SpinUntil(() => item.InvocationCompleted);
-			return (TResult)item.ReturnValue;
-		}
-
-		protected void IsolatedAction(Action callback)
-		{
-			IsolatedAction(callback, true);
-		}
-
-		protected void IsolatedAction<T>(Action<T> callback, T value1)
-		{
-			IsolatedAction(callback, value1, true);
-		}
-
-		protected void IsolatedAction<T1, T2>(Action<T1, T2> callback, T1 value1, T2 value2)
-		{
-			IsolatedAction(callback, value1, value2, true);
-		}
-
-		protected void IsolatedActionAsync(Action callback)
-		{
-			IsolatedAction(callback, false);
-		}
-
-		protected void IsolatedActionAsync<T>(Action<T> callback, T value1)
-		{
-			IsolatedAction(callback, value1, false);
-		}
-
-		protected void IsolatedActionAsync<T1, T2>(Action<T1, T2> callback, T1 value1, T2 value2)
-		{
-			IsolatedAction(callback, value1, value2, false);
-		}
-
-		private void IsolatedAction(Action callback, bool blocking)
-		{
-			var item = new InvocationDescriptor()
-			{
-				Delegate = callback,
-				Arguments = new object[] { },
-				ReturnValue = null,
-				InvocationCompleted = false
-			};
-
-			s_Queue.Enqueue(item);
-
-			if (blocking)
-				SpinWait.SpinUntil(() => item.InvocationCompleted);
-		}
-
-		private void IsolatedAction<T>(Action<T> callback, T value1, bool blocking)
-		{
-			var item = new InvocationDescriptor()
-			{
-				Delegate = callback,
-				Arguments = new object[] { value1 },
-				ReturnValue = null,
-				InvocationCompleted = false
-			};
-
-			s_Queue.Enqueue(item);
-
-			SpinWait.SpinUntil(() => item.InvocationCompleted);
-		}
-
-		private void IsolatedAction<T1, T2>(Action<T1, T2> callback, T1 value1, T2 value2, bool blocking)
-		{
-			var item = new InvocationDescriptor()
-			{
-				Delegate = callback,
-				Arguments = new object[] { value1, value2 },
-				ReturnValue = null,
-				InvocationCompleted = false
-			};
-
-			s_Queue.Enqueue(item);
-
-			SpinWait.SpinUntil(() => item.InvocationCompleted);
-		}
-
-		protected void IsolatedAction(Action action, CallType callType, CallbackAction callback, Control callbackUIControl)
-		{			
-			var item = new InvocationDescriptor()
-			{
-				Delegate = callback,
-				Arguments = new object[] { },
+                Delegate = action,
+				Arguments = arguments,
 				ReturnValue = null,
 				InvocationCompleted = false
 			};
@@ -250,5 +147,34 @@ namespace OccuRec.ASCOM
 			if (callType == CallType.Sync)
 				SpinWait.SpinUntil(() => item.InvocationCompleted);
 		}
+
+        /// <summary>Raises the event (on the UI thread if available).</summary>
+        /// <param name="multicastDelegate">The event to raise.</param>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">An EventArgs that contains the event data.</param>
+        /// <returns>The return value of the event invocation or null if none.</returns>
+        public static object RaiseEvent<T>(MulticastDelegate multicastDelegate, T eventArg)
+        {
+            object retVal = null;
+
+            MulticastDelegate threadSafeMulticastDelegate = multicastDelegate;
+            if (threadSafeMulticastDelegate != null)
+            {
+                foreach (Delegate d in threadSafeMulticastDelegate.GetInvocationList())
+                {
+                    var synchronizeInvoke = d.Target as ISynchronizeInvoke;
+                    if ((synchronizeInvoke != null) && synchronizeInvoke.InvokeRequired)
+                    {
+                        retVal = synchronizeInvoke.EndInvoke(synchronizeInvoke.BeginInvoke(d, new object[] { eventArg }));
+                    }
+                    else
+                    {
+                        retVal = d.DynamicInvoke(new object[] { eventArg });
+                    }
+                }
+            }
+
+            return retVal;
+        }
 	}
 }

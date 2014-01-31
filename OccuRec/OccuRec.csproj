@@ -74,8 +74,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ASCOM\ASCOMHelper.cs" />
-    <Compile Include="ASCOM\FocuserCommands.cs" />
     <Compile Include="ASCOM\frmFocusControl.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,9 +86,7 @@
     <Compile Include="ASCOM\frmTelescopeControl.Designer.cs">
       <DependentUpon>frmTelescopeControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="ASCOM\IASCOMDeviceCallbacks.cs" />
     <Compile Include="ASCOM\ObservatoryController.cs" />
-    <Compile Include="ASCOM\TelescopeCommands.cs" />
     <Compile Include="ASCOM\ThreadIsolationInvoker.cs" />
     <Compile Include="Config\Panels\ucFocusing.cs">
       <SubType>UserControl</SubType>

@@ -33,7 +33,7 @@ using OccuRec.Utilities;
 
 namespace OccuRec
 {
-    public partial class frmMain : Form, IVideoCallbacks, IASCOMDeviceCallbacks
+    public partial class frmMain : Form, IVideoCallbacks
 	{
 		private VideoWrapper videoObject;
 
@@ -66,7 +66,11 @@ namespace OccuRec
 			m_VideoRenderingController = new VideoRenderingController(this, m_StateManager, m_AnalysisManager);
             m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
 
-		    m_ObservatoryController = new ObservatoryController(this, this);
+		    m_ObservatoryController = new ObservatoryController(); //this, this);
+		    m_ObservatoryController.TelescopeConnectionChanged += TelescopeConnectionChanged;
+            m_ObservatoryController.FocuserConnectionChanged += FocuserConnectionChanged;
+		    m_ObservatoryController.TelescopeStateUpdated += TelescopeStateUpdated;
+		    m_ObservatoryController.FocuserStateUpdated += FocuserStateUpdated;
 
             var att = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
 		    appVersion = att.Version;
@@ -1344,7 +1348,6 @@ namespace OccuRec
 				m_OverlayManager.MouseUp(e);
 		}
 
-        #region IASCOMDeviceCallbacks
         private void RefreshASCOMStatusControls(ASCOMConnectionState state, ToolStripStatusLabel label)
         {
             switch (state)
@@ -1421,7 +1424,7 @@ namespace OccuRec
             }
         }
 
-        public void TelescopeStateUpdate(TelescopeState state)
+        public void TelescopeStateUpdated(TelescopeState state)
         {
             m_LastTelescopeState = state;
             UpdateTelescopeAndFocuserState();
@@ -1451,7 +1454,6 @@ namespace OccuRec
             else
                 tslTelFocStatus.Text = string.Empty;
         }
-        #endregion
 
 		private void tsbCrosshair_Click(object sender, EventArgs e)
 		{

@@ -17,26 +17,32 @@ namespace OccuRec.ASCOM
 {
 	public partial class frmFocusControl : Form
 	{
-		internal IObservatoryController ObservatoryController;
+	    private IObservatoryController m_ObservatoryController;
 
-		public frmFocusControl()
+	    internal IObservatoryController ObservatoryController
+	    {
+	        set
+	        {
+                if (m_ObservatoryController != value)
+                {
+                    if (m_ObservatoryController != null)
+                        m_ObservatoryController.FocuserStateUpdated -= UpdateFocuserState;
+
+                    m_ObservatoryController = value;
+                    m_ObservatoryController.FocuserStateUpdated += UpdateFocuserState;
+                }
+	            
+	        }
+	    }
+
+	    public frmFocusControl()
 		{
 			InitializeComponent();
 		}
 
 		private void frmFocusControl_Shown(object sender, EventArgs e)
 		{
-			ObservatoryController.GetFocuserState(UpdateFocuserStateOutOfThread);
-		}
-
-		private void UpdateFocuserStateOutOfThread(FocuserState state)
-		{
-		    try
-		    {
-		        Invoke(new Action<FocuserState>(UpdateFocuserState), state);
-		    }
-		    catch (ObjectDisposedException)
-		    { }
+            m_ObservatoryController.GetFocuserState();
 		}
 
 		private void UpdateFocuserState(FocuserState state)
@@ -114,55 +120,55 @@ namespace OccuRec.ASCOM
         {
             if (!m_SettingTempCompValue)
             {
-                ObservatoryController.FocuserSetTempComp(cbxTempComp.Checked, UpdateFocuserStateOutOfThread);
+                m_ObservatoryController.FocuserSetTempComp(cbxTempComp.Checked);
             }
         }
 
         private void btnMove_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            ObservatoryController.FocuserMove((int)nudMove.Value, UpdateFocuserStateOutOfThread);
+            m_ObservatoryController.FocuserMove((int)nudMove.Value);
         }
 
         private void btnInSmall_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            ObservatoryController.FocuserMoveIn(FocuserStepSize.Smallest, UpdateFocuserStateOutOfThread);
+            m_ObservatoryController.FocuserMoveIn(FocuserStepSize.Smallest);
         }
 
         private void btnOutSmall_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            ObservatoryController.FocuserMoveOut(FocuserStepSize.Smallest, UpdateFocuserStateOutOfThread);
+            m_ObservatoryController.FocuserMoveOut(FocuserStepSize.Smallest);
         }
 
         private void btnInLarge_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            ObservatoryController.FocuserMoveIn(FocuserStepSize.Small, UpdateFocuserStateOutOfThread);
+            m_ObservatoryController.FocuserMoveIn(FocuserStepSize.Small);
         }
 
         private void btnOutLarge_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            ObservatoryController.FocuserMoveOut(FocuserStepSize.Small, UpdateFocuserStateOutOfThread);
+            m_ObservatoryController.FocuserMoveOut(FocuserStepSize.Small);
         }
 
         private void btnInLargest_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            ObservatoryController.FocuserMoveIn(FocuserStepSize.Large, UpdateFocuserStateOutOfThread);
+            m_ObservatoryController.FocuserMoveIn(FocuserStepSize.Large);
         }
 
         private void btnOutLargest_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-            ObservatoryController.FocuserMoveOut(FocuserStepSize.Large, UpdateFocuserStateOutOfThread);
+            m_ObservatoryController.FocuserMoveOut(FocuserStepSize.Large);
         }
 
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
-            ObservatoryController.DisconnectFocuser();
+            m_ObservatoryController.DisconnectFocuser();
             Close();
         }
 	}
