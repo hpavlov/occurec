@@ -45,5 +45,15 @@ namespace OccuRec.ASCOM.Wrapper
 		{
 			m_IsolatedHelper.ReleaseDevice(deviceId);
 		}
+
+        public void ConfigureFocuser(string progId)
+        {
+            m_IsolatedHelper.ConfigureFocuser(progId);
+        }
+
+        public void ConfigureTelescope(string progId)
+        {
+            m_IsolatedHelper.ConfigureTelescope(progId);
+        }
 	}
 }

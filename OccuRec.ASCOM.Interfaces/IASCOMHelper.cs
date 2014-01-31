@@ -10,6 +10,8 @@ namespace OccuRec.ASCOM.Interfaces
 	{
 		string ChooseTelescope();
 		string ChooseFocuser();
+	    void ConfigureFocuser(string progId);
+        void ConfigureTelescope(string progId);
 		IASCOMFocuser CreateFocuser(string progId);
         IASCOMTelescope CreateTelescope(string progId);
 		void ReleaseDevice(Guid deviceId);

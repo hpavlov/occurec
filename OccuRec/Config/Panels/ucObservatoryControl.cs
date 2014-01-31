@@ -48,7 +48,7 @@ namespace OccuRec.Config.Panels
 
 		private void btnSelectTelescope_Click(object sender, EventArgs e)
 		{
-			string progId = ASCOMClient.Instance.ChooseTelescope();
+		    string progId = ASCOMClient.Instance.ChooseTelescope();
 
 			if (!string.IsNullOrEmpty(progId))
 				tbxTelescope.Text = progId;
@@ -78,7 +78,7 @@ namespace OccuRec.Config.Panels
                 btnSelectTelescope.Enabled = true;
                 btnTestTelescopeConnection.Enabled = true;
                 btnClearTelescope.Enabled = true;
-                btnConfigureTelescope.Enabled = true;
+                btnConfigureTelescope.Enabled = !string.IsNullOrEmpty(tbxTelescope.Text);
                 btnDisconnectTelescope.Visible = false;
 			}
 
@@ -96,7 +96,7 @@ namespace OccuRec.Config.Panels
                 btnSelectFocuser.Enabled = true;
                 btnTestFocuserConnection.Enabled = true;
                 btnClearFocuser.Enabled = true;
-                btnConfigureFocuser.Enabled = true;
+                btnConfigureFocuser.Enabled = !string.IsNullOrEmpty(tbxFocuser.Text);
                 btnDisconnectFocuser.Visible = false;
             }
 
@@ -245,12 +245,14 @@ namespace OccuRec.Config.Panels
 
         private void btnConfigureFocuser_Click(object sender, EventArgs e)
         {
-
+            if (!string.IsNullOrEmpty(tbxFocuser.Text))
+                ASCOMClient.Instance.ConfigureFocuser(tbxFocuser.Text);
         }
 
         private void btnConfigureTelescope_Click(object sender, EventArgs e)
         {
-
+            if (!string.IsNullOrEmpty(tbxTelescope.Text))
+                ASCOMClient.Instance.ConfigureTelescope(tbxTelescope.Text);
         }
 	}
 }

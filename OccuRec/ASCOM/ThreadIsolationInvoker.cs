@@ -71,6 +71,8 @@ namespace OccuRec.ASCOM
 						}
 					}
 				}
+
+                Thread.Sleep(10);
 			}
 		}
 

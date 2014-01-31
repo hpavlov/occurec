@@ -156,6 +156,7 @@
     <Compile Include="Config\Panels\ucObservatoryControl.Designer.cs">
       <DependentUpon>ucObservatoryControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\UIThreadCaller.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Tracking\AllGreys.cs" />
     <Compile Include="Tracking\ImagePixel.cs" />

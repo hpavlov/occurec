@@ -70,6 +70,18 @@ namespace OccuRec.ASCOM.Server
 			return rv;
 		}
 
+        public void Configure()
+        {
+            try
+            {
+                m_Focuser.SetupDialog();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.GetFullStackTrace());
+            }
+        }
+
 		public void Move(int position)
 		{
             Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Focuser)::Move({1})", ProgId, position));

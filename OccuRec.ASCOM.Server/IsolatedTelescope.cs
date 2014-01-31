@@ -31,6 +31,18 @@ namespace OccuRec.ASCOM.Server
             m_TelescopeCapabilities = GetTelescopeCapabilities();
         }
 
+        public void Configure()
+        {
+            try
+            {
+                m_Telescope.SetupDialog();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.GetFullStackTrace());
+            }
+        }
+
         public TelescopeState GetCurrentState()
         {
             var rv = new TelescopeState();

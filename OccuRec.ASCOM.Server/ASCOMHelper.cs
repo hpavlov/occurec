@@ -53,6 +53,22 @@ namespace OccuRec.ASCOM.Server
             return telescope;
         }
 
+        public void ConfigureFocuser(string progId)
+        {
+            using (var focuser = new IsolatedFocuser(progId))
+            {
+                focuser.Configure();
+            }
+        }
+
+        public void ConfigureTelescope(string progId)
+        {
+            using (var telescope = new IsolatedTelescope(progId))
+            {
+                telescope.Configure();
+            }
+        }
+
 		public void Initialise(IOccuRecHost host)
 		{
 			RemotingConfiguration.RegisterWellKnownServiceType(typeof(ASCOMHelper), "OccuRec.ASCOM.Server.Helper", WellKnownObjectMode.Singleton);

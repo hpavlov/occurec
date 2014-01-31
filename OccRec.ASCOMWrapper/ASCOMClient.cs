@@ -77,6 +77,22 @@ namespace OccuRec.ASCOM.Wrapper
 			return m_ASCOMHelper.ChooseTelescope();
 		}
 
+        public void ConfigureFocuser(string progId)
+        {
+            if (TraceSwitchASCOMClient.TraceVerbose)
+                Trace.WriteLine("OccuRec: ASCOMClient::ConfigureFocuser()");
+
+            m_ASCOMHelper.ConfigureFocuser(progId);
+        }
+
+        public void ConfigureTelescope(string progId)
+        {
+            if (TraceSwitchASCOMClient.TraceVerbose)
+                Trace.WriteLine("OccuRec: ASCOMClient::ConfigureTelescope()");
+
+            m_ASCOMHelper.ConfigureTelescope(progId);
+        }
+
         public IFocuser CreateFocuser(string progId, int largeStepSize = -1, int smallStepSize = -1, int smallestStepSize = -1)
 		{
             if (TraceSwitchASCOMClient.TraceVerbose)
