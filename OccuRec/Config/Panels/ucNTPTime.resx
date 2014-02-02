@@ -120,4 +120,7 @@
   <data name="label3.Text" xml:space="preserve">
     <value>NTP time can be also used to timestamp the video. The accuracy of this depends greatly on the latency berween you and the NTP server. For this reason if you want to timestamp using NTP time you must choose a server that is very close to you.</value>
   </data>
+  <metadata name="indicatorTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
 </root>

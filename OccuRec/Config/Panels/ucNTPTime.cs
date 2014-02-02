@@ -20,6 +20,22 @@ namespace OccuRec.Config.Panels
 			InitializeComponent();
 		}
 
+		/// <summary> 
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			StopLatencyTesting();
+
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			
+			base.Dispose(disposing);			
+		}
+
 		public override void LoadSettings()
 		{
 			tbxNTPServer.Text = Settings.Default.NTPServer;
@@ -35,55 +51,144 @@ namespace OccuRec.Config.Panels
             Process.Start("http://support.ntp.org/bin/view/Servers/WebHome");
 		}
 
-	    private Exception m_Exception;
-        private float m_Latency;
+		private bool m_CheckingLatency = false;
 
         private void btnTestNTP_Click(object sender, EventArgs e)
         {
-            Cursor = Cursors.WaitCursor;
-            ThreadPool.UnsafeQueueUserWorkItem(CheckLatency, null);
+			if (m_CheckingLatency)
+			{
+				StopLatencyTesting();
+			}
+			else
+			{
+				StartLatencyTesting();
+			}
         }
 
-        private void CheckCompleted()
+		private void StartLatencyTesting()
+		{
+			if (!m_CheckingLatency)
+			{
+				m_CheckingLatency = true;
+				m_LatencyList.Clear();
+				DisplayLatencyList();
+				ThreadPool.UnsafeQueueUserWorkItem(CheckLatency, null);
+				btnTestNTP.Text = "Stop Test";
+				lblTestingIndicator.Visible = true;
+				indicatorTimer.Enabled = true;
+			}
+		}
+
+		private void StopLatencyTesting()
+		{
+			if (m_CheckingLatency)
+			{
+				m_CheckingLatency = false;
+				btnTestNTP.Text = "Test Latency";
+				indicatorTimer.Enabled = false;
+				lblTestingIndicator.Visible = false; 				
+			}
+		}
+
+		private List<float> m_LatencyList = new List<float>(); 
+
+        private void OnNewLatencyMeasurement(float? latency, Exception exception)
         {
+	        if (exception != null)
+	        {
+		        MessageBox.Show(this, exception.Message, "NTP Latency Testing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		        return;
+	        }
+	        else
+	        {
+		        if (m_LatencyList.Count >= 9) m_LatencyList.RemoveAt(0);
+		        if (latency.HasValue)
+			        m_LatencyList.Add(latency.Value);
+		        else
+		        {
+			        // NOTE: A null value mean - we finished with the measurements			        
+					StopLatencyTesting();
+		        }
+	        }
 
-            if (m_Exception != null)
-                MessageBox.Show(this, m_Exception.Message, "OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else
-                MessageBox.Show(this,
-                string.Format("The latency to {0} is {1} ms.\r\n\r\nThis will be a typical 3-Sigma timing error if this server is used to time video.", tbxNTPServer.Text, m_Latency.ToString("0.0")),
-                "OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            Cursor = Cursors.Default;
+	        DisplayLatencyList();
         }
+
+		private void DisplayLatencyList()
+		{
+			Label[] labels = new Label[] { lblLatency1, lblLatency2, lblLatency3, lblLatency4, lblLatency5, lblLatency6, lblLatency7, lblLatency8, lblLatency9 };
+			for (int i = 0; i < 9; i++)
+			{
+				if (i < m_LatencyList.Count)
+				{
+					if (m_LatencyList[i] >= 100)
+						labels[i].Text = string.Format("{0}ms", (int)Math.Round(m_LatencyList[i]));
+					else
+						labels[i].Text = string.Format("{0}ms", m_LatencyList[i].ToString("0.0"));
+
+					labels[i].Visible = true;
+				}
+				else
+				{
+					labels[i].Visible = false;
+				}
+			}
+
+			lblLatencyTitle.Visible = m_LatencyList.Count > 0 || m_CheckingLatency;			
+		}
 
         private void CheckLatency(object state)
         {
-            m_Latency = float.NaN;
-            m_Exception = null;
-            try
-            {
-                m_Latency = 0;
-                float latency;
-                DateTime dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
-                m_Latency += latency;
+			float avrgLatency;
+			while (m_CheckingLatency)
+			{
+				avrgLatency = float.NaN;
+				try
+				{
+					avrgLatency = 0;
+					float latency;
+					DateTime dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
+					avrgLatency += latency;
 
-                dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
-                m_Latency += latency;
+					dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
+					avrgLatency += latency;
 
-                dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
-                m_Latency += latency;
+					dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
+					avrgLatency += latency;
 
-                m_Latency /= 3;
-            }
-            catch (Exception ex)
-            {
-                m_Exception = ex;
-            }
-            finally
-            {
-                this.Invoke(new Action(CheckCompleted));
-            }
+					avrgLatency /= 3;
+				}
+				catch (Exception ex)
+				{
+					try
+					{
+						this.Invoke(new Action<float?, Exception>(OnNewLatencyMeasurement), new object[] { avrgLatency, ex });	
+					}
+					catch (InvalidOperationException) { }					
+					break;
+				}
+				finally
+				{
+					try
+					{
+						this.Invoke(new Action<float?, Exception>(OnNewLatencyMeasurement), new object[] {avrgLatency, null});
+					}
+					catch (InvalidOperationException) { }
+				}
+
+				Thread.Sleep(1000);
+			}
+
+			try
+			{
+				this.Invoke(new Action<float?, Exception>(OnNewLatencyMeasurement), new object[] { null, null });
+			}
+			catch (InvalidOperationException) { }
         }
+
+		private void indicatorTimer_Tick(object sender, EventArgs e)
+		{
+			lblTestingIndicator.Visible = !lblTestingIndicator.Visible;
+		}
 	}
 }
