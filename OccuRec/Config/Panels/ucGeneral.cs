@@ -24,6 +24,9 @@ namespace OccuRec.Config.Panels
 			tbxOutputLocation.Text = Settings.Default.OutputLocation;
 			cbxTimeInUT.Checked = Settings.Default.DisplayTimeInUT;
 			cbxWarnForFileSystemIssues.Checked = Settings.Default.WarnForFileSystemIssues;
+		    cbxDisplayTargetLightCurve.Checked = Settings.Default.OverlayDrawTargetLightCurve;
+            cbxDisplayTargetPSF.Checked = Settings.Default.OverlayDrawTargetStarFSP;
+            cbxDisplayGuidingPSF.Checked = Settings.Default.OverlayDrawGuidingStarFSP;
 		}
 
 		public override void SaveSettings()
@@ -31,6 +34,9 @@ namespace OccuRec.Config.Panels
 			Settings.Default.OutputLocation = tbxOutputLocation.Text;
 			Settings.Default.DisplayTimeInUT = cbxTimeInUT.Checked;
 			Settings.Default.WarnForFileSystemIssues = cbxWarnForFileSystemIssues.Checked;
+            Settings.Default.OverlayDrawTargetLightCurve = cbxDisplayTargetLightCurve.Checked;
+            Settings.Default.OverlayDrawTargetStarFSP = cbxDisplayTargetPSF.Checked;
+            Settings.Default.OverlayDrawGuidingStarFSP = cbxDisplayGuidingPSF.Checked;
 		}
 
 		public override bool ValidateSettings()

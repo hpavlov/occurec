@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using OccuRec.Helpers;
+using OccuRec.Properties;
 using OccuRec.Tracking;
 
 namespace OccuRec.FrameAnalysis
@@ -59,7 +60,8 @@ namespace OccuRec.FrameAnalysis
 
 		public void DisplayData(Graphics g, int imageWidth, int imageHeight)
 		{
-			if (m_AllMeasurements.Count > 2)
+            if (Settings.Default.OverlayDrawTargetLightCurve && 
+                m_AllMeasurements.Count > 2)
 			{
 				lock (m_SyncLock)
 				{
@@ -75,11 +77,11 @@ namespace OccuRec.FrameAnalysis
 						min = mid - 2 * 0.4305f * mid;
 					}
 
-					float scaleY = 50.0f / (max - min);					
+					float scaleY = 50.0f / (max - min);
 
 					using (Graphics gBuff = Graphics.FromImage(m_BufferImage))
 					{
-						gBuff.Clear(Color.Gray);
+                        gBuff.Clear(SystemColors.ControlDarkDark);
 						gBuff.DrawRectangle(Pens.Blue, 0, 0, 203, 53);
 
 						if (!float.IsNaN(scaleY) && !float.IsInfinity(scaleY))
@@ -103,17 +105,33 @@ namespace OccuRec.FrameAnalysis
 				}
 			}
 
-			if (TrackingContext.Current.TargetStar != null &&
+            if (Settings.Default.OverlayDrawTargetStarFSP && 
+                TrackingContext.Current.TargetStar != null &&
 				TrackingContext.Current.TargetStar.IsLocated)
 			{
 				using (Graphics gPsf = Graphics.FromImage(m_PsfBitmap))
 				{
 					TrackingContext.Current.TargetStar.PsfFit.DrawGraph(gPsf, m_PsfBitmapRect, TrackingContext.Current.TargetStar.Bpp);
+                    gPsf.DrawRectangle(Pens.Blue, 0, 0, m_PsfBitmap.Width - 1, m_PsfBitmap.Height - 1);
 					gPsf.Save();
 				}
 
 				g.DrawImage(m_PsfBitmap, imageWidth - 5 - m_PsfBitmapRect.Width, 54 + 5 + 5);
 			}
+
+            if (Settings.Default.OverlayDrawGuidingStarFSP &&
+                TrackingContext.Current.GuidingStar != null &&
+                TrackingContext.Current.GuidingStar.IsLocated)
+            {
+                using (Graphics gPsf = Graphics.FromImage(m_PsfBitmap))
+                {
+                    TrackingContext.Current.GuidingStar.PsfFit.DrawGraph(gPsf, m_PsfBitmapRect, TrackingContext.Current.GuidingStar.Bpp);
+                    gPsf.DrawRectangle(Pens.Blue, 0, 0, m_PsfBitmap.Width - 1, m_PsfBitmap.Height - 1);
+                    gPsf.Save();
+                }
+
+                g.DrawImage(m_PsfBitmap, imageWidth - 5 - m_PsfBitmapRect.Width, 54 + 5 + 5 + 5 +  m_PsfBitmapRect.Height);
+            }
 		}
 	}
 }

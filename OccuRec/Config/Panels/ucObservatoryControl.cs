@@ -32,7 +32,7 @@ namespace OccuRec.Config.Panels
 			cbxUseAppDomainIsolation.Checked = Settings.Default.ASCOMLoadInSeparateAppDomain;
 			tbxFocuser.Text = Settings.Default.ASCOMProgIdFocuser;
 			tbxTelescope.Text = Settings.Default.ASCOMProgIdTelescope;
-            nudTelescopePingRate.SetNUDValue(Settings.Default.TelescopePingRateSeconds);
+            nudTelescopePingRate.SetNUDValue(Settings.Default.ObservatoryStatusPingRateSeconds);
 
 			m_Initialised = true;
 			UpdateASCOMControlsState(null);
@@ -40,7 +40,7 @@ namespace OccuRec.Config.Panels
 
 		public override void SaveSettings()
 		{
-            Settings.Default.TelescopePingRateSeconds = (int)nudTelescopePingRate.Value;
+            Settings.Default.ObservatoryStatusPingRateSeconds = (int)nudTelescopePingRate.Value;
 			Settings.Default.ASCOMProgIdFocuser = tbxFocuser.Text;
 			Settings.Default.ASCOMProgIdTelescope = tbxTelescope.Text;
 			Settings.Default.ASCOMLoadInSeparateAppDomain = cbxUseAppDomainIsolation.Checked;

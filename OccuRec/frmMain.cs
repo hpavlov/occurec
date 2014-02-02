@@ -66,7 +66,7 @@ namespace OccuRec
 			m_VideoRenderingController = new VideoRenderingController(this, m_StateManager, m_AnalysisManager);
             m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
 
-		    m_ObservatoryController = new ObservatoryController(); //this, this);
+		    m_ObservatoryController = new ObservatoryController();
 		    m_ObservatoryController.TelescopeConnectionChanged += TelescopeConnectionChanged;
             m_ObservatoryController.FocuserConnectionChanged += FocuserConnectionChanged;
 		    m_ObservatoryController.TelescopeStateUpdated += TelescopeStateUpdated;
@@ -810,6 +810,7 @@ namespace OccuRec
         }
 
 	    private DateTime nextNTPSyncTime = DateTime.MinValue;
+        private DateTime nextOneMinCheckUTC = DateTime.MinValue;
 
         private void timerScheduler_Tick(object sender, EventArgs e)
         {
@@ -871,8 +872,17 @@ namespace OccuRec
 				{
 					m_StateManager.StopRecordingOCRTestingFile();
 					UpdateState(null);
-				}				
+				}
 			}
+
+            if (nextOneMinCheckUTC <= DateTime.UtcNow)
+            {
+                m_ObservatoryController.PerformTelescopePingActions();
+                m_ObservatoryController.PerformFocuserPingActions();
+
+                if (Settings.Default.ObservatoryStatusPingRateSeconds > 0)
+                    nextOneMinCheckUTC = DateTime.UtcNow.AddSeconds(Settings.Default.ObservatoryStatusPingRateSeconds);
+            }
         }
 
         private void UpdateTimeFromNTPServer(object state)

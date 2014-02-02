@@ -246,7 +246,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(165, 240);
+            this.label2.Location = new System.Drawing.Point(221, 240);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(24, 13);
             this.label2.TabIndex = 35;
@@ -254,7 +254,7 @@
             // 
             // nudTelescopePingRate
             // 
-            this.nudTelescopePingRate.Location = new System.Drawing.Point(107, 238);
+            this.nudTelescopePingRate.Location = new System.Drawing.Point(163, 238);
             this.nudTelescopePingRate.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -274,9 +274,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(3, 240);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(98, 13);
+            this.label3.Size = new System.Drawing.Size(156, 13);
             this.label3.TabIndex = 33;
-            this.label3.Text = "Check status every";
+            this.label3.Text = "Check observatory status every";
             // 
             // ucObservatoryControl
             // 

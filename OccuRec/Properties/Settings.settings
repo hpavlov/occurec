@@ -170,7 +170,7 @@
     <Setting Name="FocuserSmallestStep" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">50</Value>
     </Setting>
-    <Setting Name="TelescopePingRateSeconds" Type="System.Int32" Scope="User">
+    <Setting Name="ObservatoryStatusPingRateSeconds" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">60</Value>
     </Setting>
     <Setting Name="TelPulseDuration" Type="System.Int32" Scope="User">
@@ -208,6 +208,15 @@
     </Setting>
     <Setting Name="FocuserTemperatureIn" Type="System.String" Scope="User">
       <Value Profile="(Default)">C</Value>
+    </Setting>
+    <Setting Name="OverlayDrawTargetLightCurve" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="OverlayDrawTargetStarFSP" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="OverlayDrawGuidingStarFSP" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

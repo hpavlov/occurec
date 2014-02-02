@@ -698,12 +698,12 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("60")]
-        public int TelescopePingRateSeconds {
+        public int ObservatoryStatusPingRateSeconds {
             get {
-                return ((int)(this["TelescopePingRateSeconds"]));
+                return ((int)(this["ObservatoryStatusPingRateSeconds"]));
             }
             set {
-                this["TelescopePingRateSeconds"] = value;
+                this["ObservatoryStatusPingRateSeconds"] = value;
             }
         }
         
@@ -848,6 +848,42 @@ namespace OccuRec.Properties {
             }
             set {
                 this["FocuserTemperatureIn"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool OverlayDrawTargetLightCurve {
+            get {
+                return ((bool)(this["OverlayDrawTargetLightCurve"]));
+            }
+            set {
+                this["OverlayDrawTargetLightCurve"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool OverlayDrawTargetStarFSP {
+            get {
+                return ((bool)(this["OverlayDrawTargetStarFSP"]));
+            }
+            set {
+                this["OverlayDrawTargetStarFSP"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OverlayDrawGuidingStarFSP {
+            get {
+                return ((bool)(this["OverlayDrawGuidingStarFSP"]));
+            }
+            set {
+                this["OverlayDrawGuidingStarFSP"] = value;
             }
         }
     }

@@ -64,6 +64,8 @@ namespace OccuRec.ASCOM
         void FocuserMove(int step, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
         void FocuserSetTempComp(bool useTempComp, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
         void GetFocuserState(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+        void PerformTelescopePingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+	    void PerformFocuserPingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 	}
 
 	internal class ObservatoryController : ThreadIsolatedInvoker, IObservatoryController, IDisposable
@@ -75,6 +77,56 @@ namespace OccuRec.ASCOM
         public event Action<ASCOMConnectionState> FocuserConnectionChanged;
         public event Action<TelescopeState> TelescopeStateUpdated;
         public event Action<FocuserState> FocuserStateUpdated;
+
+        public void PerformTelescopePingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+        {
+            IsolatedAction(() =>
+            {
+                try
+                {
+                    if (m_ConnectedTelescope != null && m_ConnectedTelescope.Connected)
+                    {
+                        TelescopeState state = m_ConnectedTelescope.GetCurrentState();
+                        OnTelescopeState(state);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    OnTelescopeErrored();
+                    Trace.WriteLine(ex.GetFullStackTrace());
+
+                    return ex;
+                }
+
+                return null;
+            },
+            callType, callback, callbackUIControl);
+        }
+
+        public void PerformFocuserPingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+        {
+            IsolatedAction(() =>
+            {
+                try
+                {
+                    if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
+                    {
+                        FocuserState state = m_ConnectedFocuser.GetCurrentState();
+                        OnFocuserState(state);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    OnFocuserErrored();
+                    Trace.WriteLine(ex.GetFullStackTrace());
+
+                    return ex;
+                }
+
+                return null;
+            },
+            callType, callback, callbackUIControl);
+        }
 
 		public void TryConnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
 		{
