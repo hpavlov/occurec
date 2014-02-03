@@ -230,7 +230,7 @@ void SimplifiedTracker::NextFrame(int frameNo, unsigned long* pixels)
 
 			if (trackedObject->CurrentPsfFit->IsSolved())
 			{
-				if (trackedObject->CurrentPsfFit->Certainty() < MIN_CERTAINTY)
+				if (trackedObject->CurrentPsfFit->Certainty() < MIN_GUIDING_STAR_CERTAINTY)
 				{
 					trackedObject->SetIsTracked(false, ObjectCertaintyTooSmall, 0, 0);
 				}
@@ -258,12 +258,12 @@ void SimplifiedTracker::NextFrame(int frameNo, unsigned long* pixels)
 	{
 		TrackedObject* trackedObject = m_TrackedObjects[i];
 
-		bool needsRelativePositioning = trackedObject->IsFixedAperture || (trackedObject->IsOccultedStar && m_IsFullDisappearance);
+		bool needsPostGuidingStarLocating = trackedObject->IsFixedAperture || trackedObject->IsOccultedStar;
 		
-		if (!needsRelativePositioning && trackedObject->IsLocated)
+		if (!needsPostGuidingStarLocating && trackedObject->IsLocated)
 			atLeastOneObjectLocated = true;
 			
-		if (!needsRelativePositioning) 
+		if (!needsPostGuidingStarLocating) 
 			continue;
 		
 		double totalX = 0;
@@ -298,7 +298,7 @@ void SimplifiedTracker::NextFrame(int frameNo, unsigned long* pixels)
 				trackedObject->UseCurrentPsfFit = false;
 				trackedObject->SetIsTracked(true, FixedObject, x_double, y_double);
 			}
-			else if (trackedObject->IsOccultedStar && m_IsFullDisappearance)
+			else if (trackedObject->IsOccultedStar)
 			{
 				long x = (long)(x_double + 0.5); // rounded
 				long y = (long)(y_double + 0.5); // rounded
@@ -318,8 +318,10 @@ void SimplifiedTracker::NextFrame(int frameNo, unsigned long* pixels)
 					trackedObject->SetIsTracked(true, TrackedSuccessfully, trackedObject->CurrentPsfFit->XCenter(), trackedObject->CurrentPsfFit->YCenter());
 					trackedObject->UseCurrentPsfFit = true;
 				}
-				else
+				else if (m_IsFullDisappearance)
 					trackedObject->SetIsTracked(false, FullyDisappearingStarMarkedTrackedWithoutBeingFound, 0, 0);
+				else
+					trackedObject->SetIsTracked(false, ObjectCertaintyTooSmall, 0, 0);
 			}
 		}
 	}
@@ -338,8 +340,7 @@ void SimplifiedTracker::NextFrameInt8(int frameNo, unsigned char* pixels)
 		TrackedObject* trackedObject = m_TrackedObjects[i];
 		trackedObject->NextFrame();
 
-		if (trackedObject->IsFixedAperture ||
-			(trackedObject->IsOccultedStar && m_IsFullDisappearance))
+		if (trackedObject->IsFixedAperture || trackedObject->IsOccultedStar)
 		{
 			// Star position will be determined after the rest of the stars are found 
 		}
@@ -352,7 +353,7 @@ void SimplifiedTracker::NextFrameInt8(int frameNo, unsigned char* pixels)
 
 			if (trackedObject->CurrentPsfFit->IsSolved())
 			{
-				if (trackedObject->CurrentPsfFit->Certainty() < MIN_CERTAINTY)
+				if (trackedObject->CurrentPsfFit->Certainty() < MIN_GUIDING_STAR_CERTAINTY)
 				{
 					trackedObject->SetIsTracked(false, ObjectCertaintyTooSmall, 0, 0);
 				}
@@ -380,12 +381,12 @@ void SimplifiedTracker::NextFrameInt8(int frameNo, unsigned char* pixels)
 	{
 		TrackedObject* trackedObject = m_TrackedObjects[i];
 
-		bool needsRelativePositioning = trackedObject->IsFixedAperture || (trackedObject->IsOccultedStar && m_IsFullDisappearance);
+		bool needsPostGuidingStarLocating = trackedObject->IsFixedAperture || trackedObject->IsOccultedStar;
 		
-		if (!needsRelativePositioning && trackedObject->IsLocated)
+		if (!needsPostGuidingStarLocating && trackedObject->IsLocated)
 			atLeastOneObjectLocated = true;
 			
-		if (!needsRelativePositioning) 
+		if (!needsPostGuidingStarLocating) 
 			continue;
 		
 		double totalX = 0;
@@ -420,7 +421,7 @@ void SimplifiedTracker::NextFrameInt8(int frameNo, unsigned char* pixels)
 				trackedObject->UseCurrentPsfFit = false;
 				trackedObject->SetIsTracked(true, FixedObject, x_double, y_double);
 			}
-			else if (trackedObject->IsOccultedStar && m_IsFullDisappearance)
+			else if (trackedObject->IsOccultedStar)
 			{
 				long x = (long)(x_double + 0.5); // rounded
 				long y = (long)(y_double + 0.5); // rounded
@@ -440,8 +441,10 @@ void SimplifiedTracker::NextFrameInt8(int frameNo, unsigned char* pixels)
 					trackedObject->SetIsTracked(true, TrackedSuccessfully, trackedObject->CurrentPsfFit->XCenter(), trackedObject->CurrentPsfFit->YCenter());
 					trackedObject->UseCurrentPsfFit = true;
 				}
-				else
+				else if (m_IsFullDisappearance)
 					trackedObject->SetIsTracked(false, FullyDisappearingStarMarkedTrackedWithoutBeingFound, 0, 0);
+				else
+					trackedObject->SetIsTracked(false, ObjectCertaintyTooSmall, 0, 0);
 			}
 		}
 	}
