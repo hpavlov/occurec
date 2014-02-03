@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -18,6 +19,8 @@ namespace OccuRec.Helpers
         // http://stackoverflow.com/questions/1193955/how-to-query-an-ntp-server-using-c
         public static DateTime GetNetworkTime(string ntpServer, out float latencyInMilliseconds)
         {
+	        NTPTimeKeeper.AttemptingNTPTimeUpdate();
+
             // NTP message size - 16 bytes of the digest (RFC 2030)
             var ntpData = new byte[48];
 
@@ -141,99 +144,130 @@ namespace OccuRec.Helpers
 	{
 		private static long s_ReferenceTicks = -1;
 		private static long s_ReferenceDateTimeTicks = -1;
+		private static long s_FirstReferenceTicks = long.MaxValue;
+		private static long s_FirstReferenceDateTimeTicks = -1;
 		private static DateTime s_ReferenceDateTime;
 		private static long s_ReferenceFrequency = -1;
 		private static long s_ReferenceMaxError = -1;
-		private static List<long> s_TimeDriftNTPTicks = new List<long>();
-		private static List<long> s_TimeDriftQPCTicks = new List<long>();
-		private static LinearRegression s_TimeDriftFit = new LinearRegression();
-		private static bool s_HasTimeDriftData = false;
+
+		private static DateTime s_FirtstAttemptedDateTimeUpdate = DateTime.MinValue;
+		private static long s_NumberDateTimeUpdateAttempts = 0;
+
+		public static void AttemptingNTPTimeUpdate()
+		{
+			s_NumberDateTimeUpdateAttempts++;
+
+			if (s_FirtstAttemptedDateTimeUpdate == DateTime.MinValue)
+				s_FirtstAttemptedDateTimeUpdate = DateTime.UtcNow;
+		}
 
 		public static void ProcessNTPResponce(long startTicks, long endTicks, long frequency, DateTime utcTime)
 		{
             long maxError = (long)(0.5 + (endTicks - startTicks) * 1000.0f / frequency);
 		    if (maxError <= 0) return;
 
-			if (s_ReferenceFrequency != frequency)
+			long currTicks = startTicks + (maxError / 2);
+
+			if (s_ReferenceFrequency != frequency || s_FirstReferenceTicks > currTicks)
 			{
 				// This is the first measurement
-				UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);
-				Trace.WriteLine(string.Format("OccuRec: First time reference set. Max error is {0}ms.", s_ReferenceMaxError.ToString("0.0")));
+				UpdateTimeReference(currTicks, frequency, utcTime, maxError);
+				if (s_ReferenceFrequency != frequency)
+					Trace.WriteLine(string.Format("OccuRec: First time reference set. Max error is {0}ms.", s_ReferenceMaxError.ToString("0.0")));
+				else
+					Trace.WriteLine(string.Format("OccuRec: Reference is set after QPC overflow. Max error is {0}ms.", s_ReferenceMaxError.ToString("0.0")));
 			}
-			else if (s_TimeDriftNTPTicks.Count > 0)
+			else
 			{
-				ComputeTimeDriftRate(startTicks, endTicks, utcTime);
-
 				if (maxError < s_ReferenceMaxError)
 				{
 					Trace.WriteLine(string.Format("OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms.", maxError.ToString("0.0"), s_ReferenceMaxError.ToString("0.0")));
-					UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);
+					UpdateTimeReference(currTicks, frequency, utcTime, maxError);
 				}
-				else if (s_HasTimeDriftData)
+				else
 				{
-				    var tsSinceLastUpdate = new TimeSpan(utcTime.Ticks - s_ReferenceDateTimeTicks).TotalMinutes;
-                    if (tsSinceLastUpdate > 10)
-                    {
-                        UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);
-                        Trace.WriteLine(string.Format("OccuRec: Time reference updated. No update has been done in the past 10 min. Current error is {0}ms.", maxError.ToString("0.0")));
-                    }
-				    //// If the error accumulated because of a time drift, since out last reference update, is bigger than the NTP max error, then update the time refernece
-				    //long computedQPTTicks = (long)s_TimeDriftFit.ComputeY(utcTime.Ticks);
-				    //double timeDriftMilliseconds = Math.Abs(computedQPTTicks - (startTicks + endTicks) / 2) * 1000.0f / frequency;
-				    //if (maxError < timeDriftMilliseconds)
-				    //{
-				    //    Trace.WriteLine(string.Format("OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the calculated time drift of {1}ms since the last reference was set.", maxError.ToString("0.0"), timeDriftMilliseconds.ToString("0.0")));
-				    //    UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);
-				    //}
+					double tsSinceFirstReference = new TimeSpan(utcTime.Ticks - s_FirstReferenceDateTimeTicks).TotalMinutes;
+					if (tsSinceFirstReference > 10)
+					{
+						double totalPassedMinutesNTP = ((currTicks - s_FirstReferenceTicks) * 1000.0f / frequency) / 60000;
+						double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks)/(utcTime.Ticks - s_FirstReferenceDateTimeTicks);
+						double timeDriftMilleseconds = sectionRatio * Math.Abs(totalPassedMinutesNTP - tsSinceFirstReference)*60000;
+						if (totalPassedMinutesNTP > 0 && timeDriftMilleseconds > (maxError / 2.0))
+						{
+							UpdateTimeReference(currTicks, frequency, utcTime, maxError);
+							Trace.WriteLine(string.Format("OccuRec: Time reference updated. Current timedrift, since last reference update, or {0}ms +/- half max error is bigger than the max error of {1}ms.", timeDriftMilleseconds.ToString("0,0"), maxError.ToString("0.0")));
+						}
+					}
 				}
 			}
 		}
 
-		private static void UpdateTimeReference(long startTicks, long endTicks, long frequency, DateTime utcTime, long maxError)
+		public static Color GetCurrentNTPStatusColour(out string statusMessage)
+		{
+			// If there is no first reference set and OccuRec has been started for more than 1 min, this is status Red  
+			if (s_FirtstAttemptedDateTimeUpdate > DateTime.MinValue && 				
+			    s_FirstReferenceTicks == long.MaxValue)
+			{
+				double secondsSinceFirstTimeUpdateAttempt = new TimeSpan(DateTime.UtcNow.Ticks - s_FirtstAttemptedDateTimeUpdate.Ticks).TotalSeconds;
+
+				if (secondsSinceFirstTimeUpdateAttempt > 60)
+				{
+					statusMessage = "NTP time has been never updated. Check your internet connection and NTP server settings.";
+					return Color.Red;
+				}
+				else
+				{
+					// This is how we tell that no NTP status is yet known
+					statusMessage = null;
+					return SystemColors.Control;					
+				}
+			}
+
+			// If the current error is bigger then 1 sec then this is status Red
+			if (s_ReferenceMaxError > 1000)
+			{
+				statusMessage = "Current NTP time error is larger than 1 sec.";
+				return Color.Red;
+			}
+			
+			// If the current error is between 250ms and 1 sec this is status OrangeRed
+			if (s_ReferenceMaxError > 250)
+			{
+				statusMessage = "Current NTP time error is larger than 250 ms but smaller than 1 sec.";
+				return Color.OrangeRed;
+			}
+
+
+			// If the current error is between 100ms and 250ms this is status DarkGoldenrod
+			if (s_ReferenceMaxError > 100)
+			{
+				statusMessage = "Current NTP time error is larger than 100 ms but smaller than 250 ms.";
+				return Color.DarkGoldenrod;
+			}
+
+			// If the interval between the first reference and now is more than 5 min and curent error is less than 100ms, this is status Green
+			if (s_ReferenceMaxError <= 100)
+			{
+				statusMessage = "Current NTP time error is smaller than 100 ms.";
+				return Color.Green;
+			}
+
+			statusMessage = null;
+			return SystemColors.Control;
+		}
+
+		private static void UpdateTimeReference(long currTicks, long frequency, DateTime utcTime, long maxError)
 		{
 			s_ReferenceFrequency = frequency;
-			s_ReferenceTicks = (startTicks + endTicks) / 2;
+			s_ReferenceTicks = currTicks;
 			s_ReferenceDateTime = utcTime;
 			s_ReferenceDateTimeTicks = utcTime.Ticks;
 			s_ReferenceMaxError = maxError;
 
-			s_TimeDriftQPCTicks.Add(s_ReferenceTicks);
-			s_TimeDriftNTPTicks.Add(s_ReferenceDateTimeTicks);
-		}
-
-		private static void ComputeTimeDriftRate(long startTicks, long endTicks, DateTime utcTime)
-		{
-			var timespanSinceLastUpdate = new TimeSpan(utcTime.Ticks - s_TimeDriftNTPTicks[s_TimeDriftNTPTicks.Count - 1]);
-			if (timespanSinceLastUpdate.TotalSeconds > 60)
+			if (s_FirstReferenceTicks > s_ReferenceTicks)
 			{
-				if (s_TimeDriftNTPTicks.Count > 60)
-				{
-					s_TimeDriftNTPTicks.RemoveAt(0);
-					s_TimeDriftQPCTicks.RemoveAt(0);
-				}
-
-				s_TimeDriftQPCTicks.Add((startTicks + endTicks) / 2);
-				s_TimeDriftNTPTicks.Add(utcTime.Ticks);
-
-				if (s_TimeDriftNTPTicks.Count > 3)
-				{
-					// Determine the drift rate
-					// [QPC-Ticks] = A * [NTP-Ticks] + B
-					s_TimeDriftFit.Reset();
-					for (int i = 0; i < s_TimeDriftNTPTicks.Count; i++)
-					{
-						s_TimeDriftFit.AddDataPoint(s_TimeDriftNTPTicks[i], s_TimeDriftQPCTicks[i]);
-					}
-                    try
-                    {
-                        s_TimeDriftFit.Solve();
-                        s_HasTimeDriftData = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine(ex.GetFullStackTrace());
-                    }
-				}
+				s_FirstReferenceTicks = s_ReferenceTicks;
+				s_FirstReferenceDateTimeTicks = s_ReferenceDateTimeTicks;
 			}
 		}
 

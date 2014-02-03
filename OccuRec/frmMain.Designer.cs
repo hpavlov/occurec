@@ -78,8 +78,8 @@
 			this.tsbConnectDisconnect = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
-			this.tbsAddTarget = new System.Windows.Forms.ToolStripButton();
 			this.tsbAddGuidingStar = new System.Windows.Forms.ToolStripButton();
+			this.tbsAddTarget = new System.Windows.Forms.ToolStripButton();
 			this.tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.tsbTelControl = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
@@ -91,6 +91,7 @@
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+			this.tssNTP = new System.Windows.Forms.ToolStripStatusLabel();
 			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
@@ -119,6 +120,7 @@
             this.tssASCOMTelescope,
             this.tssASCOMFocuser,
             this.tssOcrErr,
+            this.tssNTP,
             this.tssRecordingFile,
             this.tssFreeDiskSpace,
             this.pnlNewVersionAvailable});
@@ -731,6 +733,16 @@
 			this.tsbCrosshair.Visible = false;
 			this.tsbCrosshair.Click += new System.EventHandler(this.tsbCrosshair_Click);
 			// 
+			// tsbAddGuidingStar
+			// 
+			this.tsbAddGuidingStar.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.tsbAddGuidingStar.Image = ((System.Drawing.Image)(resources.GetObject("tsbAddGuidingStar.Image")));
+			this.tsbAddGuidingStar.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbAddGuidingStar.Name = "tsbAddGuidingStar";
+			this.tsbAddGuidingStar.Size = new System.Drawing.Size(23, 22);
+			this.tsbAddGuidingStar.ToolTipText = "Select Guiding Star";
+			this.tsbAddGuidingStar.Click += new System.EventHandler(this.tsbAddGuidingStar_Click);
+			// 
 			// tbsAddTarget
 			// 
 			this.tbsAddTarget.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -741,16 +753,6 @@
 			this.tbsAddTarget.Size = new System.Drawing.Size(23, 22);
 			this.tbsAddTarget.ToolTipText = "Select Target";
 			this.tbsAddTarget.Click += new System.EventHandler(this.tbsAddTarget_Click);
-			// 
-			// tsbAddGuidingStar
-			// 
-			this.tsbAddGuidingStar.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.tsbAddGuidingStar.Image = ((System.Drawing.Image)(resources.GetObject("tsbAddGuidingStar.Image")));
-			this.tsbAddGuidingStar.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.tsbAddGuidingStar.Name = "tsbAddGuidingStar";
-			this.tsbAddGuidingStar.Size = new System.Drawing.Size(23, 22);
-			this.tsbAddGuidingStar.ToolTipText = "Select Guiding Star";
-			this.tsbAddGuidingStar.Click += new System.EventHandler(this.tsbAddGuidingStar_Click);
 			// 
 			// tsSeparator2
 			// 
@@ -829,6 +831,18 @@
 			// 
 			this.openFileDialog.DefaultExt = "avi";
 			this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
+			// 
+			// tssNTP
+			// 
+			this.tssNTP.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.tssNTP.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+			this.tssNTP.ForeColor = System.Drawing.Color.DarkGoldenrod;
+			this.tssNTP.Name = "tssNTP";
+			this.tssNTP.Size = new System.Drawing.Size(32, 17);
+			this.tssNTP.Text = "NTP";
+			this.tssNTP.Visible = false;
 			// 
 			// frmMain
 			// 
@@ -949,6 +963,7 @@
         private System.Windows.Forms.ToolStripLabel tslTelFocStatus;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+		private System.Windows.Forms.ToolStripStatusLabel tssNTP;
 	}
 }
 

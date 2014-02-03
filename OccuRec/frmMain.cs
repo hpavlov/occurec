@@ -535,6 +535,27 @@ namespace OccuRec
 			return false;
 		}
 
+		private void UpdateNTPStatus()
+		{
+			string statusText;
+			Color clr = NTPTimeKeeper.GetCurrentNTPStatusColour(out statusText);
+			if (statusText == null)
+			{
+				if (tssNTP.Visible)
+					tssNTP.Visible = false;
+
+				tssNTP.ToolTipText = string.Empty;
+			}
+			else
+			{
+				if (!tssNTP.Visible)
+					tssNTP.Visible = true;
+
+				tssNTP.ForeColor = clr;
+				tssNTP.ToolTipText = string.Empty;				
+			}
+		}
+
 		private void UpdateState(VideoFrameWrapper frame)
 		{
 		    if (IsDisposed)
@@ -858,13 +879,6 @@ namespace OccuRec
                 pnlNextScheduledAction.Visible = false;
             }
 
-            if (nextNTPSyncTime < DateTime.UtcNow)
-            {
-                ThreadPool.QueueUserWorkItem(UpdateTimeFromNTPServer);
-
-                nextNTPSyncTime = DateTime.UtcNow.AddMinutes(10);
-            }
-
 			if (m_StateManager.IsRecordingOcrTestFile && videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
 			{
 				// NOTE: If we have been recording OCR test file and there are more than MaxErrorCount OCR errors then stop the recording
@@ -892,7 +906,21 @@ namespace OccuRec
                 {
                     Trace.WriteLine(ex.GetFullStackTrace());
                 }
+
+	            try
+	            {
+		            Invoke(new Action(UpdateNTPStatus));
+	            }
+	            catch
+	            { }
             }
+
+			if (nextNTPSyncTime < DateTime.UtcNow)
+			{
+				ThreadPool.QueueUserWorkItem(UpdateTimeFromNTPServer);
+
+				nextNTPSyncTime = DateTime.UtcNow.AddMinutes(10);
+			}
         }
 
         private void UpdateTimeFromNTPServer(object state)
@@ -901,7 +929,7 @@ namespace OccuRec
             {
 	            float latencyInMilliseconds;
 				DateTime networkUTCTime = NTPClient.GetNetworkTime(Settings.Default.NTPServer, out latencyInMilliseconds);
-                NTPClient.SetTime(networkUTCTime);
+                NTPClient.SetTime(networkUTCTime);	            
             }
             catch (Exception ex)
             {
