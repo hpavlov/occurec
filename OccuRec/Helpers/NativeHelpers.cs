@@ -121,8 +121,6 @@ namespace OccuRec.Helpers
 		public int TrkdGuidingIsTracked;
 		public float TrkdGuidingMeasurement;
 		public int TrkdGuidingHasSaturatedPixels;
-		public long NtpTimestamp;
-		public int NtpTimestampError;
 
 		public NativePsfFitInfo TrkdTargetPsfInfo = new NativePsfFitInfo();
 
@@ -180,9 +178,6 @@ namespace OccuRec.Helpers
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 290)]
 		public double[] TrkdGuidingResiduals;
 
-		public long NtpTimestamp;
-		public int NtpTimestampError;
-
 		public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
         {
             var rv = new FrameProcessingStatus();
@@ -207,8 +202,6 @@ namespace OccuRec.Helpers
 			rv.TrkdGuidingHasSaturatedPixels = cloneFrom.TrkdGuidingHasSaturatedPixels;
 			rv.TrkdTargetResiduals = cloneFrom.TrkdTargetResiduals;
 			rv.TrkdGuidingResiduals = cloneFrom.TrkdGuidingResiduals;
-			rv.NtpTimestamp = cloneFrom.NtpTimestamp;
-			rv.NtpTimestampError = cloneFrom.NtpTimestampError;
 
             return rv;
         }
@@ -247,8 +240,6 @@ namespace OccuRec.Helpers
 			TrkdGuidingResiduals = imgStatus.TrkdGuidingResiduals;
 			TrkdTargetPsfInfo = imgStatus.TrkdTargetPsfInfo;
 			TrkdGuidingPsfInfo = imgStatus.TrkdGuidingPsfInfo;
-			NtpTimestamp = imgStatus.NtpTimestamp;
-			NtpTimestampError = imgStatus.NtpTimestampError;
 		}
     };
 

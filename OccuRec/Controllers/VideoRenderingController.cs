@@ -125,11 +125,17 @@ namespace OccuRec.Controllers
                                     bmp = cameraImage.GetDisplayBitmap();
                                 }
 
-                                m_MainForm.Invoke(new PaintVideoFrameDelegate(PaintVideoFrameCallback), new object[] { frameWrapper, bmp });
+                                try
+                                {
+                                    m_MainForm.Invoke(new PaintVideoFrameDelegate(PaintVideoFrameCallback), new object[] {frameWrapper, bmp});
+                                }
+                                catch (InvalidOperationException)
+                                { }
+                                catch (IndexOutOfRangeException)
+                                { }
                             }
                         }
                     }
-                    catch (InvalidOperationException) { }
                     catch (Exception ex)
                     {
                         Trace.WriteLine(ex.GetFullStackTrace());
@@ -146,9 +152,9 @@ namespace OccuRec.Controllers
                             m_MainForm.Invoke(new PaintVideoFrameDelegate(m_MainForm.PaintVideoFrame), new object[] { null, errorBmp });
                         }
                         catch (InvalidOperationException)
-                        {
-                            // InvalidOperationException could be thrown when closing down the app i.e. when the form has been already disposed
-                        }
+                        { }
+                        catch (IndexOutOfRangeException)
+                        { }
                     }
 
                 }

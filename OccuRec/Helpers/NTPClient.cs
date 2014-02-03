@@ -151,7 +151,8 @@ namespace OccuRec.Helpers
 
 		public static void ProcessNTPResponce(long startTicks, long endTicks, long frequency, DateTime utcTime)
 		{
-			long maxError = (endTicks - startTicks)/2;
+            long maxError = (long)(0.5 + (endTicks - startTicks) * 1000.0f / frequency);
+		    if (maxError <= 0) return;
 
 			if (s_ReferenceFrequency != frequency)
 			{
@@ -166,18 +167,24 @@ namespace OccuRec.Helpers
 				if (maxError < s_ReferenceMaxError)
 				{
 					Trace.WriteLine(string.Format("OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms.", maxError.ToString("0.0"), s_ReferenceMaxError.ToString("0.0")));
-					UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);					
+					UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);
 				}
 				else if (s_HasTimeDriftData)
 				{
-					// If the error accumulated because of a time drift, since out last reference update, is bigger than the NTP max error, then update the time refernece
-					long computedQPTTicks = (long)s_TimeDriftFit.ComputeY(utcTime.Ticks);
-					double timeDriftMilliseconds = new TimeSpan(Math.Abs(computedQPTTicks - (startTicks + endTicks) / 2)).TotalMilliseconds;
-					if (maxError < timeDriftMilliseconds)
-					{
-						Trace.WriteLine(string.Format("OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the calculated time drift of {1}ms since the last reference was set.", maxError.ToString("0.0"), timeDriftMilliseconds.ToString("0.0")));
-						UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);
-					}
+				    var tsSinceLastUpdate = new TimeSpan(utcTime.Ticks - s_ReferenceDateTimeTicks).TotalMinutes;
+                    if (tsSinceLastUpdate > 10)
+                    {
+                        UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);
+                        Trace.WriteLine(string.Format("OccuRec: Time reference updated. No update has been done in the past 10 min. Current error is {0}ms.", maxError.ToString("0.0")));
+                    }
+				    //// If the error accumulated because of a time drift, since out last reference update, is bigger than the NTP max error, then update the time refernece
+				    //long computedQPTTicks = (long)s_TimeDriftFit.ComputeY(utcTime.Ticks);
+				    //double timeDriftMilliseconds = Math.Abs(computedQPTTicks - (startTicks + endTicks) / 2) * 1000.0f / frequency;
+				    //if (maxError < timeDriftMilliseconds)
+				    //{
+				    //    Trace.WriteLine(string.Format("OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the calculated time drift of {1}ms since the last reference was set.", maxError.ToString("0.0"), timeDriftMilliseconds.ToString("0.0")));
+				    //    UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);
+				    //}
 				}
 			}
 		}
@@ -191,7 +198,7 @@ namespace OccuRec.Helpers
 			s_ReferenceMaxError = maxError;
 
 			s_TimeDriftQPCTicks.Add(s_ReferenceTicks);
-			s_TimeDriftNTPTicks.Add(s_ReferenceDateTimeTicks);			
+			s_TimeDriftNTPTicks.Add(s_ReferenceDateTimeTicks);
 		}
 
 		private static void ComputeTimeDriftRate(long startTicks, long endTicks, DateTime utcTime)
@@ -217,10 +224,17 @@ namespace OccuRec.Helpers
 					{
 						s_TimeDriftFit.AddDataPoint(s_TimeDriftNTPTicks[i], s_TimeDriftQPCTicks[i]);
 					}
-					s_TimeDriftFit.Solve();
-					s_HasTimeDriftData = true;
+                    try
+                    {
+                        s_TimeDriftFit.Solve();
+                        s_HasTimeDriftData = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(ex.GetFullStackTrace());
+                    }
 				}
-			}				
+			}
 		}
 
 		public static DateTime UtcNow(out double maxErrorMilliseconds)

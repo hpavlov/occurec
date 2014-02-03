@@ -106,6 +106,8 @@ long droppedFramesSinceIntegrationIsLocked = 0;
 long lockedIntegrationFrames = 0;
 bool ocrFirstFrameProcessed = false;
 long ocrErrorsSiceLastReset = 0;
+__int64 firstFrameNtpTimestamp = 0;
+__int64 lastFrameNtpTimestamp = 0;
 
 unsigned char* latestIntegratedFrame = NULL;
 ImageStatus latestImageStatus;
@@ -129,11 +131,13 @@ unsigned int STATUS_TAG_END_FRAME_ID;
 unsigned int STATUS_TAG_START_TIMESTAMP;
 unsigned int STATUS_TAG_END_TIMESTAMP;
 unsigned int STATUS_TAG_SYSTEM_TIME;
-unsigned int STATUS_TAG_NTP_TIMESTAMP;
+unsigned int STATUS_TAG_NTP_START_TIMESTAMP;
+unsigned int STATUS_TAG_NTP_END_TIMESTAMP;
 unsigned int STATUS_TAG_GPS_TRACKED_SATELLITES;
 unsigned int STATUS_TAG_GPS_ALMANAC;
 unsigned int STATUS_TAG_GPS_FIX;
 unsigned int STATUS_TAG_OCR_TESTING_ERROR_MESSAGE;
+unsigned int STATUS_TAG_NTP_TIME_ERROR;
 
 OccuRec::IntegrationChecker* integrationChecker;
 
@@ -860,7 +864,11 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			lockedIntegrationFrames = detectedIntegrationRate;
 		else
 			droppedFramesSinceIntegrationIsLocked += abs(lockedIntegrationFrames - detectedIntegrationRate);
-	}	
+
+		firstFrameNtpTimestamp = currentNtpTimeAsTicks;
+	}
+
+	lastFrameNtpTimestamp = currentNtpTimeAsTicks;
 
 	if (numberOfIntegratedFrames == 0)
 	{
@@ -1105,8 +1113,6 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		latestImageStatus.OcrWorking = (NULL != ocrManager && ocrManager->IsReceivingTimeStamps()) ? 1 : 0;
 		latestImageStatus.OcrErrorsSinceLastReset = ocrErrorsSiceLastReset;
 		latestImageStatus.UserIntegratonRateHint = MANUAL_INTEGRATION_RATE > 0 ? MANUAL_INTEGRATION_RATE : 0;
-		latestImageStatus.NtpTimestamp = currentNtpTimeAsTicks;
-		latestImageStatus.NtpTimestampError = (long)(0.5 + ntpBasedTimeError * 10);
 
 		if (INTEGRATION_CALIBRATION)
 		{
@@ -1141,6 +1147,9 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			frame->GpsTrackedSatellites = trackedSatellitesCount;
 			frame->GpsAlamancStatus = almanacUpdateSatus;
 			frame->GpsFixStatus = gpsFixStatus;
+			frame->NTPStartTimestamp = firstFrameNtpTimestamp;
+			frame->NTPEndTimestamp = lastFrameNtpTimestamp;
+			frame->NTPTimestampError = (long)(0.5 + ntpBasedTimeError * 10);
 
 			if (OCR_FAILED_TEST_RECORDING && hasOcrErors)
 				sprintf(&frame->OcrErrorMessageStr[0], "FirstFieldError: %d; LastFieldError: %d", (long)firstErrorCode, (long)secondErrorCode);
@@ -1591,8 +1600,6 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 
 	AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime));
 
-	AavFrameAddStatusTag64(STATUS_TAG_NTP_TIMESTAMP, nextFrame->NTPTimestamp);	
-
 	if (OCR_IS_SETUP)
 	{
 		AavFrameAddStatusTag(STATUS_TAG_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]);
@@ -1604,6 +1611,12 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 		if (OCR_FAILED_TEST_RECORDING)
 			AavFrameAddStatusTag(STATUS_TAG_OCR_TESTING_ERROR_MESSAGE, &nextFrame->OcrErrorMessageStr[0]);
 	}
+
+	long long ntpStartTimeStamp = WindowsTicksToAavTicks(nextFrame->NTPStartTimestamp);
+	long long ntpEndTimeStamp = WindowsTicksToAavTicks(nextFrame->NTPEndTimestamp);
+	AavFrameAddStatusTag64(STATUS_TAG_NTP_START_TIMESTAMP, ntpStartTimeStamp);
+	AavFrameAddStatusTag64(STATUS_TAG_NTP_END_TIMESTAMP, ntpEndTimeStamp);
+	AavFrameAddStatusTag16(STATUS_TAG_NTP_TIME_ERROR, (short)nextFrame->NTPTimestampError);
 
 	AavFrameAddImage(USE_IMAGE_LAYOUT, nextFrame->Pixels);
 
@@ -1699,7 +1712,9 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	STATUS_TAG_GPS_TRACKED_SATELLITES = AavDefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8);
 	STATUS_TAG_GPS_ALMANAC = AavDefineStatusSectionTag("GPSAlmanacStatus", AavTagType::UInt8);
 	STATUS_TAG_GPS_FIX = AavDefineStatusSectionTag("GPSFixStatus", AavTagType::UInt8);
-	STATUS_TAG_NTP_TIMESTAMP = AavDefineStatusSectionTag("NTPTimestamp", AavTagType::ULong64);
+	STATUS_TAG_NTP_START_TIMESTAMP = AavDefineStatusSectionTag("NTPStartTimestamp", AavTagType::ULong64);
+	STATUS_TAG_NTP_END_TIMESTAMP = AavDefineStatusSectionTag("NTPEndTimestamp", AavTagType::ULong64);
+	STATUS_TAG_NTP_TIME_ERROR = AavDefineStatusSectionTag("NTPTimestampError", AavTagType::UInt16);
 
 	if (OCR_FAILED_TEST_RECORDING)
 		STATUS_TAG_OCR_TESTING_ERROR_MESSAGE = AavDefineStatusSectionTag("OcrTestingErrorMessage", AavTagType::AnsiString255);

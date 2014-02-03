@@ -882,6 +882,16 @@ namespace OccuRec
 
                 if (Settings.Default.ObservatoryStatusPingRateSeconds > 0)
                     nextOneMinCheckUTC = DateTime.UtcNow.AddSeconds(Settings.Default.ObservatoryStatusPingRateSeconds);
+
+                try
+                {
+                    float latencyInMilliseconds;
+                    NTPClient.GetNetworkTime(Settings.Default.NTPServer, out latencyInMilliseconds);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex.GetFullStackTrace());
+                }
             }
         }
 

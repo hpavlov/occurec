@@ -48,8 +48,6 @@ struct ImageStatus
 	NativePsfFitInfo TrkdGuidingPsfInfo;
 	double TrkdTargetResiduals[290];
 	double TrkdGuidingResiduals[290];
-	__int64 NtpTimestamp;
-	long NtpTimestampError;
 };
 
 struct FrameProcessingStatus
