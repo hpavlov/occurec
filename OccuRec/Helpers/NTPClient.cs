@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
+using OccuRec.Tracking;
 using OccuRec.Utilities;
 
 namespace OccuRec.Helpers
@@ -79,10 +80,12 @@ namespace OccuRec.Helpers
             intPart = SwapEndianness(intPart);
             fractPart = SwapEndianness(fractPart);
 
-            var milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
+            ulong milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
 
             //**UTC** time
-            var networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
+			DateTime networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
+
+			NTPTimeKeeper.ProcessNTPResponce(startTicks, endTicks, clockFrequency, networkDateTime);
 
             return networkDateTime;
         }
@@ -133,4 +136,108 @@ namespace OccuRec.Helpers
             SetSystemTime(ref systime);
         }
     }
+
+	public class NTPTimeKeeper
+	{
+		private static long s_ReferenceTicks = -1;
+		private static long s_ReferenceDateTimeTicks = -1;
+		private static DateTime s_ReferenceDateTime;
+		private static long s_ReferenceFrequency = -1;
+		private static long s_ReferenceMaxError = -1;
+		private static List<long> s_TimeDriftNTPTicks = new List<long>();
+		private static List<long> s_TimeDriftQPCTicks = new List<long>();
+		private static LinearRegression s_TimeDriftFit = new LinearRegression();
+		private static bool s_HasTimeDriftData = false;
+
+		public static void ProcessNTPResponce(long startTicks, long endTicks, long frequency, DateTime utcTime)
+		{
+			long maxError = (endTicks - startTicks)/2;
+
+			if (s_ReferenceFrequency != frequency)
+			{
+				// This is the first measurement
+				UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);
+				Trace.WriteLine(string.Format("OccuRec: First time reference set. Max error is {0}ms.", s_ReferenceMaxError.ToString("0.0")));
+			}
+			else if (s_TimeDriftNTPTicks.Count > 0)
+			{
+				ComputeTimeDriftRate(startTicks, endTicks, utcTime);
+
+				if (maxError < s_ReferenceMaxError)
+				{
+					Trace.WriteLine(string.Format("OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms.", maxError.ToString("0.0"), s_ReferenceMaxError.ToString("0.0")));
+					UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);					
+				}
+				else if (s_HasTimeDriftData)
+				{
+					// If the error accumulated because of a time drift, since out last reference update, is bigger than the NTP max error, then update the time refernece
+					long computedQPTTicks = (long)s_TimeDriftFit.ComputeY(utcTime.Ticks);
+					double timeDriftMilliseconds = new TimeSpan(Math.Abs(computedQPTTicks - (startTicks + endTicks) / 2)).TotalMilliseconds;
+					if (maxError < timeDriftMilliseconds)
+					{
+						Trace.WriteLine(string.Format("OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the calculated time drift of {1}ms since the last reference was set.", maxError.ToString("0.0"), timeDriftMilliseconds.ToString("0.0")));
+						UpdateTimeReference(startTicks, endTicks, frequency, utcTime, maxError);
+					}
+				}
+			}
+		}
+
+		private static void UpdateTimeReference(long startTicks, long endTicks, long frequency, DateTime utcTime, long maxError)
+		{
+			s_ReferenceFrequency = frequency;
+			s_ReferenceTicks = (startTicks + endTicks) / 2;
+			s_ReferenceDateTime = utcTime;
+			s_ReferenceDateTimeTicks = utcTime.Ticks;
+			s_ReferenceMaxError = maxError;
+
+			s_TimeDriftQPCTicks.Add(s_ReferenceTicks);
+			s_TimeDriftNTPTicks.Add(s_ReferenceDateTimeTicks);			
+		}
+
+		private static void ComputeTimeDriftRate(long startTicks, long endTicks, DateTime utcTime)
+		{
+			var timespanSinceLastUpdate = new TimeSpan(utcTime.Ticks - s_TimeDriftNTPTicks[s_TimeDriftNTPTicks.Count - 1]);
+			if (timespanSinceLastUpdate.TotalSeconds > 60)
+			{
+				if (s_TimeDriftNTPTicks.Count > 60)
+				{
+					s_TimeDriftNTPTicks.RemoveAt(0);
+					s_TimeDriftQPCTicks.RemoveAt(0);
+				}
+
+				s_TimeDriftQPCTicks.Add((startTicks + endTicks) / 2);
+				s_TimeDriftNTPTicks.Add(utcTime.Ticks);
+
+				if (s_TimeDriftNTPTicks.Count > 3)
+				{
+					// Determine the drift rate
+					// [QPC-Ticks] = A * [NTP-Ticks] + B
+					s_TimeDriftFit.Reset();
+					for (int i = 0; i < s_TimeDriftNTPTicks.Count; i++)
+					{
+						s_TimeDriftFit.AddDataPoint(s_TimeDriftNTPTicks[i], s_TimeDriftQPCTicks[i]);
+					}
+					s_TimeDriftFit.Solve();
+					s_HasTimeDriftData = true;
+				}
+			}				
+		}
+
+		public static DateTime UtcNow(out double maxErrorMilliseconds)
+		{
+			if (s_ReferenceFrequency > 0)
+			{
+				long ticksNow = 0;
+				Profiler.QueryPerformanceCounter(ref ticksNow);
+				double millsecondsFromReferenceFrame = (ticksNow - s_ReferenceTicks)*1000.0f/s_ReferenceFrequency;
+				maxErrorMilliseconds = s_ReferenceMaxError;
+				return s_ReferenceDateTime.AddMilliseconds(millsecondsFromReferenceFrame);
+			}
+			else
+			{
+				maxErrorMilliseconds = 60*1000;
+				return DateTime.UtcNow;
+			}
+		}
+	}
 }

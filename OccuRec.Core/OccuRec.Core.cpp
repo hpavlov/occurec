@@ -846,7 +846,7 @@ void CalculateDiffSignature2(long* pixels, float* signatureThisPrev)
 
 long detectedIntegrationRate = 0;
 
-long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks)
+long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError)
 {
 	long numItems = 0;
 
@@ -1105,6 +1105,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		latestImageStatus.OcrWorking = (NULL != ocrManager && ocrManager->IsReceivingTimeStamps()) ? 1 : 0;
 		latestImageStatus.OcrErrorsSinceLastReset = ocrErrorsSiceLastReset;
 		latestImageStatus.UserIntegratonRateHint = MANUAL_INTEGRATION_RATE > 0 ? MANUAL_INTEGRATION_RATE : 0;
+		latestImageStatus.NtpTimestamp = currentNtpTimeAsTicks;
+		latestImageStatus.NtpTimestampError = (long)(0.5 + ntpBasedTimeError * 10);
 
 		if (INTEGRATION_CALIBRATION)
 		{
@@ -1242,7 +1244,7 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 c
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, 0);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1323,7 +1325,7 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, rawFrame->CurrentUtcDayAsTicks, rawFrame->CurrentNtpTimeAsTicks);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, rawFrame->CurrentUtcDayAsTicks, rawFrame->CurrentNtpTimeAsTicks, rawFrame->NtpBasedTimeError);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1437,7 +1439,7 @@ void FrameProcessingThreadProc( void* pContext )
 	};
 }
 
-HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1446,6 +1448,7 @@ HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, 
 	RawFrame* frame = new RawFrame(IMAGE_WIDTH, IMAGE_HEIGHT);
 	frame->CurrentUtcDayAsTicks = currentUtcDayAsTicks;
 	frame->CurrentNtpTimeAsTicks = currentNtpTimeAsTicks;
+	frame->NtpBasedTimeError = ntpBasedTimeError;
 	memcpy(&frame->BmpBits[0], &buf[0], frame->BmpBitsSize);
 
 	AddFrameToRawFrameBuffer(frame);
@@ -1453,7 +1456,7 @@ HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, 
 	return S_OK;
 }
 
-HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1473,7 +1476,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1556,12 +1559,12 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	return S_OK;
 }
 
-HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, FrameProcessingStatus* frameInfo)
 {
 	if (USE_BUFFERED_FRAME_PROCESSING)
-		return ProcessVideoFrameBuffered(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, frameInfo);
+		return ProcessVideoFrameBuffered(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, frameInfo);
 	else
-		return ProcessVideoFrameSynchronous(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, frameInfo);
+		return ProcessVideoFrameSynchronous(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, frameInfo);
 }
 
 long long firstRecordedFrameTimestamp = 0;

@@ -48,6 +48,8 @@ struct ImageStatus
 	NativePsfFitInfo TrkdGuidingPsfInfo;
 	double TrkdTargetResiduals[290];
 	double TrkdGuidingResiduals[290];
+	__int64 NtpTimestamp;
+	long NtpTimestampError;
 };
 
 struct FrameProcessingStatus
@@ -101,7 +103,7 @@ HRESULT DisableOcrProcessing();
 HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* ImageStatus);
-HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo);
+HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, FrameProcessingStatus* frameInfo);
 HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo);
 HRESULT StartRecording(LPCTSTR szFileName);
 HRESULT StopRecording(long* pixels);

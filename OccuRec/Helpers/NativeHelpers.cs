@@ -121,6 +121,8 @@ namespace OccuRec.Helpers
 		public int TrkdGuidingIsTracked;
 		public float TrkdGuidingMeasurement;
 		public int TrkdGuidingHasSaturatedPixels;
+		public long NtpTimestamp;
+		public int NtpTimestampError;
 
 		public NativePsfFitInfo TrkdTargetPsfInfo = new NativePsfFitInfo();
 
@@ -168,7 +170,7 @@ namespace OccuRec.Helpers
 		public int TrkdGuidingIsTracked;
 		public float TrkdGuidingMeasurement;
 		public int TrkdGuidingHasSaturatedPixels;
-
+		
 		public NativePsfFitInfo TrkdTargetPsfInfo;
 		public NativePsfFitInfo TrkdGuidingPsfInfo;
 
@@ -177,7 +179,10 @@ namespace OccuRec.Helpers
 
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 290)]
 		public double[] TrkdGuidingResiduals;
-		
+
+		public long NtpTimestamp;
+		public int NtpTimestampError;
+
 		public static FrameProcessingStatus Clone(FrameProcessingStatus cloneFrom)
         {
             var rv = new FrameProcessingStatus();
@@ -202,6 +207,9 @@ namespace OccuRec.Helpers
 			rv.TrkdGuidingHasSaturatedPixels = cloneFrom.TrkdGuidingHasSaturatedPixels;
 			rv.TrkdTargetResiduals = cloneFrom.TrkdTargetResiduals;
 			rv.TrkdGuidingResiduals = cloneFrom.TrkdGuidingResiduals;
+			rv.NtpTimestamp = cloneFrom.NtpTimestamp;
+			rv.NtpTimestampError = cloneFrom.NtpTimestampError;
+
             return rv;
         }
 
@@ -239,6 +247,8 @@ namespace OccuRec.Helpers
 			TrkdGuidingResiduals = imgStatus.TrkdGuidingResiduals;
 			TrkdTargetPsfInfo = imgStatus.TrkdTargetPsfInfo;
 			TrkdGuidingPsfInfo = imgStatus.TrkdGuidingPsfInfo;
+			NtpTimestamp = imgStatus.NtpTimestamp;
+			NtpTimestampError = imgStatus.NtpTimestampError;
 		}
     };
 
@@ -301,7 +311,7 @@ namespace OccuRec.Helpers
         private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
+		private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
@@ -556,10 +566,11 @@ namespace OccuRec.Helpers
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
-			// TODO: Get the NTP time from the internal NTP syncronised high precision clock
-	        long currentNtpTimeAsTicks = 0;
+			// Get the NTP time from the internal NTP syncronised high precision clock
+	        double ntpBasedTimeError;
+			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).Ticks;
 
-            ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, currentNtpTimeAsTicks, ref frameInfo);
+            ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, ref frameInfo);
 
             return frameInfo;
         }
