@@ -42,10 +42,10 @@
 			this.llblFindNTP.AutoSize = true;
 			this.llblFindNTP.Location = new System.Drawing.Point(3, 76);
 			this.llblFindNTP.Name = "llblFindNTP";
-			this.llblFindNTP.Size = new System.Drawing.Size(146, 13);
+			this.llblFindNTP.Size = new System.Drawing.Size(192, 13);
 			this.llblFindNTP.TabIndex = 30;
 			this.llblFindNTP.TabStop = true;
-			this.llblFindNTP.Text = "Find NTP Server close to you";
+			this.llblFindNTP.Text = "Find an NTP Server that is close to you";
 			this.llblFindNTP.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblFindNTP_LinkClicked);
 			// 
 			// btnTestNTP

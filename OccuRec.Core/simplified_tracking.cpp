@@ -18,6 +18,7 @@ static double MAX_ELONGATION;
 static double MIN_FWHM;
 static double MAX_FWHM;
 static double MIN_CERTAINTY;
+static double MIN_GUIDING_STAR_CERTAINTY;
 
 
 TrackedObject::TrackedObject(long objectId, bool isFixedAperture, bool isOccultedStar, double startingX, double startingY, double apertureInPixels)
@@ -486,12 +487,13 @@ long SimplifiedTracker::TrackerGetTargetState(long objectId, NativeTrackedObject
 
 static SimplifiedTracker* s_Tracker;
 
-HRESULT TrackerSettings(double maxElongation, double minFWHM, double maxFWHM, double minCertainty)
+HRESULT TrackerSettings(double maxElongation, double minFWHM, double maxFWHM, double minCertainty, double minGuidingStarCertainty)
 {
 	MAX_ELONGATION = maxElongation;
 	MIN_FWHM = minFWHM;
 	MAX_FWHM = maxFWHM;
 	MIN_CERTAINTY = minCertainty;
+	MIN_GUIDING_STAR_CERTAINTY = minGuidingStarCertainty;
 	
 	if (NULL != s_Tracker)
 		s_Tracker->UpdatePsfFittingMethod();

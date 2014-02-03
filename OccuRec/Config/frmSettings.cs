@@ -62,6 +62,9 @@ namespace OccuRec.Config
             m_PropertyPages.Add(6, new ucTelescope());
             m_PropertyPages.Add(7, new ucFocusing());
 
+			m_PropertyPages.Add(8, new ucTrackingEngine());
+			m_PropertyPages.Add(9, new ucLightCurve());
+
 #if !DEBUG
             tvSettings.Nodes.RemoveByKey("ndDebug");
 #else

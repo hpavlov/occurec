@@ -58,4 +58,3 @@ void tSpinWait::Unlock(tSpinLock &LockObj)
 	InterlockedCompareExchange(&LockObj.dest, LockObj.compare, GetCurrentThreadId());	
 }
 //
-

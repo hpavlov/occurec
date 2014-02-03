@@ -94,6 +94,12 @@
     <Compile Include="Config\Panels\ucFocusing.Designer.cs">
       <DependentUpon>ucFocusing.cs</DependentUpon>
     </Compile>
+    <Compile Include="Config\Panels\ucLightCurve.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucLightCurve.Designer.cs">
+      <DependentUpon>ucLightCurve.cs</DependentUpon>
+    </Compile>
     <Compile Include="Config\Panels\ucNTPTime.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -105,6 +111,12 @@
     </Compile>
     <Compile Include="Config\Panels\ucTelescope.Designer.cs">
       <DependentUpon>ucTelescope.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Config\Panels\ucTrackingEngine.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucTrackingEngine.Designer.cs">
+      <DependentUpon>ucTrackingEngine.cs</DependentUpon>
     </Compile>
     <Compile Include="Config\Panels\ucTraking.cs">
       <SubType>UserControl</SubType>
@@ -285,6 +297,9 @@
     <EmbeddedResource Include="Config\Panels\ucGeneral.resx">
       <DependentUpon>ucGeneral.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucLightCurve.resx">
+      <DependentUpon>ucLightCurve.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucNTPTime.resx">
       <DependentUpon>ucNTPTime.cs</DependentUpon>
     </EmbeddedResource>
@@ -293,6 +308,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucTelescope.resx">
       <DependentUpon>ucTelescope.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucTrackingEngine.resx">
+      <DependentUpon>ucTrackingEngine.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucTraking.resx">
       <DependentUpon>ucTraking.cs</DependentUpon>

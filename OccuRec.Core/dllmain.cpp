@@ -3,6 +3,7 @@
 #include "SyncLock.h"
 #include <process.h>
 #include "OccuRec.Core.h"
+#include "utils.h"
 
 HANDLE hFrameProcessingThread;
 
@@ -18,12 +19,13 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 			break;
 
 		case DLL_PROCESS_ATTACH:
+			DebugViewPrint(L"TangraCore: DLL_PROCESS_ATTACH\r\n");
 			hFrameProcessingThread = (HANDLE)_beginthread(FrameProcessingThreadProc, 0, NULL);
 			SyncLock::Initialise();
 			break;
-
 		
 		case DLL_PROCESS_DETACH:
+			DebugViewPrint(L"TangraCore: DLL_PROCESS_DETACH\r\n");
 			SyncLock::Uninitialise();
 			break;
 	}

@@ -121,7 +121,11 @@ namespace OccuRec.Config.Panels
 			{
 				if (i < m_LatencyList.Count)
 				{
-					if (m_LatencyList[i] >= 100)
+					if (float.IsNaN(m_LatencyList[i]))
+					{
+						labels[i].Text = "timeout";
+					}
+					else if (m_LatencyList[i] >= 100)
 						labels[i].Text = string.Format("{0}ms", (int)Math.Round(m_LatencyList[i]));
 					else
 						labels[i].Text = string.Format("{0}ms", m_LatencyList[i].ToString("0.0"));
@@ -150,11 +154,17 @@ namespace OccuRec.Config.Panels
 					DateTime dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
 					avrgLatency += latency;
 
-					dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
-					avrgLatency += latency;
+					if (!float.IsNaN(avrgLatency))
+					{
+						dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
+						avrgLatency += latency;						
+					}
 
-					dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
-					avrgLatency += latency;
+					if (!float.IsNaN(avrgLatency))
+					{
+						dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
+						avrgLatency += latency;
+					}
 
 					avrgLatency /= 3;
 				}

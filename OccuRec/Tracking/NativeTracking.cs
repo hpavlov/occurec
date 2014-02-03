@@ -64,7 +64,7 @@ namespace OccuRec.Tracking
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		// DLL_PUBLIC long TrackerSettings(double maxElongation, double minFWHM, double maxFWHM, double minCertainty);
-		private static extern int TrackerSettings(double maxElongation, double minFWHM, double maxFWHM, double minCertainty);
+		private static extern int TrackerSettings(double maxElongation, double minFWHM, double maxFWHM, double minCertainty, double minGuidingStarCertainty);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		// DLL_PUBLIC long TrackerNewConfiguration(long width, long height, long numTrackedObjects, bool isFullDisappearance);
@@ -96,7 +96,8 @@ namespace OccuRec.Tracking
 				Settings.Default.TrackingCheckElongation ? Settings.Default.TrackingMaxElongation : 0,
 				Settings.Default.TrackingMinFWHM,
 				Settings.Default.TrackingMaxFWHM,
-				Settings.Default.TrackingMinCertainty);
+				Settings.Default.TrackingMinCertainty,
+				Settings.Default.TrackingMinGuidingStarCertainty);
 
 			ConfigureSaturationLevels(
 				Settings.Default.Saturation8Bit,

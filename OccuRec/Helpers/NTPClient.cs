@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -7,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
+using OccuRec.Utilities;
 
 namespace OccuRec.Helpers
 {
@@ -38,10 +40,28 @@ namespace OccuRec.Helpers
 
             Profiler.QueryPerformanceCounter(ref startTicks);
             socket.Send(ntpData);
-            socket.Receive(ntpData);
-            Profiler.QueryPerformanceCounter(ref endTicks);
+	        socket.ReceiveTimeout = 3000;
+			try
+			{
+				socket.Receive(ntpData);
 
-            latencyInMilliseconds += (endTicks - startTicks) * 1000.0f / clockFrequency;
+				Profiler.QueryPerformanceCounter(ref endTicks);
+
+				latencyInMilliseconds += (endTicks - startTicks) * 1000.0f / clockFrequency;
+			}
+			catch (SocketException sex)
+			{
+				Trace.WriteLine(sex.GetFullStackTrace());
+
+				// http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668(v=vs.85).aspx
+				if (sex.ErrorCode == 995 || /* WSA_OPERATION_ABORTED 995 */
+				    sex.ErrorCode == 10060 /* WSAETIMEDOUT 10060 */)
+				{
+					latencyInMilliseconds = float.NaN;
+				}
+				else
+					throw;
+			}
 
             socket.Close();
 

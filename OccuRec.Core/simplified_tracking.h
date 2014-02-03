@@ -102,7 +102,7 @@ public:
 	bool IsTrackedSuccessfully();
 };
 
-HRESULT TrackerSettings(double maxElongation, double minFWHM, double maxFWHM, double minCertainty);
+HRESULT TrackerSettings(double maxElongation, double minFWHM, double maxFWHM, double minCertainty, double minGuidingStarCertainty);
 HRESULT TrackerNewConfiguration(long width, long height, long numTrackedObjects, bool isFullDisappearance);
 HRESULT TrackerConfigureObject(long objectId, bool isFixedAperture, bool isOccultedStar, double startingX, double startingY, double apertureInPixels);
 HRESULT TrackerNextFrame(long frameId, unsigned long* pixels);
