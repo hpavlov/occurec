@@ -216,8 +216,7 @@ void SimplifiedTracker::NextFrame(int frameNo, unsigned long* pixels)
 		TrackedObject* trackedObject = m_TrackedObjects[i];
 		trackedObject->NextFrame();
 
-		if (trackedObject->IsFixedAperture ||
-			(trackedObject->IsOccultedStar && m_IsFullDisappearance))
+		if (trackedObject->IsFixedAperture || (trackedObject->IsOccultedStar && m_IsFullDisappearance))
 		{
 			// Star position will be determined after the rest of the stars are found 
 		}
@@ -258,7 +257,7 @@ void SimplifiedTracker::NextFrame(int frameNo, unsigned long* pixels)
 	{
 		TrackedObject* trackedObject = m_TrackedObjects[i];
 
-		bool needsPostGuidingStarLocating = trackedObject->IsFixedAperture || trackedObject->IsOccultedStar;
+		bool needsPostGuidingStarLocating = trackedObject->IsFixedAperture ||  (trackedObject->IsOccultedStar && m_IsFullDisappearance) || !trackedObject->IsLocated;
 		
 		if (!needsPostGuidingStarLocating && trackedObject->IsLocated)
 			atLeastOneObjectLocated = true;
@@ -273,7 +272,7 @@ void SimplifiedTracker::NextFrame(int frameNo, unsigned long* pixels)
 		for (int j = 0; j < m_NumTrackedObjects; j++)
 		{
 			TrackedObject* referenceObject = m_TrackedObjects[j];
-			bool relativeReference = referenceObject->IsFixedAperture || (referenceObject->IsOccultedStar && m_IsFullDisappearance);
+			bool relativeReference = referenceObject->IsFixedAperture || (referenceObject->IsOccultedStar && m_IsFullDisappearance) || !trackedObject->IsLocated;
 		
 			if (referenceObject->IsLocated && !relativeReference)
 			{
@@ -340,7 +339,7 @@ void SimplifiedTracker::NextFrameInt8(int frameNo, unsigned char* pixels)
 		TrackedObject* trackedObject = m_TrackedObjects[i];
 		trackedObject->NextFrame();
 
-		if (trackedObject->IsFixedAperture || trackedObject->IsOccultedStar)
+		if (trackedObject->IsFixedAperture || (trackedObject->IsOccultedStar && m_IsFullDisappearance))
 		{
 			// Star position will be determined after the rest of the stars are found 
 		}
@@ -381,7 +380,7 @@ void SimplifiedTracker::NextFrameInt8(int frameNo, unsigned char* pixels)
 	{
 		TrackedObject* trackedObject = m_TrackedObjects[i];
 
-		bool needsPostGuidingStarLocating = trackedObject->IsFixedAperture || trackedObject->IsOccultedStar;
+		bool needsPostGuidingStarLocating = trackedObject->IsFixedAperture || (trackedObject->IsOccultedStar && m_IsFullDisappearance) || !trackedObject->IsLocated;
 		
 		if (!needsPostGuidingStarLocating && trackedObject->IsLocated)
 			atLeastOneObjectLocated = true;
@@ -396,7 +395,7 @@ void SimplifiedTracker::NextFrameInt8(int frameNo, unsigned char* pixels)
 		for (int j = 0; j < m_NumTrackedObjects; j++)
 		{
 			TrackedObject* referenceObject = m_TrackedObjects[j];
-			bool relativeReference = referenceObject->IsFixedAperture || (referenceObject->IsOccultedStar && m_IsFullDisappearance);
+			bool relativeReference = referenceObject->IsFixedAperture || (referenceObject->IsOccultedStar && m_IsFullDisappearance) || !trackedObject->IsLocated;
 		
 			if (referenceObject->IsLocated && !relativeReference)
 			{

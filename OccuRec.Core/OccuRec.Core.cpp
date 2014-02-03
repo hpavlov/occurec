@@ -864,11 +864,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			lockedIntegrationFrames = detectedIntegrationRate;
 		else
 			droppedFramesSinceIntegrationIsLocked += abs(lockedIntegrationFrames - detectedIntegrationRate);
-
-		firstFrameNtpTimestamp = currentNtpTimeAsTicks;
 	}
-
-	lastFrameNtpTimestamp = currentNtpTimeAsTicks;
 
 	if (numberOfIntegratedFrames == 0)
 	{
@@ -1328,6 +1324,14 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
 
+	if (isNewIntegrationPeriod)
+	{
+		firstFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
+		lastFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
+	}
+	else
+		lastFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
+
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera
 	bool showOutputFrame = idxFrameNumber > STARTUP_FRAMES_WITH_NO_OUTPUT && (isNewIntegrationPeriod || !INTEGRATION_LOCKED);
@@ -1478,6 +1482,14 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	idxFrameNumber++;
 	
 	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
+
+	if (isNewIntegrationPeriod)
+	{
+		firstFrameNtpTimestamp = currentNtpTimeAsTicks;
+		lastFrameNtpTimestamp = currentNtpTimeAsTicks;
+	}
+	else
+		lastFrameNtpTimestamp = currentNtpTimeAsTicks;
 
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera
@@ -1746,6 +1758,9 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 		frame->StartTimeStampStr[0] = 0;
 		frame->EndTimeStampStr[0] = 0;
 		frame->OcrErrorMessageStr[0] = 0;
+		frame->NTPStartTimestamp = 0;
+		frame->NTPEndTimestamp = 0;
+		frame->NTPTimestampError = 0;
 
 		RecordCurrentFrame(frame);
 	}
@@ -1788,6 +1803,9 @@ HRESULT StopRecording(long* pixels)
 		frame->StartTimeStampStr[0] = 0;
 		frame->EndTimeStampStr[0] = 0;
 		frame->OcrErrorMessageStr[0] = 0;
+		frame->NTPStartTimestamp = 0;
+		frame->NTPEndTimestamp = 0;
+		frame->NTPTimestampError = 0;
 
 		RecordCurrentFrame(frame);
 	}
