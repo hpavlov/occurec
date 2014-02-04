@@ -305,7 +305,7 @@ namespace OccuRec.Helpers
 		private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
+		private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetCurrentImage([In, Out] byte[] bitmapPixels);
@@ -533,6 +533,9 @@ namespace OccuRec.Helpers
 
         public static FrameProcessingStatus ProcessVideoFrame2(int[,] pixels)
         {
+			double ntpBasedTimeError;
+			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).Ticks;
+
             var frameInfo = new FrameProcessingStatus();
 	        frameInfo.TrkdTargetResiduals = new double[290];
 			frameInfo.TrkdGuidingResiduals = new double[290];
@@ -541,14 +544,17 @@ namespace OccuRec.Helpers
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
-
-            ProcessVideoFrame2(pixels, currentUtcDayAsTicks, currentUtcDayAsTicks, ref frameInfo);
+			ProcessVideoFrame2(pixels, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, ref frameInfo);
 
             return frameInfo;
         }
 
         public static FrameProcessingStatus ProcessVideoFrame(IntPtr bitmapData)
         {
+			// Get the NTP time from the internal NTP syncronised high precision clock
+			double ntpBasedTimeError;
+			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).Ticks;
+
             var frameInfo = new FrameProcessingStatus();
 			frameInfo.TrkdTargetResiduals = new double[290];
 			frameInfo.TrkdGuidingResiduals = new double[290];
@@ -556,10 +562,6 @@ namespace OccuRec.Helpers
 			frameInfo.TrkdGuidingPsfInfo = new NativePsfFitInfo();
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
-
-			// Get the NTP time from the internal NTP syncronised high precision clock
-	        double ntpBasedTimeError;
-			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).Ticks;
 
             ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, ref frameInfo);
 

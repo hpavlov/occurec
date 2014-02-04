@@ -1231,7 +1231,7 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 	}
 }
 
-HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1249,7 +1249,7 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 c
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, 0);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1258,8 +1258,11 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 c
 
 			idxFirstFrameNumber = idxFrameNumber;
 			idxLastFrameNumber = 0;
+			firstFrameNtpTimestamp = currentNtpTimeAsTicks;
 		}
 	}
+
+	lastFrameNtpTimestamp = currentNtpTimeAsTicks;
 
 	frameInfo->FrameDiffSignature  = diffSignature;
 	//frameInfo->CurrentSignatureRatio  =  NULL != integrationChecker ? integrationChecker->CurrentSignatureRatio : 0;
@@ -1324,14 +1327,6 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
 
-	if (isNewIntegrationPeriod)
-	{
-		firstFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
-		lastFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
-	}
-	else
-		lastFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
-
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera
 	bool showOutputFrame = idxFrameNumber > STARTUP_FRAMES_WITH_NO_OUTPUT && (isNewIntegrationPeriod || !INTEGRATION_LOCKED);
@@ -1346,9 +1341,12 @@ void ProcessRawFrame(RawFrame* rawFrame)
 			numberOfIntegratedFrames = 0;
 
 			idxFirstFrameNumber = idxFrameNumber;
+			firstFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
 			idxLastFrameNumber = 0;
 		}
 	}
+
+	lastFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
 
 	long stride = 3 * IMAGE_WIDTH;
 	unsigned char* ptrPixelItt = rawFrame->BmpBits + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;
@@ -1483,14 +1481,6 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	
 	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
 
-	if (isNewIntegrationPeriod)
-	{
-		firstFrameNtpTimestamp = currentNtpTimeAsTicks;
-		lastFrameNtpTimestamp = currentNtpTimeAsTicks;
-	}
-	else
-		lastFrameNtpTimestamp = currentNtpTimeAsTicks;
-
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera
 	bool showOutputFrame = idxFrameNumber > STARTUP_FRAMES_WITH_NO_OUTPUT && (isNewIntegrationPeriod || !INTEGRATION_LOCKED);
@@ -1506,8 +1496,11 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 			idxFirstFrameNumber = idxFrameNumber;
 			idxLastFrameNumber = 0;
+			firstFrameNtpTimestamp = currentNtpTimeAsTicks;
 		}
 	}
+
+	lastFrameNtpTimestamp = currentNtpTimeAsTicks;
 
 	frameInfo->FrameDiffSignature  = diffSignature;
 	//frameInfo->CurrentSignatureRatio  = NULL != integrationChecker ? integrationChecker->CurrentSignatureRatio : 0;

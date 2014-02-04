@@ -504,6 +504,17 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 		/// <summary> buffer callback, COULD BE FROM FOREIGN THREAD. </summary>
 		int ISampleGrabberCB.BufferCB(double SampleTime, IntPtr pBuffer, int BufferLen)
 		{
+			// NOTE: How to replace the Sample Grabber:
+ 			//
+			// You need to write your own filter based 
+			// on CBaseFilter + CBaseInputPin + CBaseOutputPin.
+			//
+			// You filter spawns a worker thread (that can optionally be 
+			// based on CAMThread or CAMMsgThread). The thread waits for a 
+			// sample to arrive (you can optionally use CAMEvent or 
+			// CAMMsgEvent), then processes it and delivers it downstream 
+			// through the output pin. 
+
             NativeHelpers.ProcessVideoFrame(pBuffer);
 
             frameCounter++;
