@@ -232,7 +232,8 @@ namespace OccuRec.Drivers.AVISimulator.AVIPlayerImpl
                 long nextFrameCounterValue = frameCounter + 1;
                 FrameProcessingStatus nextFrameStatus = FrameProcessingStatus.Empty;
 
-                Thread.Sleep(waitTimeMs);
+				if (!fullAAVSimulation)
+					Thread.Sleep(waitTimeMs);
 
                 if (Settings.Default.SimulatorRunOCR || fullAAVSimulation)
                 {

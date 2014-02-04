@@ -26,6 +26,7 @@
 			this.tssASCOMTelescope = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssASCOMFocuser = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssOcrErr = new System.Windows.Forms.ToolStripStatusLabel();
+			this.tssNTP = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssRecordingFile = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssFreeDiskSpace = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pnlNewVersionAvailable = new System.Windows.Forms.ToolStripStatusLabel();
@@ -91,7 +92,7 @@
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-			this.tssNTP = new System.Windows.Forms.ToolStripStatusLabel();
+			this.tsbClearTargets = new System.Windows.Forms.ToolStripLabel();
 			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
@@ -213,6 +214,18 @@
 			this.tssOcrErr.Size = new System.Drawing.Size(76, 17);
 			this.tssOcrErr.Text = "OCR ERR 23";
 			this.tssOcrErr.Visible = false;
+			// 
+			// tssNTP
+			// 
+			this.tssNTP.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.tssNTP.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+			this.tssNTP.ForeColor = System.Drawing.Color.DarkGoldenrod;
+			this.tssNTP.Name = "tssNTP";
+			this.tssNTP.Size = new System.Drawing.Size(32, 17);
+			this.tssNTP.Text = "NTP";
+			this.tssNTP.Visible = false;
 			// 
 			// tssRecordingFile
 			// 
@@ -693,6 +706,7 @@
             this.tsbCrosshair,
             this.tsbAddGuidingStar,
             this.tbsAddTarget,
+            this.tsbClearTargets,
             this.tsSeparator2,
             this.tsbTelControl,
             this.toolStripSeparator5,
@@ -832,17 +846,14 @@
 			this.openFileDialog.DefaultExt = "avi";
 			this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
 			// 
-			// tssNTP
+			// tsbClearTargets
 			// 
-			this.tssNTP.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-			this.tssNTP.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
-			this.tssNTP.ForeColor = System.Drawing.Color.DarkGoldenrod;
-			this.tssNTP.Name = "tssNTP";
-			this.tssNTP.Size = new System.Drawing.Size(32, 17);
-			this.tssNTP.Text = "NTP";
-			this.tssNTP.Visible = false;
+			this.tsbClearTargets.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.tsbClearTargets.Image = global::OccuRec.Properties.Resources.brush;
+			this.tsbClearTargets.Name = "tsbClearTargets";
+			this.tsbClearTargets.Size = new System.Drawing.Size(16, 22);
+			this.tsbClearTargets.ToolTipText = "Remove Tracked Objects";
+			this.tsbClearTargets.Click += new System.EventHandler(this.tsbClearTargets_Click);
 			// 
 			// frmMain
 			// 
@@ -964,6 +975,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
 		private System.Windows.Forms.ToolStripStatusLabel tssNTP;
+		private System.Windows.Forms.ToolStripLabel tsbClearTargets;
 	}
 }
 

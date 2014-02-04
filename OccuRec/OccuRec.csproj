@@ -361,6 +361,7 @@
   <ItemGroup>
     <Content Include="aavrec-big.ico" />
     <Content Include="img\aavrec-big.ico" />
+    <None Include="img\brush.png" />
     <Content Include="img\redcross.ico" />
     <Content Include="license.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

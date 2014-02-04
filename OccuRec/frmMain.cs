@@ -171,6 +171,8 @@ namespace OccuRec
 				Cursor = Cursors.WaitCursor;
 				initializationErrorMessages.Clear();
 
+				m_PrevStateWasDisconnected = true;
+
                 videoObject = m_VideoRenderingController.ConnectToDriver(driverInstance);
 
 				if (videoObject.Connected)
@@ -220,6 +222,8 @@ namespace OccuRec
                 m_OverlayManager.Finalise();
                 m_OverlayManager = null;
             }
+
+			m_PrevStateWasDisconnected = true;
 		}
 
         private bool CanRecordNow(bool connected)
@@ -507,7 +511,6 @@ namespace OccuRec
 				return true;
 			}
 
-			m_PrevStateWasDisconnected = videoObject == null;
 			return false;
 		}
 
@@ -518,13 +521,12 @@ namespace OccuRec
 				m_PrevStateWasDisconnected = videoObject == null;
 				return videoObject != null;
 			}
-			else if (!m_PrevStateWasDisconnected.Value && videoObject != null)
+			else if (m_PrevStateWasDisconnected.Value && videoObject != null)
 			{
 				m_PrevStateWasDisconnected = false;
 				return true;
 			}
 
-			m_PrevStateWasDisconnected = videoObject == null;
 			return false;
 		}
 
@@ -581,15 +583,22 @@ namespace OccuRec
 
 				tbsAddTarget.Visible = false;
 				tsbAddGuidingStar.Visible = false;
+				tsbClearTargets.Visible = false;
 				tsSeparator2.Visible = false;
 				tsbCamControl.Enabled = false;
 			}
 			else if (ChangedToConnectedState())
 			{
 				tbsAddTarget.Visible = true;
+				tsbClearTargets.Visible = true;
 				tsbAddGuidingStar.Visible = true;
-			    tbsAddTarget.Enabled = false;
 				tsSeparator2.Visible = true;
+			    tbsAddTarget.Enabled = false;				
+				tsbClearTargets.Enabled = false;
+				tsbAddGuidingStar.Enabled = true;
+				TrackingContext.Current.Reset();
+				TrackingContext.Current.ReConfigureNativeTracking(videoObject.Width, videoObject.Height);
+
                 tsbCamControl.Enabled = CameraSupportsSoftwareControl();
 
                 tsbConnectDisconnect.ToolTipText = "Disconnect";
@@ -632,6 +641,7 @@ namespace OccuRec
 				}
 
                 tbsAddTarget.Enabled = TrackingContext.Current.GuidingStar != null;
+				tsbClearTargets.Enabled = TrackingContext.Current.GuidingStar != null;
 #if DEBUG
 				if (!double.IsNaN(renderFps))
 				{
@@ -1596,6 +1606,11 @@ namespace OccuRec
         {
             m_VideoFrameInteractionController.ToggleSelectTargetStar();
         }
+
+		private void tsbClearTargets_Click(object sender, EventArgs e)
+		{
+			m_VideoFrameInteractionController.RemoveTrackedObjects();
+		}
 
         private void UpdateASCOMConnectivityState()
         {

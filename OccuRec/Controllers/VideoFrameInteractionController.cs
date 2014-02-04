@@ -69,13 +69,14 @@ namespace OccuRec.Controllers
 
                 if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingGuidingStar)
                 {
-                    if (SelectGuidingStar(typedState.Item1, typedState.Item2, typedState.Item3))
-                        ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
+	                if (SelectGuidingStar(typedState.Item1, typedState.Item2, typedState.Item3))
+		                m_MainForm.Invoke(new Action(() => ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None)));
+
                 }
                 else if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingtTargetStar)
                 {
                     if (SelectingtTargetStar(typedState.Item1, typedState.Item2, typedState.Item3))
-                        ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
+						m_MainForm.Invoke(new Action(() => ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None)));
                 }
             }
             catch (Exception ex)
@@ -189,5 +190,13 @@ namespace OccuRec.Controllers
             else
                 ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.SelectingtTargetStar);
         }
+
+		public void RemoveTrackedObjects()
+		{
+			TrackingContext.Current.TargetStar = null;
+			TrackingContext.Current.GuidingStar = null;
+			ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
+			TrackingContext.Current.ReConfigureNativeTracking(m_VideoRenderingController.Width, m_VideoRenderingController.Height);			
+		}
     }
 }

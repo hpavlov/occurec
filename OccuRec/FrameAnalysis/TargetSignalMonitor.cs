@@ -37,24 +37,30 @@ namespace OccuRec.FrameAnalysis
 		public void ProcessFrame(VideoFrameWrapper frame)
 		{
 			if (TrackingContext.Current.TargetStar != null && 
-				TrackingContext.Current.GuidingStar != null && 
-				TrackingContext.Current.TargetStar.IsLocated && 
-				TrackingContext.Current.GuidingStar.IsLocated)
+				TrackingContext.Current.GuidingStar != null)
 			{
-				float normalizedMeasurement = TrackingContext.Current.TargetStar.Measurement / TrackingContext.Current.GuidingStar.Measurement;
-
-				while (m_AllMeasurements.Count > 200)
+				if (TrackingContext.Current.TargetStar.IsLocated &&
+				    TrackingContext.Current.GuidingStar.IsLocated)
 				{
-					m_AllMeasurements.RemoveAt(0);
+					float normalizedMeasurement = TrackingContext.Current.TargetStar.Measurement / TrackingContext.Current.GuidingStar.Measurement;
+
+					while (m_AllMeasurements.Count > 200)
+					{
+						m_AllMeasurements.RemoveAt(0);
+					}
+
+					var mea = new TargetMeasurement()
+					{
+						NormalizedMeasurement = normalizedMeasurement,
+						FrameNumber = frame.IntegratedFrameNo
+					};
+
+					m_AllMeasurements.Add(mea);					
 				}
-
-				var mea = new TargetMeasurement()
-				{
-					NormalizedMeasurement = normalizedMeasurement,
-					FrameNumber = frame.IntegratedFrameNo
-				};
-
-				m_AllMeasurements.Add(mea);
+			}
+			else if (m_AllMeasurements.Count > 0)
+			{
+				m_AllMeasurements.Clear();
 			}
 		}
 
