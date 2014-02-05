@@ -293,7 +293,7 @@ namespace OccuRec.Helpers
             bool isIntegrating);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetupGrabberInfo(string grabberName, string videoMode, float videoFrameRate);
+        private static extern int SetupGrabberInfo(string grabberName, string videoMode, float videoFrameRate, int hardwareTimingCorrection);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma);
@@ -534,7 +534,7 @@ namespace OccuRec.Helpers
         public static FrameProcessingStatus ProcessVideoFrame2(int[,] pixels)
         {
 			double ntpBasedTimeError;
-			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).Ticks;
+			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).AddMilliseconds(-1 * Settings.Default.NTPTimingHardwareCorrection).Ticks;
 
             var frameInfo = new FrameProcessingStatus();
 	        frameInfo.TrkdTargetResiduals = new double[290];
@@ -553,7 +553,7 @@ namespace OccuRec.Helpers
         {
 			// Get the NTP time from the internal NTP syncronised high precision clock
 			double ntpBasedTimeError;
-			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).Ticks;
+			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).AddMilliseconds(-1 * Settings.Default.NTPTimingHardwareCorrection).Ticks;
 
             var frameInfo = new FrameProcessingStatus();
 			frameInfo.TrkdTargetResiduals = new double[290];
@@ -582,7 +582,7 @@ namespace OccuRec.Helpers
 
 			SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating);
 			SetupIntegrationDetection(differenceRatio, minSignDiff, gammaDiff);
-            SetupGrabberInfo(grabberName, videoMode, (float)frameRate);
+			SetupGrabberInfo(grabberName, videoMode, (float)frameRate, Settings.Default.NTPTimingHardwareCorrection);
         }
 
         public static void ReconfigureIntegrationDetection(float differenceRatio, float minSignDiff, float gammaDiff)

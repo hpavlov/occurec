@@ -898,5 +898,17 @@ namespace OccuRec.Properties {
                 this["TrackingMinGuidingStarCertainty"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int NTPTimingHardwareCorrection {
+            get {
+                return ((int)(this["NTPTimingHardwareCorrection"]));
+            }
+            set {
+                this["NTPTimingHardwareCorrection"] = value;
+            }
+        }
     }
 }

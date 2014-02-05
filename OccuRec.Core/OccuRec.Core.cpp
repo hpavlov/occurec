@@ -124,6 +124,7 @@ char occuRecVersion[32];
 char grabberName[128];
 char videoMode[128];
 float videoFrameRate = 0;
+int HARDWARE_TIMING_CORRECTION = 0;
 
 unsigned int STATUS_TAG_NUMBER_INTEGRATED_FRAMES;
 unsigned int STATUS_TAG_START_FRAME_ID;
@@ -484,11 +485,12 @@ void SetupDiffGammaMemoryTable(float diffGamma)
 	}
 }
 
-HRESULT SetupGrabberInfo(LPCTSTR szGrabberName, LPCTSTR szVideoMode, float frameRate)
+HRESULT SetupGrabberInfo(LPCTSTR szGrabberName, LPCTSTR szVideoMode, float frameRate, long hardwareTimingCorrection)
 {
 	strcpy(&grabberName[0], (char *)szGrabberName);
 	strcpy(&videoMode[0], (char *)szVideoMode);
 	videoFrameRate = frameRate;
+	HARDWARE_TIMING_CORRECTION = hardwareTimingCorrection;
 
 	return S_OK;
 }
@@ -1700,6 +1702,9 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 		AavAddFileTag("NATIVE-VIDEO-STANDARD", "NTSC");
 	else
 		AavAddFileTag("NATIVE-VIDEO-STANDARD", "");
+
+	sprintf(&buffer[0], "%d", HARDWARE_TIMING_CORRECTION);
+	AavAddFileTag("CAPHNTP-TIMING-CORRECTION", &buffer[0]);
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
 	

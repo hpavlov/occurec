@@ -10,6 +10,7 @@ using System.Threading;
 using System.Windows.Forms;
 using OccuRec.Helpers;
 using OccuRec.Properties;
+using OccuRec.Utilities;
 
 namespace OccuRec.Config.Panels
 {
@@ -18,6 +19,12 @@ namespace OccuRec.Config.Panels
 		public ucNTPTime()
 		{
 			InitializeComponent();
+		}
+
+		public ucNTPTime(bool canChangeGrabberSettings)
+			: this()
+		{
+			nudHardwareLatencyCorrection.Enabled = canChangeGrabberSettings;
 		}
 
 		/// <summary> 
@@ -39,11 +46,13 @@ namespace OccuRec.Config.Panels
 		public override void LoadSettings()
 		{
 			tbxNTPServer.Text = Settings.Default.NTPServer;
+			nudHardwareLatencyCorrection.SetNUDValue((decimal)Settings.Default.NTPTimingHardwareCorrection);
 		}
 
 		public override void SaveSettings()
 		{
 			Settings.Default.NTPServer = tbxNTPServer.Text;
+			Settings.Default.NTPTimingHardwareCorrection = (int)nudHardwareLatencyCorrection.Value;
 		}
 
 		private void llblFindNTP_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

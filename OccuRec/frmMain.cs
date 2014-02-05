@@ -72,13 +72,11 @@ namespace OccuRec
 		    m_ObservatoryController.TelescopeStateUpdated += TelescopeStateUpdated;
 		    m_ObservatoryController.FocuserStateUpdated += FocuserStateUpdated;
 
-            var att = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
-		    appVersion = att.Version;
+			Version att = Assembly.GetExecutingAssembly().GetName().Version;
+			appVersion = string.Format("{0}.{1}.{2}", att.Major, att.Minor, att.MinorRevision);
 
 #if BETA
-            appVersion = string.Concat(att.Version, " [BETA]");
-#else
-            appVersion = att.Version;
+            appVersion = string.Concat(appVersion, " [BETA]");
 #endif
 
             Text = string.Format("OccuRec v{0}", appVersion);
@@ -317,7 +315,7 @@ namespace OccuRec
 
 		private void miConfigure_Click(object sender, EventArgs e)
 		{
-            var frmSettings = new frmSettings(m_ObservatoryController);
+            var frmSettings = new frmSettings(m_ObservatoryController, videoObject == null);
 
 		    frmSettings.ShowDialog(this);
             UpdateASCOMConnectivityState();
@@ -329,8 +327,7 @@ namespace OccuRec
             {
                 MessageBox.Show("Output Video Location is invalid.", "OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                var frmSettings = new frmSettings();
-                frmSettings.ObservatoryController = m_ObservatoryController;
+                var frmSettings = new frmSettings(m_ObservatoryController, true);
 
                 frmSettings.ShowDialog(this);
             }
@@ -585,17 +582,20 @@ namespace OccuRec
 				tsbAddGuidingStar.Visible = false;
 				tsbClearTargets.Visible = false;
 				tsSeparator2.Visible = false;
+
 				tsbCamControl.Enabled = false;
 			}
 			else if (ChangedToConnectedState())
 			{
-				tbsAddTarget.Visible = true;
-				tsbClearTargets.Visible = true;
-				tsbAddGuidingStar.Visible = true;
-				tsSeparator2.Visible = true;
-			    tbsAddTarget.Enabled = false;				
+				tbsAddTarget.Visible = videoObject.SupportsTargetTracking;
+				tsbClearTargets.Visible = videoObject.SupportsTargetTracking;
+				tsbAddGuidingStar.Visible = videoObject.SupportsTargetTracking;
+				tsSeparator2.Visible = videoObject.SupportsTargetTracking;
+			    
+				tbsAddTarget.Enabled = false;				
 				tsbClearTargets.Enabled = false;
 				tsbAddGuidingStar.Enabled = true;
+				
 				TrackingContext.Current.Reset();
 				TrackingContext.Current.ReConfigureNativeTracking(videoObject.Width, videoObject.Height);
 

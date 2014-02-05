@@ -123,4 +123,7 @@
   <metadata name="indicatorTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="label6.Text" xml:space="preserve">
+    <value>Timestamping based on NTP reference time also requires a correction for capturing hardware latency. This is the time between the first analogue video field being received by your capturing hardware and the time the reconstructed video frame has been made available via DirectShow. This time could be measured experimentally.</value>
+  </data>
 </root>

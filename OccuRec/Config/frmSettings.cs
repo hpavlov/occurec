@@ -25,35 +25,30 @@ namespace OccuRec.Config
 
 	    private ucObservatoryControl m_ObservatoryControl;
 
-		internal IObservatoryController ObservatoryController
-	    {
-	        set { m_ObservatoryControl.ObservatoryController = value; }
-	    }
-
 		private SettingsPanel m_CurrentPanel = null;
 
 		public frmSettings()
 		{
 			InitializeComponent();
-
-			InitAllPropertyPages();
 		}
 
-		internal frmSettings(IObservatoryController observatoryController)
+		internal frmSettings(IObservatoryController observatoryController, bool canChangeGrabberSettings)
             : this()
         {
-            ObservatoryController = observatoryController;
+			InitAllPropertyPages(canChangeGrabberSettings);
+
+			m_ObservatoryControl.ObservatoryController = observatoryController;
 
             foreach (SettingsPanel panel in m_PropertyPages.Values)
                 panel.LoadSettings();
         }
 
-		private void InitAllPropertyPages()
+		private void InitAllPropertyPages(bool canChangeGrabberSettings)
 		{
 			m_PropertyPages.Add(0, new ucGeneral());
 
 			m_PropertyPages.Add(1, new ucAAV());
-			m_PropertyPages.Add(2, new ucNTPTime());
+			m_PropertyPages.Add(2, new ucNTPTime(canChangeGrabberSettings));
 
             m_ObservatoryControl = new ucObservatoryControl();
             m_PropertyPages.Add(3, m_ObservatoryControl);

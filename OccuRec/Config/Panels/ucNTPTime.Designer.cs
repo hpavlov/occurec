@@ -35,6 +35,11 @@
 			this.lblLatencyTitle = new System.Windows.Forms.Label();
 			this.lblTestingIndicator = new System.Windows.Forms.Label();
 			this.indicatorTimer = new System.Windows.Forms.Timer(this.components);
+			this.label4 = new System.Windows.Forms.Label();
+			this.nudHardwareLatencyCorrection = new System.Windows.Forms.NumericUpDown();
+			this.label5 = new System.Windows.Forms.Label();
+			this.label6 = new System.Windows.Forms.Label();
+			((System.ComponentModel.ISupportInitialize)(this.nudHardwareLatencyCorrection)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// llblFindNTP
@@ -209,10 +214,57 @@
 			this.indicatorTimer.Interval = 500;
 			this.indicatorTimer.Tick += new System.EventHandler(this.indicatorTimer_Tick);
 			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.Location = new System.Drawing.Point(3, 280);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(145, 13);
+			this.label4.TabIndex = 42;
+			this.label4.Text = "Hardware Latency Correction";
+			// 
+			// nudHardwareLatencyCorrection
+			// 
+			this.nudHardwareLatencyCorrection.Location = new System.Drawing.Point(6, 297);
+			this.nudHardwareLatencyCorrection.Maximum = new decimal(new int[] {
+            9999,
+            0,
+            0,
+            0});
+			this.nudHardwareLatencyCorrection.Name = "nudHardwareLatencyCorrection";
+			this.nudHardwareLatencyCorrection.Size = new System.Drawing.Size(50, 20);
+			this.nudHardwareLatencyCorrection.TabIndex = 43;
+			this.nudHardwareLatencyCorrection.Value = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+			// 
+			// label5
+			// 
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(61, 302);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(20, 13);
+			this.label5.TabIndex = 44;
+			this.label5.Text = "ms";
+			// 
+			// label6
+			// 
+			this.label6.Location = new System.Drawing.Point(3, 216);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(453, 61);
+			this.label6.TabIndex = 45;
+			this.label6.Text = resources.GetString("label6.Text");
+			// 
 			// ucNTPTime
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.label6);
+			this.Controls.Add(this.label5);
+			this.Controls.Add(this.nudHardwareLatencyCorrection);
+			this.Controls.Add(this.label4);
 			this.Controls.Add(this.lblTestingIndicator);
 			this.Controls.Add(this.lblLatencyTitle);
 			this.Controls.Add(this.lblLatency9);
@@ -231,7 +283,8 @@
 			this.Controls.Add(this.tbxNTPServer);
 			this.Controls.Add(this.label2);
 			this.Name = "ucNTPTime";
-			this.Size = new System.Drawing.Size(524, 291);
+			this.Size = new System.Drawing.Size(524, 331);
+			((System.ComponentModel.ISupportInitialize)(this.nudHardwareLatencyCorrection)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -257,5 +310,9 @@
 		private System.Windows.Forms.Label lblLatencyTitle;
 		private System.Windows.Forms.Label lblTestingIndicator;
 		private System.Windows.Forms.Timer indicatorTimer;
+		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.NumericUpDown nudHardwareLatencyCorrection;
+		private System.Windows.Forms.Label label5;
+		private System.Windows.Forms.Label label6;
 	}
 }
