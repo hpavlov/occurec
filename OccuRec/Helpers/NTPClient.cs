@@ -143,23 +143,28 @@ namespace OccuRec.Helpers
         }
     }
 
+	// 
+	// Research Article: Internal Clock Drift Estimation in Computer Clusters
+	// http://www.hindawi.com/journals/jcnc/2008/583162/
+
 	public class NTPTimeKeeper
 	{
 		private static long s_ReferenceTicks = -1;
 		private static long s_ReferenceDateTimeTicks = -1;
 		private static long s_FirstReferenceTicks = long.MaxValue;
+		private static long s_30MinAgoReferenceTicks = long.MaxValue;
 		private static long s_FirstReferenceDateTimeTicks = -1;
+		private static long s_30MinAgoReferenceDateTimeTicks = -1;
 		private static DateTime s_ReferenceDateTime;
 		private static long s_ReferenceFrequency = -1;
 		private static long s_ReferenceMaxError = -1;
+		private static double s_TimeDriftPerMinuteMilleseconds = 0;
 
 		private static DateTime s_FirtstAttemptedDateTimeUpdate = DateTime.MinValue;
-		private static long s_NumberDateTimeUpdateAttempts = 0;
+		private static List<Tuple<DateTime, long>> s_AllNTPReferenceTimes = new List<Tuple<DateTime, long>>();
 
 		public static void AttemptingNTPTimeUpdate()
 		{
-			s_NumberDateTimeUpdateAttempts++;
-
 			if (s_FirtstAttemptedDateTimeUpdate == DateTime.MinValue)
 				s_FirtstAttemptedDateTimeUpdate = DateTime.UtcNow;
 		}
@@ -174,33 +179,81 @@ namespace OccuRec.Helpers
 			if (s_ReferenceFrequency != frequency || s_FirstReferenceTicks > currTicks)
 			{
 				// This is the first measurement
+				bool isFirstReference = s_ReferenceFrequency != frequency;
 				UpdateTimeReference(currTicks, frequency, utcTime, maxError);
-				if (s_ReferenceFrequency != frequency)
+
+				if (isFirstReference)
 					Trace.WriteLine(string.Format("OccuRec: First time reference set. Max error is {0}ms.", s_ReferenceMaxError.ToString("0.0")));
 				else
 					Trace.WriteLine(string.Format("OccuRec: Reference is set after QPC overflow. Max error is {0}ms.", s_ReferenceMaxError.ToString("0.0")));
 			}
 			else
 			{
-				if (maxError < s_ReferenceMaxError)
+				// * Only apply drift corrections if we have info for more than 5 minutes
+				// * Always keep the 'window' for determining the time drift correction to no more than 30 min (i.e. the trend may change for periods larger than 30 min)
+				// * We don't want to end up in a situation where a single very accurate NTP reference done 2 hours ago is never updated. For this reason
+				//   if the difference between the total drift since the last NTP reference time and now when computer using (1) time drift based on the 
+				//   first ever received NTP reference and now and (2) time drift based on the NTP reference received 30 min ago and now, plus the 
+				//   max error of the last NTP reference is bigger than the current max error of the NTP reference. This will mean that the NTP reference will not be 
+				//   updated because of a time drift during the first 30 min after OccuRec has been started
+
+				double tsSinceFirstReference = new TimeSpan(utcTime.Ticks - s_30MinAgoReferenceDateTimeTicks).TotalMinutes;
+				double timeDriftErrorMilliseconds = 0;
+				if (tsSinceFirstReference > 5)
 				{
-					Trace.WriteLine(string.Format("OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms.", maxError.ToString("0.0"), s_ReferenceMaxError.ToString("0.0")));
-					UpdateTimeReference(currTicks, frequency, utcTime, maxError);
-				}
-				else
-				{
-					double tsSinceFirstReference = new TimeSpan(utcTime.Ticks - s_FirstReferenceDateTimeTicks).TotalMinutes;
-					if (tsSinceFirstReference > 10)
+					double totalPassedMinutesNTP = ((currTicks - s_30MinAgoReferenceTicks) * 1000.0f / frequency) / 60000;
+					double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_30MinAgoReferenceDateTimeTicks);
+					double timeDriftMilleseconds = sectionRatio * Math.Abs(totalPassedMinutesNTP - tsSinceFirstReference) * 60000;
+					s_TimeDriftPerMinuteMilleseconds = timeDriftMilleseconds / totalPassedMinutesNTP;
+
+					if (s_30MinAgoReferenceTicks != s_FirstReferenceTicks)
 					{
-						double totalPassedMinutesNTP = ((currTicks - s_FirstReferenceTicks) * 1000.0f / frequency) / 60000;
-						double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks)/(utcTime.Ticks - s_FirstReferenceDateTimeTicks);
-						double timeDriftMilleseconds = sectionRatio * Math.Abs(totalPassedMinutesNTP - tsSinceFirstReference)*60000;
-						if (totalPassedMinutesNTP > 0 && timeDriftMilleseconds > (maxError / 2.0))
+						double totalPassedMinutesNTPBase0 = ((currTicks - s_FirstReferenceTicks) * 1000.0f / frequency) / 60000;
+						double sectionRatioBase0 = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_FirstReferenceDateTimeTicks);
+						double tsSinceFirstReferenceBase0 = new TimeSpan(utcTime.Ticks - s_FirstReferenceDateTimeTicks).TotalMinutes;
+						double timeDriftMillesecondsBase0 = sectionRatioBase0 * Math.Abs(totalPassedMinutesNTPBase0 - tsSinceFirstReferenceBase0) * 60000;
+
+						timeDriftErrorMilliseconds = Math.Abs(timeDriftMillesecondsBase0 - timeDriftMilleseconds);
+
+						// Remove all saved NTP references older than 30min
+						for (int i = s_AllNTPReferenceTimes.Count - 1; i >= 0; i--)
 						{
-							UpdateTimeReference(currTicks, frequency, utcTime, maxError);
-							Trace.WriteLine(string.Format("OccuRec: Time reference updated. Current timedrift, since last reference update, or {0}ms +/- half max error is bigger than the max error of {1}ms.", timeDriftMilleseconds.ToString("0,0"), maxError.ToString("0.0")));
+							if (s_AllNTPReferenceTimes[i].Item1.AddMinutes(30).Ticks < utcTime.Ticks)
+							{
+								Trace.WriteLine(string.Format("OccuRec: Removing NTP reference saved at {0} local time as it is too old.", s_AllNTPReferenceTimes[i].Item1.ToLocalTime().ToString("HH:mm:ss")));
+								s_AllNTPReferenceTimes.RemoveAt(i);								
+							}
+						}
+
+						if (s_AllNTPReferenceTimes.Count > 0 && s_AllNTPReferenceTimes[0].Item1.Ticks > s_30MinAgoReferenceDateTimeTicks)
+						{							
+							Trace.WriteLine(string.Format("OccuRec: Sliding the 30 min NTP reference window to start at {0}", s_AllNTPReferenceTimes[0].Item1.ToLocalTime().ToString("HH:mm:ss")));
+							// Our 30MinAgo reference is too old now. We have a newer reference that it still at least 30 min go. We want to use this reference i.e. 'slide' the window forward	
+							s_30MinAgoReferenceDateTimeTicks = s_AllNTPReferenceTimes[0].Item1.Ticks;							
 						}
 					}
+
+					Trace.WriteLine(string.Format( 
+						timeDriftErrorMilliseconds > 0 
+							? "OccuRec: Current time drift for {0} min is {1} ms +/- {2} ms ({3} ms/min)"
+							: "OccuRec: Current time drift for {0} min is {1} ms ({3} ms/min)", 
+						totalPassedMinutesNTP.ToString("0.0"), 
+						timeDriftMilleseconds.ToString("0.0"),
+						timeDriftErrorMilliseconds.ToString("0.0"),
+						s_TimeDriftPerMinuteMilleseconds.ToString("0.00")));
+				}
+
+				if (maxError < s_ReferenceMaxError + timeDriftErrorMilliseconds)
+				{
+					Trace.WriteLine(string.Format(
+						timeDriftErrorMilliseconds == 0
+							? "OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms"
+							: "OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms +/-{2}ms time-drift error.",
+						maxError.ToString("0.0"),
+						s_ReferenceMaxError.ToString("0.0"),
+						timeDriftErrorMilliseconds.ToString("0.0")));
+
+					UpdateTimeReference(currTicks, frequency, utcTime, maxError);
 				}
 			}
 		}
@@ -271,6 +324,14 @@ namespace OccuRec.Helpers
 			{
 				s_FirstReferenceTicks = s_ReferenceTicks;
 				s_FirstReferenceDateTimeTicks = s_ReferenceDateTimeTicks;
+				s_30MinAgoReferenceTicks = s_ReferenceTicks;
+				s_30MinAgoReferenceDateTimeTicks = s_ReferenceDateTimeTicks;
+				s_TimeDriftPerMinuteMilleseconds = 0;
+				s_AllNTPReferenceTimes.Clear();
+			}
+			else
+			{
+				s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long>(utcTime, currTicks));
 			}
 		}
 
@@ -282,7 +343,9 @@ namespace OccuRec.Helpers
 				Profiler.QueryPerformanceCounter(ref ticksNow);
 				double millsecondsFromReferenceFrame = (ticksNow - s_ReferenceTicks)*1000.0f/s_ReferenceFrequency;
 				maxErrorMilliseconds = s_ReferenceMaxError;
-				return s_ReferenceDateTime.AddMilliseconds(millsecondsFromReferenceFrame);
+				return s_ReferenceDateTime
+					.AddMilliseconds(millsecondsFromReferenceFrame) // Add the elapsed milliseconds to the NTP reference time
+					.AddMilliseconds(s_TimeDriftPerMinuteMilleseconds * millsecondsFromReferenceFrame / 60000); // Correct for CPU clock time drift
 			}
 			else
 			{

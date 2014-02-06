@@ -81,6 +81,7 @@
 			this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
 			this.tsbAddGuidingStar = new System.Windows.Forms.ToolStripButton();
 			this.tbsAddTarget = new System.Windows.Forms.ToolStripButton();
+			this.tsbClearTargets = new System.Windows.Forms.ToolStripLabel();
 			this.tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.tsbTelControl = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
@@ -92,7 +93,6 @@
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-			this.tsbClearTargets = new System.Windows.Forms.ToolStripLabel();
 			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
@@ -768,6 +768,15 @@
 			this.tbsAddTarget.ToolTipText = "Select Target";
 			this.tbsAddTarget.Click += new System.EventHandler(this.tbsAddTarget_Click);
 			// 
+			// tsbClearTargets
+			// 
+			this.tsbClearTargets.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.tsbClearTargets.Image = global::OccuRec.Properties.Resources.brush;
+			this.tsbClearTargets.Name = "tsbClearTargets";
+			this.tsbClearTargets.Size = new System.Drawing.Size(16, 22);
+			this.tsbClearTargets.ToolTipText = "Remove Tracked Objects";
+			this.tsbClearTargets.Click += new System.EventHandler(this.tsbClearTargets_Click);
+			// 
 			// tsSeparator2
 			// 
 			this.tsSeparator2.Name = "tsSeparator2";
@@ -846,15 +855,6 @@
 			this.openFileDialog.DefaultExt = "avi";
 			this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
 			// 
-			// tsbClearTargets
-			// 
-			this.tsbClearTargets.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.tsbClearTargets.Image = global::OccuRec.Properties.Resources.brush;
-			this.tsbClearTargets.Name = "tsbClearTargets";
-			this.tsbClearTargets.Size = new System.Drawing.Size(16, 22);
-			this.tsbClearTargets.ToolTipText = "Remove Tracked Objects";
-			this.tsbClearTargets.Click += new System.EventHandler(this.tsbClearTargets_Click);
-			// 
 			// frmMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -868,7 +868,6 @@
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MainMenuStrip = this.msMain;
 			this.MaximizeBox = false;
-			this.MinimizeBox = false;
 			this.Name = "frmMain";
 			this.Text = "OccuRec ";
 			this.Load += new System.EventHandler(this.frmMain_Load);

@@ -7,19 +7,6 @@
 		/// </summary>
 		private System.ComponentModel.IContainer components = null;
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing && (components != null))
-			{
-				components.Dispose();
-			}
-			base.Dispose(disposing);
-		}
-
 		#region Windows Form Designer generated code
 
 		/// <summary>
@@ -34,6 +21,9 @@
 			this.cbxCOMPort = new System.Windows.Forms.ComboBox();
 			this.btnConnect = new System.Windows.Forms.Button();
 			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.gbxCameraControl = new System.Windows.Forms.GroupBox();
+			this.btnInitialise = new System.Windows.Forms.Button();
+			this.gbxCameraControl.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// label1
@@ -53,6 +43,7 @@
 			this.cbxCOMPort.Name = "cbxCOMPort";
 			this.cbxCOMPort.Size = new System.Drawing.Size(98, 21);
 			this.cbxCOMPort.TabIndex = 1;
+			this.cbxCOMPort.SelectedIndexChanged += new System.EventHandler(this.cbxCOMPort_SelectedIndexChanged);
 			// 
 			// btnConnect
 			// 
@@ -62,6 +53,7 @@
 			this.btnConnect.TabIndex = 2;
 			this.btnConnect.Text = "Connect";
 			this.btnConnect.UseVisualStyleBackColor = true;
+			this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
 			// 
 			// textBox1
 			// 
@@ -75,17 +67,40 @@
 			this.textBox1.Size = new System.Drawing.Size(543, 138);
 			this.textBox1.TabIndex = 3;
 			// 
+			// gbxCameraControl
+			// 
+			this.gbxCameraControl.Controls.Add(this.btnInitialise);
+			this.gbxCameraControl.Enabled = false;
+			this.gbxCameraControl.Location = new System.Drawing.Point(10, 47);
+			this.gbxCameraControl.Name = "gbxCameraControl";
+			this.gbxCameraControl.Size = new System.Drawing.Size(521, 234);
+			this.gbxCameraControl.TabIndex = 4;
+			this.gbxCameraControl.TabStop = false;
+			this.gbxCameraControl.Text = "Camera Control";
+			// 
+			// btnInitialise
+			// 
+			this.btnInitialise.Location = new System.Drawing.Point(21, 31);
+			this.btnInitialise.Name = "btnInitialise";
+			this.btnInitialise.Size = new System.Drawing.Size(75, 23);
+			this.btnInitialise.TabIndex = 5;
+			this.btnInitialise.Text = "Initialise";
+			this.btnInitialise.UseVisualStyleBackColor = true;
+			this.btnInitialise.Click += new System.EventHandler(this.btnInitialise_Click);
+			// 
 			// frmMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(543, 445);
+			this.Controls.Add(this.gbxCameraControl);
 			this.Controls.Add(this.textBox1);
 			this.Controls.Add(this.btnConnect);
 			this.Controls.Add(this.cbxCOMPort);
 			this.Controls.Add(this.label1);
 			this.Name = "frmMain";
 			this.Text = "WAT-910BD Control Tester";
+			this.gbxCameraControl.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -98,6 +113,8 @@
 		private System.Windows.Forms.ComboBox cbxCOMPort;
 		private System.Windows.Forms.Button btnConnect;
 		private System.Windows.Forms.TextBox textBox1;
+		private System.Windows.Forms.GroupBox gbxCameraControl;
+		private System.Windows.Forms.Button btnInitialise;
 	}
 }
 
