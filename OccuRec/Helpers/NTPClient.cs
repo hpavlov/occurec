@@ -188,9 +188,9 @@ namespace OccuRec.Helpers
 				UpdateTimeReference(currTicks, frequency, utcTime, maxError);
 
 				if (isFirstReference)
-					Trace.WriteLine(string.Format("OccuRec: First time reference set. Max error is {0}ms.", s_ReferenceMaxError.ToString("0.0")));
+					Trace.WriteLine(string.Format("OccuRec: First time reference set. Max error is {0} ms.", s_ReferenceMaxError.ToString("0.0")));
 				else
-					Trace.WriteLine(string.Format("OccuRec: Reference is set after QPC overflow. Max error is {0}ms.", s_ReferenceMaxError.ToString("0.0")));
+					Trace.WriteLine(string.Format("OccuRec: Reference is set after QPC overflow. Max error is {0} ms.", s_ReferenceMaxError.ToString("0.0")));
 			}
 			else
 			{
@@ -281,8 +281,8 @@ namespace OccuRec.Helpers
 					{
 						Trace.WriteLine(string.Format(
 							timeDriftErrorMilliseconds == 0
-								? "OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms"
-								: "OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms +/-{2}ms time-drift error.",
+								? "OccuRec: Time reference updated. Current measurement's error of {0} ms is smaller that the last reference's error of {1} ms"
+								: "OccuRec: Time reference updated. Current measurement's error of {0} ms is smaller that the last reference's error of {1} ms +/-{2} ms time-drift error.",
 							maxError.ToString("0.0"),
 							s_ReferenceMaxError.ToString("0.0"),
 							timeDriftErrorMilliseconds.ToString("0.0")));

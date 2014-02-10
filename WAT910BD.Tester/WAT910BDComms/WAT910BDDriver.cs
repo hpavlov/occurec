@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
@@ -15,6 +16,13 @@ namespace WAT910BD.Tester.WAT910BDComms
 		public string CommandId;
 	}
 
+    public class SerialCommsEventArgs : EventArgs
+    {
+        public byte[] Data;
+        public bool Received;
+        public bool Sent;
+    }
+
 	public class WAT910BDDriver : IDisposable
 	{
 		private object m_SyncRoot = new object();
@@ -22,11 +30,15 @@ namespace WAT910BD.Tester.WAT910BDComms
 		private WAT910BDStateMachine m_StateMachine;
 
 		public delegate void CommandExecutionCompletedCallback(WAT910DBEventArgs e);
+        public delegate void SerialCommsCallback(SerialCommsEventArgs e);
 
 		public event CommandExecutionCompletedCallback OnCommandExecutionCompleted;
+        public event SerialCommsCallback OnSerialComms;
 
 		public WAT910BDDriver()
 		{
+            m_StateMachine = new WAT910BDStateMachine();
+
 			m_SerialPort = new SerialPort();
 			m_SerialPort.ReadTimeout = 10;
 			m_SerialPort.DataReceived +=m_SerialPort_DataReceived;
@@ -66,7 +78,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 
 					foreach (byte[] command in commands)
 					{
-						if (!m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, command))
+                        if (!SendWriteCommand(command))
 						{
 							// One of the commands errored. Aborting
 							break;
@@ -83,17 +95,17 @@ namespace WAT910BD.Tester.WAT910BDComms
 
 		public void OSDCommandUp()
 		{
-			if (m_StateMachine.CanSendCommand() && IsConnected)
+			try
 			{
-				try
-				{
-					m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, m_StateMachine.BuildOsdCommand(OsdOperation.Up));
-				}
-				finally
-				{
-					RaiseOnExecutionCompeted();
-				}
-			}			
+			    if (m_StateMachine.CanSendCommand() && IsConnected)
+			    {
+			        SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Up));
+			    }
+			}
+			finally
+			{
+				RaiseOnExecutionCompeted();
+			}
 		}
 
 		public void OSDCommandDown()
@@ -102,7 +114,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 			{
 				try
 				{
-					m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, m_StateMachine.BuildOsdCommand(OsdOperation.Down));
+                    SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Down));
 				}
 				finally
 				{
@@ -117,7 +129,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 			{
 				try
 				{
-					m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, m_StateMachine.BuildOsdCommand(OsdOperation.Left));
+                    SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Left));
 				}
 				finally
 				{
@@ -132,7 +144,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 			{
 				try
 				{
-					m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, m_StateMachine.BuildOsdCommand(OsdOperation.Right));
+                    SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Right));
 				}
 				finally
 				{
@@ -147,7 +159,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 			{
 				try
 				{
-					m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, m_StateMachine.BuildOsdCommand(OsdOperation.Set));
+					SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Set));
 				}
 				finally
 				{
@@ -156,24 +168,65 @@ namespace WAT910BD.Tester.WAT910BDComms
 			}
 		}
 
+        public void GainUp()
+        {
+            if (m_StateMachine.CanSendCommand() && IsConnected)
+            {
+                try
+                {
+                    m_StateMachine.SetGain(m_SerialPort, m_StateMachine.Gain + 1, (command) => RaiseOnCommsData(false, command));
+                }
+                finally
+                {
+                    RaiseOnExecutionCompeted();
+                }
+            }
+        }
+
+        public void GainDown()
+        {
+            if (m_StateMachine.CanSendCommand() && IsConnected)
+            {
+                try
+                {
+                    m_StateMachine.SetGain(m_SerialPort, m_StateMachine.Gain - 1, (command) => RaiseOnCommsData(false, command));
+                }
+                finally
+                {
+                    RaiseOnExecutionCompeted();
+                }
+            }
+        }
+
+        private bool SendWriteCommand(byte[] command)
+        {
+            return m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, command, (cmd) => RaiseOnCommsData(false, cmd));
+        }
+
+	    public int Gain
+	    {
+            get { return m_StateMachine.Gain; }
+	    }
+
 		private void RaiseOnExecutionCompeted()
 		{
-			CommandExecutionCompletedCallback copy = OnCommandExecutionCompleted;
-
-			if (copy != null)
-			{
-				copy.DynamicInvoke(new WAT910DBEventArgs()
+			RaiseEvent(OnCommandExecutionCompleted, 
+                new WAT910DBEventArgs()
 				{
 					IsSuccessful = m_StateMachine.WasLastCameraOperationSuccessful(),
 					ErrorMessage = m_StateMachine.GetLastCameraErrorMessage()
-				});				
-			}
+				});
 		}
 
-		private void SendWriteCommand(byte[] commandBytes)
-		{
-			
-		}
+        private void RaiseOnCommsData(bool received, byte[] data)
+        {
+            RaiseEvent(OnSerialComms, 
+                new SerialCommsEventArgs()
+                {
+                    Data = data, Received = received, Sent = !received
+                });
+        }
+
 
 		void m_SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
 		{
@@ -186,6 +239,10 @@ namespace WAT910BD.Tester.WAT910BDComms
 						int bt = m_SerialPort.ReadByte();
 						m_StateMachine.PushReceivedByte((byte)bt);
 
+                        if (m_StateMachine.IsReceivedMessageComplete)
+                        {
+                            RaiseOnCommsData(true, m_StateMachine.LastReceivedMessage());
+                        }
 					}
 					catch (TimeoutException)
 					{
@@ -214,7 +271,9 @@ namespace WAT910BD.Tester.WAT910BDComms
 				{
 					m_SerialPort.StopBits = StopBits.One;
 					m_SerialPort.Parity = Parity.None;
+				    m_SerialPort.DataBits = 8;
 					m_SerialPort.PortName = comPort;
+				    m_SerialPort.BaudRate = 57600;
 					m_SerialPort.Open();
 
 					return true;
@@ -255,5 +314,34 @@ namespace WAT910BD.Tester.WAT910BDComms
 
 			m_SerialPort = null;
 		}
+
+        /// <summary>Raises the event (on the UI thread if available).</summary>
+        /// <param name="multicastDelegate">The event to raise.</param>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">An EventArgs that contains the event data.</param>
+        /// <returns>The return value of the event invocation or null if none.</returns>
+        public static object RaiseEvent<T>(MulticastDelegate multicastDelegate, T eventArg)
+        {
+            object retVal = null;
+
+            MulticastDelegate threadSafeMulticastDelegate = multicastDelegate;
+            if (threadSafeMulticastDelegate != null)
+            {
+                foreach (Delegate d in threadSafeMulticastDelegate.GetInvocationList())
+                {
+                    var synchronizeInvoke = d.Target as ISynchronizeInvoke;
+                    if ((synchronizeInvoke != null) && synchronizeInvoke.InvokeRequired)
+                    {
+                        retVal = synchronizeInvoke.EndInvoke(synchronizeInvoke.BeginInvoke(d, new object[] { eventArg }));
+                    }
+                    else
+                    {
+                        retVal = d.DynamicInvoke(new object[] { eventArg });
+                    }
+                }
+            }
+
+            return retVal;
+        }
 	}
 }

@@ -184,7 +184,12 @@ namespace WAT910BD.Tester.WAT910BDComms
 		private bool m_CommandSuccessful = false;
 		private string m_ErrorMessage = null;
 
-		private bool m_CanSendCommand;
+		private bool m_CanSendCommand = true;
+
+        public WAT910BDStateMachine()
+        {
+            Gain = 6;
+        }
 
 		public bool CanSendCommand()
 		{
@@ -249,7 +254,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 			return m_CommandSuccessful;
 		}
 
-		public bool SendWriteCommandAndWaitToExecute(SerialPort port, byte[] command)
+        public bool SendWriteCommandAndWaitToExecute(SerialPort port, byte[] command, Action<byte[]> onBytesSent)
 		{
 			m_CanSendCommand = false;
 			try
@@ -257,7 +262,13 @@ namespace WAT910BD.Tester.WAT910BDComms
 				m_WaitingResult = false;
 				m_WaitingReceivedAck = true;
 				m_CommandSuccessful = false;
+
+			    ExpectNewResponse();
+
 				port.Write(command, 0, command.Length);
+
+			    if (onBytesSent != null)
+                    onBytesSent(command);
 
 				int ticks = 0;
 				while (ticks < 100 && (m_WaitingReceivedAck || m_WaitingResult))
@@ -307,6 +318,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 				{
 					m_WaitingResult = true;
 					m_WaitingReceivedAck = false;
+				    m_ReceivedBytes.Add(bt);
 					return;
 				}
 
@@ -316,12 +328,16 @@ namespace WAT910BD.Tester.WAT910BDComms
 				{
 					case EXECUTE_CAM_DISCONNECTED:
 						m_ErrorMessage = "Camera is disconnected.";
+                        m_ReceivedBytes.Add(bt);
+                        IsReceivedMessageComplete = true;
 						return;
 
 					case EXECUTE_CAM_TIMEOUT:
 					case EXECUTE_COMMS_FAIL:
 					case EXECUTE_FAIL:
 						m_ErrorMessage = "Error communicating with the Camera.";
+                        m_ReceivedBytes.Add(bt);
+				        IsReceivedMessageComplete = true;
 						return;
 				}
 			}
@@ -332,6 +348,8 @@ namespace WAT910BD.Tester.WAT910BDComms
 					m_ErrorMessage = null;
 					m_CommandSuccessful = true;
 					m_WaitingResult = false;
+                    m_ReceivedBytes.Add(bt);
+                    IsReceivedMessageComplete = true;
 					return;
 				}
 
@@ -342,17 +360,23 @@ namespace WAT910BD.Tester.WAT910BDComms
 				{
 					case EXECUTE_CAM_DISCONNECTED:
 						m_ErrorMessage = "Camera is disconnected.";
+                        m_ReceivedBytes.Add(bt);
+                        IsReceivedMessageComplete = true;
 						return;
 
 					case EXECUTE_CAM_TIMEOUT:
 					case EXECUTE_COMMS_FAIL:
 					case EXECUTE_FAIL:
 						m_ErrorMessage = "Error communicating with the Camera.";
+                        m_ReceivedBytes.Add(bt);
+                        IsReceivedMessageComplete = true;
 						return;
-				}				
+				}
 			}
 
 			m_ErrorMessage = string.Format("The received byte 0x{0} was unexpected in the current camera state.", Convert.ToString(bt, 16));
+            m_ReceivedBytes.Add(bt);
+            IsReceivedMessageComplete = true;
 		}
 
 		private byte[] BuildWriteCommand(int address, string mask, byte value)
@@ -360,13 +384,48 @@ namespace WAT910BD.Tester.WAT910BDComms
 			return BuildReadWriteCommand(address, mask, value, false);
 		}
 
+	    private List<byte> m_ReceivedBytes = new List<byte>();
 
-		private byte[] BuildReadCommand(int address, string mask, byte value)
+        public byte[] LastReceivedMessage()
+        {
+            return m_ReceivedBytes.ToArray();
+        }
+
+        public bool IsReceivedMessageComplete { get; private set; }
+
+        private void ExpectNewResponse()
+        {
+            m_ReceivedBytes.Clear();
+            IsReceivedMessageComplete = false;
+        }
+
+	    private byte[] BuildReadCommand(int address, string mask, byte value)
 		{
 			return BuildReadWriteCommand(address, mask, value, true);
 		}
 
-		private byte[] BuildReadWriteCommand(int address, string mask, byte value, bool isRead)
+        public void SetGain(SerialPort port, int newGain, Action<byte[]> onBytesSent)
+        {
+            byte gainVal = (byte)Math.Min(0x3F, Math.Max(0, newGain - 6));
+            byte[] cmd = BuildWriteCommand(0x417, "0011 1111", gainVal);
+            if (SendWriteCommandAndWaitToExecute(port, cmd, onBytesSent))
+                Gain = newGain;
+        }
+
+        private void SetGamma()
+        {
+            // 0x481, "0001 1111", 
+        }
+
+        private void SetShutter()
+        {
+            // 0x402, "0001 1111", 
+            // 0x401, EI
+        }
+
+        public int Gain { get; private set; }
+
+	    private byte[] BuildReadWriteCommand(int address, string mask, byte value, bool isRead)
 		{
 			byte btHBR = 0;
 
@@ -416,7 +475,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 			else
 				btHBR = (byte)(btHBR & 0xBF);
 
-			return new byte[] { 0xFE, btHBR, btMask, btADH, value, btCheckSum, btSTA };
+            return new byte[] { 0xFE, btHBR, btMask, btADH, btADL, value, btCheckSum, btSTA };
 		}
 
 		public byte[] BuildOsdCommand(OsdOperation operation)

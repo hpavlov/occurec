@@ -26,6 +26,7 @@ namespace WAT910BD.Tester
 			btnConnect.Enabled = cbxCOMPort.SelectedIndex > -1;
 
 			m_WAT910Driver.OnCommandExecutionCompleted += m_WAT910Driver_OnCommandExecutionCompleted;
+            m_WAT910Driver.OnSerialComms += m_WAT910Driver_OnSerialComms;
 		}
 
 		/// <summary>
@@ -47,16 +48,37 @@ namespace WAT910BD.Tester
 		void m_WAT910Driver_OnCommandExecutionCompleted(WAT910DBEventArgs e)
 		{
 			if (!e.IsSuccessful)
-			{
-				MessageBox.Show(this, e.ErrorMessage, "Camera Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
+                textBox1.AppendText(string.Format("ERR:{0}\r\n", e.ErrorMessage));
 
 			EnableDisableControls(true);
 		}
 
+        void m_WAT910Driver_OnSerialComms(SerialCommsEventArgs e)
+        {
+            string message = FormatBytesHex(e.Data);
+            if (e.Sent)
+                textBox1.AppendText("SENT: " + message + "\r\n");
+            else
+                textBox1.AppendText("RCVD: " + message + "\r\n");
+        }
+
+        private string FormatBytesHex(byte[] data)
+        {
+            var output = new StringBuilder();
+            for (int i = 0; i < data.Length; i++)
+            {
+                output.AppendFormat("{0} ", data[i].ToString("x2").ToUpper());
+            }
+            return output.ToString();
+        }
+
 		private void EnableDisableControls(bool enable)
 		{
 			gbxCameraControl.Enabled = enable;
+
+		    lblGain.Text = string.Format("{0} dB", m_WAT910Driver.Gain);
+		    btnGainDown.Enabled = m_WAT910Driver.Gain > 6;
+		    btnGainUp.Enabled = m_WAT910Driver.Gain < 41;
 		}
 
 		private void btnConnect_Click(object sender, EventArgs e)
@@ -121,5 +143,17 @@ namespace WAT910BD.Tester
 			EnableDisableControls(false);
 			Invoke(new Action(() => m_WAT910Driver.OSDCommandSet()));
 		}
+
+        private void btnGainUp_Click(object sender, EventArgs e)
+        {
+            EnableDisableControls(false);
+            Invoke(new Action(() => m_WAT910Driver.GainUp()));
+        }
+
+        private void btnGainDown_Click(object sender, EventArgs e)
+        {
+            EnableDisableControls(false);
+            Invoke(new Action(() => m_WAT910Driver.GainDown()));
+        }
 	}
 }
