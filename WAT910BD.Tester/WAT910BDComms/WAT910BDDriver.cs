@@ -53,7 +53,14 @@ namespace WAT910BD.Tester.WAT910BDComms
 				{
 					List<byte[]> commands = m_StateMachine.GetCommandSeries(MultipleCommandSeries.InitCamera);
 
-					// TODO: 
+					foreach (byte[] command in commands)
+					{
+						if (!m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, command))
+						{
+							// One of the commands errored. Aborting
+						}
+					}
+					
 				}
 				finally
 				{

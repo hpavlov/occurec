@@ -20,7 +20,7 @@ namespace OccuRec
 			Version appVersion = a.GetName().Version;
 			string appVersionString = appVersion.ToString();
 
-			Trace.WriteLine(string.Format("Starting OccuRec v.{0}", appVersionString));
+			Trace.WriteLine(string.Format("Starting OccuRec v{0}", appVersionString));
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

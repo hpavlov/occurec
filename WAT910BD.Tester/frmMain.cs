@@ -72,7 +72,7 @@ namespace WAT910BD.Tester
 
 		private void btnInitialise_Click(object sender, EventArgs e)
 		{
-			m_WAT910Driver.InitialiseCamera();
+			Invoke(new Action(() => m_WAT910Driver.InitialiseCamera()));
 		}
 	}
 }

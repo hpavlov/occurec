@@ -54,6 +54,8 @@ namespace OccuRec.ASCOM
 		bool IsConnectedToObservatory();
 		bool IsConnectedToTelescope();
 		bool IsConnectedToFocuser();
+		string ConnectedFocuserDriverName();
+		string ConnectedTelescopeDriverName();
 		void DisconnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 		void DisconnectFocuser(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 		void TryConnectFocuser(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
@@ -231,9 +233,19 @@ namespace OccuRec.ASCOM
 			return m_ConnectedTelescope != null;
 		}
 
+		public string ConnectedTelescopeDriverName()
+		{
+			return m_ConnectedTelescope != null ? m_ConnectedTelescope.Description : string.Empty;
+		}
+
 		public bool IsConnectedToFocuser()
 		{
 			return m_ConnectedFocuser != null;
+		}
+
+		public string ConnectedFocuserDriverName()
+		{
+			return m_ConnectedFocuser != null ? m_ConnectedFocuser.Description : string.Empty;
 		}
 
 		public void DisconnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)

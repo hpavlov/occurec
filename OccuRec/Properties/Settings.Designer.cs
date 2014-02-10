@@ -910,5 +910,29 @@ namespace OccuRec.Properties {
                 this["NTPTimingHardwareCorrection"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool RecordNTPTimeStamp {
+            get {
+                return ((bool)(this["RecordNTPTimeStamp"]));
+            }
+            set {
+                this["RecordNTPTimeStamp"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool RecordSecondaryTimeStamp {
+            get {
+                return ((bool)(this["RecordSecondaryTimeStamp"]));
+            }
+            set {
+                this["RecordSecondaryTimeStamp"] = value;
+            }
+        }
     }
 }

@@ -214,23 +214,24 @@ namespace OccuRec.Helpers
 						double timeDriftMillesecondsBase0 = sectionRatioBase0 * Math.Abs(totalPassedMinutesNTPBase0 - tsSinceFirstReferenceBase0) * 60000;
 
 						timeDriftErrorMilliseconds = Math.Abs(timeDriftMillesecondsBase0 - timeDriftMilleseconds);
+					}
 
-						// Remove all saved NTP references older than 30min
-						for (int i = s_AllNTPReferenceTimes.Count - 1; i >= 0; i--)
+					// Remove all saved NTP references older than 30min
+					for (int i = s_AllNTPReferenceTimes.Count - 1; i >= 0; i--)
+					{
+						if (s_AllNTPReferenceTimes[i].Item1.AddMinutes(10).Ticks < utcTime.Ticks)
 						{
-							if (s_AllNTPReferenceTimes[i].Item1.AddMinutes(30).Ticks < utcTime.Ticks)
-							{
-								Trace.WriteLine(string.Format("OccuRec: Removing NTP reference saved at {0} local time as it is too old.", s_AllNTPReferenceTimes[i].Item1.ToLocalTime().ToString("HH:mm:ss")));
-								s_AllNTPReferenceTimes.RemoveAt(i);								
-							}
+							Trace.WriteLine(string.Format("OccuRec: Removing NTP reference saved at {0} local time as it is too old.", s_AllNTPReferenceTimes[i].Item1.ToLocalTime().ToString("HH:mm:ss")));
+							s_AllNTPReferenceTimes.RemoveAt(i);
 						}
+					}
 
-						if (s_AllNTPReferenceTimes.Count > 0 && s_AllNTPReferenceTimes[0].Item1.Ticks > s_30MinAgoReferenceDateTimeTicks)
-						{							
-							Trace.WriteLine(string.Format("OccuRec: Sliding the 30 min NTP reference window to start at {0}", s_AllNTPReferenceTimes[0].Item1.ToLocalTime().ToString("HH:mm:ss")));
-							// Our 30MinAgo reference is too old now. We have a newer reference that it still at least 30 min go. We want to use this reference i.e. 'slide' the window forward	
-							s_30MinAgoReferenceDateTimeTicks = s_AllNTPReferenceTimes[0].Item1.Ticks;							
-						}
+					if (s_AllNTPReferenceTimes.Count > 0 && s_AllNTPReferenceTimes[0].Item1.Ticks > s_30MinAgoReferenceDateTimeTicks)
+					{
+						Trace.WriteLine(string.Format("OccuRec: Sliding the 30 min NTP reference window to start at {0}", s_AllNTPReferenceTimes[0].Item1.ToLocalTime().ToString("HH:mm:ss")));
+						// Our 30MinAgo reference is too old now. We have a newer reference that it still at least 30 min go. We want to use this reference i.e. 'slide' the window forward	
+						s_30MinAgoReferenceDateTimeTicks = s_AllNTPReferenceTimes[0].Item1.Ticks;
+						s_30MinAgoReferenceTicks = s_AllNTPReferenceTimes[0].Item2;
 					}
 
 					Trace.WriteLine(string.Format( 
@@ -255,6 +256,8 @@ namespace OccuRec.Helpers
 
 					UpdateTimeReference(currTicks, frequency, utcTime, maxError);
 				}
+
+				s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long>(utcTime, currTicks));
 			}
 		}
 
@@ -328,9 +331,6 @@ namespace OccuRec.Helpers
 				s_30MinAgoReferenceDateTimeTicks = s_ReferenceDateTimeTicks;
 				s_TimeDriftPerMinuteMilleseconds = 0;
 				s_AllNTPReferenceTimes.Clear();
-			}
-			else
-			{
 				s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long>(utcTime, currTicks));
 			}
 		}

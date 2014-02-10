@@ -43,6 +43,8 @@ namespace OccuRec.ASCOM
 		private void frmFocusControl_Shown(object sender, EventArgs e)
 		{
             m_ObservatoryController.GetFocuserState();
+			if (m_ObservatoryController.IsConnectedToFocuser())
+				Text = string.Format("");
 		}
 
 		private void UpdateFocuserState(FocuserState state)
@@ -53,7 +55,7 @@ namespace OccuRec.ASCOM
 
 				DisableEnableControls(true);
 
-                Text = state.Absolute ? "Focus Control - Absolte" : "Focus Control - Relative";
+                Text = string.Format("Focus Control - {0} ({1})", m_ObservatoryController.ConnectedFocuserDriverName(), state.Absolute ? "Absolte" : "Relative");
 				if (!state.TempCompAvailable)
 				{
                     cbxTempComp.Visible = false;

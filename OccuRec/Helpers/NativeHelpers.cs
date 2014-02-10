@@ -299,13 +299,13 @@ namespace OccuRec.Helpers
 		private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion);
+		private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion, int recordNtpTimestamp, int recordSecondaryTimestamp);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, [In, Out] ref FrameProcessingStatus frameInfo);
+		private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, long currentSecondaryTimeAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, [In, Out] ref FrameProcessingStatus frameInfo);
+		private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, long currentSecondaryTimeAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetCurrentImage([In, Out] byte[] bitmapPixels);
@@ -535,6 +535,7 @@ namespace OccuRec.Helpers
         {
 			double ntpBasedTimeError;
 			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).AddMilliseconds(-1 * Settings.Default.NTPTimingHardwareCorrection).Ticks;
+	        long currentSecondaryTimeAsTicks = DateTime.UtcNow.Ticks;
 
             var frameInfo = new FrameProcessingStatus();
 	        frameInfo.TrkdTargetResiduals = new double[290];
@@ -544,7 +545,7 @@ namespace OccuRec.Helpers
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
-			ProcessVideoFrame2(pixels, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, ref frameInfo);
+			ProcessVideoFrame2(pixels, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, ref frameInfo);
 
             return frameInfo;
         }
@@ -554,6 +555,7 @@ namespace OccuRec.Helpers
 			// Get the NTP time from the internal NTP syncronised high precision clock
 			double ntpBasedTimeError;
 			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).AddMilliseconds(-1 * Settings.Default.NTPTimingHardwareCorrection).Ticks;
+			long currentSecondaryTimeAsTicks = DateTime.UtcNow.Ticks;
 
             var frameInfo = new FrameProcessingStatus();
 			frameInfo.TrkdTargetResiduals = new double[290];
@@ -563,7 +565,7 @@ namespace OccuRec.Helpers
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
-            ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, ref frameInfo);
+            ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, ref frameInfo);
 
             return frameInfo;
         }
@@ -598,7 +600,9 @@ namespace OccuRec.Helpers
                 (int)imageLayout, 
                 Settings.Default.UsesBufferedFrameProcessing ? 1 : 0,
                 Settings.Default.IntegrationDetectionTuning ? 1 : 0,
-                string.Format("OccuRec v{0}", ASSEMBLY_FILE_VERSION.Version));
+                string.Format("OccuRec v{0}", ASSEMBLY_FILE_VERSION.Version),
+				Settings.Default.RecordNTPTimeStamp ? 1 : 0,
+				Settings.Default.RecordSecondaryTimeStamp ? 1 : 0);
         }
 
 		public static string SetupTimestampPreservation(int width, int height)

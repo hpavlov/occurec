@@ -26,6 +26,8 @@ namespace OccuRec.Config.Panels
 			cbForceIntegrationRateRestrictions.Checked = Settings.Default.ForceIntegrationRatesRestrictions;
 			cbxFrameProcessingMode.SelectedIndex = Settings.Default.UsesBufferedFrameProcessing ? 0 : 1;
 			cbDebugIntegration.Checked = Settings.Default.IntegrationDetectionTuning;
+			cbxRecordNTPTimeStamps.Checked = Settings.Default.RecordNTPTimeStamp;
+			cbxRecordSecondaryTimeStamps.Checked = Settings.Default.RecordSecondaryTimeStamp;
 		}
 
 		public override void SaveSettings()
@@ -38,6 +40,8 @@ namespace OccuRec.Config.Panels
 
 			Settings.Default.UsesBufferedFrameProcessing = cbxFrameProcessingMode.SelectedIndex == 0;
 			Settings.Default.IntegrationDetectionTuning = cbDebugIntegration.Checked;
+			Settings.Default.RecordNTPTimeStamp = cbxRecordNTPTimeStamps.Checked;
+			Settings.Default.RecordSecondaryTimeStamp = cbxRecordSecondaryTimeStamps.Checked;
 		}
 	}
 }

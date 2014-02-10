@@ -20,6 +20,8 @@ public:
 	__int64 NTPStartTimestamp;
 	__int64 NTPEndTimestamp;
 	long NTPTimestampError;
+	__int64 SecondaryStartTimestamp;
+	__int64 SecondaryEndTimestamp;
 	char OcrErrorMessageStr[255];
 
 	IntegratedFrame(long totalPixelsInFrame);

@@ -217,7 +217,7 @@
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(3, 280);
+			this.label4.Location = new System.Drawing.Point(3, 294);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(145, 13);
 			this.label4.TabIndex = 42;
@@ -225,7 +225,7 @@
 			// 
 			// nudHardwareLatencyCorrection
 			// 
-			this.nudHardwareLatencyCorrection.Location = new System.Drawing.Point(6, 297);
+			this.nudHardwareLatencyCorrection.Location = new System.Drawing.Point(154, 292);
 			this.nudHardwareLatencyCorrection.Maximum = new decimal(new int[] {
             9999,
             0,
@@ -243,7 +243,7 @@
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(61, 302);
+			this.label5.Location = new System.Drawing.Point(209, 297);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(20, 13);
 			this.label5.TabIndex = 44;
@@ -283,7 +283,7 @@
 			this.Controls.Add(this.tbxNTPServer);
 			this.Controls.Add(this.label2);
 			this.Name = "ucNTPTime";
-			this.Size = new System.Drawing.Size(524, 331);
+			this.Size = new System.Drawing.Size(524, 366);
 			((System.ComponentModel.ISupportInitialize)(this.nudHardwareLatencyCorrection)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();

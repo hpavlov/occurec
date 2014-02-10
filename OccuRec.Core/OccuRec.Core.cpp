@@ -36,6 +36,8 @@ long MONOCHROME_CONVERSION_MODE;
 long USE_IMAGE_LAYOUT = 4;
 bool USE_BUFFERED_FRAME_PROCESSING = true;
 bool INTEGRATION_DETECTION_TUNING = false;
+bool USE_NTP_TIMESTAMP = false;
+bool USE_SECONDARY_TIMESTAMP = false;
 
 
 bool OCR_IS_SETUP = false;
@@ -108,6 +110,8 @@ bool ocrFirstFrameProcessed = false;
 long ocrErrorsSiceLastReset = 0;
 __int64 firstFrameNtpTimestamp = 0;
 __int64 lastFrameNtpTimestamp = 0;
+__int64 firstFrameSecondaryTimestamp = 0;
+__int64 lastFrameSecondaryTimestamp = 0;
 
 unsigned char* latestIntegratedFrame = NULL;
 ImageStatus latestImageStatus;
@@ -134,6 +138,8 @@ unsigned int STATUS_TAG_END_TIMESTAMP;
 unsigned int STATUS_TAG_SYSTEM_TIME;
 unsigned int STATUS_TAG_NTP_START_TIMESTAMP;
 unsigned int STATUS_TAG_NTP_END_TIMESTAMP;
+unsigned int STATUS_TAG_SECONDARY_START_TIMESTAMP;
+unsigned int STATUS_TAG_SECONDARY_END_TIMESTAMP;
 unsigned int STATUS_TAG_GPS_TRACKED_SATELLITES;
 unsigned int STATUS_TAG_GPS_ALMANAC;
 unsigned int STATUS_TAG_GPS_FIX;
@@ -291,12 +297,14 @@ bool IsNewIntegrationPeriod(float diffSignature)
 }
 
 
-HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion)
+HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp)
 {
 	OCR_IS_SETUP = false;
 	USE_IMAGE_LAYOUT = useImageLayout;
 	USE_BUFFERED_FRAME_PROCESSING = usesBufferedMode == 1;
 	INTEGRATION_DETECTION_TUNING = integrationDetectionTuning == 1;
+	USE_NTP_TIMESTAMP = recordNtpTimestamp == 1;
+	USE_SECONDARY_TIMESTAMP = recordSecondaryTimestamp == 1;
 
 	if (NULL != integrationChecker)
 	{
@@ -852,7 +860,7 @@ void CalculateDiffSignature2(long* pixels, float* signatureThisPrev)
 
 long detectedIntegrationRate = 0;
 
-long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError)
+long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks,  __int64 currentSecondaryTimeAsTicks, double ntpBasedTimeError)
 {
 	long numItems = 0;
 
@@ -1147,6 +1155,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			frame->GpsFixStatus = gpsFixStatus;
 			frame->NTPStartTimestamp = firstFrameNtpTimestamp;
 			frame->NTPEndTimestamp = lastFrameNtpTimestamp;
+			frame->SecondaryStartTimestamp = firstFrameSecondaryTimestamp;
+			frame->SecondaryEndTimestamp = lastFrameSecondaryTimestamp;
 			frame->NTPTimestampError = (long)(0.5 + ntpBasedTimeError * 10);
 
 			if (OCR_FAILED_TEST_RECORDING && hasOcrErors)
@@ -1233,7 +1243,7 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 	}
 }
 
-HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError,  __int64 currentSecondaryTimeAsTicks, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1251,7 +1261,7 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 c
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, currentSecondaryTimeAsTicks, ntpBasedTimeError);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1261,10 +1271,12 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 c
 			idxFirstFrameNumber = idxFrameNumber;
 			idxLastFrameNumber = 0;
 			firstFrameNtpTimestamp = currentNtpTimeAsTicks;
+			firstFrameSecondaryTimestamp = currentSecondaryTimeAsTicks;
 		}
 	}
 
 	lastFrameNtpTimestamp = currentNtpTimeAsTicks;
+	lastFrameSecondaryTimestamp = currentSecondaryTimeAsTicks;
 
 	frameInfo->FrameDiffSignature  = diffSignature;
 	//frameInfo->CurrentSignatureRatio  =  NULL != integrationChecker ? integrationChecker->CurrentSignatureRatio : 0;
@@ -1335,7 +1347,7 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, rawFrame->CurrentUtcDayAsTicks, rawFrame->CurrentNtpTimeAsTicks, rawFrame->NtpBasedTimeError);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, rawFrame->CurrentUtcDayAsTicks, rawFrame->CurrentNtpTimeAsTicks, rawFrame->CurrentSecondaryTimeAsTicks, rawFrame->NtpBasedTimeError);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1344,11 +1356,13 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 			idxFirstFrameNumber = idxFrameNumber;
 			firstFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
+			firstFrameSecondaryTimestamp = rawFrame->CurrentSecondaryTimeAsTicks;
 			idxLastFrameNumber = 0;
 		}
 	}
 
 	lastFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
+	lastFrameSecondaryTimestamp = rawFrame->CurrentSecondaryTimeAsTicks;
 
 	long stride = 3 * IMAGE_WIDTH;
 	unsigned char* ptrPixelItt = rawFrame->BmpBits + (IMAGE_HEIGHT - 1) * IMAGE_STRIDE;
@@ -1452,7 +1466,7 @@ void FrameProcessingThreadProc( void* pContext )
 	};
 }
 
-HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1462,6 +1476,8 @@ HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, 
 	frame->CurrentUtcDayAsTicks = currentUtcDayAsTicks;
 	frame->CurrentNtpTimeAsTicks = currentNtpTimeAsTicks;
 	frame->NtpBasedTimeError = ntpBasedTimeError;
+	frame->CurrentSecondaryTimeAsTicks = currentSecondaryTimeAsTicks;
+
 	memcpy(&frame->BmpBits[0], &buf[0], frame->BmpBitsSize);
 
 	AddFrameToRawFrameBuffer(frame);
@@ -1469,7 +1485,7 @@ HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, 
 	return S_OK;
 }
 
-HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError,  __int64 currentSecondaryTimeAsTicks, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1489,7 +1505,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, currentSecondaryTimeAsTicks, ntpBasedTimeError);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1499,10 +1515,12 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 			idxFirstFrameNumber = idxFrameNumber;
 			idxLastFrameNumber = 0;
 			firstFrameNtpTimestamp = currentNtpTimeAsTicks;
+			firstFrameSecondaryTimestamp = currentSecondaryTimeAsTicks;
 		}
 	}
 
 	lastFrameNtpTimestamp = currentNtpTimeAsTicks;
+	lastFrameSecondaryTimestamp = currentSecondaryTimeAsTicks;
 
 	frameInfo->FrameDiffSignature  = diffSignature;
 	//frameInfo->CurrentSignatureRatio  = NULL != integrationChecker ? integrationChecker->CurrentSignatureRatio : 0;
@@ -1575,12 +1593,12 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	return S_OK;
 }
 
-HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, FrameProcessingStatus* frameInfo)
 {
 	if (USE_BUFFERED_FRAME_PROCESSING)
-		return ProcessVideoFrameBuffered(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, frameInfo);
+		return ProcessVideoFrameBuffered(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, frameInfo);
 	else
-		return ProcessVideoFrameSynchronous(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, frameInfo);
+		return ProcessVideoFrameSynchronous(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, frameInfo);
 }
 
 long long firstRecordedFrameTimestamp = 0;
@@ -1619,11 +1637,22 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 			AavFrameAddStatusTag(STATUS_TAG_OCR_TESTING_ERROR_MESSAGE, &nextFrame->OcrErrorMessageStr[0]);
 	}
 
-	long long ntpStartTimeStamp = WindowsTicksToAavTicks(nextFrame->NTPStartTimestamp);
-	long long ntpEndTimeStamp = WindowsTicksToAavTicks(nextFrame->NTPEndTimestamp);
-	AavFrameAddStatusTag64(STATUS_TAG_NTP_START_TIMESTAMP, ntpStartTimeStamp);
-	AavFrameAddStatusTag64(STATUS_TAG_NTP_END_TIMESTAMP, ntpEndTimeStamp);
-	AavFrameAddStatusTag16(STATUS_TAG_NTP_TIME_ERROR, (short)nextFrame->NTPTimestampError);
+	if (USE_NTP_TIMESTAMP)
+	{
+		long long ntpStartTimeStamp = WindowsTicksToAavTicks(nextFrame->NTPStartTimestamp);
+		long long ntpEndTimeStamp = WindowsTicksToAavTicks(nextFrame->NTPEndTimestamp);
+		AavFrameAddStatusTag64(STATUS_TAG_NTP_START_TIMESTAMP, ntpStartTimeStamp);
+		AavFrameAddStatusTag64(STATUS_TAG_NTP_END_TIMESTAMP, ntpEndTimeStamp);
+		AavFrameAddStatusTag16(STATUS_TAG_NTP_TIME_ERROR, (short)nextFrame->NTPTimestampError);
+	}
+
+	if (USE_SECONDARY_TIMESTAMP)
+	{
+		long long secondaryStartTimeStamp = WindowsTicksToAavTicks(nextFrame->SecondaryStartTimestamp);
+		long long secondaryEndTimeStamp = WindowsTicksToAavTicks(nextFrame->SecondaryEndTimestamp);
+		AavFrameAddStatusTag64(STATUS_TAG_SECONDARY_START_TIMESTAMP, secondaryStartTimeStamp);
+		AavFrameAddStatusTag64(STATUS_TAG_SECONDARY_END_TIMESTAMP, secondaryEndTimeStamp);
+	}
 
 	AavFrameAddImage(USE_IMAGE_LAYOUT, nextFrame->Pixels);
 
@@ -1722,9 +1751,19 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	STATUS_TAG_GPS_TRACKED_SATELLITES = AavDefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8);
 	STATUS_TAG_GPS_ALMANAC = AavDefineStatusSectionTag("GPSAlmanacStatus", AavTagType::UInt8);
 	STATUS_TAG_GPS_FIX = AavDefineStatusSectionTag("GPSFixStatus", AavTagType::UInt8);
-	STATUS_TAG_NTP_START_TIMESTAMP = AavDefineStatusSectionTag("NTPStartTimestamp", AavTagType::ULong64);
-	STATUS_TAG_NTP_END_TIMESTAMP = AavDefineStatusSectionTag("NTPEndTimestamp", AavTagType::ULong64);
-	STATUS_TAG_NTP_TIME_ERROR = AavDefineStatusSectionTag("NTPTimestampError", AavTagType::UInt16);
+
+	if (USE_NTP_TIMESTAMP)
+	{
+		STATUS_TAG_NTP_START_TIMESTAMP = AavDefineStatusSectionTag("NTPStartTimestamp", AavTagType::ULong64);
+		STATUS_TAG_NTP_END_TIMESTAMP = AavDefineStatusSectionTag("NTPEndTimestamp", AavTagType::ULong64);
+		STATUS_TAG_NTP_TIME_ERROR = AavDefineStatusSectionTag("NTPTimestampError", AavTagType::UInt16);
+	}
+
+	if (USE_SECONDARY_TIMESTAMP)
+	{
+		STATUS_TAG_SECONDARY_START_TIMESTAMP = AavDefineStatusSectionTag("StartTimestampSecondary", AavTagType::ULong64);
+		STATUS_TAG_SECONDARY_END_TIMESTAMP = AavDefineStatusSectionTag("EndTimestampSecondary", AavTagType::ULong64);
+	}
 
 	if (OCR_FAILED_TEST_RECORDING)
 		STATUS_TAG_OCR_TESTING_ERROR_MESSAGE = AavDefineStatusSectionTag("OcrTestingErrorMessage", AavTagType::AnsiString255);
@@ -1759,6 +1798,8 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 		frame->NTPStartTimestamp = 0;
 		frame->NTPEndTimestamp = 0;
 		frame->NTPTimestampError = 0;
+		frame->SecondaryStartTimestamp = 0;
+		frame->SecondaryEndTimestamp = 0;
 
 		RecordCurrentFrame(frame);
 	}
@@ -1804,6 +1845,8 @@ HRESULT StopRecording(long* pixels)
 		frame->NTPStartTimestamp = 0;
 		frame->NTPEndTimestamp = 0;
 		frame->NTPTimestampError = 0;
+		frame->SecondaryStartTimestamp = 0;
+		frame->SecondaryEndTimestamp = 0;
 
 		RecordCurrentFrame(frame);
 	}

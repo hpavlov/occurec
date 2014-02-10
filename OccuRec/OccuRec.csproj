@@ -74,6 +74,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ASCOM\frmCameraControl.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ASCOM\frmCameraControl.Designer.cs">
+      <DependentUpon>frmCameraControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="ASCOM\frmFocusControl.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -279,6 +285,9 @@
     <Compile Include="StateManagement\LockedIntegrationCameraState.cs" />
     <Compile Include="StateManagement\NoIntegrationSupportedCameraState.cs" />
     <Compile Include="StateManagement\UndeterminedIntegrationCameraState.cs" />
+    <EmbeddedResource Include="ASCOM\frmCameraControl.resx">
+      <DependentUpon>frmCameraControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ASCOM\frmFocusControl.resx">
       <DependentUpon>frmFocusControl.cs</DependentUpon>
     </EmbeddedResource>

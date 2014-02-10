@@ -13,7 +13,17 @@ namespace OccuRec.ASCOM
 {
     public partial class frmTelescopeControl : Form
     {
-        internal IObservatoryController ObservatoryController;
+	    private IObservatoryController m_ObservatoryController = null;
+
+	    internal IObservatoryController ObservatoryController
+	    {
+		    set
+		    {
+			    m_ObservatoryController = value;
+				Text = string.Format("Telescope Control - {0}", m_ObservatoryController.ConnectedTelescopeDriverName());
+		    }
+			get { return m_ObservatoryController; }
+	    }
 
         public frmTelescopeControl()
         {

@@ -8,10 +8,12 @@ General & Bugfixes:
 - During the integration detection check if the fields are combined incorrectly. Implement an automatic fix for this issue if present
 - Can the issue with misplaced fields once event 20 min 50 sec be solved by 'recombining' the fields on the fly when the issue is detected?
 
-- Make it possible to select target and comparison star and implement 'tracking'
-- Implement target monitoring by drawing a live graph of the measured brightness of the selected target (normalized to selected comparison). Track using selected Guiding star
+- Use 3 different NTP servers to establish a more accurate timeframe (compensating for async download/upload speeds)
+- Run the NTP time sync in a high priority thread. See what BeeperSync does and do the same.
+- Show a +/- error for the time drift (based on the accuract of the latest NTP time reference) when tracing out the message: 
+	"OccuRec: Current time drift for 50.7 min is 145.8 ms (2.88 ms/min)"
+  Also add this error into the check that determines if a time update needs to be made (not sure how to accurately do this)
 
-- Add timekeeping using QueryPerformanceCounters and NTP synchronisation and start stamping all video frames with a second time source. Save the sync time and NTP server somewhere.
 
 OCR Implemntation:
 
@@ -19,10 +21,11 @@ V) Successfully run a live test for 24 hours without any errors
 - Test the parsing of "N" and apply fixes to the defintion is required
 - Implement OCR for NTSC
 
-Telescope Control:
+Observatory Control:
 
-- Implement focusing 
+- Implement automated focusing (when the user presses a button)
 - Implement guiding (keeping the selected target at the initial position sending telescope tracking pulses)
+- Improve the telescope control (check what other ASCOM enabled software packages are doing?)
 
 ---------------------------------------------------------------------------
 
