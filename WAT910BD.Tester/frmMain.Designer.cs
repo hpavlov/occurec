@@ -23,6 +23,20 @@
 			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.gbxCameraControl = new System.Windows.Forms.GroupBox();
 			this.btnInitialise = new System.Windows.Forms.Button();
+			this.lblGamma = new System.Windows.Forms.Label();
+			this.btnGammaUp = new System.Windows.Forms.Button();
+			this.btnGammaDown = new System.Windows.Forms.Button();
+			this.lblGain = new System.Windows.Forms.Label();
+			this.btnGainUp = new System.Windows.Forms.Button();
+			this.btnGainDown = new System.Windows.Forms.Button();
+			this.lblExposure = new System.Windows.Forms.Label();
+			this.btnExposureUp = new System.Windows.Forms.Button();
+			this.btnExposureDown = new System.Windows.Forms.Button();
+			this.button5 = new System.Windows.Forms.Button();
+			this.button4 = new System.Windows.Forms.Button();
+			this.button3 = new System.Windows.Forms.Button();
+			this.button1 = new System.Windows.Forms.Button();
+			this.button2 = new System.Windows.Forms.Button();
 			this.gbxCameraControl.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -69,6 +83,20 @@
 			// 
 			// gbxCameraControl
 			// 
+			this.gbxCameraControl.Controls.Add(this.button5);
+			this.gbxCameraControl.Controls.Add(this.button4);
+			this.gbxCameraControl.Controls.Add(this.button3);
+			this.gbxCameraControl.Controls.Add(this.button1);
+			this.gbxCameraControl.Controls.Add(this.button2);
+			this.gbxCameraControl.Controls.Add(this.lblGamma);
+			this.gbxCameraControl.Controls.Add(this.btnGammaUp);
+			this.gbxCameraControl.Controls.Add(this.btnGammaDown);
+			this.gbxCameraControl.Controls.Add(this.lblGain);
+			this.gbxCameraControl.Controls.Add(this.btnGainUp);
+			this.gbxCameraControl.Controls.Add(this.btnGainDown);
+			this.gbxCameraControl.Controls.Add(this.lblExposure);
+			this.gbxCameraControl.Controls.Add(this.btnExposureUp);
+			this.gbxCameraControl.Controls.Add(this.btnExposureDown);
 			this.gbxCameraControl.Controls.Add(this.btnInitialise);
 			this.gbxCameraControl.Enabled = false;
 			this.gbxCameraControl.Location = new System.Drawing.Point(10, 47);
@@ -88,6 +116,140 @@
 			this.btnInitialise.UseVisualStyleBackColor = true;
 			this.btnInitialise.Click += new System.EventHandler(this.btnInitialise_Click);
 			// 
+			// lblGamma
+			// 
+			this.lblGamma.AutoSize = true;
+			this.lblGamma.Location = new System.Drawing.Point(84, 191);
+			this.lblGamma.Name = "lblGamma";
+			this.lblGamma.Size = new System.Drawing.Size(43, 13);
+			this.lblGamma.TabIndex = 23;
+			this.lblGamma.Text = "Gamma";
+			this.lblGamma.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// btnGammaUp
+			// 
+			this.btnGammaUp.Location = new System.Drawing.Point(151, 186);
+			this.btnGammaUp.Name = "btnGammaUp";
+			this.btnGammaUp.Size = new System.Drawing.Size(55, 23);
+			this.btnGammaUp.TabIndex = 22;
+			this.btnGammaUp.Text = ">";
+			this.btnGammaUp.UseVisualStyleBackColor = true;
+			// 
+			// btnGammaDown
+			// 
+			this.btnGammaDown.Location = new System.Drawing.Point(21, 186);
+			this.btnGammaDown.Name = "btnGammaDown";
+			this.btnGammaDown.Size = new System.Drawing.Size(55, 23);
+			this.btnGammaDown.TabIndex = 21;
+			this.btnGammaDown.Text = "<";
+			this.btnGammaDown.UseVisualStyleBackColor = true;
+			// 
+			// lblGain
+			// 
+			this.lblGain.AutoSize = true;
+			this.lblGain.Location = new System.Drawing.Point(84, 138);
+			this.lblGain.Name = "lblGain";
+			this.lblGain.Size = new System.Drawing.Size(29, 13);
+			this.lblGain.TabIndex = 20;
+			this.lblGain.Text = "Gain";
+			this.lblGain.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// btnGainUp
+			// 
+			this.btnGainUp.Location = new System.Drawing.Point(151, 133);
+			this.btnGainUp.Name = "btnGainUp";
+			this.btnGainUp.Size = new System.Drawing.Size(55, 23);
+			this.btnGainUp.TabIndex = 19;
+			this.btnGainUp.Text = ">";
+			this.btnGainUp.UseVisualStyleBackColor = true;
+			// 
+			// btnGainDown
+			// 
+			this.btnGainDown.Location = new System.Drawing.Point(21, 133);
+			this.btnGainDown.Name = "btnGainDown";
+			this.btnGainDown.Size = new System.Drawing.Size(55, 23);
+			this.btnGainDown.TabIndex = 18;
+			this.btnGainDown.Text = "<";
+			this.btnGainDown.UseVisualStyleBackColor = true;
+			// 
+			// lblExposure
+			// 
+			this.lblExposure.AutoSize = true;
+			this.lblExposure.Location = new System.Drawing.Point(84, 89);
+			this.lblExposure.Name = "lblExposure";
+			this.lblExposure.Size = new System.Drawing.Size(51, 13);
+			this.lblExposure.TabIndex = 17;
+			this.lblExposure.Text = "Exposure";
+			this.lblExposure.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// btnExposureUp
+			// 
+			this.btnExposureUp.Location = new System.Drawing.Point(151, 84);
+			this.btnExposureUp.Name = "btnExposureUp";
+			this.btnExposureUp.Size = new System.Drawing.Size(55, 23);
+			this.btnExposureUp.TabIndex = 16;
+			this.btnExposureUp.Text = ">";
+			this.btnExposureUp.UseVisualStyleBackColor = true;
+			// 
+			// btnExposureDown
+			// 
+			this.btnExposureDown.Location = new System.Drawing.Point(21, 84);
+			this.btnExposureDown.Name = "btnExposureDown";
+			this.btnExposureDown.Size = new System.Drawing.Size(55, 23);
+			this.btnExposureDown.TabIndex = 15;
+			this.btnExposureDown.Text = "<";
+			this.btnExposureDown.UseVisualStyleBackColor = true;
+			// 
+			// button5
+			// 
+			this.button5.Location = new System.Drawing.Point(343, 134);
+			this.button5.Name = "button5";
+			this.button5.Size = new System.Drawing.Size(65, 23);
+			this.button5.TabIndex = 28;
+			this.button5.Text = "Set";
+			this.button5.UseVisualStyleBackColor = true;
+			this.button5.Click += new System.EventHandler(this.button5_Click);
+			// 
+			// button4
+			// 
+			this.button4.Location = new System.Drawing.Point(423, 134);
+			this.button4.Name = "button4";
+			this.button4.Size = new System.Drawing.Size(55, 23);
+			this.button4.TabIndex = 27;
+			this.button4.Text = "Right >";
+			this.button4.UseVisualStyleBackColor = true;
+			this.button4.Click += new System.EventHandler(this.button4_Click);
+			// 
+			// button3
+			// 
+			this.button3.Location = new System.Drawing.Point(343, 176);
+			this.button3.Name = "button3";
+			this.button3.Size = new System.Drawing.Size(65, 23);
+			this.button3.TabIndex = 26;
+			this.button3.Text = "Down \\/";
+			this.button3.UseVisualStyleBackColor = true;
+			this.button3.Click += new System.EventHandler(this.button3_Click);
+			// 
+			// button1
+			// 
+			this.button1.Location = new System.Drawing.Point(274, 134);
+			this.button1.Name = "button1";
+			this.button1.Size = new System.Drawing.Size(55, 23);
+			this.button1.TabIndex = 25;
+			this.button1.Text = "< Left";
+			this.button1.UseVisualStyleBackColor = true;
+			this.button1.Click += new System.EventHandler(this.button1_Click);
+			// 
+			// button2
+			// 
+			this.button2.Location = new System.Drawing.Point(343, 89);
+			this.button2.Name = "button2";
+			this.button2.Size = new System.Drawing.Size(65, 23);
+			this.button2.TabIndex = 24;
+			this.button2.Text = "Up /\\";
+			this.button2.UseVisualStyleBackColor = true;
+			this.button2.Click += new System.EventHandler(this.button2_Click);
+			// 
 			// frmMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -101,6 +263,7 @@
 			this.Name = "frmMain";
 			this.Text = "WAT-910BD Control Tester";
 			this.gbxCameraControl.ResumeLayout(false);
+			this.gbxCameraControl.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -115,6 +278,20 @@
 		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.GroupBox gbxCameraControl;
 		private System.Windows.Forms.Button btnInitialise;
+		private System.Windows.Forms.Label lblGamma;
+		private System.Windows.Forms.Button btnGammaUp;
+		private System.Windows.Forms.Button btnGammaDown;
+		private System.Windows.Forms.Label lblGain;
+		private System.Windows.Forms.Button btnGainUp;
+		private System.Windows.Forms.Button btnGainDown;
+		private System.Windows.Forms.Label lblExposure;
+		private System.Windows.Forms.Button btnExposureUp;
+		private System.Windows.Forms.Button btnExposureDown;
+		private System.Windows.Forms.Button button5;
+		private System.Windows.Forms.Button button4;
+		private System.Windows.Forms.Button button3;
+		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.Button button2;
 	}
 }
 

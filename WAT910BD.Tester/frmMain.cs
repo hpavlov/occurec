@@ -24,6 +24,8 @@ namespace WAT910BD.Tester
 				cbxCOMPort.SelectedIndex = 0;
 
 			btnConnect.Enabled = cbxCOMPort.SelectedIndex > -1;
+
+			m_WAT910Driver.OnCommandExecutionCompleted += m_WAT910Driver_OnCommandExecutionCompleted;
 		}
 
 		/// <summary>
@@ -42,6 +44,20 @@ namespace WAT910BD.Tester
 			base.Dispose(disposing);
 		}
 
+		void m_WAT910Driver_OnCommandExecutionCompleted(WAT910DBEventArgs e)
+		{
+			if (!e.IsSuccessful)
+			{
+				MessageBox.Show(this, e.ErrorMessage, "Camera Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+
+			EnableDisableControls(true);
+		}
+
+		private void EnableDisableControls(bool enable)
+		{
+			gbxCameraControl.Enabled = enable;
+		}
 
 		private void btnConnect_Click(object sender, EventArgs e)
 		{
@@ -72,7 +88,38 @@ namespace WAT910BD.Tester
 
 		private void btnInitialise_Click(object sender, EventArgs e)
 		{
+			EnableDisableControls(false);
 			Invoke(new Action(() => m_WAT910Driver.InitialiseCamera()));
+		}
+
+		private void button2_Click(object sender, EventArgs e)
+		{
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.OSDCommandUp()));
+		}
+
+		private void button3_Click(object sender, EventArgs e)
+		{
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.OSDCommandDown()));
+		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.OSDCommandLeft()));
+		}
+
+		private void button4_Click(object sender, EventArgs e)
+		{
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.OSDCommandRight()));
+		}
+
+		private void button5_Click(object sender, EventArgs e)
+		{
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.OSDCommandSet()));
 		}
 	}
 }

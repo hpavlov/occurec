@@ -184,13 +184,18 @@ namespace WAT910BD.Tester.WAT910BDComms
 		private bool m_CommandSuccessful = false;
 		private string m_ErrorMessage = null;
 
-		public bool CanSendCommand { get; private set; }
+		private bool m_CanSendCommand;
+
+		public bool CanSendCommand()
+		{
+			return m_CanSendCommand && m_CurrentMultipleCommandSeries == MultipleCommandSeries.None;
+		}
 
 		public void StartSendingMultipleCommands(MultipleCommandSeries series)
 		{
 			if (m_CurrentMultipleCommandSeries != MultipleCommandSeries.None)
 			{
-				CanSendCommand = false;
+				m_CanSendCommand = false;
 				m_CurrentMultipleCommandSeries = series;
 			}
 		}
@@ -199,7 +204,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 		{
 			if (m_CurrentMultipleCommandSeries == series)
 			{
-				CanSendCommand = true;
+				m_CanSendCommand = true;
 				m_CurrentMultipleCommandSeries = MultipleCommandSeries.None;
 			}
 		}
@@ -239,33 +244,59 @@ namespace WAT910BD.Tester.WAT910BDComms
 			return m_ErrorMessage;
 		}
 
+		public bool WasLastCameraOperationSuccessful()
+		{
+			return m_CommandSuccessful;
+		}
+
 		public bool SendWriteCommandAndWaitToExecute(SerialPort port, byte[] command)
 		{
-			m_WaitingResult = false;
-			m_WaitingReceivedAck = true;
+			m_CanSendCommand = false;
+			try
+			{
+				m_WaitingResult = false;
+				m_WaitingReceivedAck = true;
+				m_CommandSuccessful = false;
+				port.Write(command, 0, command.Length);
+
+				int ticks = 0;
+				while (ticks < 100 && (m_WaitingReceivedAck || m_WaitingResult))
+				{
+					Thread.Sleep(10);
+					ticks++;
+				}
+
+				if (!m_WaitingReceivedAck && !m_WaitingResult && m_CommandSuccessful)
+				{
+					// We received the command response
+					return true;
+				}
+
+				if (ticks >= 100 && m_ErrorMessage == null)
+				{
+					// Timeout occured
+					SetCommandError("Camera did not respond within 1 sec.");
+				}
+
+				return false;
+			}
+			catch (Exception ex)
+			{
+				SetCommandError(ex.GetType().ToString() + " : " + ex.Message);
+				return false;
+			}
+			finally
+			{
+				m_CanSendCommand = true;
+			}
+		}
+
+		private void SetCommandError(string errorMessage)
+		{
+			m_ErrorMessage = errorMessage;
 			m_CommandSuccessful = false;
-			port.Write(command, 0, command.Length);
-
-			int ticks = 0;
-			while (ticks < 100 && (m_WaitingReceivedAck || m_WaitingResult))
-			{
-				Thread.Sleep(10);
-				ticks++;
-			}
-
-			if (!m_WaitingReceivedAck && !m_WaitingResult && m_CommandSuccessful)
-			{
-				// We received the command response
-				return true;
-			}
-
-			if (ticks >= 100 && m_ErrorMessage == null)
-			{
-				// Timeout occured
-				m_ErrorMessage = "Camera did not respond within 1 sec.";
-			}
-
-			return false;
+			m_WaitingReceivedAck = false;
+			m_WaitingResult = false;
 		}
 
 		public void PushReceivedByte(byte bt)
@@ -388,7 +419,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 			return new byte[] { 0xFE, btHBR, btMask, btADH, value, btCheckSum, btSTA };
 		}
 
-		private byte[] BuildOsdCommand(OsdOperation operation)
+		public byte[] BuildOsdCommand(OsdOperation operation)
 		{
 			//OSD control:-
 			//The OSD commands are implemented in a non-standard way by Watec 

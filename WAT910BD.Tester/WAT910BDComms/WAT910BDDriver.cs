@@ -8,11 +8,22 @@ using System.Threading;
 
 namespace WAT910BD.Tester.WAT910BDComms
 {
+	public class WAT910DBEventArgs : EventArgs
+	{
+		public bool IsSuccessful;
+		public string ErrorMessage;
+		public string CommandId;
+	}
+
 	public class WAT910BDDriver : IDisposable
 	{
 		private object m_SyncRoot = new object();
 		private SerialPort m_SerialPort = null;
 		private WAT910BDStateMachine m_StateMachine;
+
+		public delegate void CommandExecutionCompletedCallback(WAT910DBEventArgs e);
+
+		public event CommandExecutionCompletedCallback OnCommandExecutionCompleted;
 
 		public WAT910BDDriver()
 		{
@@ -45,7 +56,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 
 		public void InitialiseCamera()
 		{
-			if (m_StateMachine.CanSendCommand && IsConnected)
+			if (m_StateMachine.CanSendCommand() && IsConnected)
 			{
 				m_StateMachine.StartSendingMultipleCommands(MultipleCommandSeries.InitCamera);
 
@@ -58,14 +69,104 @@ namespace WAT910BD.Tester.WAT910BDComms
 						if (!m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, command))
 						{
 							// One of the commands errored. Aborting
+							break;
 						}
 					}
-					
 				}
 				finally
 				{
 					m_StateMachine.FinishedSendingMultipleCommands(MultipleCommandSeries.InitCamera);
+					RaiseOnExecutionCompeted();
 				}
+			}
+		}
+
+		public void OSDCommandUp()
+		{
+			if (m_StateMachine.CanSendCommand() && IsConnected)
+			{
+				try
+				{
+					m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, m_StateMachine.BuildOsdCommand(OsdOperation.Up));
+				}
+				finally
+				{
+					RaiseOnExecutionCompeted();
+				}
+			}			
+		}
+
+		public void OSDCommandDown()
+		{
+			if (m_StateMachine.CanSendCommand() && IsConnected)
+			{
+				try
+				{
+					m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, m_StateMachine.BuildOsdCommand(OsdOperation.Down));
+				}
+				finally
+				{
+					RaiseOnExecutionCompeted();
+				}
+			}
+		}
+
+		public void OSDCommandLeft()
+		{
+			if (m_StateMachine.CanSendCommand() && IsConnected)
+			{
+				try
+				{
+					m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, m_StateMachine.BuildOsdCommand(OsdOperation.Left));
+				}
+				finally
+				{
+					RaiseOnExecutionCompeted();
+				}
+			}
+		}
+
+		public void OSDCommandRight()
+		{
+			if (m_StateMachine.CanSendCommand() && IsConnected)
+			{
+				try
+				{
+					m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, m_StateMachine.BuildOsdCommand(OsdOperation.Right));
+				}
+				finally
+				{
+					RaiseOnExecutionCompeted();
+				}
+			}
+		}
+
+		public void OSDCommandSet()
+		{
+			if (m_StateMachine.CanSendCommand() && IsConnected)
+			{
+				try
+				{
+					m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, m_StateMachine.BuildOsdCommand(OsdOperation.Set));
+				}
+				finally
+				{
+					RaiseOnExecutionCompeted();
+				}
+			}
+		}
+
+		private void RaiseOnExecutionCompeted()
+		{
+			CommandExecutionCompletedCallback copy = OnCommandExecutionCompleted;
+
+			if (copy != null)
+			{
+				copy.DynamicInvoke(new WAT910DBEventArgs()
+				{
+					IsSuccessful = m_StateMachine.WasLastCameraOperationSuccessful(),
+					ErrorMessage = m_StateMachine.GetLastCameraErrorMessage()
+				});				
 			}
 		}
 

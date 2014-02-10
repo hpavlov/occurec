@@ -16,6 +16,8 @@ namespace OccuRec.Helpers
 {
     public class NTPClient
     {
+	    private static object s_SyncLock = new object();
+
         // http://stackoverflow.com/questions/1193955/how-to-query-an-ntp-server-using-c
         public static DateTime GetNetworkTime(string ntpServer, out float latencyInMilliseconds)
         {
@@ -91,7 +93,10 @@ namespace OccuRec.Helpers
             //**UTC** time
 			DateTime networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
 
-			NTPTimeKeeper.ProcessNTPResponce(startTicks, endTicks, clockFrequency, networkDateTime);
+			lock (s_SyncLock)
+			{
+				NTPTimeKeeper.ProcessNTPResponce(startTicks, endTicks, clockFrequency, networkDateTime);	
+			}			
 
             return networkDateTime;
         }
@@ -189,75 +194,104 @@ namespace OccuRec.Helpers
 			}
 			else
 			{
-				// * Only apply drift corrections if we have info for more than 5 minutes
-				// * Always keep the 'window' for determining the time drift correction to no more than 30 min (i.e. the trend may change for periods larger than 30 min)
-				// * We don't want to end up in a situation where a single very accurate NTP reference done 2 hours ago is never updated. For this reason
-				//   if the difference between the total drift since the last NTP reference time and now when computer using (1) time drift based on the 
-				//   first ever received NTP reference and now and (2) time drift based on the NTP reference received 30 min ago and now, plus the 
-				//   max error of the last NTP reference is bigger than the current max error of the NTP reference. This will mean that the NTP reference will not be 
-				//   updated because of a time drift during the first 30 min after OccuRec has been started
-
-				double tsSinceFirstReference = new TimeSpan(utcTime.Ticks - s_30MinAgoReferenceDateTimeTicks).TotalMinutes;
-				double timeDriftErrorMilliseconds = 0;
-				if (tsSinceFirstReference > 5)
+ 				if (maxError > 1000)
+ 				{
+ 					Trace.WriteLine(string.Format("OccuRec: Current NTP time reference has a max error of {0} ms. Ignored as this is more than 1 sec.", maxError.ToString("0.0")));
+ 				}
+				else if (maxError > 10 * s_ReferenceMaxError)
 				{
-					double totalPassedMinutesNTP = ((currTicks - s_30MinAgoReferenceTicks) * 1000.0f / frequency) / 60000;
-					double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_30MinAgoReferenceDateTimeTicks);
-					double timeDriftMilleseconds = sectionRatio * Math.Abs(totalPassedMinutesNTP - tsSinceFirstReference) * 60000;
-					s_TimeDriftPerMinuteMilleseconds = timeDriftMilleseconds / totalPassedMinutesNTP;
+					Trace.WriteLine(string.Format("OccuRec: Current NTP time reference has a max error of {0} ms. Ignored as this is more than 10 times the current reference max error of {1} ms", maxError.ToString("0.0"), s_ReferenceMaxError.ToString("0.0")));
+				}
+				else
+ 				{
+					// * Only apply drift corrections if we have info for more than 5 minutes
+					// * Always keep the 'window' for determining the time drift correction to no more than 30 min (i.e. the trend may change for periods larger than 30 min)
+					// * We don't want to end up in a situation where a single very accurate NTP reference done 2 hours ago is never updated. For this reason
+					//   if the difference between the total drift since the last NTP reference time and now when computer using (1) time drift based on the 
+					//   first ever received NTP reference and now and (2) time drift based on the NTP reference received 30 min ago and now, plus the 
+					//   max error of the last NTP reference is bigger than the current max error of the NTP reference. This will mean that the NTP reference will not be 
+					//   updated because of a time drift during the first 30 min after OccuRec has been started
 
-					if (s_30MinAgoReferenceTicks != s_FirstReferenceTicks)
+					double tsSinceFirstReference = new TimeSpan(utcTime.Ticks - s_30MinAgoReferenceDateTimeTicks).TotalMinutes;
+					double timeDriftErrorMilliseconds = 0;
+					if (tsSinceFirstReference > 5)
 					{
-						double totalPassedMinutesNTPBase0 = ((currTicks - s_FirstReferenceTicks) * 1000.0f / frequency) / 60000;
-						double sectionRatioBase0 = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_FirstReferenceDateTimeTicks);
-						double tsSinceFirstReferenceBase0 = new TimeSpan(utcTime.Ticks - s_FirstReferenceDateTimeTicks).TotalMinutes;
-						double timeDriftMillesecondsBase0 = sectionRatioBase0 * Math.Abs(totalPassedMinutesNTPBase0 - tsSinceFirstReferenceBase0) * 60000;
+						double totalPassedMinutesNTP = ((currTicks - s_30MinAgoReferenceTicks) * 1000.0f / frequency) / 60000;
+						double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_30MinAgoReferenceDateTimeTicks);
+						double timeDriftMilleseconds = sectionRatio * Math.Abs(totalPassedMinutesNTP - tsSinceFirstReference) * 60000;
+						s_TimeDriftPerMinuteMilleseconds = timeDriftMilleseconds / totalPassedMinutesNTP;
 
-						timeDriftErrorMilliseconds = Math.Abs(timeDriftMillesecondsBase0 - timeDriftMilleseconds);
-					}
-
-					// Remove all saved NTP references older than 30min
-					for (int i = s_AllNTPReferenceTimes.Count - 1; i >= 0; i--)
-					{
-						if (s_AllNTPReferenceTimes[i].Item1.AddMinutes(10).Ticks < utcTime.Ticks)
+						double totalPassedMinutesNTPBase0 = double.NaN;
+						double timeDriftMillesecondsBase0 = double.NaN;
+						if (s_30MinAgoReferenceTicks != s_FirstReferenceTicks)
 						{
-							Trace.WriteLine(string.Format("OccuRec: Removing NTP reference saved at {0} local time as it is too old.", s_AllNTPReferenceTimes[i].Item1.ToLocalTime().ToString("HH:mm:ss")));
-							s_AllNTPReferenceTimes.RemoveAt(i);
+							totalPassedMinutesNTPBase0 = ((currTicks - s_FirstReferenceTicks) * 1000.0f / frequency) / 60000;
+							double sectionRatioBase0 = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_FirstReferenceDateTimeTicks);
+							double tsSinceFirstReferenceBase0 = new TimeSpan(utcTime.Ticks - s_FirstReferenceDateTimeTicks).TotalMinutes;
+							timeDriftMillesecondsBase0 = sectionRatioBase0 * Math.Abs(totalPassedMinutesNTPBase0 - tsSinceFirstReferenceBase0) * 60000;
+
+							timeDriftErrorMilliseconds = Math.Abs(timeDriftMillesecondsBase0 - timeDriftMilleseconds);
+						}
+
+						// Remove all saved NTP references older than 30min
+						for (int i = s_AllNTPReferenceTimes.Count - 1; i >= 0; i--)
+						{
+							if (s_AllNTPReferenceTimes[i].Item1.AddMinutes(10).Ticks < utcTime.Ticks)
+							{
+								Trace.WriteLine(string.Format("OccuRec: Removing NTP reference saved at {0} local time as it is too old.", s_AllNTPReferenceTimes[i].Item1.ToLocalTime().ToString("HH:mm:ss")));
+								s_AllNTPReferenceTimes.RemoveAt(i);
+							}
+						}
+
+						if (s_AllNTPReferenceTimes.Count > 0 && s_AllNTPReferenceTimes[0].Item1.Ticks > s_30MinAgoReferenceDateTimeTicks)
+						{
+							Trace.WriteLine(string.Format("OccuRec: Sliding the 30 min NTP reference window to start at {0}", s_AllNTPReferenceTimes[0].Item1.ToLocalTime().ToString("HH:mm:ss")));
+							// Our 30MinAgo reference is too old now. We have a newer reference that it still at least 30 min go. We want to use this reference i.e. 'slide' the window forward	
+							s_30MinAgoReferenceDateTimeTicks = s_AllNTPReferenceTimes[0].Item1.Ticks;
+							s_30MinAgoReferenceTicks = s_AllNTPReferenceTimes[0].Item2;
+						}
+
+						if (!double.IsNaN(totalPassedMinutesNTPBase0))
+						{
+							Trace.WriteLine(string.Format(
+								timeDriftErrorMilliseconds > 0
+									? "OccuRec: Current time drift for {0} min is {1} ms +/- {2} ms ({3} ms/min). Time drift for {4} min is {5} ms."
+									: "OccuRec: Current time drift for {0} min is {1} ms ({3} ms/min). Time drift for {4} min is {5} ms.",
+								totalPassedMinutesNTP.ToString("0.0"),
+								timeDriftMilleseconds.ToString("0.0"),
+								timeDriftErrorMilliseconds.ToString("0.0"),
+								s_TimeDriftPerMinuteMilleseconds.ToString("0.00"),
+								totalPassedMinutesNTPBase0.ToString("0.0"),
+								timeDriftMillesecondsBase0.ToString("0.0")));
+						}
+						else
+						{
+							Trace.WriteLine(string.Format(
+								timeDriftErrorMilliseconds > 0
+									? "OccuRec: Current time drift for {0} min is {1} ms +/- {2} ms ({3} ms/min)."
+									: "OccuRec: Current time drift for {0} min is {1} ms ({3} ms/min).",
+								totalPassedMinutesNTP.ToString("0.0"),
+								timeDriftMilleseconds.ToString("0.0"),
+								timeDriftErrorMilliseconds.ToString("0.0"),
+								s_TimeDriftPerMinuteMilleseconds.ToString("0.00")));
 						}
 					}
 
-					if (s_AllNTPReferenceTimes.Count > 0 && s_AllNTPReferenceTimes[0].Item1.Ticks > s_30MinAgoReferenceDateTimeTicks)
+					if (maxError < s_ReferenceMaxError + timeDriftErrorMilliseconds)
 					{
-						Trace.WriteLine(string.Format("OccuRec: Sliding the 30 min NTP reference window to start at {0}", s_AllNTPReferenceTimes[0].Item1.ToLocalTime().ToString("HH:mm:ss")));
-						// Our 30MinAgo reference is too old now. We have a newer reference that it still at least 30 min go. We want to use this reference i.e. 'slide' the window forward	
-						s_30MinAgoReferenceDateTimeTicks = s_AllNTPReferenceTimes[0].Item1.Ticks;
-						s_30MinAgoReferenceTicks = s_AllNTPReferenceTimes[0].Item2;
+						Trace.WriteLine(string.Format(
+							timeDriftErrorMilliseconds == 0
+								? "OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms"
+								: "OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms +/-{2}ms time-drift error.",
+							maxError.ToString("0.0"),
+							s_ReferenceMaxError.ToString("0.0"),
+							timeDriftErrorMilliseconds.ToString("0.0")));
+
+						UpdateTimeReference(currTicks, frequency, utcTime, maxError);
 					}
 
-					Trace.WriteLine(string.Format( 
-						timeDriftErrorMilliseconds > 0 
-							? "OccuRec: Current time drift for {0} min is {1} ms +/- {2} ms ({3} ms/min)"
-							: "OccuRec: Current time drift for {0} min is {1} ms ({3} ms/min)", 
-						totalPassedMinutesNTP.ToString("0.0"), 
-						timeDriftMilleseconds.ToString("0.0"),
-						timeDriftErrorMilliseconds.ToString("0.0"),
-						s_TimeDriftPerMinuteMilleseconds.ToString("0.00")));
+					s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long>(utcTime, currTicks));
 				}
-
-				if (maxError < s_ReferenceMaxError + timeDriftErrorMilliseconds)
-				{
-					Trace.WriteLine(string.Format(
-						timeDriftErrorMilliseconds == 0
-							? "OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms"
-							: "OccuRec: Time reference updated. Current measurement's error of {0}ms is smaller that the last reference's error of {1}ms +/-{2}ms time-drift error.",
-						maxError.ToString("0.0"),
-						s_ReferenceMaxError.ToString("0.0"),
-						timeDriftErrorMilliseconds.ToString("0.0")));
-
-					UpdateTimeReference(currTicks, frequency, utcTime, maxError);
-				}
-
-				s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long>(utcTime, currTicks));
 			}
 		}
 
