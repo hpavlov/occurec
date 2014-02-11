@@ -112,6 +112,7 @@ __int64 firstFrameNtpTimestamp = 0;
 __int64 lastFrameNtpTimestamp = 0;
 __int64 firstFrameSecondaryTimestamp = 0;
 __int64 lastFrameSecondaryTimestamp = 0;
+__int64 VIDEO_FRAME_IN_WINDOWS_TICKS = 0;
 
 unsigned char* latestIntegratedFrame = NULL;
 ImageStatus latestImageStatus;
@@ -1270,8 +1271,8 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 c
 
 			idxFirstFrameNumber = idxFrameNumber;
 			idxLastFrameNumber = 0;
-			firstFrameNtpTimestamp = currentNtpTimeAsTicks;
-			firstFrameSecondaryTimestamp = currentSecondaryTimeAsTicks;
+			firstFrameNtpTimestamp = currentNtpTimeAsTicks - VIDEO_FRAME_IN_WINDOWS_TICKS; // The frame started one frame ago
+			firstFrameSecondaryTimestamp = currentSecondaryTimeAsTicks - VIDEO_FRAME_IN_WINDOWS_TICKS; // The frame started one frame ago
 		}
 	}
 
@@ -1355,8 +1356,8 @@ void ProcessRawFrame(RawFrame* rawFrame)
 			numberOfIntegratedFrames = 0;
 
 			idxFirstFrameNumber = idxFrameNumber;
-			firstFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks;
-			firstFrameSecondaryTimestamp = rawFrame->CurrentSecondaryTimeAsTicks;
+			firstFrameNtpTimestamp = rawFrame->CurrentNtpTimeAsTicks - VIDEO_FRAME_IN_WINDOWS_TICKS; // The frame started one frame ago
+			firstFrameSecondaryTimestamp = rawFrame->CurrentSecondaryTimeAsTicks - VIDEO_FRAME_IN_WINDOWS_TICKS; // The frame started one frame ago
 			idxLastFrameNumber = 0;
 		}
 	}
@@ -1514,8 +1515,8 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 			idxFirstFrameNumber = idxFrameNumber;
 			idxLastFrameNumber = 0;
-			firstFrameNtpTimestamp = currentNtpTimeAsTicks;
-			firstFrameSecondaryTimestamp = currentSecondaryTimeAsTicks;
+			firstFrameNtpTimestamp = currentNtpTimeAsTicks - VIDEO_FRAME_IN_WINDOWS_TICKS; // The frame started one frame ago
+			firstFrameSecondaryTimestamp = currentSecondaryTimeAsTicks - VIDEO_FRAME_IN_WINDOWS_TICKS; // The frame started one frame ago
 		}
 	}
 
@@ -1726,11 +1727,20 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	AavAddFileTag("NATIVE-FRAME-RATE", &buffer[0]);
 
 	if (abs(videoFrameRate - 25.0) < 0.05)
+	{
 		AavAddFileTag("NATIVE-VIDEO-STANDARD", "PAL");
+		VIDEO_FRAME_IN_WINDOWS_TICKS = 400000;
+	}
 	else if (abs(videoFrameRate - 29.97) < 0.05)
+	{
 		AavAddFileTag("NATIVE-VIDEO-STANDARD", "NTSC");
+		VIDEO_FRAME_IN_WINDOWS_TICKS = 333667;
+	}
 	else
+	{
 		AavAddFileTag("NATIVE-VIDEO-STANDARD", "");
+		VIDEO_FRAME_IN_WINDOWS_TICKS = (__int64)(10000000.0 / videoFrameRate);
+	}
 
 	sprintf(&buffer[0], "%d", HARDWARE_TIMING_CORRECTION);
 	AavAddFileTag("CAPHNTP-TIMING-CORRECTION", &buffer[0]);
