@@ -130,7 +130,9 @@ namespace WAT910BD.Tester.WAT910BDComms
 	public enum MultipleCommandSeries
 	{
 		None,
-		InitCamera
+		InitCamera,
+		ReadCameraSettings,
+		ReadCameraState
 	}
 
 	public enum OsdOperation
@@ -170,25 +172,86 @@ namespace WAT910BD.Tester.WAT910BDComms
 		private static byte SHUTTER_SPEED_10000th = 0x10;
 		private static byte SHUTTER_SPEED_100000th = 0x11;
 
-		private static byte GAIN_DB_MIN = 6;
-		private static byte GAIN_DB_MAX = 41;
-
 		private static byte GAMMA_OFF = 0x14; // 1.00
 		private static byte GAMMA_LO = 0x09; // 0.45
 		private static byte GAMMA_HI = 0x07; // 0.35
 		private static byte GAMMA_MAX = 0x01; // 0.05
 
+		internal static int MIN_GAIN = 6;
+		internal static int MAX_GAIN = 41;
+
+		private static byte[] SUPPORTED_EXPOSURES = new byte[]
+		{
+			SHUTTER_SPEED_256,
+			SHUTTER_SPEED_128,
+			SHUTTER_SPEED_64,
+			SHUTTER_SPEED_32,
+			SHUTTER_SPEED_16,
+			SHUTTER_SPEED_8,
+			SHUTTER_SPEED_4,
+			SHUTTER_SPEED_2,
+			SHUTTER_SPEED_EI,
+			SHUTTER_SPEED_OFF,
+			SHUTTER_SPEED_FL,
+			SHUTTER_SPEED_250th,
+			SHUTTER_SPEED_500th,
+			SHUTTER_SPEED_1000th,
+			SHUTTER_SPEED_2000th,
+			SHUTTER_SPEED_5000th,
+			SHUTTER_SPEED_10000th,
+			SHUTTER_SPEED_100000th
+		};
+
+		private static string[] SUPPORTED_EXPOSURE_NAMES = new string[]
+		{
+			"x256",
+			"x128",
+			"x64",
+			"x32",
+			"x16",
+			"x8",
+			"x4",
+			"x2",
+			"EI",
+			"OFF",
+			"FL",
+			"1/250",
+			"1/500",
+			"1/1000",
+			"1/2000",
+			"1/5000",
+			"1/10000",
+			"1/100000"
+		};
+
+		internal static int MIN_EXPOSURE = 0;
+		internal static int MAX_EXPOSURE = SUPPORTED_EXPOSURES.Length - 1;
+
+		private static byte[] SUPPORTED_GAMMAS = new byte[] { GAMMA_OFF, GAMMA_LO, GAMMA_HI, GAMMA_MAX };
+
+		private static string[] SUPPORTED_GAMMA_NAMES = new string[] { "OFF", "LO", "HI", "MAX" };
+
+		internal static int MIN_GAMMA = 0;
+
+		internal static int MAX_GAMMA = SUPPORTED_GAMMAS.Length - 1;
+
 		private MultipleCommandSeries m_CurrentMultipleCommandSeries = MultipleCommandSeries.None;
+
+		private bool m_IsReadCommand = false;
 		private bool m_WaitingReceivedAck = false;
 		private bool m_WaitingResult = false;
+		private bool m_WaitingData = false;
 		private bool m_CommandSuccessful = false;
 		private string m_ErrorMessage = null;
+		private int m_ReadValue = -1;
 
 		private bool m_CanSendCommand = true;
 
         public WAT910BDStateMachine()
         {
-            Gain = 6;
+            Gain = 20;
+	        ExposureIndex = 6;
+	        GammaIndex = 0;
         }
 
 		public bool CanSendCommand()
@@ -215,6 +278,24 @@ namespace WAT910BD.Tester.WAT910BDComms
 		}
 
 		public List<byte[]> GetCommandSeries(MultipleCommandSeries series)
+		{
+			if (series == MultipleCommandSeries.InitCamera)
+			{
+				return GetInitCameraCommandSeries();
+			}
+			else if (series == MultipleCommandSeries.ReadCameraSettings)
+			{
+				return GetReadCameraSettingsCommandSeries();
+			}
+			else if (series == MultipleCommandSeries.ReadCameraState)
+			{
+				return GetReadCameraStateCommandSeries();
+			}
+			else
+				return new List<byte[]>();
+		}
+
+		private List<byte[]> GetInitCameraCommandSeries()
 		{
 			var rv = new List<byte[]>();
 
@@ -244,6 +325,36 @@ namespace WAT910BD.Tester.WAT910BDComms
 			return rv;
 		}
 
+		private List<byte[]> GetReadCameraSettingsCommandSeries()
+		{
+			var rv = new List<byte[]>();
+
+			rv.Add(BuildReadCommand(0x450, "0000 0001")); // 3DNR = OFF
+			rv.Add(BuildReadCommand(0x4A8, "0000 0001")); // ZOOM = OFF
+			rv.Add(BuildReadCommand(0x460, "0000 0001")); // MOTION = OFF
+			rv.Add(BuildReadCommand(0x461, "0100 0000")); // MOTION VIEW = OFF
+			rv.Add(BuildReadCommand(0x448, "0000 0011")); // WDR MODE = OFF
+			rv.Add(BuildReadCommand(0x451, "0011 1111")); // SHARPNESS = OFF
+			rv.Add(BuildReadCommand(0x401, "0000 1100")); // AGC MODE = OFF
+			rv.Add(BuildReadCommand(0x41B, "0000 0011")); // BLC MODE = OFF
+			rv.Add(BuildReadCommand(0x406, "0000 1000")); // SENS UP = OFF
+			rv.Add(BuildReadCommand(0x5E2, "0000 0001")); // DIGIT OUT = OFF
+
+			// TODO: Ideally at the end of the operation, we want to have the read settings in a C# structure
+			return rv;
+		}
+
+		private List<byte[]> GetReadCameraStateCommandSeries()
+		{
+			var rv = new List<byte[]>();
+
+			BuildReadCommand(0x481, "0011 1111"); // GAMMA
+			BuildReadCommand(0x402, "0011 1111"); // SHUTTER
+			BuildReadCommand(0x417, "0011 1111"); // GAIN
+
+			return rv;
+		}
+
 		public string GetLastCameraErrorMessage()
 		{
 			return m_ErrorMessage;
@@ -254,14 +365,33 @@ namespace WAT910BD.Tester.WAT910BDComms
 			return m_CommandSuccessful;
 		}
 
-        public bool SendWriteCommandAndWaitToExecute(SerialPort port, byte[] command, Action<byte[]> onBytesSent)
+		public bool DidLastCameraOperationReceivedResponse()
+		{
+			return IsReceivedMessageComplete;
+		}
+
+		public bool SendReadCommandAndWaitToExecute(SerialPort port, byte[] command, Action<byte[]> onBytesSent)
+		{
+			return SendCommandAndWaitToExecute(port, command, true, onBytesSent);
+		}
+
+		public bool SendWriteCommandAndWaitToExecute(SerialPort port, byte[] command, Action<byte[]> onBytesSent)
+		{
+			return SendCommandAndWaitToExecute(port, command, false, onBytesSent);
+		}
+
+		public bool SendCommandAndWaitToExecute(SerialPort port, byte[] command, bool isReadCommand, Action<byte[]> onBytesSent)
 		{
 			m_CanSendCommand = false;
 			try
 			{
 				m_WaitingResult = false;
 				m_WaitingReceivedAck = true;
+				m_IsReadCommand = isReadCommand;
+				m_WaitingData = false;
 				m_CommandSuccessful = false;
+				m_ErrorMessage = null;
+				m_ReadValue = -1;
 
 			    ExpectNewResponse();
 
@@ -271,13 +401,13 @@ namespace WAT910BD.Tester.WAT910BDComms
                     onBytesSent(command);
 
 				int ticks = 0;
-				while (ticks < 100 && (m_WaitingReceivedAck || m_WaitingResult))
+				while (ticks < 100 && (m_WaitingReceivedAck || m_WaitingResult || m_WaitingData))
 				{
 					Thread.Sleep(10);
 					ticks++;
 				}
 
-				if (!m_WaitingReceivedAck && !m_WaitingResult && m_CommandSuccessful)
+				if (!m_WaitingReceivedAck && !m_WaitingResult && !m_WaitingData && m_CommandSuccessful)
 				{
 					// We received the command response
 					return true;
@@ -307,7 +437,10 @@ namespace WAT910BD.Tester.WAT910BDComms
 			m_ErrorMessage = errorMessage;
 			m_CommandSuccessful = false;
 			m_WaitingReceivedAck = false;
+			m_IsReadCommand = false;
 			m_WaitingResult = false;
+			m_WaitingData = false;
+			m_ReadValue = -1;
 		}
 
 		public void PushReceivedByte(byte bt)
@@ -345,12 +478,20 @@ namespace WAT910BD.Tester.WAT910BDComms
 			{
 				if (bt == EXECUTE_SUCCESS)
 				{
-					m_ErrorMessage = null;
-					m_CommandSuccessful = true;
 					m_WaitingResult = false;
-                    m_ReceivedBytes.Add(bt);
-                    IsReceivedMessageComplete = true;
-					return;
+					m_ReceivedBytes.Add(bt);
+
+					if (m_IsReadCommand)
+					{
+						m_WaitingData = true;
+					}
+					else
+					{
+						m_ErrorMessage = "Success.";
+						m_CommandSuccessful = true;
+						IsReceivedMessageComplete = true;
+						return;						
+					}
 				}
 
 				m_CommandSuccessful = false;
@@ -373,8 +514,16 @@ namespace WAT910BD.Tester.WAT910BDComms
 						return;
 				}
 			}
+			else if (m_WaitingData)
+			{
+				m_ErrorMessage = "Success.";
+				m_WaitingData = false;
+				m_ReceivedBytes.Add(bt);
+				IsReceivedMessageComplete = true;
+				return;
+			}
 
-			m_ErrorMessage = string.Format("The received byte 0x{0} was unexpected in the current camera state.", Convert.ToString(bt, 16));
+			m_ErrorMessage = string.Format("0x{0} was unexpected.", Convert.ToString(bt, 16));
             m_ReceivedBytes.Add(bt);
             IsReceivedMessageComplete = true;
 		}
@@ -399,31 +548,52 @@ namespace WAT910BD.Tester.WAT910BDComms
             IsReceivedMessageComplete = false;
         }
 
-	    private byte[] BuildReadCommand(int address, string mask, byte value)
+	    private byte[] BuildReadCommand(int address, string mask)
 		{
-			return BuildReadWriteCommand(address, mask, value, true);
+			return BuildReadWriteCommand(address, mask, 0, true);
 		}
 
         public void SetGain(SerialPort port, int newGain, Action<byte[]> onBytesSent)
         {
-            byte gainVal = (byte)Math.Min(0x3F, Math.Max(0, newGain - 6));
-            byte[] cmd = BuildWriteCommand(0x417, "0011 1111", gainVal);
+			byte gainVal = (byte)(Math.Min(MAX_GAIN, Math.Max(MIN_GAIN, newGain)) - MIN_GAIN + 1);
+			byte[] cmd = BuildWriteCommand(0x417, "0011 1111", gainVal);
             if (SendWriteCommandAndWaitToExecute(port, cmd, onBytesSent))
                 Gain = newGain;
         }
 
-        private void SetGamma()
+		public void SetGamma(SerialPort port, int newGamma, Action<byte[]> onBytesSent)
         {
-            // 0x481, "0001 1111", 
+			int gammaindex = Math.Min(MAX_GAMMA, Math.Max(MIN_GAMMA, newGamma));
+			byte gammaVal = (byte)SUPPORTED_GAMMAS[gammaindex];
+			byte[] cmd = BuildWriteCommand(0x481, "0011 1111", gammaVal);
+			if (SendWriteCommandAndWaitToExecute(port, cmd, onBytesSent))
+				GammaIndex = newGamma;
         }
 
-        private void SetShutter()
-        {
-            // 0x402, "0001 1111", 
-            // 0x401, EI
+		public void SetExposure(SerialPort port, int newExposure, Action<byte[]> onBytesSent)
+		{
+			int shutterIndex = Math.Min(MAX_EXPOSURE, Math.Max(MIN_EXPOSURE, newExposure));
+			byte shutterVal = SUPPORTED_EXPOSURES[shutterIndex];
+			byte[] cmd = BuildWriteCommand(0x402, "0011 1111", shutterVal);
+			if (SendWriteCommandAndWaitToExecute(port, cmd, onBytesSent))
+				ExposureIndex = newExposure;
         }
 
         public int Gain { get; private set; }
+
+		public int ExposureIndex { get; private set; }
+
+		public string Exposure
+		{
+			get { return SUPPORTED_EXPOSURE_NAMES[ExposureIndex]; }
+		}
+
+		public int GammaIndex { get; private set; }
+
+		public string Gamma
+		{
+			get { return SUPPORTED_GAMMA_NAMES[GammaIndex]; }
+		}
 
 	    private byte[] BuildReadWriteCommand(int address, string mask, byte value, bool isRead)
 		{

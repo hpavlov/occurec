@@ -157,9 +157,9 @@ namespace OccuRec.Helpers
 		private static long s_ReferenceTicks = -1;
 		private static long s_ReferenceDateTimeTicks = -1;
 		private static long s_FirstReferenceTicks = long.MaxValue;
-		private static long s_30MinAgoReferenceTicks = long.MaxValue;
+		private static long s_10MinAgoReferenceTicks = long.MaxValue;
 		private static long s_FirstReferenceDateTimeTicks = -1;
-		private static long s_30MinAgoReferenceDateTimeTicks = -1;
+		private static long s_10MinAgoReferenceDateTimeTicks = -1;
 		private static DateTime s_ReferenceDateTime;
 		private static long s_ReferenceFrequency = -1;
 		private static long s_ReferenceMaxError = -1;
@@ -212,18 +212,18 @@ namespace OccuRec.Helpers
 					//   max error of the last NTP reference is bigger than the current max error of the NTP reference. This will mean that the NTP reference will not be 
 					//   updated because of a time drift during the first 30 min after OccuRec has been started
 
-					double tsSinceFirstReference = new TimeSpan(utcTime.Ticks - s_30MinAgoReferenceDateTimeTicks).TotalMinutes;
+					double tsSinceFirstReference = new TimeSpan(utcTime.Ticks - s_10MinAgoReferenceDateTimeTicks).TotalMinutes;
 					double timeDriftErrorMilliseconds = 0;
 					if (tsSinceFirstReference > 5)
 					{
-						double totalPassedMinutesNTP = ((currTicks - s_30MinAgoReferenceTicks) * 1000.0f / frequency) / 60000;
-						double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_30MinAgoReferenceDateTimeTicks);
+						double totalPassedMinutesNTP = ((currTicks - s_10MinAgoReferenceTicks) * 1000.0f / frequency) / 60000;
+						double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_10MinAgoReferenceDateTimeTicks);
 						double timeDriftMilleseconds = sectionRatio * Math.Abs(totalPassedMinutesNTP - tsSinceFirstReference) * 60000;
 						s_TimeDriftPerMinuteMilleseconds = timeDriftMilleseconds / totalPassedMinutesNTP;
 
 						double totalPassedMinutesNTPBase0 = double.NaN;
 						double timeDriftMillesecondsBase0 = double.NaN;
-						if (s_30MinAgoReferenceTicks != s_FirstReferenceTicks)
+						if (s_10MinAgoReferenceTicks != s_FirstReferenceTicks)
 						{
 							totalPassedMinutesNTPBase0 = ((currTicks - s_FirstReferenceTicks) * 1000.0f / frequency) / 60000;
 							double sectionRatioBase0 = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_FirstReferenceDateTimeTicks);
@@ -233,7 +233,7 @@ namespace OccuRec.Helpers
 							timeDriftErrorMilliseconds = Math.Abs(timeDriftMillesecondsBase0 - timeDriftMilleseconds);
 						}
 
-						// Remove all saved NTP references older than 30min
+						// Remove all saved NTP references older than 10min
 						for (int i = s_AllNTPReferenceTimes.Count - 1; i >= 0; i--)
 						{
 							if (s_AllNTPReferenceTimes[i].Item1.AddMinutes(10).Ticks < utcTime.Ticks)
@@ -243,12 +243,12 @@ namespace OccuRec.Helpers
 							}
 						}
 
-						if (s_AllNTPReferenceTimes.Count > 0 && s_AllNTPReferenceTimes[0].Item1.Ticks > s_30MinAgoReferenceDateTimeTicks)
+						if (s_AllNTPReferenceTimes.Count > 0 && s_AllNTPReferenceTimes[0].Item1.Ticks > s_10MinAgoReferenceDateTimeTicks)
 						{
 							Trace.WriteLine(string.Format("OccuRec: Sliding the 30 min NTP reference window to start at {0}", s_AllNTPReferenceTimes[0].Item1.ToLocalTime().ToString("HH:mm:ss")));
-							// Our 30MinAgo reference is too old now. We have a newer reference that it still at least 30 min go. We want to use this reference i.e. 'slide' the window forward	
-							s_30MinAgoReferenceDateTimeTicks = s_AllNTPReferenceTimes[0].Item1.Ticks;
-							s_30MinAgoReferenceTicks = s_AllNTPReferenceTimes[0].Item2;
+							// Our 30MinAgo reference is too old now. We have a newer reference that it still at least 10 min go. We want to use this reference i.e. 'slide' the window forward	
+							s_10MinAgoReferenceDateTimeTicks = s_AllNTPReferenceTimes[0].Item1.Ticks;
+							s_10MinAgoReferenceTicks = s_AllNTPReferenceTimes[0].Item2;
 						}
 
 						if (!double.IsNaN(totalPassedMinutesNTPBase0))
@@ -361,8 +361,8 @@ namespace OccuRec.Helpers
 			{
 				s_FirstReferenceTicks = s_ReferenceTicks;
 				s_FirstReferenceDateTimeTicks = s_ReferenceDateTimeTicks;
-				s_30MinAgoReferenceTicks = s_ReferenceTicks;
-				s_30MinAgoReferenceDateTimeTicks = s_ReferenceDateTimeTicks;
+				s_10MinAgoReferenceTicks = s_ReferenceTicks;
+				s_10MinAgoReferenceDateTimeTicks = s_ReferenceDateTimeTicks;
 				s_TimeDriftPerMinuteMilleseconds = 0;
 				s_AllNTPReferenceTimes.Clear();
 				s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long>(utcTime, currTicks));

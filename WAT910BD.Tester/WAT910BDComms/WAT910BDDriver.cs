@@ -12,6 +12,7 @@ namespace WAT910BD.Tester.WAT910BDComms
 	public class WAT910DBEventArgs : EventArgs
 	{
 		public bool IsSuccessful;
+		public bool ReceivedResponseFromCamera;
 		public string ErrorMessage;
 		public string CommandId;
 	}
@@ -21,6 +22,7 @@ namespace WAT910BD.Tester.WAT910BDComms
         public byte[] Data;
         public bool Received;
         public bool Sent;
+	    public string Message;
     }
 
 	public class WAT910BDDriver : IDisposable
@@ -68,26 +70,49 @@ namespace WAT910BD.Tester.WAT910BDComms
 
 		public void InitialiseCamera()
 		{
+			SendCameraCommandSeries(MultipleCommandSeries.InitCamera, false);
+		}
+
+		public void ReadCurrentCameraSettings()
+		{
+			SendCameraCommandSeries(MultipleCommandSeries.ReadCameraSettings, true);
+		}
+
+		public void ReadCurrentCameraState()
+		{
+			SendCameraCommandSeries(MultipleCommandSeries.ReadCameraState, true);
+		}
+
+		private void SendCameraCommandSeries(MultipleCommandSeries commandSeries, bool readCommands)
+		{
 			if (m_StateMachine.CanSendCommand() && IsConnected)
 			{
-				m_StateMachine.StartSendingMultipleCommands(MultipleCommandSeries.InitCamera);
+				m_StateMachine.StartSendingMultipleCommands(commandSeries);
 
 				try
 				{
-					List<byte[]> commands = m_StateMachine.GetCommandSeries(MultipleCommandSeries.InitCamera);
+					List<byte[]> commands = m_StateMachine.GetCommandSeries(commandSeries);
 
 					foreach (byte[] command in commands)
 					{
-                        if (!SendWriteCommand(command))
+						if (readCommands)
 						{
-							// One of the commands errored. Aborting
-							break;
+							if (!SendReadCommand(command))
+								// One of the commands errored. Aborting
+								break;
 						}
+						else
+						{
+							if (!SendWriteCommand(command))
+								// One of the commands errored. Aborting
+								break;
+						}
+
 					}
 				}
 				finally
 				{
-					m_StateMachine.FinishedSendingMultipleCommands(MultipleCommandSeries.InitCamera);
+					m_StateMachine.FinishedSendingMultipleCommands(commandSeries);
 					RaiseOnExecutionCompeted();
 				}
 			}
@@ -95,118 +120,143 @@ namespace WAT910BD.Tester.WAT910BDComms
 
 		public void OSDCommandUp()
 		{
-			try
-			{
-			    if (m_StateMachine.CanSendCommand() && IsConnected)
-			    {
-			        SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Up));
-			    }
-			}
-			finally
-			{
-				RaiseOnExecutionCompeted();
-			}
+			DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Up)));
 		}
 
 		public void OSDCommandDown()
 		{
-			if (m_StateMachine.CanSendCommand() && IsConnected)
-			{
-				try
-				{
-                    SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Down));
-				}
-				finally
-				{
-					RaiseOnExecutionCompeted();
-				}
-			}
+			DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Down)));
 		}
 
 		public void OSDCommandLeft()
 		{
-			if (m_StateMachine.CanSendCommand() && IsConnected)
-			{
-				try
-				{
-                    SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Left));
-				}
-				finally
-				{
-					RaiseOnExecutionCompeted();
-				}
-			}
+			DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Left)));
 		}
 
 		public void OSDCommandRight()
 		{
-			if (m_StateMachine.CanSendCommand() && IsConnected)
-			{
-				try
-				{
-                    SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Right));
-				}
-				finally
-				{
-					RaiseOnExecutionCompeted();
-				}
-			}
+			DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Right)));
 		}
 
 		public void OSDCommandSet()
+		{
+			DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Set)));
+		}
+
+        public void GainUp()
+        {
+			DoCameraOperation(() => m_StateMachine.SetGain(m_SerialPort, m_StateMachine.Gain + 1, (command) => RaiseOnCommsData(false, command)));
+        }
+
+        public void GainDown()
+        {
+			DoCameraOperation(() => m_StateMachine.SetGain(m_SerialPort, m_StateMachine.Gain - 1, (command) => RaiseOnCommsData(false, command)));
+        }
+
+		public void ExposureDown()
+		{
+			DoCameraOperation(() => m_StateMachine.SetExposure(m_SerialPort, m_StateMachine.ExposureIndex - 1, (command) => RaiseOnCommsData(false, command)));
+		}
+
+		public void ExposureUp()
+		{
+			DoCameraOperation(() => m_StateMachine.SetExposure(m_SerialPort, m_StateMachine.ExposureIndex - 1, (command) => RaiseOnCommsData(false, command)));
+		}
+
+		public void GammaDown()
+		{
+			DoCameraOperation(() => m_StateMachine.SetGamma(m_SerialPort, m_StateMachine.GammaIndex - 1, (command) => RaiseOnCommsData(false, command)));
+		}
+
+		public void GammaUp()
+		{
+			DoCameraOperation(() => m_StateMachine.SetGamma(m_SerialPort, m_StateMachine.GammaIndex - 1, (command) => RaiseOnCommsData(false, command)));
+		}
+
+		private void DoCameraOperation(Action operation)
 		{
 			if (m_StateMachine.CanSendCommand() && IsConnected)
 			{
 				try
 				{
-					SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Set));
+					operation();
 				}
 				finally
 				{
 					RaiseOnExecutionCompeted();
 				}
-			}
+			}			
 		}
-
-        public void GainUp()
-        {
-            if (m_StateMachine.CanSendCommand() && IsConnected)
-            {
-                try
-                {
-                    m_StateMachine.SetGain(m_SerialPort, m_StateMachine.Gain + 1, (command) => RaiseOnCommsData(false, command));
-                }
-                finally
-                {
-                    RaiseOnExecutionCompeted();
-                }
-            }
-        }
-
-        public void GainDown()
-        {
-            if (m_StateMachine.CanSendCommand() && IsConnected)
-            {
-                try
-                {
-                    m_StateMachine.SetGain(m_SerialPort, m_StateMachine.Gain - 1, (command) => RaiseOnCommsData(false, command));
-                }
-                finally
-                {
-                    RaiseOnExecutionCompeted();
-                }
-            }
-        }
 
         private bool SendWriteCommand(byte[] command)
         {
             return m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, command, (cmd) => RaiseOnCommsData(false, cmd));
         }
 
-	    public int Gain
+		private bool SendReadCommand(byte[] command)
+        {
+            return m_StateMachine.SendReadCommandAndWaitToExecute(m_SerialPort, command, (cmd) => RaiseOnCommsData(false, cmd));
+        }
+
+	    public string Gain
 	    {
-            get { return m_StateMachine.Gain; }
+            get { return string.Format("{0} dB",  m_StateMachine.Gain); }
 	    }
+
+		public int GainIndex
+		{
+			get { return m_StateMachine.Gain; }
+		}
+
+		public int MinGainIndex
+		{
+			get { return WAT910BDStateMachine.MIN_GAIN; }
+		}
+
+		public int MaxGainIndex
+		{
+			get { return WAT910BDStateMachine.MAX_GAIN; }
+		}
+
+		public string Exposure
+		{
+			get { return m_StateMachine.Exposure; }
+		}
+
+		public int ExposureIndex
+		{
+			get { return m_StateMachine.ExposureIndex; }
+		}
+
+		public int MinExposureIndex
+		{
+			get { return WAT910BDStateMachine.MIN_EXPOSURE; }
+		}
+
+		public int MaxExposureIndex
+		{
+			get { return WAT910BDStateMachine.MAX_EXPOSURE; }
+		}
+
+		public string Gamma
+		{
+			get { return m_StateMachine.Gamma; }
+		}
+
+		public int GammaIndex
+		{
+			get { return m_StateMachine.GammaIndex; }
+		}
+
+		public int MinGammaIndex
+		{
+			get { return WAT910BDStateMachine.MIN_GAMMA; }
+		}
+
+		public int MaxGammaIndex
+		{
+			get { return WAT910BDStateMachine.MAX_GAMMA; }
+		}
 
 		private void RaiseOnExecutionCompeted()
 		{
@@ -214,6 +264,7 @@ namespace WAT910BD.Tester.WAT910BDComms
                 new WAT910DBEventArgs()
 				{
 					IsSuccessful = m_StateMachine.WasLastCameraOperationSuccessful(),
+					ReceivedResponseFromCamera = m_StateMachine.DidLastCameraOperationReceivedResponse(),
 					ErrorMessage = m_StateMachine.GetLastCameraErrorMessage()
 				});
 		}
@@ -223,7 +274,10 @@ namespace WAT910BD.Tester.WAT910BDComms
             RaiseEvent(OnSerialComms, 
                 new SerialCommsEventArgs()
                 {
-                    Data = data, Received = received, Sent = !received
+					Data = data,
+					Received = received,
+					Sent = !received,
+					Message = m_StateMachine.GetLastCameraErrorMessage()
                 });
         }
 

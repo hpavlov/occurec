@@ -47,7 +47,7 @@ namespace WAT910BD.Tester
 
 		void m_WAT910Driver_OnCommandExecutionCompleted(WAT910DBEventArgs e)
 		{
-			if (!e.IsSuccessful)
+			if (!e.IsSuccessful && !e.ReceivedResponseFromCamera)
                 textBox1.AppendText(string.Format("ERR:{0}\r\n", e.ErrorMessage));
 
 			EnableDisableControls(true);
@@ -59,7 +59,7 @@ namespace WAT910BD.Tester
             if (e.Sent)
                 textBox1.AppendText("SENT: " + message + "\r\n");
             else
-                textBox1.AppendText("RCVD: " + message + "\r\n");
+				textBox1.AppendText("RCVD: " + message + " " + e.Message + "\r\n");
         }
 
         private string FormatBytesHex(byte[] data)
@@ -76,9 +76,17 @@ namespace WAT910BD.Tester
 		{
 			gbxCameraControl.Enabled = enable;
 
-		    lblGain.Text = string.Format("{0} dB", m_WAT910Driver.Gain);
-		    btnGainDown.Enabled = m_WAT910Driver.Gain > 6;
-		    btnGainUp.Enabled = m_WAT910Driver.Gain < 41;
+		    lblGain.Text = m_WAT910Driver.Gain;
+			btnGainDown.Enabled = m_WAT910Driver.GainIndex > m_WAT910Driver.MinGainIndex;
+			btnGainUp.Enabled = m_WAT910Driver.GainIndex < m_WAT910Driver.MaxGainIndex;
+
+			lblExposure.Text = m_WAT910Driver.Exposure;
+			btnExposureDown.Enabled = m_WAT910Driver.ExposureIndex > m_WAT910Driver.MinExposureIndex;
+			btnExposureUp.Enabled = m_WAT910Driver.ExposureIndex < m_WAT910Driver.MaxExposureIndex;
+
+			lblGamma.Text = m_WAT910Driver.Gamma;
+			btnGammaDown.Enabled = m_WAT910Driver.GammaIndex > m_WAT910Driver.MinGammaIndex;
+			btnGammaUp.Enabled = m_WAT910Driver.GammaIndex < m_WAT910Driver.MaxGammaIndex;
 		}
 
 		private void btnConnect_Click(object sender, EventArgs e)
@@ -155,5 +163,42 @@ namespace WAT910BD.Tester
             EnableDisableControls(false);
             Invoke(new Action(() => m_WAT910Driver.GainDown()));
         }
+
+		private void btnExposureDown_Click(object sender, EventArgs e)
+		{
+
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.ExposureDown()));
+		}
+
+		private void btnExposureUp_Click(object sender, EventArgs e)
+		{
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.ExposureUp()));
+		}
+
+		private void btnGammaDown_Click(object sender, EventArgs e)
+		{
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.GammaDown()));
+		}
+
+		private void btnGammaUp_Click(object sender, EventArgs e)
+		{
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.GammaUp()));
+		}
+
+		private void btnReadSettings_Click(object sender, EventArgs e)
+		{
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.ReadCurrentCameraSettings()));
+		}
+
+		private void btnReadState_Click(object sender, EventArgs e)
+		{
+			EnableDisableControls(false);
+			Invoke(new Action(() => m_WAT910Driver.ReadCurrentCameraState()));
+		}
 	}
 }
