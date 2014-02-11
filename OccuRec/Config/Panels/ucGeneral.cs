@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using OccuRec.Helpers;
 using OccuRec.Properties;
+using OccuRec.Utilities;
 
 namespace OccuRec.Config.Panels
 {
@@ -24,6 +25,9 @@ namespace OccuRec.Config.Panels
 			tbxOutputLocation.Text = Settings.Default.OutputLocation;
 			cbxTimeInUT.Checked = Settings.Default.DisplayTimeInUT;
 			cbxWarnForFileSystemIssues.Checked = Settings.Default.WarnForFileSystemIssues;
+			cbxWarnFreeSpace.Checked = Settings.Default.WarnOnFreeDiskSpaceLeft;
+			cbxWarnFAT16.Checked = Settings.Default.WarnOnFAT16Usage;
+			nudWarnGBFreeLeft.SetNUDValue(Settings.Default.WarnMinDiskFreeSpaceGb);
 		}
 
 		public override void SaveSettings()
@@ -31,6 +35,9 @@ namespace OccuRec.Config.Panels
 			Settings.Default.OutputLocation = tbxOutputLocation.Text;
 			Settings.Default.DisplayTimeInUT = cbxTimeInUT.Checked;
 			Settings.Default.WarnForFileSystemIssues = cbxWarnForFileSystemIssues.Checked;
+			Settings.Default.WarnOnFreeDiskSpaceLeft = cbxWarnFreeSpace.Checked; 
+			Settings.Default.WarnOnFAT16Usage = cbxWarnFAT16.Checked;
+			Settings.Default.WarnMinDiskFreeSpaceGb = (float) nudWarnGBFreeLeft.Value;
 		}
 
 		public override bool ValidateSettings()
@@ -59,6 +66,11 @@ namespace OccuRec.Config.Panels
 			{
 				tbxOutputLocation.Text = folderBrowserDialog.SelectedPath;
 			}
+		}
+
+		private void cbxWarnForFileSystemIssues_CheckedChanged(object sender, EventArgs e)
+		{
+			gbxFSWarnings.Enabled = cbxWarnForFileSystemIssues.Checked;
 		}
 	}
 }

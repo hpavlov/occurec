@@ -8,6 +8,7 @@ General & Bugfixes:
 - During the integration detection check if the fields are combined incorrectly. Implement an automatic fix for this issue if present
 - Can the issue with misplaced fields once event 20 min 50 sec be solved by 'recombining' the fields on the fly when the issue is detected?
 
+- Hide ASCOM related settings and controls if ASOM is not installed
 - Use 3 different NTP servers to establish a more accurate timeframe (compensating for async download/upload speeds)
 - Run the NTP time sync in a high priority thread. See what BeeperSync does and do the same.
 - Show a +/- error for the time drift (based on the accuract of the latest NTP time reference) when tracing out the message: 

@@ -46,6 +46,7 @@
 			this.rbFileAAV = new System.Windows.Forms.RadioButton();
 			this.cbxIsIntegrating = new System.Windows.Forms.CheckBox();
 			this.gbxAAVSettings = new System.Windows.Forms.GroupBox();
+			this.llOnlineHelp = new System.Windows.Forms.LinkLabel();
 			this.pnlPreserveOSDArea = new System.Windows.Forms.Panel();
 			this.label11 = new System.Windows.Forms.Label();
 			this.nudPreserveVTIBottomRow = new System.Windows.Forms.NumericUpDown();
@@ -61,6 +62,8 @@
 			this.pnlFlipControls = new System.Windows.Forms.Panel();
 			this.cbxFlipVertically = new System.Windows.Forms.CheckBox();
 			this.cbxFlipHorizontally = new System.Windows.Forms.CheckBox();
+			this.label6 = new System.Windows.Forms.Label();
+			this.cbxCameraDriver = new System.Windows.Forms.ComboBox();
 			this.gbxCodecs.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.gbxAAVSettings.SuspendLayout();
@@ -73,7 +76,7 @@
 			// 
 			// btnOK
 			// 
-			this.btnOK.Location = new System.Drawing.Point(262, 302);
+			this.btnOK.Location = new System.Drawing.Point(286, 323);
 			this.btnOK.Name = "btnOK";
 			this.btnOK.Size = new System.Drawing.Size(75, 23);
 			this.btnOK.TabIndex = 7;
@@ -84,7 +87,7 @@
 			// btnCancel
 			// 
 			this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.btnCancel.Location = new System.Drawing.Point(343, 302);
+			this.btnCancel.Location = new System.Drawing.Point(367, 323);
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.Size = new System.Drawing.Size(75, 23);
 			this.btnCancel.TabIndex = 6;
@@ -126,13 +129,15 @@
             "G-Star",
             "WAT-120N",
             "WAT-910HX",
+            "WAT-910BD",
             "Mintron 12V1C-EX",
             "Samsung SCB-2000",
             "PC165-DNR"});
 			this.cbxCameraModel.Location = new System.Drawing.Point(16, 34);
 			this.cbxCameraModel.Name = "cbxCameraModel";
-			this.cbxCameraModel.Size = new System.Drawing.Size(150, 21);
+			this.cbxCameraModel.Size = new System.Drawing.Size(198, 21);
 			this.cbxCameraModel.TabIndex = 20;
+			this.cbxCameraModel.SelectedIndexChanged += new System.EventHandler(this.cbxCameraModel_SelectedIndexChanged);
 			// 
 			// gbxCodecs
 			// 
@@ -194,9 +199,9 @@
 			this.groupBox2.Controls.Add(this.cbFileSIM);
 			this.groupBox2.Controls.Add(this.rbFileAVI);
 			this.groupBox2.Controls.Add(this.rbFileAAV);
-			this.groupBox2.Location = new System.Drawing.Point(15, 135);
+			this.groupBox2.Location = new System.Drawing.Point(15, 121);
 			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(110, 161);
+			this.groupBox2.Size = new System.Drawing.Size(89, 196);
 			this.groupBox2.TabIndex = 22;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Format";
@@ -240,7 +245,7 @@
 			this.cbxIsIntegrating.AutoSize = true;
 			this.cbxIsIntegrating.Checked = true;
 			this.cbxIsIntegrating.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.cbxIsIntegrating.Location = new System.Drawing.Point(176, 40);
+			this.cbxIsIntegrating.Location = new System.Drawing.Point(227, 36);
 			this.cbxIsIntegrating.Name = "cbxIsIntegrating";
 			this.cbxIsIntegrating.Size = new System.Drawing.Size(76, 17);
 			this.cbxIsIntegrating.TabIndex = 23;
@@ -249,18 +254,32 @@
 			// 
 			// gbxAAVSettings
 			// 
+			this.gbxAAVSettings.Controls.Add(this.label6);
+			this.gbxAAVSettings.Controls.Add(this.cbxCameraDriver);
+			this.gbxAAVSettings.Controls.Add(this.llOnlineHelp);
 			this.gbxAAVSettings.Controls.Add(this.pnlPreserveOSDArea);
 			this.gbxAAVSettings.Controls.Add(this.cbxOCRConfigurations);
 			this.gbxAAVSettings.Controls.Add(this.label13);
 			this.gbxAAVSettings.Controls.Add(this.label4);
 			this.gbxAAVSettings.Controls.Add(this.cbxIsIntegrating);
 			this.gbxAAVSettings.Controls.Add(this.cbxCameraModel);
-			this.gbxAAVSettings.Location = new System.Drawing.Point(131, 136);
+			this.gbxAAVSettings.Location = new System.Drawing.Point(110, 121);
 			this.gbxAAVSettings.Name = "gbxAAVSettings";
-			this.gbxAAVSettings.Size = new System.Drawing.Size(287, 160);
+			this.gbxAAVSettings.Size = new System.Drawing.Size(332, 196);
 			this.gbxAAVSettings.TabIndex = 22;
 			this.gbxAAVSettings.TabStop = false;
 			this.gbxAAVSettings.Text = "AAV settings";
+			// 
+			// llOnlineHelp
+			// 
+			this.llOnlineHelp.AutoSize = true;
+			this.llOnlineHelp.Location = new System.Drawing.Point(262, 112);
+			this.llOnlineHelp.Name = "llOnlineHelp";
+			this.llOnlineHelp.Size = new System.Drawing.Size(62, 13);
+			this.llOnlineHelp.TabIndex = 32;
+			this.llOnlineHelp.TabStop = true;
+			this.llOnlineHelp.Text = "Online Help";
+			this.llOnlineHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llOnlineHelp_LinkClicked);
 			// 
 			// pnlPreserveOSDArea
 			// 
@@ -268,7 +287,7 @@
 			this.pnlPreserveOSDArea.Controls.Add(this.nudPreserveVTIBottomRow);
 			this.pnlPreserveOSDArea.Controls.Add(this.nudPreserveVTITopRow);
 			this.pnlPreserveOSDArea.Controls.Add(this.label3);
-			this.pnlPreserveOSDArea.Location = new System.Drawing.Point(6, 119);
+			this.pnlPreserveOSDArea.Location = new System.Drawing.Point(6, 163);
 			this.pnlPreserveOSDArea.Name = "pnlPreserveOSDArea";
 			this.pnlPreserveOSDArea.Size = new System.Drawing.Size(275, 25);
 			this.pnlPreserveOSDArea.TabIndex = 31;
@@ -333,16 +352,16 @@
 			// 
 			this.cbxOCRConfigurations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cbxOCRConfigurations.FormattingEnabled = true;
-			this.cbxOCRConfigurations.Location = new System.Drawing.Point(16, 84);
+			this.cbxOCRConfigurations.Location = new System.Drawing.Point(16, 128);
 			this.cbxOCRConfigurations.Name = "cbxOCRConfigurations";
-			this.cbxOCRConfigurations.Size = new System.Drawing.Size(250, 21);
+			this.cbxOCRConfigurations.Size = new System.Drawing.Size(308, 21);
 			this.cbxOCRConfigurations.TabIndex = 28;
 			this.cbxOCRConfigurations.SelectedIndexChanged += new System.EventHandler(this.cbxOCRConfigurations_SelectedIndexChanged);
 			// 
 			// label13
 			// 
 			this.label13.AutoSize = true;
-			this.label13.Location = new System.Drawing.Point(13, 68);
+			this.label13.Location = new System.Drawing.Point(13, 112);
 			this.label13.Name = "label13";
 			this.label13.Size = new System.Drawing.Size(118, 13);
 			this.label13.TabIndex = 29;
@@ -354,7 +373,7 @@
 			this.pnlCrossbar.Controls.Add(this.label5);
 			this.pnlCrossbar.Location = new System.Drawing.Point(228, 59);
 			this.pnlCrossbar.Name = "pnlCrossbar";
-			this.pnlCrossbar.Size = new System.Drawing.Size(199, 56);
+			this.pnlCrossbar.Size = new System.Drawing.Size(214, 56);
 			this.pnlCrossbar.TabIndex = 23;
 			this.pnlCrossbar.Visible = false;
 			// 
@@ -364,7 +383,7 @@
 			this.cbxCrossbarInput.FormattingEnabled = true;
 			this.cbxCrossbarInput.Location = new System.Drawing.Point(7, 25);
 			this.cbxCrossbarInput.Name = "cbxCrossbarInput";
-			this.cbxCrossbarInput.Size = new System.Drawing.Size(183, 21);
+			this.cbxCrossbarInput.Size = new System.Drawing.Size(199, 21);
 			this.cbxCrossbarInput.TabIndex = 18;
 			this.cbxCrossbarInput.SelectedIndexChanged += new System.EventHandler(this.cbxCrossbarInput_SelectedIndexChanged);
 			// 
@@ -402,7 +421,7 @@
 			this.pnlFlipControls.Controls.Add(this.cbxFlipHorizontally);
 			this.pnlFlipControls.Location = new System.Drawing.Point(228, 16);
 			this.pnlFlipControls.Name = "pnlFlipControls";
-			this.pnlFlipControls.Size = new System.Drawing.Size(200, 37);
+			this.pnlFlipControls.Size = new System.Drawing.Size(214, 37);
 			this.pnlFlipControls.TabIndex = 28;
 			// 
 			// cbxFlipVertically
@@ -425,11 +444,30 @@
 			this.cbxFlipHorizontally.Text = "Flip Horizontally";
 			this.cbxFlipHorizontally.UseVisualStyleBackColor = true;
 			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(16, 60);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(74, 13);
+			this.label6.TabIndex = 33;
+			this.label6.Text = "Camera Driver";
+			// 
+			// cbxCameraDriver
+			// 
+			this.cbxCameraDriver.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cbxCameraDriver.Enabled = false;
+			this.cbxCameraDriver.FormattingEnabled = true;
+			this.cbxCameraDriver.Location = new System.Drawing.Point(16, 78);
+			this.cbxCameraDriver.Name = "cbxCameraDriver";
+			this.cbxCameraDriver.Size = new System.Drawing.Size(198, 21);
+			this.cbxCameraDriver.TabIndex = 34;
+			// 
 			// frmChooseCamera
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(430, 337);
+			this.ClientSize = new System.Drawing.Size(456, 358);
 			this.Controls.Add(this.pnlFlipControls);
 			this.Controls.Add(this.gbxAAVSettings);
 			this.Controls.Add(this.label1);
@@ -501,5 +539,8 @@
 		private System.Windows.Forms.Panel pnlFlipControls;
 		private System.Windows.Forms.CheckBox cbxFlipVertically;
 		private System.Windows.Forms.CheckBox cbxFlipHorizontally;
+		private System.Windows.Forms.LinkLabel llOnlineHelp;
+		private System.Windows.Forms.Label label6;
+		private System.Windows.Forms.ComboBox cbxCameraDriver;
     }
 }

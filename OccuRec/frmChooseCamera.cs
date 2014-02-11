@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using OccuRec.CameraDrivers;
 using OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl;
 using OccuRec.Helpers;
 using OccuRec.OCR;
@@ -378,5 +379,23 @@ namespace OccuRec
                     pnlPreserveOSDArea.Enabled = true;
             }
         }
+
+		private void llOnlineHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Process.Start("http://www.hristopavlov.net/OccuRec/IOTA-VTI/");
+		}
+
+		private void cbxCameraModel_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			List<string> availableDrivers = OccuRecVideoDrivers.GetAvailableDriversForCamera((string) cbxCameraModel.SelectedItem);
+			cbxCameraDriver.Items.Clear();
+			cbxCameraDriver.Items.AddRange(availableDrivers.ToArray());
+			cbxCameraDriver.Enabled = availableDrivers.Count > 0;
+			if (cbxCameraDriver.Items.Count == 0)
+				cbxCameraDriver.Items.Add("No Video Drivers Available");
+
+			// TODO: Once we have more than one driver for the same camera we will need to store the user's choise
+			cbxCameraDriver.SelectedIndex = 0;
+		}
     }
 }

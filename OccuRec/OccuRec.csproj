@@ -94,6 +94,7 @@
     </Compile>
     <Compile Include="ASCOM\ObservatoryController.cs" />
     <Compile Include="ASCOM\ThreadIsolationInvoker.cs" />
+    <Compile Include="CameraDrivers\OccuRecVideoDrivers.cs" />
     <Compile Include="Config\Panels\ucFocusing.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -395,6 +396,7 @@
       <Name>OccuRec.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

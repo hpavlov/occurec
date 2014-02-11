@@ -156,7 +156,6 @@ namespace OccuRec.OCR
             return rv;
         }
     }
-
 	public class OcrConfiguration
 	{
 		public OcrConfiguration(bool populateDefault)
@@ -164,6 +163,7 @@ namespace OccuRec.OCR
             Alignment = AlignmentConfig.GetDefault();
             Zones = OcrZone.GetDefaultZones();
             CharDefinitions = CharDefinition.GetDefault();
+			SupportedDevices = new List<string>();
         }
 
 		public OcrConfiguration()
@@ -171,6 +171,7 @@ namespace OccuRec.OCR
             Alignment = new AlignmentConfig();
             Zones = new List<OcrZone>();
             CharDefinitions = new List<CharDefinition>();
+			SupportedDevices = new List<string>();
         }
 
 		[XmlAttribute]
@@ -187,6 +188,9 @@ namespace OccuRec.OCR
         public List<OcrZone> Zones { get; set; }
 
         public List<CharDefinition> CharDefinitions { get; set; }
+
+		[XmlArrayItem("Device")]
+		public List<string> SupportedDevices { get; set; }		
 	}
 
 	public class OcrSettings

@@ -934,5 +934,41 @@ namespace OccuRec.Properties {
                 this["RecordSecondaryTimeStamp"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool WarnOnFreeDiskSpaceLeft {
+            get {
+                return ((bool)(this["WarnOnFreeDiskSpaceLeft"]));
+            }
+            set {
+                this["WarnOnFreeDiskSpaceLeft"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool WarnOnFAT16Usage {
+            get {
+                return ((bool)(this["WarnOnFAT16Usage"]));
+            }
+            set {
+                this["WarnOnFAT16Usage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public float WarnMinDiskFreeSpaceGb {
+            get {
+                return ((float)(this["WarnMinDiskFreeSpaceGb"]));
+            }
+            set {
+                this["WarnMinDiskFreeSpaceGb"] = value;
+            }
+        }
     }
 }

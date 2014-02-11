@@ -656,12 +656,12 @@ namespace OccuRec
 					var fi = new FileInfo(recordingfileName);
 					tssRecordingFile.Text = string.Format("{0} ({1:0.0} Mb)", fi.Name, 1.0 * fi.Length / (1024 * 1024));
 
-					if (fi.Directory != null)
+					if (Settings.Default.WarnForFileSystemIssues && Settings.Default.WarnOnFreeDiskSpaceLeft && fi.Directory != null)
 					{
 						ulong freeBytes;
 						NativeHelpers.GetDriveFreeBytes(fi.Directory.FullName, out freeBytes);
 
-						if (freeBytes < ((ulong)1024 * (ulong)1024 * (ulong)1024 * (ulong)2))
+						if (freeBytes < ((ulong)1024 * (ulong)1024 * (ulong)1024 * (ulong)Settings.Default.WarnMinDiskFreeSpaceGb))
 						{
 							tssFreeDiskSpace.Visible = true;
 							tssFreeDiskSpace.Text = string.Format("{0:0.0} Gb free", 1.0 * freeBytes / (1024 * 1024 * 1024));
@@ -669,6 +669,8 @@ namespace OccuRec
 						else
 							tssFreeDiskSpace.Visible = false;
 					}
+					else
+						tssFreeDiskSpace.Visible = false;
 
 					tssRecordingFile.Visible = true;
 					btnStopRecording.Enabled = true;
@@ -1362,23 +1364,27 @@ namespace OccuRec
 			if (Settings.Default.WarnForFileSystemIssues && 
 				Directory.Exists(Settings.Default.OutputLocation))
 			{
-				ulong freeBytes;
-				NativeHelpers.GetDriveFreeBytes(Settings.Default.OutputLocation, out freeBytes);
-
-				string directoryRoot = Directory.GetDirectoryRoot(Settings.Default.OutputLocation);
-
-				if (freeBytes < ((ulong)1024 * (ulong)1024 * (ulong)1024 * (ulong)2))
+				if (Settings.Default.WarnOnFreeDiskSpaceLeft)
 				{
-					MessageBox.Show(
-						string.Format("There is only {0:0.0} Gb left on drive {1}\r\n\r\nThere may not be enough disk space to record a video!",
-						1.0 * freeBytes / (1024 * 1024 * 1024),
-						directoryRoot), 
-						"OccuRec",
-						MessageBoxButtons.OK,
-						MessageBoxIcon.Warning);
+					ulong freeBytes;
+					NativeHelpers.GetDriveFreeBytes(Settings.Default.OutputLocation, out freeBytes);
+
+					string directoryRoot = Directory.GetDirectoryRoot(Settings.Default.OutputLocation);
+
+					if (freeBytes < ((ulong)1024 * (ulong)1024 * (ulong)1024 * (ulong)Settings.Default.WarnMinDiskFreeSpaceGb))
+					{
+						MessageBox.Show(
+							string.Format("There is only {0:0.0} Gb left on drive {1}\r\n\r\nThere may not be enough disk space to record a video!",
+							1.0 * freeBytes / (1024 * 1024 * 1024),
+							directoryRoot),
+							"OccuRec",
+							MessageBoxButtons.OK,
+							MessageBoxIcon.Warning);
+					}					
 				}
 
-				FileNameGenerator.CheckAndWarnForFileSystemLimitation();
+				if (Settings.Default.WarnOnFAT16Usage)
+					FileNameGenerator.CheckAndWarnForFileSystemLimitation();
 			}
 		}
 
