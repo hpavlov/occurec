@@ -213,6 +213,9 @@ namespace WindowsClock.Tester
 
 		private static object s_SyncLock = new object();
 		private static LinearRegression s_LR = new LinearRegression();
+		private static long s_LRZeroX = 0;
+		private static long s_LRZeroY = 0;
+		private static double s_LR3SigmaMs = 0;
 
 		public static void AttemptingNTPTimeUpdate()
 		{
@@ -311,10 +314,9 @@ namespace WindowsClock.Tester
 
 			if (s_AllNTPReferenceTimes.Count > 5)
 			{
-				lock (s_SyncLock)
-				{
+				
 					// DELTA-NTP-TIME[y] = f(DELTA-QPC-TICKS[x])
-					s_LR = new LinearRegression();
+					var lr = new LinearRegression();
 					try
 					{
 						long firstNTPTicks = s_10MinAgoReferenceDateTimeTicks;
@@ -322,17 +324,28 @@ namespace WindowsClock.Tester
 
 						for (int i = 1; i < s_AllNTPReferenceTimes.Count; i++)
 						{
-							s_LR.AddDataPoint(s_AllNTPReferenceTimes[i].Item2, s_AllNTPReferenceTimes[i].Item1.Ticks - firstNTPTicks);
+							lr.AddDataPoint(s_AllNTPReferenceTimes[i].Item2 - firstQPCTcisk, s_AllNTPReferenceTimes[i].Item1.Ticks - firstNTPTicks);
 						}
-						s_LR.Solve();
-						timeDriftErrorMilliseconds = new TimeSpan((long)(3 * s_LR.StdDev)).TotalMilliseconds;
+						lr.Solve();
+
+						timeDriftErrorMilliseconds = new TimeSpan((long)(3 * lr.StdDev)).TotalMilliseconds;
 						timeDriftMilleseconds = 0;
+
+						lock (s_SyncLock)
+						{
+							s_LR = lr;
+							s_LRZeroX = firstQPCTcisk;
+							s_LRZeroY = firstNTPTicks;
+							s_LR3SigmaMs = timeDriftErrorMilliseconds;
+						}
+
+						
 					}
 					catch (Exception ex)
 					{
 						Trace.WriteLine(ex.GetFullStackTrace());
 					}					
-				}
+
 			}
 		}
 
@@ -468,21 +481,24 @@ namespace WindowsClock.Tester
 				maxErrorMilliseconds = s_ReferenceMaxError;
 
 				timeDriftCorrectionMilliseconds = 0;
+				
+				DateTime utcNowNoDriftCorrection = s_ReferenceDateTime
+					.AddMilliseconds(millsecondsFromReferenceFrame); // Add the elapsed milliseconds to the NTP reference time					
+
 
 				// timeDriftCorrectionMilliseconds = s_TimeDriftPerMinuteMilleseconds * millsecondsFromReferenceFrame / 60000;
-				
+
 				lock (s_SyncLock)
 				{
 					if (s_LR != null && s_LR.IsSolved)
 					{
-						long ticksDrift = (long)s_LR.ComputeY(s_10MinAgoReferenceTicks - ticksNow);
-						timeDriftCorrectionMilliseconds = new TimeSpan(ticksDrift).TotalMilliseconds;
-					}						
+						long lrYVal = (long)s_LR.ComputeY(ticksNow - s_LRZeroX);
+						long ticksDriftFromZeroY = new DateTime(lrYVal + s_LRZeroY).Ticks - utcNowNoDriftCorrection.Ticks;
+						timeDriftCorrectionMilliseconds = (new TimeSpan(ticksDriftFromZeroY).TotalMilliseconds) * (utcNowNoDriftCorrection.Ticks - s_ReferenceDateTime.Ticks) / (utcNowNoDriftCorrection.Ticks - s_LRZeroY);
+					}
 				}
 
-				return s_ReferenceDateTime
-					.AddMilliseconds(millsecondsFromReferenceFrame) // Add the elapsed milliseconds to the NTP reference time
-					.AddMilliseconds(timeDriftCorrectionMilliseconds); // Correct for CPU clock time drift
+				return utcNowNoDriftCorrection.AddMilliseconds(timeDriftCorrectionMilliseconds); // Correct for CPU clock time drift
 			}
 			else
 			{
