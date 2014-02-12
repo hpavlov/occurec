@@ -8,11 +8,8 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
-using OccuRec.Tracking;
-using OccuRec.Utilities;
 
-namespace OccuRec.Helpers
+namespace WindowsClock.Tester
 {
     public class NTPClient
     {
@@ -22,11 +19,14 @@ namespace OccuRec.Helpers
 	    {
 		    float occuRecTimeDiff = 0;
 			float occuRecTimeDiffErr = 0;
-			return GetNetworkTime(ntpServer, false, out latencyInMilliseconds, ref occuRecTimeDiff, ref occuRecTimeDiffErr);
+		    float occuRecTimeDriftCorr = 0;
+		    float winTimeDiff = 0;
+			return GetNetworkTime(ntpServer, false, out latencyInMilliseconds, ref occuRecTimeDiff, ref occuRecTimeDiffErr, ref occuRecTimeDriftCorr, ref winTimeDiff);
 	    }
 
 	    // http://stackoverflow.com/questions/1193955/how-to-query-an-ntp-server-using-c
-		public static DateTime GetNetworkTime(string ntpServer, bool timeAgainstOccuRecKeptTime, out float latencyInMilliseconds, ref float occuRecTimeDiff, ref float occuRecTimeDiffErr)
+		public static DateTime GetNetworkTime(string ntpServer, bool timeAgainstOccuRecKeptTime, out float latencyInMilliseconds,
+			ref float occuRecTimeDiff, ref float occuRecTimeDiffErr, ref float occuRecTimeDriftCorr, ref float winTimeDiff)
         {
 	        NTPTimeKeeper.AttemptingNTPTimeUpdate();
 
@@ -53,9 +53,16 @@ namespace OccuRec.Helpers
 
 			#region timeAgainstOccuRecKeptTime
 			double maxError = 0;
+			double timeDriftCorrectionMilliseconds = 0;
 			DateTime sentTimeOccuRec = DateTime.MinValue;
 			DateTime rcvdTimeOccuRec = DateTime.MinValue;
-			if (timeAgainstOccuRecKeptTime) sentTimeOccuRec = NTPTimeKeeper.UtcNow(out maxError);
+			DateTime sentTimeWindows = DateTime.MinValue;
+			DateTime rcvdTimeWindows = DateTime.MinValue;
+			if (timeAgainstOccuRecKeptTime)
+			{
+				sentTimeOccuRec = NTPTimeKeeper.UtcNow(out maxError, out timeDriftCorrectionMilliseconds);
+				sentTimeWindows = DateTime.UtcNow;
+			}
 			#endregion
 
 			Profiler.QueryPerformanceCounter(ref startTicks);
@@ -68,7 +75,11 @@ namespace OccuRec.Helpers
 				Profiler.QueryPerformanceCounter(ref endTicks);
 				
 				#region timeAgainstOccuRecKeptTime
-				if (timeAgainstOccuRecKeptTime) rcvdTimeOccuRec = NTPTimeKeeper.UtcNow(out maxError);
+				if (timeAgainstOccuRecKeptTime)
+				{
+					rcvdTimeOccuRec = NTPTimeKeeper.UtcNow(out maxError, out timeDriftCorrectionMilliseconds);
+					rcvdTimeWindows = DateTime.UtcNow;
+				}
 				#endregion
 
 				latencyInMilliseconds += (endTicks - startTicks) * 1000.0f / clockFrequency;
@@ -114,10 +125,14 @@ namespace OccuRec.Helpers
 			#region timeAgainstOccuRecKeptTime
 			if (timeAgainstOccuRecKeptTime)
 			{
-				DateTime occuRecKeptTimeStamp = new DateTime((rcvdTimeOccuRec.Ticks + sentTimeOccuRec.Ticks)/2);
+				DateTime occuRecTime = new DateTime((rcvdTimeOccuRec.Ticks + sentTimeOccuRec.Ticks) / 2);
+				DateTime winTime = new DateTime((rcvdTimeWindows.Ticks + sentTimeWindows.Ticks) / 2);
 
-				occuRecTimeDiff = (float)new TimeSpan(occuRecKeptTimeStamp.Ticks - networkDateTime.Ticks).TotalMilliseconds;
-				occuRecTimeDiffErr = (float)maxError;
+				occuRecTimeDiff = (float)new TimeSpan(occuRecTime.Ticks - networkDateTime.Ticks).TotalMilliseconds;
+				occuRecTimeDiffErr = (float) maxError;
+				occuRecTimeDriftCorr = (float) timeDriftCorrectionMilliseconds;
+
+				winTimeDiff = (float)new TimeSpan(winTime.Ticks - networkDateTime.Ticks).TotalMilliseconds;
 			}
 			#endregion
 
@@ -196,6 +211,9 @@ namespace OccuRec.Helpers
 		private static DateTime s_FirtstAttemptedDateTimeUpdate = DateTime.MinValue;
 		private static List<Tuple<DateTime, long>> s_AllNTPReferenceTimes = new List<Tuple<DateTime, long>>();
 
+		private static object s_SyncLock = new object();
+		private static LinearRegression s_LR = new LinearRegression();
+
 		public static void AttemptingNTPTimeUpdate()
 		{
 			if (s_FirtstAttemptedDateTimeUpdate == DateTime.MinValue)
@@ -244,22 +262,10 @@ namespace OccuRec.Helpers
 					double timeDriftErrorMilliseconds = 0;
 					if (tsSinceFirstReference > 5)
 					{
-						double totalPassedMinutesNTP = ((currTicks - s_10MinAgoReferenceTicks) * 1000.0f / frequency) / 60000;
-						double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_10MinAgoReferenceDateTimeTicks);
-						double timeDriftMilleseconds = sectionRatio * Math.Abs(totalPassedMinutesNTP - tsSinceFirstReference) * 60000;
-						s_TimeDriftPerMinuteMilleseconds = timeDriftMilleseconds / totalPassedMinutesNTP;
+						double timeDriftMilleseconds;
+						//ComputeTimeDriftFromTwoEndPoints(currTicks, frequency, utcTime, tsSinceFirstReference, out timeDriftMilleseconds, out timeDriftErrorMilliseconds);
 
-						double totalPassedMinutesNTPBase0 = double.NaN;
-						double timeDriftMillesecondsBase0 = double.NaN;
-						if (s_10MinAgoReferenceTicks != s_FirstReferenceTicks)
-						{
-							totalPassedMinutesNTPBase0 = ((currTicks - s_FirstReferenceTicks) * 1000.0f / frequency) / 60000;
-							double sectionRatioBase0 = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_FirstReferenceDateTimeTicks);
-							double tsSinceFirstReferenceBase0 = new TimeSpan(utcTime.Ticks - s_FirstReferenceDateTimeTicks).TotalMinutes;
-							timeDriftMillesecondsBase0 = sectionRatioBase0 * Math.Abs(totalPassedMinutesNTPBase0 - tsSinceFirstReferenceBase0) * 60000;
-
-							timeDriftErrorMilliseconds = Math.Abs(timeDriftMillesecondsBase0 - timeDriftMilleseconds);
-						}
+						ComputeTimeDriftFromAllPoints(out timeDriftMilleseconds, out timeDriftErrorMilliseconds);
 
 						// Remove all saved NTP references older than 10min
 						for (int i = s_AllNTPReferenceTimes.Count - 1; i >= 0; i--)
@@ -277,31 +283,6 @@ namespace OccuRec.Helpers
 							// Our 30MinAgo reference is too old now. We have a newer reference that it still at least 10 min go. We want to use this reference i.e. 'slide' the window forward	
 							s_10MinAgoReferenceDateTimeTicks = s_AllNTPReferenceTimes[0].Item1.Ticks;
 							s_10MinAgoReferenceTicks = s_AllNTPReferenceTimes[0].Item2;
-						}
-
-						if (!double.IsNaN(totalPassedMinutesNTPBase0))
-						{
-							Trace.WriteLine(string.Format(
-								timeDriftErrorMilliseconds > 0
-									? "OccuRec: Current time drift for {0} min is {1} ms +/- {2} ms ({3} ms/min). Time drift for {4} min is {5} ms."
-									: "OccuRec: Current time drift for {0} min is {1} ms ({3} ms/min). Time drift for {4} min is {5} ms.",
-								totalPassedMinutesNTP.ToString("0.0"),
-								timeDriftMilleseconds.ToString("0.0"),
-								timeDriftErrorMilliseconds.ToString("0.0"),
-								s_TimeDriftPerMinuteMilleseconds.ToString("0.00"),
-								totalPassedMinutesNTPBase0.ToString("0.0"),
-								timeDriftMillesecondsBase0.ToString("0.0")));
-						}
-						else
-						{
-							Trace.WriteLine(string.Format(
-								timeDriftErrorMilliseconds > 0
-									? "OccuRec: Current time drift for {0} min is {1} ms +/- {2} ms ({3} ms/min)."
-									: "OccuRec: Current time drift for {0} min is {1} ms ({3} ms/min).",
-								totalPassedMinutesNTP.ToString("0.0"),
-								timeDriftMilleseconds.ToString("0.0"),
-								timeDriftErrorMilliseconds.ToString("0.0"),
-								s_TimeDriftPerMinuteMilleseconds.ToString("0.00")));
 						}
 					}
 
@@ -321,6 +302,86 @@ namespace OccuRec.Helpers
 					s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long>(utcTime, currTicks));
 				}
 			}
+		}
+
+		private static void ComputeTimeDriftFromAllPoints(out double timeDriftMilleseconds, out double timeDriftErrorMilliseconds)
+		{
+			timeDriftMilleseconds = 0;
+			timeDriftErrorMilliseconds = 0;
+
+			if (s_AllNTPReferenceTimes.Count > 5)
+			{
+				lock (s_SyncLock)
+				{
+					// DELTA-NTP-TIME[y] = f(DELTA-QPC-TICKS[x])
+					s_LR = new LinearRegression();
+					try
+					{
+						long firstNTPTicks = s_10MinAgoReferenceDateTimeTicks;
+						long firstQPCTcisk = s_10MinAgoReferenceTicks;
+
+						for (int i = 1; i < s_AllNTPReferenceTimes.Count; i++)
+						{
+							s_LR.AddDataPoint(s_AllNTPReferenceTimes[i].Item2, s_AllNTPReferenceTimes[i].Item1.Ticks - firstNTPTicks);
+						}
+						s_LR.Solve();
+						timeDriftErrorMilliseconds = new TimeSpan((long)(3 * s_LR.StdDev)).TotalMilliseconds;
+						timeDriftMilleseconds = 0;
+					}
+					catch (Exception ex)
+					{
+						Trace.WriteLine(ex.GetFullStackTrace());
+					}					
+				}
+			}
+		}
+
+		private static void ComputeTimeDriftFromTwoEndPoints(long currTicks, long frequency, DateTime utcTime, double tsSinceFirstReference, out double timeDriftMilleseconds, out double timeDriftErrorMilliseconds)
+		{
+			timeDriftErrorMilliseconds = 0;
+
+			double totalPassedMinutesNTP = ((currTicks - s_10MinAgoReferenceTicks) * 1000.0f / frequency) / 60000;
+			double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_10MinAgoReferenceDateTimeTicks);
+			timeDriftMilleseconds = sectionRatio * Math.Abs(totalPassedMinutesNTP - tsSinceFirstReference) * 60000;
+			s_TimeDriftPerMinuteMilleseconds = timeDriftMilleseconds / totalPassedMinutesNTP;
+
+			double totalPassedMinutesNTPBase0 = double.NaN;
+			double timeDriftMillesecondsBase0 = double.NaN;
+			if (s_10MinAgoReferenceTicks != s_FirstReferenceTicks)
+			{
+				totalPassedMinutesNTPBase0 = ((currTicks - s_FirstReferenceTicks) * 1000.0f / frequency) / 60000;
+				double sectionRatioBase0 = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_FirstReferenceDateTimeTicks);
+				double tsSinceFirstReferenceBase0 = new TimeSpan(utcTime.Ticks - s_FirstReferenceDateTimeTicks).TotalMinutes;
+				timeDriftMillesecondsBase0 = sectionRatioBase0 * Math.Abs(totalPassedMinutesNTPBase0 - tsSinceFirstReferenceBase0) * 60000;
+
+				timeDriftErrorMilliseconds = Math.Abs(timeDriftMillesecondsBase0 - timeDriftMilleseconds);
+			}
+
+			if (!double.IsNaN(totalPassedMinutesNTPBase0))
+			{
+				Trace.WriteLine(string.Format(
+					timeDriftErrorMilliseconds > 0
+						? "OccuRec: Current time drift for {0} min is {1} ms +/- {2} ms ({3} ms/min). Time drift for {4} min is {5} ms."
+						: "OccuRec: Current time drift for {0} min is {1} ms ({3} ms/min). Time drift for {4} min is {5} ms.",
+					totalPassedMinutesNTP.ToString("0.0"),
+					timeDriftMilleseconds.ToString("0.0"),
+					timeDriftErrorMilliseconds.ToString("0.0"),
+					s_TimeDriftPerMinuteMilleseconds.ToString("0.00"),
+					totalPassedMinutesNTPBase0.ToString("0.0"),
+					timeDriftMillesecondsBase0.ToString("0.0")));
+			}
+			else
+			{
+				Trace.WriteLine(string.Format(
+					timeDriftErrorMilliseconds > 0
+						? "OccuRec: Current time drift for {0} min is {1} ms +/- {2} ms ({3} ms/min)."
+						: "OccuRec: Current time drift for {0} min is {1} ms ({3} ms/min).",
+					totalPassedMinutesNTP.ToString("0.0"),
+					timeDriftMilleseconds.ToString("0.0"),
+					timeDriftErrorMilliseconds.ToString("0.0"),
+					s_TimeDriftPerMinuteMilleseconds.ToString("0.00")));
+			}
+			
 		}
 
 		public static Color GetCurrentNTPStatusColour(out string statusMessage)
@@ -397,7 +458,7 @@ namespace OccuRec.Helpers
 			}
 		}
 
-		public static DateTime UtcNow(out double maxErrorMilliseconds)
+		public static DateTime UtcNow(out double maxErrorMilliseconds, out double timeDriftCorrectionMilliseconds)
 		{
 			if (s_ReferenceFrequency > 0)
 			{
@@ -405,13 +466,28 @@ namespace OccuRec.Helpers
 				Profiler.QueryPerformanceCounter(ref ticksNow);
 				double millsecondsFromReferenceFrame = (ticksNow - s_ReferenceTicks)*1000.0f/s_ReferenceFrequency;
 				maxErrorMilliseconds = s_ReferenceMaxError;
+
+				timeDriftCorrectionMilliseconds = 0;
+
+				// timeDriftCorrectionMilliseconds = s_TimeDriftPerMinuteMilleseconds * millsecondsFromReferenceFrame / 60000;
+				
+				lock (s_SyncLock)
+				{
+					if (s_LR != null && s_LR.IsSolved)
+					{
+						long ticksDrift = (long)s_LR.ComputeY(s_10MinAgoReferenceTicks - ticksNow);
+						timeDriftCorrectionMilliseconds = new TimeSpan(ticksDrift).TotalMilliseconds;
+					}						
+				}
+
 				return s_ReferenceDateTime
 					.AddMilliseconds(millsecondsFromReferenceFrame) // Add the elapsed milliseconds to the NTP reference time
-					.AddMilliseconds(s_TimeDriftPerMinuteMilleseconds * millsecondsFromReferenceFrame / 60000); // Correct for CPU clock time drift
+					.AddMilliseconds(timeDriftCorrectionMilliseconds); // Correct for CPU clock time drift
 			}
 			else
 			{
 				maxErrorMilliseconds = 60*1000;
+				timeDriftCorrectionMilliseconds = 0;
 				return DateTime.UtcNow;
 			}
 		}

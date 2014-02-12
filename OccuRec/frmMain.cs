@@ -931,7 +931,7 @@ namespace OccuRec
 			{
 				ThreadPool.QueueUserWorkItem(UpdateTimeFromNTPServer);
 
-				nextNTPSyncTime = DateTime.UtcNow.AddMinutes(10);
+				nextNTPSyncTime = DateTime.UtcNow.AddSeconds(30);
 			}
         }
 
@@ -941,7 +941,9 @@ namespace OccuRec
             {
 	            float latencyInMilliseconds;
 				DateTime networkUTCTime = NTPClient.GetNetworkTime(Settings.Default.NTPServer, out latencyInMilliseconds);
-                NTPClient.SetTime(networkUTCTime);	            
+                NTPClient.SetTime(networkUTCTime);
+	            double maxError;
+	            DateTime dtDiscard = NTPTimeKeeper.UtcNow(out maxError);
             }
             catch (Exception ex)
             {
