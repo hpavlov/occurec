@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Devices\IASCOMDevice.cs" />
     <Compile Include="Devices\IASCOMFocuser.cs" />
+    <Compile Include="Devices\IASCOMVideo.cs" />
     <Compile Include="IASCOMHelper.cs" />
     <Compile Include="Devices\IASCOMTelescope.cs" />
     <Compile Include="System\IIsolatedDevice.cs" />

@@ -64,6 +64,7 @@
 			this.pnlFlipControls = new System.Windows.Forms.Panel();
 			this.cbxFlipVertically = new System.Windows.Forms.CheckBox();
 			this.cbxFlipHorizontally = new System.Windows.Forms.CheckBox();
+			this.btnConfigureCameraDriver = new System.Windows.Forms.Button();
 			this.gbxCodecs.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.gbxAAVSettings.SuspendLayout();
@@ -254,6 +255,7 @@
 			// 
 			// gbxAAVSettings
 			// 
+			this.gbxAAVSettings.Controls.Add(this.btnConfigureCameraDriver);
 			this.gbxAAVSettings.Controls.Add(this.label6);
 			this.gbxAAVSettings.Controls.Add(this.cbxCameraDriver);
 			this.gbxAAVSettings.Controls.Add(this.llOnlineHelp);
@@ -288,6 +290,7 @@
 			this.cbxCameraDriver.Name = "cbxCameraDriver";
 			this.cbxCameraDriver.Size = new System.Drawing.Size(198, 21);
 			this.cbxCameraDriver.TabIndex = 34;
+			this.cbxCameraDriver.SelectedIndexChanged += new System.EventHandler(this.cbxCameraDriver_SelectedIndexChanged);
 			// 
 			// llOnlineHelp
 			// 
@@ -463,6 +466,17 @@
 			this.cbxFlipHorizontally.Text = "Flip Horizontally";
 			this.cbxFlipHorizontally.UseVisualStyleBackColor = true;
 			// 
+			// btnConfigureCameraDriver
+			// 
+			this.btnConfigureCameraDriver.Location = new System.Drawing.Point(227, 76);
+			this.btnConfigureCameraDriver.Name = "btnConfigureCameraDriver";
+			this.btnConfigureCameraDriver.Size = new System.Drawing.Size(75, 23);
+			this.btnConfigureCameraDriver.TabIndex = 35;
+			this.btnConfigureCameraDriver.Text = "Configure";
+			this.btnConfigureCameraDriver.UseVisualStyleBackColor = true;
+			this.btnConfigureCameraDriver.Visible = false;
+			this.btnConfigureCameraDriver.Click += new System.EventHandler(this.btnConfigureCameraDriver_Click);
+			// 
 			// frmChooseCamera
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -542,5 +556,6 @@
 		private System.Windows.Forms.LinkLabel llOnlineHelp;
 		private System.Windows.Forms.Label label6;
 		private System.Windows.Forms.ComboBox cbxCameraDriver;
+		private System.Windows.Forms.Button btnConfigureCameraDriver;
     }
 }

@@ -115,6 +115,18 @@ namespace OccuRec.ASCOM.Wrapper
             return new Telescope(isolatedTelescope, slowestRate, slowRate, fastRate);
 		}
 
+		public IVideo CreateVideo(string progId)
+		{
+            if (TraceSwitchASCOMClient.TraceVerbose)
+				Trace.WriteLine(string.Format("OccuRec: ASCOMClient::CreateVideo('{0}')", progId));
+
+            IASCOMVideo isolatedVideo = m_ASCOMHelper.CreateVideo(progId);
+			RegisterLifetimeService(isolatedVideo as MarshalByRefObject);
+
+			return new Video(isolatedVideo);
+		}
+		
+
         public void DisconnectTelescope(IASCOMTelescope telescope)
         {
             try
@@ -152,6 +164,25 @@ namespace OccuRec.ASCOM.Wrapper
 
             ReleaseDevice(focuser);
         }
+
+		public void DisconnectVideo(IVideo video)
+		{
+			try
+			{
+				if (TraceSwitchASCOMClient.TraceVerbose)
+					Trace.WriteLine(string.Format("OccuRec: ASCOMClient::DisconnectVideo('{0}')", video.UniqueId));
+
+				if (video.Connected)
+					video.Connected = false;
+			}
+			catch (Exception ex)
+			{
+				if (TraceSwitchASCOMClient.TraceError)
+					Trace.WriteLine(ex);
+			}
+
+			ReleaseDevice(video);
+		}
 
         public void ReleaseDevice(object deviceInstance)
         {

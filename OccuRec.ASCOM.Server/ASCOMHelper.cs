@@ -53,6 +53,13 @@ namespace OccuRec.ASCOM.Server
             return telescope;
         }
 
+		public IASCOMVideo CreateVideo(string progId)
+		{
+			var video = new IsolatedVideo(progId);
+			m_ReferencedObjects.Add(video);
+			return video;
+		}
+
         public void ConfigureFocuser(string progId)
         {
             using (var focuser = new IsolatedFocuser(progId))

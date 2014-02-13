@@ -74,7 +74,7 @@ namespace OccuRec.ASCOM
         void PerformTelescopePingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 	    void PerformFocuserPingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 
-		void SetExternalCameraDriver(ICameraController cameraDriver);
+		void SetExternalCameraDriver(IOccuRecCameraController cameraDriver);
 		bool HasVideoCamera { get; }
 	}
 
@@ -84,14 +84,16 @@ namespace OccuRec.ASCOM
 		private IFocuser m_ConnectedFocuser = null;
 		private IVideo m_ConnectedVideo = null;
 
-		private ICameraController m_CameraDriver = null;
+		private IOccuRecCameraController m_CameraDriver = null;
 
         public event Action<ASCOMConnectionState> TelescopeConnectionChanged;
         public event Action<ASCOMConnectionState> FocuserConnectionChanged;
+		public event Action<ASCOMConnectionState> VideoConnectionChanged;
         public event Action<TelescopeState> TelescopeStateUpdated;
         public event Action<FocuserState> FocuserStateUpdated;
+		public event Action<VideoState> VideoStateUpdated;
 
-		public void SetExternalCameraDriver(ICameraController cameraDriver)
+		public void SetExternalCameraDriver(IOccuRecCameraController cameraDriver)
 		{
 			m_CameraDriver = cameraDriver;
 		}
@@ -509,6 +511,11 @@ namespace OccuRec.ASCOM
             RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Connecting);
 		}
 
+		private void OnVideoConnecting()
+		{
+			RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Connecting);
+		}
+
 		private void OnTelescopeConnected()
 		{
             RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Connected);
@@ -517,6 +524,11 @@ namespace OccuRec.ASCOM
 		private void OnFocuserConnected()
 		{
             RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Connected);
+		}
+
+		private void OnVideoConnected()
+		{
+			RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Connected);
 		}
 
 		private void OnTelescopeDisconnected()
@@ -529,6 +541,11 @@ namespace OccuRec.ASCOM
             RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Disconnected);
 		}
 
+		private void OnVideoDisconnected()
+		{
+			RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Disconnected);
+		}
+
 		private void OnTelescopeErrored()
 		{
             RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Errored);
@@ -539,14 +556,24 @@ namespace OccuRec.ASCOM
             RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Errored);
 		}
 
+		private void OnVideoErrored()
+		{
+			RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Errored);
+		}
+
 		private void OnTelescopeState(TelescopeState state)
 		{
             RaiseEvent(TelescopeStateUpdated, state);
-		}
+		}		
 
 		private void OnFocuserState(FocuserState state)
 		{
             RaiseEvent(FocuserStateUpdated, state);
+		}
+
+		private void OnVideoState(VideoState state)
+		{
+            RaiseEvent(VideoStateUpdated, state);
 		}
 
 		#endregion
@@ -563,17 +590,163 @@ namespace OccuRec.ASCOM
 
 		public string ConnectedVideoCameraDriverName()
 		{
-			throw new NotImplementedException();
+			if (m_ConnectedVideo != null)
+				return m_ConnectedVideo.Description;
+			else if (m_CameraDriver != null)
+				return m_CameraDriver.Description;
+			else
+				return string.Empty;
 		}
 
 		public void DisconnectVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
 		{
-			throw new NotImplementedException();
+			if (m_ConnectedVideo != null)
+				DisconnectASCOMVideoCamera(callType, callback, callbackUIControl);
+			else if (m_CameraDriver != null)
+				DisconnectOccuRecVideoCamera(callType, callback, callbackUIControl);
+		}
+
+		private void DisconnectOccuRecVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.Connected = false;
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				OnVideoDisconnected();
+
+				return null;
+			},
+						callType, callback, callbackUIControl);
+		}
+		
+		private void DisconnectASCOMVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_ConnectedVideo != null)
+					{
+						ASCOMClient.Instance.DisconnectVideo(m_ConnectedVideo);
+						m_ConnectedVideo = null;
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				OnVideoDisconnected();
+
+				return null;
+			},
+			callType, callback, callbackUIControl);
 		}
 
 		public void TryConnectVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
 		{
-			throw new NotImplementedException();
+			if (m_CameraDriver != null)
+				TryConnectOccuRecVideo(callType, callback, callbackUIControl);
+			else if (m_ConnectedVideo != null || !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdVideo))
+				TryConnectASCOMVideo(callType, callback, callbackUIControl);
 		}
+
+		private void TryConnectOccuRecVideo(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null)
+					{
+						if (!m_CameraDriver.Connected)
+						{
+							OnVideoConnecting();
+							m_CameraDriver.Connected = true;
+							OnVideoConnected();
+						}
+
+						VideoState state = m_CameraDriver.GetCurrentState();
+						OnVideoState(state);
+
+						return state;
+					}
+
+					return null;
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+			},
+			callType, callback, callbackUIControl);
+		}
+
+		private void TryConnectASCOMVideo(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_ConnectedVideo != null && m_ConnectedVideo.ProgId != Settings.Default.ASCOMProgIdVideo)
+					{
+						ASCOMClient.Instance.DisconnectVideo(m_ConnectedVideo);
+						m_ConnectedVideo = null;
+					}
+
+					if (m_ConnectedVideo == null && !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdVideo))
+					{
+						m_ConnectedVideo = ASCOMClient.Instance.CreateVideo(Settings.Default.ASCOMProgIdVideo);
+					}
+
+					if (m_ConnectedVideo != null)
+					{
+						if (!m_ConnectedVideo.Connected)
+						{
+							OnVideoConnecting();
+							m_ConnectedVideo.Connected = true;
+							OnVideoConnected();
+						}
+
+						VideoState state = m_ConnectedVideo.GetCurrentState();
+						OnVideoState(state);
+
+						return state;
+					}
+
+					return null;
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+			},
+			callType, callback, callbackUIControl);
+		}
+
 	}
 }

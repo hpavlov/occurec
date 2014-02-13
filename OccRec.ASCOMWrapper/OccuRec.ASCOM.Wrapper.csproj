@@ -64,6 +64,7 @@
     <Compile Include="Devices\DeviceBase.cs" />
     <Compile Include="Devices\Telescope.cs" />
     <Compile Include="Devices\Focuser.cs" />
+    <Compile Include="Devices\Video.cs" />
     <Compile Include="Interfaces\IFocuser.cs" />
     <Compile Include="Interfaces\ITelescope.cs" />
     <Compile Include="Interfaces\IVideo.cs" />

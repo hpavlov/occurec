@@ -14,6 +14,7 @@ namespace OccuRec.ASCOM.Interfaces
         void ConfigureTelescope(string progId);
 		IASCOMFocuser CreateFocuser(string progId);
         IASCOMTelescope CreateTelescope(string progId);
+		IASCOMVideo CreateVideo(string progId);
 		void ReleaseDevice(Guid deviceId);
 	}
 }

@@ -982,5 +982,17 @@ namespace OccuRec.Properties {
                 this["CameraControlDriver"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ASCOMProgIdVideo {
+            get {
+                return ((string)(this["ASCOMProgIdVideo"]));
+            }
+            set {
+                this["ASCOMProgIdVideo"] = value;
+            }
+        }
     }
 }

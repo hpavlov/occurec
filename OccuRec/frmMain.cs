@@ -154,10 +154,9 @@ namespace OccuRec
 					else if (Settings.Default.FileFormat == "AAV")
 					{
 						driverInstance = new Drivers.AAVTimer.Video();
-						if (!string.IsNullOrEmpty(Settings.Default.CameraControlDriver))
+						if (chooser.CameraControlDriver != null)
 						{
-							ICameraController cameraDriver = OccuRecVideoDrivers.CreateDriverInstance(Settings.Default.CameraControlDriver);
-							m_ObservatoryController.SetExternalCameraDriver(cameraDriver);
+							m_ObservatoryController.SetExternalCameraDriver(chooser.CameraControlDriver);
 						}
 					}
 					else if (Settings.Default.FileFormat == "AVI")

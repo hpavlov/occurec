@@ -41,6 +41,11 @@ namespace OccuRec.ASCOM.Wrapper
             return m_IsolatedHelper.CreateTelescope(progId);
         }
 
+		public IASCOMVideo CreateVideo(string progId)
+        {
+			return m_IsolatedHelper.CreateVideo(progId);
+        }
+
 		public void ReleaseDevice(Guid deviceId)
 		{
 			m_IsolatedHelper.ReleaseDevice(deviceId);

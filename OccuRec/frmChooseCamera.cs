@@ -32,9 +32,13 @@ namespace OccuRec
             }
         }
 
-        private void frmChooseCamera_Load(object sender, EventArgs e)
+		public IOccuRecCameraController CameraControlDriver { get; private set; }
+
+	    private void frmChooseCamera_Load(object sender, EventArgs e)
         {
             cbxCameraModel.Text = Settings.Default.CameraModel;
+		    
+			CameraControlDriver = null;
 
             cbxCaptureDevices.Items.Clear();
             foreach (DsDevice ds in DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice))
@@ -388,15 +392,31 @@ namespace OccuRec
 
 		private void cbxCameraModel_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			List<string> availableDrivers = OccuRecVideoDrivers.GetAvailableDriversForCamera((string) cbxCameraModel.SelectedItem);
+			List<IOccuRecCameraController> availableDrivers = OccuRecVideoDrivers.GetAvailableDriversForCamera((string) cbxCameraModel.SelectedItem);
 			cbxCameraDriver.Items.Clear();
 			cbxCameraDriver.Items.AddRange(availableDrivers.ToArray());
 			cbxCameraDriver.Enabled = availableDrivers.Count > 0;
 			if (cbxCameraDriver.Items.Count == 0)
 				cbxCameraDriver.Items.Add("No Video Drivers Available");
 
-			// TODO: Once we have more than one driver for the same camera we will need to store the user's choise
+			// TODO: Once we have more than one driver for the same camera we will need to store the user's choice in Settings.Default.CameraControlDriver
+			
 			cbxCameraDriver.SelectedIndex = 0;
+		}
+
+		private void cbxCameraDriver_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			var camController = cbxCameraDriver.SelectedItem as IOccuRecCameraController;
+			btnConfigureCameraDriver.Visible = camController != null;
+			btnConfigureCameraDriver.Enabled = camController != null && camController.RequiresConfiguration;
+
+			CameraControlDriver = camController;
+		}
+
+		private void btnConfigureCameraDriver_Click(object sender, EventArgs e)
+		{
+			if (CameraControlDriver != null)
+				CameraControlDriver.ConfigureConnectionSettings(this);
 		}
     }
 }
