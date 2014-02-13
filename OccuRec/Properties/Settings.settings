@@ -239,5 +239,8 @@
     <Setting Name="WarnMinDiskFreeSpaceGb" Type="System.Single" Scope="User">
       <Value Profile="(Default)">2</Value>
     </Setting>
+    <Setting Name="CameraControlDriver" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

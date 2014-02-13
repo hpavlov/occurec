@@ -143,6 +143,7 @@ namespace OccuRec
 
             Settings.Default.CameraModel = cbxCameraModel.Text;
             Settings.Default.PreferredCaptureDevice = (string)cbxCaptureDevices.SelectedItem;
+			Settings.Default.CameraControlDriver = (string)cbxCameraDriver.SelectedItem;
 
             if (rbFileAAV.Checked)
             {

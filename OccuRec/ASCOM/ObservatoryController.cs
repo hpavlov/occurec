@@ -10,6 +10,7 @@ using OccuRec.ASCOM.Wrapper;
 using OccuRec.ASCOM.Wrapper.Devices;
 using OccuRec.ASCOM.Wrapper.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.CameraDrivers;
 using OccuRec.Helpers;
 using OccuRec.Properties;
 using OccuRec.Utilities;
@@ -54,12 +55,16 @@ namespace OccuRec.ASCOM
 		bool IsConnectedToObservatory();
 		bool IsConnectedToTelescope();
 		bool IsConnectedToFocuser();
+		bool IsConnectedToVideoCamera();
 		string ConnectedFocuserDriverName();
 		string ConnectedTelescopeDriverName();
+		string ConnectedVideoCameraDriverName();
 		void DisconnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 		void DisconnectFocuser(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void DisconnectVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 		void TryConnectFocuser(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 		void TryConnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void TryConnectVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
         void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
         void FocuserMoveIn(FocuserStepSize stepSize, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
         void FocuserMoveOut(FocuserStepSize stepSize, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
@@ -68,17 +73,33 @@ namespace OccuRec.ASCOM
         void GetFocuserState(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
         void PerformTelescopePingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 	    void PerformFocuserPingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+
+		void SetExternalCameraDriver(ICameraController cameraDriver);
+		bool HasVideoCamera { get; }
 	}
 
 	internal class ObservatoryController : ThreadIsolatedInvoker, IObservatoryController, IDisposable
 	{
 		private ITelescope m_ConnectedTelescope = null;
 		private IFocuser m_ConnectedFocuser = null;
+		private IVideo m_ConnectedVideo = null;
+
+		private ICameraController m_CameraDriver = null;
 
         public event Action<ASCOMConnectionState> TelescopeConnectionChanged;
         public event Action<ASCOMConnectionState> FocuserConnectionChanged;
         public event Action<TelescopeState> TelescopeStateUpdated;
         public event Action<FocuserState> FocuserStateUpdated;
+
+		public void SetExternalCameraDriver(ICameraController cameraDriver)
+		{
+			m_CameraDriver = cameraDriver;
+		}
+
+		public bool HasVideoCamera
+		{
+			get { return m_CameraDriver != null; }
+		}
 
         public void PerformTelescopePingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
         {
@@ -532,5 +553,27 @@ namespace OccuRec.ASCOM
 
 		public void Dispose()
 		{ }
+
+		public bool IsConnectedToVideoCamera()
+		{
+			return
+				m_ConnectedVideo != null ||
+				(m_CameraDriver != null && m_CameraDriver.Connected);
+		}
+
+		public string ConnectedVideoCameraDriverName()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void DisconnectVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void TryConnectVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

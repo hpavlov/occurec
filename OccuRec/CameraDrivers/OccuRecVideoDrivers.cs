@@ -18,5 +18,10 @@ namespace OccuRec.CameraDrivers
 
 			return rv;
 		}
+
+		public static ICameraController CreateDriverInstance(string driverName)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

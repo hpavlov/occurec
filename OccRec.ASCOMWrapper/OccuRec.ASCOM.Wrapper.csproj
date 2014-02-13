@@ -66,6 +66,7 @@
     <Compile Include="Devices\Focuser.cs" />
     <Compile Include="Interfaces\IFocuser.cs" />
     <Compile Include="Interfaces\ITelescope.cs" />
+    <Compile Include="Interfaces\IVideo.cs" />
     <Compile Include="OccuRecHostDelegate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TrackingHandler.cs" />

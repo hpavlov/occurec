@@ -46,6 +46,8 @@
 			this.rbFileAAV = new System.Windows.Forms.RadioButton();
 			this.cbxIsIntegrating = new System.Windows.Forms.CheckBox();
 			this.gbxAAVSettings = new System.Windows.Forms.GroupBox();
+			this.label6 = new System.Windows.Forms.Label();
+			this.cbxCameraDriver = new System.Windows.Forms.ComboBox();
 			this.llOnlineHelp = new System.Windows.Forms.LinkLabel();
 			this.pnlPreserveOSDArea = new System.Windows.Forms.Panel();
 			this.label11 = new System.Windows.Forms.Label();
@@ -62,8 +64,6 @@
 			this.pnlFlipControls = new System.Windows.Forms.Panel();
 			this.cbxFlipVertically = new System.Windows.Forms.CheckBox();
 			this.cbxFlipHorizontally = new System.Windows.Forms.CheckBox();
-			this.label6 = new System.Windows.Forms.Label();
-			this.cbxCameraDriver = new System.Windows.Forms.ComboBox();
 			this.gbxCodecs.SuspendLayout();
 			this.groupBox2.SuspendLayout();
 			this.gbxAAVSettings.SuspendLayout();
@@ -270,6 +270,25 @@
 			this.gbxAAVSettings.TabStop = false;
 			this.gbxAAVSettings.Text = "AAV settings";
 			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(16, 60);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(74, 13);
+			this.label6.TabIndex = 33;
+			this.label6.Text = "Camera Driver";
+			// 
+			// cbxCameraDriver
+			// 
+			this.cbxCameraDriver.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cbxCameraDriver.Enabled = false;
+			this.cbxCameraDriver.FormattingEnabled = true;
+			this.cbxCameraDriver.Location = new System.Drawing.Point(16, 78);
+			this.cbxCameraDriver.Name = "cbxCameraDriver";
+			this.cbxCameraDriver.Size = new System.Drawing.Size(198, 21);
+			this.cbxCameraDriver.TabIndex = 34;
+			// 
 			// llOnlineHelp
 			// 
 			this.llOnlineHelp.AutoSize = true;
@@ -443,25 +462,6 @@
 			this.cbxFlipHorizontally.TabIndex = 26;
 			this.cbxFlipHorizontally.Text = "Flip Horizontally";
 			this.cbxFlipHorizontally.UseVisualStyleBackColor = true;
-			// 
-			// label6
-			// 
-			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(16, 60);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(74, 13);
-			this.label6.TabIndex = 33;
-			this.label6.Text = "Camera Driver";
-			// 
-			// cbxCameraDriver
-			// 
-			this.cbxCameraDriver.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cbxCameraDriver.Enabled = false;
-			this.cbxCameraDriver.FormattingEnabled = true;
-			this.cbxCameraDriver.Location = new System.Drawing.Point(16, 78);
-			this.cbxCameraDriver.Name = "cbxCameraDriver";
-			this.cbxCameraDriver.Size = new System.Drawing.Size(198, 21);
-			this.cbxCameraDriver.TabIndex = 34;
 			// 
 			// frmChooseCamera
 			// 

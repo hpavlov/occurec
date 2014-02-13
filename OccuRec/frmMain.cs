@@ -19,6 +19,7 @@ using System.Xml;
 using OccuRec.ASCOM.Wrapper;
 using OccuRec.ASCOM;
 using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.CameraDrivers;
 using OccuRec.Config;
 using OccuRec.Controllers;
 using OccuRec.Drivers;
@@ -150,12 +151,19 @@ namespace OccuRec
                         else
                             driverInstance = new Drivers.AAVSimulator.Video(fullAAVSimulation);
                     }
-                    else if (Settings.Default.FileFormat == "AAV")
-                        driverInstance = new Drivers.AAVTimer.Video();
-                    else if (Settings.Default.FileFormat == "AVI")
-                        driverInstance = new Drivers.DirectShowCapture.Video();
-                    else
-                        throw new NotSupportedException();
+					else if (Settings.Default.FileFormat == "AAV")
+					{
+						driverInstance = new Drivers.AAVTimer.Video();
+						if (!string.IsNullOrEmpty(Settings.Default.CameraControlDriver))
+						{
+							ICameraController cameraDriver = OccuRecVideoDrivers.CreateDriverInstance(Settings.Default.CameraControlDriver);
+							m_ObservatoryController.SetExternalCameraDriver(cameraDriver);
+						}
+					}
+					else if (Settings.Default.FileFormat == "AVI")
+						driverInstance = new Drivers.DirectShowCapture.Video();
+					else
+						throw new NotSupportedException();
 
 	                ConnectToDriver(driverInstance);
                 }                
@@ -1445,7 +1453,7 @@ namespace OccuRec
             }
 
             tsbTelControl.Enabled = true;
-            tsbFocControl.Enabled = true;
+            tsbFocControl.Enabled = true;			
         }
 
         public void TelescopeConnectionChanged(ASCOMConnectionState state)
@@ -1539,6 +1547,40 @@ namespace OccuRec
 			}
 		}
 
+		private static frmCameraControl s_FormCameraControl = null;
+
+		private void tsbCamControl_Click(object sender, EventArgs e)
+		{
+			if (!m_ObservatoryController.IsConnectedToVideoCamera())
+			{
+				m_ObservatoryController.TryConnectVideoCamera();
+				tsbCamControl.Enabled = false;
+			}
+			else
+			{
+				if (s_FormCameraControl != null)
+				{
+					try
+					{
+						if (!s_FormCameraControl.Visible)
+							s_FormCameraControl.Show(this);
+					}
+					catch (Exception ex)
+					{
+						s_FormCameraControl = null;
+					}
+				}
+
+				if (s_FormCameraControl == null)
+				{
+					s_FormCameraControl = new frmCameraControl();
+					s_FormCameraControl.ObservatoryController = m_ObservatoryController;
+					s_FormCameraControl.Show(this);
+				}
+			}
+
+		}
+
 	    private static frmFocusControl s_FormFocuserControl = null;
 
 		private void tsbFocControl_Click(object sender, EventArgs e)
@@ -1624,7 +1666,9 @@ namespace OccuRec
         {
             tsbFocControl.Enabled = !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdFocuser);
             tsbTelControl.Enabled = !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdTelescope);
+	        tsbCamControl.Enabled = m_ObservatoryController.HasVideoCamera;
         }
+
 
     }
 }

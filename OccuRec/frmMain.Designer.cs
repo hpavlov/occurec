@@ -815,12 +815,12 @@
 			// tsbCamControl
 			// 
 			this.tsbCamControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.tsbCamControl.Enabled = false;
 			this.tsbCamControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbCamControl.Image")));
 			this.tsbCamControl.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.tsbCamControl.Name = "tsbCamControl";
 			this.tsbCamControl.Size = new System.Drawing.Size(86, 22);
 			this.tsbCamControl.Text = "Camera Control";
+			this.tsbCamControl.Click += new System.EventHandler(this.tsbCamControl_Click);
 			// 
 			// toolStripSeparator4
 			// 

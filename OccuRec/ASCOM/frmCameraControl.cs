@@ -11,6 +11,14 @@ namespace OccuRec.ASCOM
 {
 	public partial class frmCameraControl : Form
 	{
+		private IObservatoryController m_ObservatoryController;
+
+		public IObservatoryController ObservatoryController
+		{
+			set { m_ObservatoryController = value; }
+			private get { return m_ObservatoryController; }
+		}
+
 		public frmCameraControl()
 		{
 			InitializeComponent();

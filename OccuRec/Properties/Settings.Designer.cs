@@ -970,5 +970,17 @@ namespace OccuRec.Properties {
                 this["WarnMinDiskFreeSpaceGb"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CameraControlDriver {
+            get {
+                return ((string)(this["CameraControlDriver"]));
+            }
+            set {
+                this["CameraControlDriver"] = value;
+            }
+        }
     }
 }
