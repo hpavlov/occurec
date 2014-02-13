@@ -18,6 +18,7 @@ namespace WindowsClock.Tester
 		private int m_CheckPeriodSeconds = 20;
 		private string m_NTPServer = "";
 		private List<double> m_AllWinTimeDiffs = new List<double>();
+		private List<double> m_AllOccuRecTimeDiffs = new List<double>();
 
 		public frmTestWindowsClock()
 		{
@@ -29,6 +30,7 @@ namespace WindowsClock.Tester
 			if (!m_Running)
 			{
 				m_AllWinTimeDiffs.Clear();
+				m_AllOccuRecTimeDiffs.Clear();
 				m_CheckPeriodSeconds = (int) nudFrequency.Value;
 				m_NTPServer = tbxNTPServer.Text;
 
@@ -51,21 +53,23 @@ namespace WindowsClock.Tester
 			}
 		}
 
-		private void AddMeasurement(float winTimeDiff, float occuRecTimeDiff, float occuRecTimeDiffErr, float currMaxError, float driftCorr)
+		private void AddMeasurement(float winTimeDiff, float occuRecTimeDiff, float occuRecTimeDiffErr, float currMaxError, float driftCorr, bool timeUpdated)
 		{
-			double val1, val2;
-			DateTime occuRecNormPri = NTPTimeKeeper.UtcNow(out val1, out val2);
+			double val1, val2, timeDriftStdDev;
+			DateTime occuRecNormPri = NTPTimeKeeper.UtcNow(out val1, out val2, out timeDriftStdDev);
 			DateTime winNormPri = DateTime.UtcNow;
 			TimeSpan ts = new TimeSpan(winNormPri.Ticks - occuRecNormPri.Ticks);
 			double winTimeDiffNormPri = ts.TotalMilliseconds + occuRecTimeDiff;
 
-			tbxMeasurements.Text += string.Format("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}\t\t{5}\r\n",
+			tbxMeasurements.Text += string.Format("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}+/-{6}\t{5}{7}\r\n",
 				winTimeDiff.ToString("0.0"),
 				winTimeDiffNormPri.ToString("0.0"), 
 				occuRecTimeDiff.ToString("0.0"), 
 				occuRecTimeDiffErr.ToString("0.0"),
 				driftCorr.ToString("0.0"),
-				currMaxError.ToString("0.0"));
+				currMaxError.ToString("0.0"),
+				timeDriftStdDev.ToString("0.00"),
+				timeUpdated ? "*" : "");
 
 			m_AllWinTimeDiffs.Add(winTimeDiff);
 
@@ -77,6 +81,18 @@ namespace WindowsClock.Tester
 
 				lblAverageDiff.Text = string.Format("{0} ms (1-sigma Error = {1} ms)", average.ToString("0.0"), variance.ToString("0.00"));
 			}
+
+			m_AllOccuRecTimeDiffs.Add(occuRecTimeDiff);
+
+			if (m_AllOccuRecTimeDiffs.Count > 1)
+			{
+				double average = m_AllOccuRecTimeDiffs.Average();
+				double sumResiduals = m_AllOccuRecTimeDiffs.Select(x => (x - average) * (x - average)).Sum();
+				double variance = Math.Sqrt(sumResiduals / (m_AllOccuRecTimeDiffs.Count - 1));
+
+				lblAverageDiffOccuRec.Text = string.Format("{0} ms (1-sigma Error = {1} ms)", average.ToString("0.0"), variance.ToString("0.00"));
+			}
+			
 		}
 
 		private void TestWorker(object state)
@@ -96,6 +112,7 @@ namespace WindowsClock.Tester
 			double maxError;
 			double driftCorr;
 			float winTimeDiff = 0;
+			bool timeUpdated = false;
 			DateTime initialTime;
 			try
 			{
@@ -134,10 +151,10 @@ namespace WindowsClock.Tester
 					winTimeFirst = !winTimeFirst;
 					try
 					{
-						DateTime networkUTCTime = NTPClient.GetNetworkTime(m_NTPServer, true, out latencyInMilliseconds, ref occuRecTimeDiff, ref occuRecTimeDiffErr, ref occuRecTimeDriftCorr, ref winTimeDiff);
+						DateTime networkUTCTime = NTPClient.GetNetworkTime(m_NTPServer, true, out latencyInMilliseconds, ref occuRecTimeDiff, ref occuRecTimeDiffErr, ref occuRecTimeDriftCorr, ref winTimeDiff, out timeUpdated);
 						NTPClient.SetTime(networkUTCTime);
 
-						Invoke(new Action<float, float, float, float, float>((winDiff, diff, diffErr, maxErr, corr) => AddMeasurement(winDiff, diff, diffErr, maxErr, corr)), winTimeDiff, occuRecTimeDiff, occuRecTimeDiffErr, latencyInMilliseconds, occuRecTimeDriftCorr);
+						Invoke(new Action<float, float, float, float, float, bool>((winDiff, diff, diffErr, maxErr, corr, updated) => AddMeasurement(winDiff, diff, diffErr, maxErr, corr, updated)), winTimeDiff, occuRecTimeDiff, occuRecTimeDiffErr, latencyInMilliseconds, occuRecTimeDriftCorr, timeUpdated);
 					}
 					catch (Exception ex)
 					{

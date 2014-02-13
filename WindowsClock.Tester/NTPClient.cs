@@ -21,12 +21,13 @@ namespace WindowsClock.Tester
 			float occuRecTimeDiffErr = 0;
 		    float occuRecTimeDriftCorr = 0;
 		    float winTimeDiff = 0;
-			return GetNetworkTime(ntpServer, false, out latencyInMilliseconds, ref occuRecTimeDiff, ref occuRecTimeDiffErr, ref occuRecTimeDriftCorr, ref winTimeDiff);
+		    bool timeUpdated;
+			return GetNetworkTime(ntpServer, false, out latencyInMilliseconds, ref occuRecTimeDiff, ref occuRecTimeDiffErr, ref occuRecTimeDriftCorr, ref winTimeDiff, out timeUpdated);
 	    }
 
 	    // http://stackoverflow.com/questions/1193955/how-to-query-an-ntp-server-using-c
 		public static DateTime GetNetworkTime(string ntpServer, bool timeAgainstOccuRecKeptTime, out float latencyInMilliseconds,
-			ref float occuRecTimeDiff, ref float occuRecTimeDiffErr, ref float occuRecTimeDriftCorr, ref float winTimeDiff)
+			ref float occuRecTimeDiff, ref float occuRecTimeDiffErr, ref float occuRecTimeDriftCorr, ref float winTimeDiff, out bool timeUpdated)
         {
 	        NTPTimeKeeper.AttemptingNTPTimeUpdate();
 
@@ -54,14 +55,15 @@ namespace WindowsClock.Tester
 			#region timeAgainstOccuRecKeptTime
 			double maxError = 0;
 			double timeDriftCorrectionMilliseconds = 0;
+			double timeDriftStdDev = 0;
 			DateTime sentTimeOccuRec = DateTime.MinValue;
 			DateTime rcvdTimeOccuRec = DateTime.MinValue;
 			DateTime sentTimeWindows = DateTime.MinValue;
 			DateTime rcvdTimeWindows = DateTime.MinValue;
 			if (timeAgainstOccuRecKeptTime)
 			{
-				sentTimeOccuRec = NTPTimeKeeper.UtcNow(out maxError, out timeDriftCorrectionMilliseconds);
 				sentTimeWindows = DateTime.UtcNow;
+				sentTimeOccuRec = NTPTimeKeeper.UtcNow(out maxError, out timeDriftCorrectionMilliseconds, out timeDriftStdDev);				
 			}
 			#endregion
 
@@ -77,7 +79,7 @@ namespace WindowsClock.Tester
 				#region timeAgainstOccuRecKeptTime
 				if (timeAgainstOccuRecKeptTime)
 				{
-					rcvdTimeOccuRec = NTPTimeKeeper.UtcNow(out maxError, out timeDriftCorrectionMilliseconds);
+					rcvdTimeOccuRec = NTPTimeKeeper.UtcNow(out maxError, out timeDriftCorrectionMilliseconds, out timeDriftStdDev);
 					rcvdTimeWindows = DateTime.UtcNow;
 				}
 				#endregion
@@ -138,7 +140,7 @@ namespace WindowsClock.Tester
 
 			lock (s_SyncLock)
 			{
-				NTPTimeKeeper.ProcessNTPResponce(startTicks, endTicks, clockFrequency, networkDateTime);	
+				timeUpdated = NTPTimeKeeper.ProcessNTPResponce(startTicks, endTicks, clockFrequency, networkDateTime, timeDriftCorrectionMilliseconds);	
 			}			
 
             return networkDateTime;
@@ -200,16 +202,16 @@ namespace WindowsClock.Tester
 		private static long s_ReferenceTicks = -1;
 		private static long s_ReferenceDateTimeTicks = -1;
 		private static long s_FirstReferenceTicks = long.MaxValue;
-		private static long s_10MinAgoReferenceTicks = long.MaxValue;
+		private static long s_6MinAgoReferenceTicks = long.MaxValue;
 		private static long s_FirstReferenceDateTimeTicks = -1;
-		private static long s_10MinAgoReferenceDateTimeTicks = -1;
+		private static long s_6MinAgoReferenceDateTimeTicks = -1;
 		private static DateTime s_ReferenceDateTime;
 		private static long s_ReferenceFrequency = -1;
 		private static long s_ReferenceMaxError = -1;
 		private static double s_TimeDriftPerMinuteMilleseconds = 0;
 
 		private static DateTime s_FirtstAttemptedDateTimeUpdate = DateTime.MinValue;
-		private static List<Tuple<DateTime, long>> s_AllNTPReferenceTimes = new List<Tuple<DateTime, long>>();
+		private static List<Tuple<DateTime, long, DateTime>> s_AllNTPReferenceTimes = new List<Tuple<DateTime, long, DateTime>>();
 
 		private static object s_SyncLock = new object();
 		private static LinearRegression s_LR = new LinearRegression();
@@ -223,10 +225,11 @@ namespace WindowsClock.Tester
 				s_FirtstAttemptedDateTimeUpdate = DateTime.UtcNow;
 		}
 
-		public static void ProcessNTPResponce(long startTicks, long endTicks, long frequency, DateTime utcTime)
+		public static bool ProcessNTPResponce(long startTicks, long endTicks, long frequency, DateTime utcTime, double timeDriftCorrectionMilliseconds)
 		{
+			bool timeUpdated = false;
             long maxError = (long)(0.5 + (endTicks - startTicks) * 1000.0f / frequency);
-		    if (maxError <= 0) return;
+			if (maxError <= 0) return timeUpdated;
 
 			long currTicks = startTicks + (maxError / 2);
 
@@ -235,6 +238,7 @@ namespace WindowsClock.Tester
 				// This is the first measurement
 				bool isFirstReference = s_ReferenceFrequency != frequency;
 				UpdateTimeReference(currTicks, frequency, utcTime, maxError);
+				timeUpdated = true;
 
 				if (isFirstReference)
 					Trace.WriteLine(string.Format("OccuRec: First time reference set. Max error is {0} ms.", s_ReferenceMaxError.ToString("0.0")));
@@ -261,7 +265,7 @@ namespace WindowsClock.Tester
 					//   max error of the last NTP reference is bigger than the current max error of the NTP reference. This will mean that the NTP reference will not be 
 					//   updated because of a time drift during the first 30 min after OccuRec has been started
 
-					double tsSinceFirstReference = new TimeSpan(utcTime.Ticks - s_10MinAgoReferenceDateTimeTicks).TotalMinutes;
+					double tsSinceFirstReference = new TimeSpan(utcTime.Ticks - s_6MinAgoReferenceDateTimeTicks).TotalMinutes;
 					double timeDriftErrorMilliseconds = 0;
 					if (tsSinceFirstReference > 5)
 					{
@@ -270,26 +274,30 @@ namespace WindowsClock.Tester
 
 						ComputeTimeDriftFromAllPoints(out timeDriftMilleseconds, out timeDriftErrorMilliseconds);
 
-						// Remove all saved NTP references older than 10min
+						// Remove all saved NTP references older than 15min
 						for (int i = s_AllNTPReferenceTimes.Count - 1; i >= 0; i--)
 						{
-							if (s_AllNTPReferenceTimes[i].Item1.AddMinutes(10).Ticks < utcTime.Ticks)
+							if (s_AllNTPReferenceTimes[i].Item1.AddMinutes(6).Ticks < utcTime.Ticks)
 							{
 								Trace.WriteLine(string.Format("OccuRec: Removing NTP reference saved at {0} local time as it is too old.", s_AllNTPReferenceTimes[i].Item1.ToLocalTime().ToString("HH:mm:ss")));
 								s_AllNTPReferenceTimes.RemoveAt(i);
 							}
 						}
 
-						if (s_AllNTPReferenceTimes.Count > 0 && s_AllNTPReferenceTimes[0].Item1.Ticks > s_10MinAgoReferenceDateTimeTicks)
+						if (s_AllNTPReferenceTimes.Count > 0 && s_AllNTPReferenceTimes[0].Item1.Ticks > s_6MinAgoReferenceDateTimeTicks)
 						{
-							Trace.WriteLine(string.Format("OccuRec: Sliding the 30 min NTP reference window to start at {0}", s_AllNTPReferenceTimes[0].Item1.ToLocalTime().ToString("HH:mm:ss")));
-							// Our 30MinAgo reference is too old now. We have a newer reference that it still at least 10 min go. We want to use this reference i.e. 'slide' the window forward	
-							s_10MinAgoReferenceDateTimeTicks = s_AllNTPReferenceTimes[0].Item1.Ticks;
-							s_10MinAgoReferenceTicks = s_AllNTPReferenceTimes[0].Item2;
+							Trace.WriteLine(string.Format("OccuRec: Sliding the 6 min NTP time-drift reference window to start at {0}", s_AllNTPReferenceTimes[0].Item1.ToLocalTime().ToString("HH:mm:ss")));
+							// Our 6 MinAgo reference is too old now. We have a newer reference that it still at least 6 min go. We want to use this reference i.e. 'slide' the window forward	
+							s_6MinAgoReferenceDateTimeTicks = s_AllNTPReferenceTimes[0].Item1.Ticks;
+							s_6MinAgoReferenceTicks = s_AllNTPReferenceTimes[0].Item2;
 						}
 					}
 
-					if (maxError < s_ReferenceMaxError + timeDriftErrorMilliseconds)
+					DateTime expectedTime = s_ReferenceDateTime.AddMilliseconds((currTicks - s_ReferenceTicks) * 1000.0f / s_ReferenceFrequency);
+
+					s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long, DateTime>(utcTime, currTicks, expectedTime));
+
+					if (maxError < s_ReferenceMaxError + Math.Abs(timeDriftCorrectionMilliseconds) + timeDriftErrorMilliseconds)
 					{
 						Trace.WriteLine(string.Format(
 							timeDriftErrorMilliseconds == 0
@@ -300,11 +308,12 @@ namespace WindowsClock.Tester
 							timeDriftErrorMilliseconds.ToString("0.0")));
 
 						UpdateTimeReference(currTicks, frequency, utcTime, maxError);
+						timeUpdated = true;
 					}
-
-					s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long>(utcTime, currTicks));
 				}
 			}
+
+			return timeUpdated;
 		}
 
 		private static void ComputeTimeDriftFromAllPoints(out double timeDriftMilleseconds, out double timeDriftErrorMilliseconds)
@@ -319,27 +328,25 @@ namespace WindowsClock.Tester
 					var lr = new LinearRegression();
 					try
 					{
-						long firstNTPTicks = s_10MinAgoReferenceDateTimeTicks;
-						long firstQPCTcisk = s_10MinAgoReferenceTicks;
+						long firstNTPTicks = s_6MinAgoReferenceDateTimeTicks;
+						long firstQPCTicks = s_6MinAgoReferenceTicks;
 
 						for (int i = 1; i < s_AllNTPReferenceTimes.Count; i++)
 						{
-							lr.AddDataPoint(s_AllNTPReferenceTimes[i].Item2 - firstQPCTcisk, s_AllNTPReferenceTimes[i].Item1.Ticks - firstNTPTicks);
+							lr.AddDataPoint(s_AllNTPReferenceTimes[i].Item2 - firstQPCTicks, s_AllNTPReferenceTimes[i].Item1.Ticks - s_AllNTPReferenceTimes[i].Item3.Ticks);
 						}
 						lr.Solve();
 
-						timeDriftErrorMilliseconds = new TimeSpan((long)(3 * lr.StdDev)).TotalMilliseconds;
+						timeDriftErrorMilliseconds = new TimeSpan((long)(lr.StdDev)).TotalMilliseconds;
 						timeDriftMilleseconds = 0;
 
 						lock (s_SyncLock)
 						{
 							s_LR = lr;
-							s_LRZeroX = firstQPCTcisk;
+							s_LRZeroX = firstQPCTicks;
 							s_LRZeroY = firstNTPTicks;
 							s_LR3SigmaMs = timeDriftErrorMilliseconds;
 						}
-
-						
 					}
 					catch (Exception ex)
 					{
@@ -353,14 +360,14 @@ namespace WindowsClock.Tester
 		{
 			timeDriftErrorMilliseconds = 0;
 
-			double totalPassedMinutesNTP = ((currTicks - s_10MinAgoReferenceTicks) * 1000.0f / frequency) / 60000;
-			double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_10MinAgoReferenceDateTimeTicks);
+			double totalPassedMinutesNTP = ((currTicks - s_6MinAgoReferenceTicks) * 1000.0f / frequency) / 60000;
+			double sectionRatio = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_6MinAgoReferenceDateTimeTicks);
 			timeDriftMilleseconds = sectionRatio * Math.Abs(totalPassedMinutesNTP - tsSinceFirstReference) * 60000;
 			s_TimeDriftPerMinuteMilleseconds = timeDriftMilleseconds / totalPassedMinutesNTP;
 
 			double totalPassedMinutesNTPBase0 = double.NaN;
 			double timeDriftMillesecondsBase0 = double.NaN;
-			if (s_10MinAgoReferenceTicks != s_FirstReferenceTicks)
+			if (s_6MinAgoReferenceTicks != s_FirstReferenceTicks)
 			{
 				totalPassedMinutesNTPBase0 = ((currTicks - s_FirstReferenceTicks) * 1000.0f / frequency) / 60000;
 				double sectionRatioBase0 = 1.0 * (utcTime.Ticks - s_ReferenceDateTimeTicks) / (utcTime.Ticks - s_FirstReferenceDateTimeTicks);
@@ -463,15 +470,15 @@ namespace WindowsClock.Tester
 			{
 				s_FirstReferenceTicks = s_ReferenceTicks;
 				s_FirstReferenceDateTimeTicks = s_ReferenceDateTimeTicks;
-				s_10MinAgoReferenceTicks = s_ReferenceTicks;
-				s_10MinAgoReferenceDateTimeTicks = s_ReferenceDateTimeTicks;
+				s_6MinAgoReferenceTicks = s_ReferenceTicks;
+				s_6MinAgoReferenceDateTimeTicks = s_ReferenceDateTimeTicks;
 				s_TimeDriftPerMinuteMilleseconds = 0;
 				s_AllNTPReferenceTimes.Clear();
-				s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long>(utcTime, currTicks));
+				s_AllNTPReferenceTimes.Add(new Tuple<DateTime, long, DateTime>(utcTime, currTicks, utcTime));
 			}
 		}
 
-		public static DateTime UtcNow(out double maxErrorMilliseconds, out double timeDriftCorrectionMilliseconds)
+		public static DateTime UtcNow(out double maxErrorMilliseconds, out double timeDriftCorrectionMilliseconds, out double timeDriftStdDev)
 		{
 			if (s_ReferenceFrequency > 0)
 			{
@@ -481,7 +488,8 @@ namespace WindowsClock.Tester
 				maxErrorMilliseconds = s_ReferenceMaxError;
 
 				timeDriftCorrectionMilliseconds = 0;
-				
+				timeDriftStdDev = 0;
+
 				DateTime utcNowNoDriftCorrection = s_ReferenceDateTime
 					.AddMilliseconds(millsecondsFromReferenceFrame); // Add the elapsed milliseconds to the NTP reference time					
 
@@ -492,18 +500,21 @@ namespace WindowsClock.Tester
 				{
 					if (s_LR != null && s_LR.IsSolved)
 					{
-						long lrYVal = (long)s_LR.ComputeY(ticksNow - s_LRZeroX);
-						long ticksDriftFromZeroY = new DateTime(lrYVal + s_LRZeroY).Ticks - utcNowNoDriftCorrection.Ticks;
-						timeDriftCorrectionMilliseconds = (new TimeSpan(ticksDriftFromZeroY).TotalMilliseconds) * (utcNowNoDriftCorrection.Ticks - s_ReferenceDateTime.Ticks) / (utcNowNoDriftCorrection.Ticks - s_LRZeroY);
+						long actMinExpTicks = (long)s_LR.ComputeY(ticksNow - s_LRZeroX);
+						timeDriftCorrectionMilliseconds = (new TimeSpan(actMinExpTicks).TotalMilliseconds) * (utcNowNoDriftCorrection.Ticks - s_ReferenceDateTime.Ticks) / (utcNowNoDriftCorrection.Ticks - s_LRZeroY);
+						timeDriftStdDev = s_LR3SigmaMs;
 					}
 				}
 
-				return utcNowNoDriftCorrection.AddMilliseconds(timeDriftCorrectionMilliseconds); // Correct for CPU clock time drift
+				return utcNowNoDriftCorrection;
+
+				//return utcNowNoDriftCorrection.AddMilliseconds(timeDriftCorrectionMilliseconds); // Correct for CPU clock time drift
 			}
 			else
 			{
 				maxErrorMilliseconds = 60*1000;
 				timeDriftCorrectionMilliseconds = 0;
+				timeDriftStdDev = 0;
 				return DateTime.UtcNow;
 			}
 		}

@@ -41,6 +41,8 @@
 			this.tbxNTPServer = new System.Windows.Forms.TextBox();
 			this.label5 = new System.Windows.Forms.Label();
 			this.tbxMeasurements = new System.Windows.Forms.TextBox();
+			this.lblAverageDiffOccuRec = new System.Windows.Forms.Label();
+			this.label7 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.nudFrequency)).BeginInit();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -67,7 +69,7 @@
 			this.nudFrequency.Size = new System.Drawing.Size(44, 20);
 			this.nudFrequency.TabIndex = 1;
 			this.nudFrequency.Value = new decimal(new int[] {
-            20,
+            60,
             0,
             0,
             0});
@@ -109,16 +111,16 @@
 			this.label3.AutoSize = true;
 			this.label3.Location = new System.Drawing.Point(13, 58);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(102, 13);
+			this.label3.Size = new System.Drawing.Size(185, 13);
 			this.label3.TabIndex = 5;
-			this.label3.Text = "Average Difference:";
+			this.label3.Text = "Average Difference (Windows Clock):";
 			// 
 			// lblAverageDiff
 			// 
 			this.lblAverageDiff.AutoSize = true;
 			this.lblAverageDiff.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
 			this.lblAverageDiff.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
-			this.lblAverageDiff.Location = new System.Drawing.Point(121, 58);
+			this.lblAverageDiff.Location = new System.Drawing.Point(200, 58);
 			this.lblAverageDiff.Name = "lblAverageDiff";
 			this.lblAverageDiff.Size = new System.Drawing.Size(0, 13);
 			this.lblAverageDiff.TabIndex = 6;
@@ -126,7 +128,7 @@
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(16, 95);
+			this.label4.Location = new System.Drawing.Point(12, 104);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(76, 13);
 			this.label4.TabIndex = 8;
@@ -153,20 +155,41 @@
 			// 
 			this.tbxMeasurements.BackColor = System.Drawing.SystemColors.Info;
 			this.tbxMeasurements.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.tbxMeasurements.Location = new System.Drawing.Point(19, 120);
+			this.tbxMeasurements.Location = new System.Drawing.Point(15, 120);
 			this.tbxMeasurements.Multiline = true;
 			this.tbxMeasurements.Name = "tbxMeasurements";
 			this.tbxMeasurements.ReadOnly = true;
 			this.tbxMeasurements.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.tbxMeasurements.Size = new System.Drawing.Size(620, 182);
+			this.tbxMeasurements.Size = new System.Drawing.Size(624, 182);
 			this.tbxMeasurements.TabIndex = 29;
 			this.tbxMeasurements.Text = "ntp0.cs.mu.OZ.AU";
+			// 
+			// lblAverageDiffOccuRec
+			// 
+			this.lblAverageDiffOccuRec.AutoSize = true;
+			this.lblAverageDiffOccuRec.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.lblAverageDiffOccuRec.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+			this.lblAverageDiffOccuRec.Location = new System.Drawing.Point(199, 75);
+			this.lblAverageDiffOccuRec.Name = "lblAverageDiffOccuRec";
+			this.lblAverageDiffOccuRec.Size = new System.Drawing.Size(0, 13);
+			this.lblAverageDiffOccuRec.TabIndex = 31;
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(12, 75);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(187, 13);
+			this.label7.TabIndex = 30;
+			this.label7.Text = "Average Difference (OccuRec Clock):";
 			// 
 			// frmTestWindowsClock
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(651, 325);
+			this.Controls.Add(this.lblAverageDiffOccuRec);
+			this.Controls.Add(this.label7);
 			this.Controls.Add(this.tbxMeasurements);
 			this.Controls.Add(this.tbxNTPServer);
 			this.Controls.Add(this.label5);
@@ -178,7 +201,7 @@
 			this.Controls.Add(this.nudFrequency);
 			this.Controls.Add(this.btnStartStopTest);
 			this.Name = "frmTestWindowsClock";
-			this.Text = "Test Windows Clock Accuracy";
+			this.Text = "Test Windows Clock Accuracy v2";
 			((System.ComponentModel.ISupportInitialize)(this.nudFrequency)).EndInit();
 			this.contextMenuStrip1.ResumeLayout(false);
 			this.ResumeLayout(false);
@@ -200,5 +223,7 @@
 		private System.Windows.Forms.TextBox tbxNTPServer;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.TextBox tbxMeasurements;
+		private System.Windows.Forms.Label lblAverageDiffOccuRec;
+		private System.Windows.Forms.Label label7;
 	}
 }
