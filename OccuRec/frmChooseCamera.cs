@@ -36,9 +36,9 @@ namespace OccuRec
 
 	    private void frmChooseCamera_Load(object sender, EventArgs e)
         {
-            cbxCameraModel.Text = Settings.Default.CameraModel;
-		    
 			CameraControlDriver = null;
+
+            cbxCameraModel.Text = Settings.Default.CameraModel;
 
             cbxCaptureDevices.Items.Clear();
             foreach (DsDevice ds in DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice))
@@ -147,7 +147,6 @@ namespace OccuRec
 
             Settings.Default.CameraModel = cbxCameraModel.Text;
             Settings.Default.PreferredCaptureDevice = (string)cbxCaptureDevices.SelectedItem;
-			Settings.Default.CameraControlDriver = (string)cbxCameraDriver.SelectedItem;
 
             if (rbFileAAV.Checked)
             {
@@ -163,6 +162,32 @@ namespace OccuRec
                     cbxCameraModel.Focus();
                     return;
                 }
+
+				
+
+				if (CameraControlDriver != null)
+				{
+					if (!CameraControlDriver.IsConfigured)
+					{
+						while (!CameraControlDriver.IsConfigured && ConfigureCurrentCameraDriver())
+						{ }
+
+						if (CameraControlDriver != null && !CameraControlDriver.IsConfigured)
+						{
+							MessageBox.Show(
+								this,
+								"Please complete the camera driver configuration or choose a different driver.",
+								"OccuRec",
+								MessageBoxButtons.OK,
+								MessageBoxIcon.Error);
+
+							cbxCameraDriver.Focus();
+							return;						
+						}					
+					}
+
+					Settings.Default.CameraControlDriver = CameraControlDriver.DriverName;
+				}
 
                 Settings.Default.FileFormat = "AAV";
 
@@ -411,12 +436,28 @@ namespace OccuRec
 			btnConfigureCameraDriver.Enabled = camController != null && camController.RequiresConfiguration;
 
 			CameraControlDriver = camController;
+			if (CameraControlDriver != null)
+				CameraControlDriver.Configuration = OccuRecVideoDrivers.GetDriverSettings(CameraControlDriver);
 		}
 
 		private void btnConfigureCameraDriver_Click(object sender, EventArgs e)
 		{
+			ConfigureCurrentCameraDriver();
+		}
+
+		private bool ConfigureCurrentCameraDriver()
+		{
+			bool configChanged = false;
+
 			if (CameraControlDriver != null)
-				CameraControlDriver.ConfigureConnectionSettings(this);
+			{
+				CameraControlDriver.Configuration = OccuRecVideoDrivers.GetDriverSettings(CameraControlDriver);
+				configChanged = CameraControlDriver.ConfigureConnectionSettings(this);
+				if (configChanged)
+					OccuRecVideoDrivers.SetDriverSettings(CameraControlDriver);
+			}
+
+			return configChanged;
 		}
     }
 }

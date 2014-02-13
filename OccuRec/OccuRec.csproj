@@ -96,6 +96,7 @@
     <Compile Include="ASCOM\ThreadIsolationInvoker.cs" />
     <Compile Include="CameraDrivers\IOccuRecCameraController.cs" />
     <Compile Include="CameraDrivers\OccuRecVideoDrivers.cs" />
+    <Compile Include="CameraDrivers\VideoDriverSettings.cs" />
     <Compile Include="CameraDrivers\WAT910BD\frmWAT910BDConnectionSettings.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -994,5 +994,17 @@ namespace OccuRec.Properties {
                 this["ASCOMProgIdVideo"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string VideoDriversCommSettings {
+            get {
+                return ((string)(this["VideoDriversCommSettings"]));
+            }
+            set {
+                this["VideoDriversCommSettings"] = value;
+            }
+        }
     }
 }

@@ -9,10 +9,13 @@ namespace OccuRec.CameraDrivers
 {
 	public interface IOccuRecCameraController
 	{
+		IVideoDriverSettings Configuration { get; set; }
 		bool Connected { get; set; }
+		string DriverName { get; }
 		string Description { get; }
 		VideoState GetCurrentState();
 		bool RequiresConfiguration { get; }
-		void ConfigureConnectionSettings(IWin32Window parent);
+		bool IsConfigured { get; }
+		bool ConfigureConnectionSettings(IWin32Window parent);
 	}
 }
