@@ -122,7 +122,10 @@ namespace OccuRec.ASCOM
 
 		public bool Supports5ButtonOSD
 		{
-			get { return false; }
+			get
+			{
+				return m_CameraDriver != null && m_CameraDriver.Supports5ButtonOSD;
+			}
 		}
 
 		public void CameraOSDUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)

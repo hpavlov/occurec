@@ -17,6 +17,7 @@ namespace OccuRec.CameraDrivers
 		bool RequiresConfiguration { get; }
 		bool IsConfigured { get; }
 		bool ConfigureConnectionSettings(IWin32Window parent);
+		bool Supports5ButtonOSD { get; }
 		void OSDUp();
 		void OSDDown();
 		void OSDLeft();

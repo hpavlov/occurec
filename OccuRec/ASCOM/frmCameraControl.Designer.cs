@@ -285,7 +285,7 @@
 			// miDisconnect
 			// 
 			this.miDisconnect.Name = "miDisconnect";
-			this.miDisconnect.Size = new System.Drawing.Size(152, 22);
+			this.miDisconnect.Size = new System.Drawing.Size(126, 22);
 			this.miDisconnect.Text = "&Disconnect";
 			this.miDisconnect.Click += new System.EventHandler(this.miDisconnect_Click);
 			// 
@@ -301,6 +301,7 @@
 			this.Name = "frmCameraControl";
 			this.Text = "Camera Control";
 			this.Load += new System.EventHandler(this.frmCameraControl_Load);
+			this.Shown += new System.EventHandler(this.frmCameraControl_Shown);
 			this.tcControls.ResumeLayout(false);
 			this.tabDirect.ResumeLayout(false);
 			this.tabDirect.PerformLayout();

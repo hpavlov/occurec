@@ -698,9 +698,14 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			return (byte)(Math.Min(MAX_GAIN, Math.Max(MIN_GAIN, gainIndex)) - MIN_GAIN + 1);
 		}
 
-		public string GainIndexToString(int gainIndex)
+		public string GainByteToString(byte gainByte)
 		{
-			return string.Format("{0} dB", gainIndex - 1 + MIN_GAIN);
+			// 0x01 = 6dB
+
+			if (gainByte >= 0x01 && gainByte <= 3F)
+				return string.Format("{0} dB", gainByte - 1 + MIN_GAIN);
+			else
+				return "N/A";
 		}
 
 		public void SetGamma(SerialPort port, int newGamma, Action<byte[]> onBytesSent)
@@ -728,9 +733,27 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			return SUPPORTED_GAMMAS[gammaIndex];
 		}
 
-		public string GammaIndexToString(int gainIndex)
+		public string GammaByteToString(byte gammaByte)
 		{
-			return SUPPORTED_GAMMA_NAMES[gainIndex];
+			// 0x01 = 0.05
+			// 0x09 = 0.45
+			// 0x14 = 1.0
+
+			if (gammaByte >= 0x01 && gammaByte <= 0x14)
+			{
+				if (gammaByte == GAMMA_OFF)
+					return "OFF";
+				else if (gammaByte == GAMMA_LO)
+					return "LO";
+				else if (gammaByte == GAMMA_HI)
+					return "HI";
+				else if (gammaByte == GAMMA_MAX)
+					return "MAX";
+
+				return (gammaByte * 0.05).ToString("0.00");
+			}
+			else
+				return "N/A";
 		}
 
 		public void SetExposure(SerialPort port, int newExposure, Action<byte[]> onBytesSent)
@@ -752,9 +775,19 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			return -1;
 		}
 
-		public string ExposureIndexToString(int exposureIndex)
+		public string ExposureByteToString(byte exposureByte)
 		{
-			return SUPPORTED_EXPOSURE_NAMES[exposureIndex];
+			// FIX SHUTTER SPEED
+			// 0x00:x256, 0x01:x128, 0x02:x64, 0x03:x32, 0x04:x16,
+			// 0x05:x8, 0x06:x4, 0x07:x2, 0x08:EI,
+			// 0x09:OFF(E:1/60,C:1/50), 0x0A:FL, 0x0B:1/250,
+			// 0x0C:1/500, 0x0D:1/1000, 0x0E:1/2000, 0x0F:1/5000,
+			// 0x10:1/10000, 0x11:1/100000
+
+			if (exposureByte <= SUPPORTED_EXPOSURE_NAMES.Length)
+				return SUPPORTED_EXPOSURE_NAMES[exposureByte];
+			else
+				return "N/A";
 		}
 
 		public byte ExposureIndexToByte(int exposureIndex)

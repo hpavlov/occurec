@@ -30,6 +30,9 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		public int GainIndex;
 		public int GammaIndex;
 		public int ExposureIndex;
+		public bool GainSuccess;
+		public bool GammaSuccess;
+		public bool ExposureSuccess;
 		public string Gain;
 		public string Gamma;
 		public string Exposure;
@@ -94,17 +97,27 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 			List<WAT910BDCommandWithResponse> executedCommands = SendCameraCommandSeries(MultipleCommandSeries.ReadCameraState, true);
 
-			byte gammaByte = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadGamma).Response[2];
-			byte gainByte = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadGain).Response[2];
-			byte shuterByte = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadShutter).Response[2];
+			WAT910BDCommandWithResponse cmd;
+
+			cmd = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadGamma);
+			rv.GammaSuccess = cmd.Response != null && cmd.Response.Length == 3;
+			byte gammaByte = rv.GammaSuccess ? cmd.Response[2] : (byte)0;
+
+			cmd = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadGain);
+			rv.GainSuccess = cmd.Response != null && cmd.Response.Length == 3;
+			byte gainByte = rv.GainSuccess ? cmd.Response[2] : (byte)0;
+
+			cmd = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadShutter);
+			rv.ExposureSuccess = cmd.Response != null && cmd.Response.Length == 3;
+			byte shuterByte = rv.ExposureSuccess ? cmd.Response[2] : (byte)0;
 
 			rv.GainIndex = m_StateMachine.GainByteToIndex(gainByte);
 			rv.GammaIndex = m_StateMachine.GammaByteToIndex(gammaByte);
 			rv.ExposureIndex = m_StateMachine.ExposureByteToIndex(shuterByte);
 
-			rv.Gain = m_StateMachine.GainIndexToString(rv.GainIndex);
-			rv.Gamma = m_StateMachine.GammaIndexToString(rv.GammaIndex);
-			rv.Exposure = m_StateMachine.ExposureIndexToString(rv.ExposureIndex);
+			rv.Gain = rv.GainSuccess ? m_StateMachine.GainByteToString(gainByte) : string.Empty;
+			rv.Gamma = rv.GammaSuccess ? m_StateMachine.GammaByteToString(gammaByte) : string.Empty;
+			rv.Exposure = rv.ExposureSuccess ? m_StateMachine.ExposureByteToString(shuterByte) : string.Empty;
 
 			return rv;
 		}

@@ -27,7 +27,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			}
 			set
 			{
-				if (m_Driver != null)
+				if (m_Driver == null)
 				{
 					m_Driver = new WAT910BDDriver();
 					m_Driver.OnCommandExecutionCompleted += m_Driver_OnCommandExecutionCompleted;
@@ -109,6 +109,11 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		}
 
 		public bool RequiresConfiguration 
+		{
+			get { return true; }
+		}
+
+		public bool Supports5ButtonOSD
 		{
 			get { return true; }
 		}

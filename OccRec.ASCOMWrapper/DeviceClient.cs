@@ -111,8 +111,15 @@ namespace OccuRec.ASCOM.Wrapper
 
             m_Instance = null;
 
-		    if (m_HostDomain != null)
-				AppDomain.Unload(m_HostDomain);
+			if (m_HostDomain != null)
+			{
+				try
+				{
+					AppDomain.Unload(m_HostDomain);	
+				}
+				catch(CannotUnloadAppDomainException)
+				{ }
+			}
 
 			m_HostDomain = null;
 		}

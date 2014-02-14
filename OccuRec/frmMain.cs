@@ -162,6 +162,7 @@ namespace OccuRec
 						if (chooser.CameraControlDriver != null)
 						{
 							m_ObservatoryController.SetExternalCameraDriver(chooser.CameraControlDriver);
+							VideoConnectionChanged(ASCOMConnectionState.Disconnected);
 						}
 					}
 					else if (Settings.Default.FileFormat == "AVI")
@@ -598,7 +599,7 @@ namespace OccuRec
 				tsbClearTargets.Visible = false;
 				tsSeparator2.Visible = false;
 
-				tsbCamControl.Enabled = false;
+				//tsbCamControl.Enabled = false;
 			}
 			else if (ChangedToConnectedState())
 			{
@@ -614,7 +615,7 @@ namespace OccuRec
 				TrackingContext.Current.Reset();
 				TrackingContext.Current.ReConfigureNativeTracking(videoObject.Width, videoObject.Height);
 
-                tsbCamControl.Enabled = CameraSupportsSoftwareControl();
+                //tsbCamControl.Enabled = CameraSupportsSoftwareControl();
 
                 tsbConnectDisconnect.ToolTipText = "Disconnect";
                 tsbConnectDisconnect.Image = imageListToolbar.Images[1];
@@ -1460,7 +1461,8 @@ namespace OccuRec
             }
 
 			tsbTelControl.Enabled = ObservatoryController.IsASCOMPlatformInstalled;
-			tsbFocControl.Enabled = ObservatoryController.IsASCOMPlatformInstalled;            
+			tsbFocControl.Enabled = ObservatoryController.IsASCOMPlatformInstalled;
+			tsbCamControl.Enabled = m_ObservatoryController.HasVideoCamera || ObservatoryController.IsASCOMPlatformVideoAvailable;  
         }
 
         public void TelescopeConnectionChanged(ASCOMConnectionState state)
@@ -1507,7 +1509,7 @@ namespace OccuRec
 
 		void VideoConnectionChanged(ASCOMConnectionState state)
 		{
-			RefreshASCOMStatusControls(state, tssASCOMFocuser);
+			RefreshASCOMStatusControls(state, tssCamera);			
 			if (state == ASCOMConnectionState.Connected)
 			{
 				tsbCamControl.Text = "Camera Control";

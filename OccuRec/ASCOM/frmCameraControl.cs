@@ -43,9 +43,10 @@ namespace OccuRec.ASCOM
 		public frmCameraControl()
 		{
 			InitializeComponent();
+		}
 
-			if (!ObservatoryController.Supports5ButtonOSD)
-				tcControls.TabPages.Remove(tabOSDControl);
+		private void frmCameraControl_Shown(object sender, EventArgs e)
+		{
 		}
 
 		private void btnOSDUp_Click(object sender, EventArgs e)
@@ -61,6 +62,9 @@ namespace OccuRec.ASCOM
 
 		private void frmCameraControl_Load(object sender, EventArgs e)
 		{
+			if (!ObservatoryController.Supports5ButtonOSD)
+				tcControls.TabPages.Remove(tabOSDControl);
+
 			btnExposureDown.Enabled = false;
 			btnExposureUp.Enabled = false;
 			btnGainDown.Enabled = false;
