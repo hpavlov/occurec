@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.tabControl1 = new System.Windows.Forms.TabControl();
+			this.tcControls = new System.Windows.Forms.TabControl();
 			this.tabDirect = new System.Windows.Forms.TabPage();
 			this.lblGamma = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
@@ -43,26 +43,29 @@
 			this.btnExposureUp = new System.Windows.Forms.Button();
 			this.btnExposureDown = new System.Windows.Forms.Button();
 			this.tabOSDControl = new System.Windows.Forms.TabPage();
-			this.button5 = new System.Windows.Forms.Button();
-			this.button4 = new System.Windows.Forms.Button();
-			this.button3 = new System.Windows.Forms.Button();
-			this.button1 = new System.Windows.Forms.Button();
-			this.button2 = new System.Windows.Forms.Button();
-			this.btnDisconnect = new System.Windows.Forms.Button();
-			this.tabControl1.SuspendLayout();
+			this.btnOSDSet = new System.Windows.Forms.Button();
+			this.btnOSDRight = new System.Windows.Forms.Button();
+			this.btnOSDDown = new System.Windows.Forms.Button();
+			this.btnOSDLeft = new System.Windows.Forms.Button();
+			this.btnOSDUp = new System.Windows.Forms.Button();
+			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+			this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.miDisconnect = new System.Windows.Forms.ToolStripMenuItem();
+			this.tcControls.SuspendLayout();
 			this.tabDirect.SuspendLayout();
 			this.tabOSDControl.SuspendLayout();
+			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// tabControl1
+			// tcControls
 			// 
-			this.tabControl1.Controls.Add(this.tabDirect);
-			this.tabControl1.Controls.Add(this.tabOSDControl);
-			this.tabControl1.Location = new System.Drawing.Point(12, 12);
-			this.tabControl1.Name = "tabControl1";
-			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(363, 195);
-			this.tabControl1.TabIndex = 0;
+			this.tcControls.Controls.Add(this.tabDirect);
+			this.tcControls.Controls.Add(this.tabOSDControl);
+			this.tcControls.Location = new System.Drawing.Point(12, 37);
+			this.tcControls.Name = "tcControls";
+			this.tcControls.SelectedIndex = 0;
+			this.tcControls.Size = new System.Drawing.Size(363, 195);
+			this.tcControls.TabIndex = 0;
 			// 
 			// tabDirect
 			// 
@@ -91,9 +94,8 @@
 			this.lblGamma.AutoSize = true;
 			this.lblGamma.Location = new System.Drawing.Point(180, 130);
 			this.lblGamma.Name = "lblGamma";
-			this.lblGamma.Size = new System.Drawing.Size(43, 13);
+			this.lblGamma.Size = new System.Drawing.Size(0, 13);
 			this.lblGamma.TabIndex = 14;
-			this.lblGamma.Text = "Gamma";
 			this.lblGamma.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// label6
@@ -113,6 +115,7 @@
 			this.btnGammaUp.TabIndex = 12;
 			this.btnGammaUp.Text = ">";
 			this.btnGammaUp.UseVisualStyleBackColor = true;
+			this.btnGammaUp.Click += new System.EventHandler(this.btnGammaUp_Click);
 			// 
 			// btnGammaDown
 			// 
@@ -122,15 +125,15 @@
 			this.btnGammaDown.TabIndex = 11;
 			this.btnGammaDown.Text = "<";
 			this.btnGammaDown.UseVisualStyleBackColor = true;
+			this.btnGammaDown.Click += new System.EventHandler(this.btnGammaDown_Click);
 			// 
 			// lblGain
 			// 
 			this.lblGain.AutoSize = true;
 			this.lblGain.Location = new System.Drawing.Point(180, 77);
 			this.lblGain.Name = "lblGain";
-			this.lblGain.Size = new System.Drawing.Size(29, 13);
+			this.lblGain.Size = new System.Drawing.Size(0, 13);
 			this.lblGain.TabIndex = 10;
-			this.lblGain.Text = "Gain";
 			this.lblGain.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// label4
@@ -150,6 +153,7 @@
 			this.btnGainUp.TabIndex = 8;
 			this.btnGainUp.Text = ">";
 			this.btnGainUp.UseVisualStyleBackColor = true;
+			this.btnGainUp.Click += new System.EventHandler(this.btnGainUp_Click);
 			// 
 			// btnGainDown
 			// 
@@ -159,15 +163,15 @@
 			this.btnGainDown.TabIndex = 7;
 			this.btnGainDown.Text = "<";
 			this.btnGainDown.UseVisualStyleBackColor = true;
+			this.btnGainDown.Click += new System.EventHandler(this.btnGainDown_Click);
 			// 
 			// lblExposure
 			// 
 			this.lblExposure.AutoSize = true;
 			this.lblExposure.Location = new System.Drawing.Point(180, 28);
 			this.lblExposure.Name = "lblExposure";
-			this.lblExposure.Size = new System.Drawing.Size(51, 13);
+			this.lblExposure.Size = new System.Drawing.Size(0, 13);
 			this.lblExposure.TabIndex = 6;
-			this.lblExposure.Text = "Exposure";
 			this.lblExposure.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			// 
 			// label1
@@ -187,6 +191,7 @@
 			this.btnExposureUp.TabIndex = 4;
 			this.btnExposureUp.Text = ">";
 			this.btnExposureUp.UseVisualStyleBackColor = true;
+			this.btnExposureUp.Click += new System.EventHandler(this.btnExposureUp_Click);
 			// 
 			// btnExposureDown
 			// 
@@ -196,14 +201,15 @@
 			this.btnExposureDown.TabIndex = 3;
 			this.btnExposureDown.Text = "<";
 			this.btnExposureDown.UseVisualStyleBackColor = true;
+			this.btnExposureDown.Click += new System.EventHandler(this.btnExposureDown_Click);
 			// 
 			// tabOSDControl
 			// 
-			this.tabOSDControl.Controls.Add(this.button5);
-			this.tabOSDControl.Controls.Add(this.button4);
-			this.tabOSDControl.Controls.Add(this.button3);
-			this.tabOSDControl.Controls.Add(this.button1);
-			this.tabOSDControl.Controls.Add(this.button2);
+			this.tabOSDControl.Controls.Add(this.btnOSDSet);
+			this.tabOSDControl.Controls.Add(this.btnOSDRight);
+			this.tabOSDControl.Controls.Add(this.btnOSDDown);
+			this.tabOSDControl.Controls.Add(this.btnOSDLeft);
+			this.tabOSDControl.Controls.Add(this.btnOSDUp);
 			this.tabOSDControl.Location = new System.Drawing.Point(4, 22);
 			this.tabOSDControl.Name = "tabOSDControl";
 			this.tabOSDControl.Padding = new System.Windows.Forms.Padding(3);
@@ -212,91 +218,113 @@
 			this.tabOSDControl.Text = "5-Button OSD Control";
 			this.tabOSDControl.UseVisualStyleBackColor = true;
 			// 
-			// button5
+			// btnOSDSet
 			// 
-			this.button5.Location = new System.Drawing.Point(139, 72);
-			this.button5.Name = "button5";
-			this.button5.Size = new System.Drawing.Size(65, 23);
-			this.button5.TabIndex = 9;
-			this.button5.Text = "Set";
-			this.button5.UseVisualStyleBackColor = true;
+			this.btnOSDSet.Location = new System.Drawing.Point(139, 72);
+			this.btnOSDSet.Name = "btnOSDSet";
+			this.btnOSDSet.Size = new System.Drawing.Size(65, 23);
+			this.btnOSDSet.TabIndex = 9;
+			this.btnOSDSet.Text = "Set";
+			this.btnOSDSet.UseVisualStyleBackColor = true;
 			// 
-			// button4
+			// btnOSDRight
 			// 
-			this.button4.Location = new System.Drawing.Point(219, 72);
-			this.button4.Name = "button4";
-			this.button4.Size = new System.Drawing.Size(55, 23);
-			this.button4.TabIndex = 8;
-			this.button4.Text = "Right >";
-			this.button4.UseVisualStyleBackColor = true;
+			this.btnOSDRight.Location = new System.Drawing.Point(219, 72);
+			this.btnOSDRight.Name = "btnOSDRight";
+			this.btnOSDRight.Size = new System.Drawing.Size(55, 23);
+			this.btnOSDRight.TabIndex = 8;
+			this.btnOSDRight.Text = "Right >";
+			this.btnOSDRight.UseVisualStyleBackColor = true;
 			// 
-			// button3
+			// btnOSDDown
 			// 
-			this.button3.Location = new System.Drawing.Point(139, 114);
-			this.button3.Name = "button3";
-			this.button3.Size = new System.Drawing.Size(65, 23);
-			this.button3.TabIndex = 7;
-			this.button3.Text = "Down \\/";
-			this.button3.UseVisualStyleBackColor = true;
+			this.btnOSDDown.Location = new System.Drawing.Point(139, 114);
+			this.btnOSDDown.Name = "btnOSDDown";
+			this.btnOSDDown.Size = new System.Drawing.Size(65, 23);
+			this.btnOSDDown.TabIndex = 7;
+			this.btnOSDDown.Text = "Down \\/";
+			this.btnOSDDown.UseVisualStyleBackColor = true;
 			// 
-			// button1
+			// btnOSDLeft
 			// 
-			this.button1.Location = new System.Drawing.Point(70, 72);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(55, 23);
-			this.button1.TabIndex = 6;
-			this.button1.Text = "< Left";
-			this.button1.UseVisualStyleBackColor = true;
+			this.btnOSDLeft.Location = new System.Drawing.Point(70, 72);
+			this.btnOSDLeft.Name = "btnOSDLeft";
+			this.btnOSDLeft.Size = new System.Drawing.Size(55, 23);
+			this.btnOSDLeft.TabIndex = 6;
+			this.btnOSDLeft.Text = "< Left";
+			this.btnOSDLeft.UseVisualStyleBackColor = true;
 			// 
-			// button2
+			// btnOSDUp
 			// 
-			this.button2.Location = new System.Drawing.Point(139, 27);
-			this.button2.Name = "button2";
-			this.button2.Size = new System.Drawing.Size(65, 23);
-			this.button2.TabIndex = 5;
-			this.button2.Text = "Up /\\";
-			this.button2.UseVisualStyleBackColor = true;
+			this.btnOSDUp.Location = new System.Drawing.Point(139, 27);
+			this.btnOSDUp.Name = "btnOSDUp";
+			this.btnOSDUp.Size = new System.Drawing.Size(65, 23);
+			this.btnOSDUp.TabIndex = 5;
+			this.btnOSDUp.Text = "Up /\\";
+			this.btnOSDUp.UseVisualStyleBackColor = true;
+			this.btnOSDUp.Click += new System.EventHandler(this.btnOSDUp_Click);
 			// 
-			// btnDisconnect
+			// menuStrip1
 			// 
-			this.btnDisconnect.Location = new System.Drawing.Point(300, 216);
-			this.btnDisconnect.Name = "btnDisconnect";
-			this.btnDisconnect.Size = new System.Drawing.Size(75, 23);
-			this.btnDisconnect.TabIndex = 13;
-			this.btnDisconnect.Text = "Disconnect";
-			this.btnDisconnect.UseVisualStyleBackColor = true;
+			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.connectionToolStripMenuItem});
+			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+			this.menuStrip1.Name = "menuStrip1";
+			this.menuStrip1.Size = new System.Drawing.Size(388, 24);
+			this.menuStrip1.TabIndex = 14;
+			this.menuStrip1.Text = "menuStrip1";
+			// 
+			// connectionToolStripMenuItem
+			// 
+			this.connectionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miDisconnect});
+			this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
+			this.connectionToolStripMenuItem.Size = new System.Drawing.Size(73, 20);
+			this.connectionToolStripMenuItem.Text = "&Connection";
+			// 
+			// miDisconnect
+			// 
+			this.miDisconnect.Name = "miDisconnect";
+			this.miDisconnect.Size = new System.Drawing.Size(152, 22);
+			this.miDisconnect.Text = "&Disconnect";
+			this.miDisconnect.Click += new System.EventHandler(this.miDisconnect_Click);
 			// 
 			// frmCameraControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(388, 246);
-			this.Controls.Add(this.btnDisconnect);
-			this.Controls.Add(this.tabControl1);
+			this.ClientSize = new System.Drawing.Size(388, 244);
+			this.Controls.Add(this.tcControls);
+			this.Controls.Add(this.menuStrip1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+			this.MainMenuStrip = this.menuStrip1;
 			this.Name = "frmCameraControl";
 			this.Text = "Camera Control";
-			this.tabControl1.ResumeLayout(false);
+			this.Load += new System.EventHandler(this.frmCameraControl_Load);
+			this.tcControls.ResumeLayout(false);
 			this.tabDirect.ResumeLayout(false);
 			this.tabDirect.PerformLayout();
 			this.tabOSDControl.ResumeLayout(false);
+			this.menuStrip1.ResumeLayout(false);
+			this.menuStrip1.PerformLayout();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
 		#endregion
 
-		private System.Windows.Forms.TabControl tabControl1;
+		private System.Windows.Forms.TabControl tcControls;
 		private System.Windows.Forms.TabPage tabDirect;
 		private System.Windows.Forms.TabPage tabOSDControl;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button btnExposureUp;
 		private System.Windows.Forms.Button btnExposureDown;
-		private System.Windows.Forms.Button button5;
-		private System.Windows.Forms.Button button4;
-		private System.Windows.Forms.Button button3;
-		private System.Windows.Forms.Button button1;
-		private System.Windows.Forms.Button button2;
+		private System.Windows.Forms.Button btnOSDSet;
+		private System.Windows.Forms.Button btnOSDRight;
+		private System.Windows.Forms.Button btnOSDDown;
+		private System.Windows.Forms.Button btnOSDLeft;
+		private System.Windows.Forms.Button btnOSDUp;
 		private System.Windows.Forms.Label lblExposure;
 		private System.Windows.Forms.Label lblGamma;
 		private System.Windows.Forms.Label label6;
@@ -306,6 +334,8 @@
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Button btnGainUp;
 		private System.Windows.Forms.Button btnGainDown;
-		private System.Windows.Forms.Button btnDisconnect;
+		private System.Windows.Forms.MenuStrip menuStrip1;
+		private System.Windows.Forms.ToolStripMenuItem connectionToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem miDisconnect;
 	}
 }

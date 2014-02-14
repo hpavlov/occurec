@@ -698,6 +698,11 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			return (byte)(Math.Min(MAX_GAIN, Math.Max(MIN_GAIN, gainIndex)) - MIN_GAIN + 1);
 		}
 
+		public string GainIndexToString(int gainIndex)
+		{
+			return string.Format("{0} dB", gainIndex - 1 + MIN_GAIN);
+		}
+
 		public void SetGamma(SerialPort port, int newGamma, Action<byte[]> onBytesSent)
         {
 			byte gammaVal = GammaIndexToByte(newGamma);
@@ -723,6 +728,11 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			return SUPPORTED_GAMMAS[gammaIndex];
 		}
 
+		public string GammaIndexToString(int gainIndex)
+		{
+			return SUPPORTED_GAMMA_NAMES[gainIndex];
+		}
+
 		public void SetExposure(SerialPort port, int newExposure, Action<byte[]> onBytesSent)
 		{
 			byte shutterVal = ExposureIndexToByte(newExposure);
@@ -740,6 +750,11 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			}
 
 			return -1;
+		}
+
+		public string ExposureIndexToString(int exposureIndex)
+		{
+			return SUPPORTED_EXPOSURE_NAMES[exposureIndex];
 		}
 
 		public byte ExposureIndexToByte(int exposureIndex)

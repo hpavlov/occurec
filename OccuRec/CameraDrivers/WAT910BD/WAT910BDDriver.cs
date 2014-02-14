@@ -30,6 +30,9 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		public int GainIndex;
 		public int GammaIndex;
 		public int ExposureIndex;
+		public string Gain;
+		public string Gamma;
+		public string Exposure;
 	}
 
 	public class WAT910BDDriver : IDisposable
@@ -98,6 +101,10 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			rv.GainIndex = m_StateMachine.GainByteToIndex(gainByte);
 			rv.GammaIndex = m_StateMachine.GammaByteToIndex(gammaByte);
 			rv.ExposureIndex = m_StateMachine.ExposureByteToIndex(shuterByte);
+
+			rv.Gain = m_StateMachine.GainIndexToString(rv.GainIndex);
+			rv.Gamma = m_StateMachine.GammaIndexToString(rv.GammaIndex);
+			rv.Exposure = m_StateMachine.ExposureIndexToString(rv.ExposureIndex);
 
 			return rv;
 		}

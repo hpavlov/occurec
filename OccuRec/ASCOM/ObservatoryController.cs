@@ -80,6 +80,19 @@ namespace OccuRec.ASCOM
 
 		void SetExternalCameraDriver(IOccuRecCameraController cameraDriver);
 		bool HasVideoCamera { get; }
+		bool Supports5ButtonOSD { get; }
+		void CameraOSDUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraOSDDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraOSDLeft(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraOSDRight(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraOSDSet(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void GetCameraState(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraGammaDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraGammaUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraGainDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraGainUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraExposureDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraExposureUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
 	}
 
 	internal class ObservatoryController : ThreadIsolatedInvoker, IObservatoryController
@@ -106,6 +119,316 @@ namespace OccuRec.ASCOM
 		{
 			get { return m_CameraDriver != null; }
 		}
+
+		public bool Supports5ButtonOSD
+		{
+			get { return false; }
+		}
+
+		public void CameraOSDUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.OSDUp();
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();;
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);			
+		}
+
+		public void CameraOSDDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.OSDDown();
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored(); ;
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);		
+		}
+
+		public void CameraOSDLeft(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.OSDLeft();
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored(); ;
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);	
+		}
+
+		public void CameraOSDRight(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.OSDRight();
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored(); ;
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);	
+		}
+
+		public void CameraOSDSet(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.OSDSet();
+
+						VideoState state = m_CameraDriver.GetCurrentState();
+						OnVideoState(state);
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored(); ;
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);	
+		}
+
+		public void GetCameraState(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						VideoState state = m_CameraDriver.GetCurrentState();
+						OnVideoState(state);
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+				callType, callback, callbackUIControl);
+		}
+
+		public void CameraGammaDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.GammaDown();
+						VideoState state = m_CameraDriver.GetCurrentState();
+						OnVideoState(state);
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);
+		}
+
+		public void CameraGammaUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.GammaUp();
+						VideoState state = m_CameraDriver.GetCurrentState();
+						OnVideoState(state);
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);
+		}
+
+		public void CameraGainDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.GainDown();
+						VideoState state = m_CameraDriver.GetCurrentState();
+						OnVideoState(state);
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);
+		}
+
+		public void CameraGainUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.GainUp();
+						VideoState state = m_CameraDriver.GetCurrentState();
+						OnVideoState(state);
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);
+		}
+
+		public void CameraExposureDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.ExposureDown();
+						VideoState state = m_CameraDriver.GetCurrentState();
+						OnVideoState(state);
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);
+		}
+
+		public void CameraExposureUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_CameraDriver != null && m_CameraDriver.Connected)
+					{
+						m_CameraDriver.ExposureUp();
+						VideoState state = m_CameraDriver.GetCurrentState();
+						OnVideoState(state);
+					}
+				}
+				catch (Exception ex)
+				{
+					OnVideoErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+
+				return null;
+			},
+			callType, callback, callbackUIControl);
+		}
+
 
         public void PerformTelescopePingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
         {

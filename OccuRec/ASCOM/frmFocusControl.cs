@@ -168,10 +168,10 @@ namespace OccuRec.ASCOM
             m_ObservatoryController.FocuserMoveOut(FocuserStepSize.Large);
         }
 
-        private void btnDisconnect_Click(object sender, EventArgs e)
-        {
-            m_ObservatoryController.DisconnectFocuser();
-            Close();
-        }
+		private void miDisconnect_Click(object sender, EventArgs e)
+		{
+			m_ObservatoryController.DisconnectFocuser();
+			Close();
+		}
 	}
 }

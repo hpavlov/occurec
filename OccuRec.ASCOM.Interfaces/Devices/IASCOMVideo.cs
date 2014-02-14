@@ -18,6 +18,10 @@ namespace OccuRec.ASCOM.Interfaces.Devices
 		public int GainIndex { get; set; }
 		public int GammaIndex  { get; set; }
 		public int ExposureIndex { get; set; }
+
+		public string Gain { get; set; }
+		public string Gamma { get; set; }
+		public string Exposure { get; set; }
 	}
 
 	public interface IASCOMVideo : IASCOMDevice

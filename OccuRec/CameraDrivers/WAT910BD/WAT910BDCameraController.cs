@@ -99,6 +99,10 @@ namespace OccuRec.CameraDrivers.WAT910BD
 				rv.GainIndex = camState.GainIndex;
 				rv.GammaIndex = camState.GammaIndex;
 				rv.ExposureIndex = camState.ExposureIndex;
+
+				rv.Gain = camState.Gain;
+				rv.Gamma = camState.Gamma;
+				rv.Exposure = camState.Exposure;
 			}
 
 			return rv;
@@ -133,6 +137,95 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			return false;
 		}
 
+		public void OSDUp()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.OSDCommandUp();
+			}
+		}
+
+		public void OSDDown()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.OSDCommandDown();
+			}
+		}
+
+		public void OSDLeft()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.OSDCommandLeft();
+			}
+		}
+
+		public void OSDRight()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.OSDCommandRight();
+			}
+		}
+
+		public void OSDSet()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.OSDCommandSet();
+			}
+		}
+
+		public void GammaUp()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.GammaUp();
+			}
+		}
+
+		public void GammaDown()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.GammaDown();
+			}
+		}
+
+		public void GainUp()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.GainUp();
+			}
+		}
+
+		public void GainDown()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.GainDown();
+			}
+		}
+
+		public void ExposureUp()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.ExposureUp();
+			}
+		}
+
+		public void ExposureDown()
+		{
+			if (m_Driver != null && m_Driver.IsConnected)
+			{
+				m_Driver.ExposureDown();
+			}
+		}
+
+
 		public override string ToString()
 		{
 			return DRIVER_NAME;
@@ -140,7 +233,11 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 		public void Dispose()
 		{
-			// TODO
+			if (m_Driver != null)
+			{
+				m_Driver.Dispose();
+				m_Driver = null;
+			}
 		}
 	}
 }

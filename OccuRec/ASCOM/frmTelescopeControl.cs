@@ -123,10 +123,10 @@ namespace OccuRec.ASCOM
             btnPulseSouth3.Enabled = enabled;
         }
 
-        private void btnDisconnect_Click(object sender, EventArgs e)
-        {
-            ObservatoryController.DisconnectTelescope();
-            Close();
-        }
+		private void miDisconnect_Click(object sender, EventArgs e)
+		{
+			ObservatoryController.DisconnectTelescope();
+			Close();
+		}
     }
 }

@@ -17,5 +17,16 @@ namespace OccuRec.CameraDrivers
 		bool RequiresConfiguration { get; }
 		bool IsConfigured { get; }
 		bool ConfigureConnectionSettings(IWin32Window parent);
+		void OSDUp();
+		void OSDDown();
+		void OSDLeft();
+		void OSDRight();
+		void OSDSet();
+		void GammaUp();
+		void GammaDown();
+		void GainUp();
+		void GainDown();
+		void ExposureUp();
+		void ExposureDown();
 	}
 }
