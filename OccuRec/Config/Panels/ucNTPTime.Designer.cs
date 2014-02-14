@@ -39,7 +39,6 @@
 			this.nudHardwareLatencyCorrection = new System.Windows.Forms.NumericUpDown();
 			this.label5 = new System.Windows.Forms.Label();
 			this.label6 = new System.Windows.Forms.Label();
-			this.btnTestWindowsClock = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.nudHardwareLatencyCorrection)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -258,21 +257,10 @@
 			this.label6.TabIndex = 45;
 			this.label6.Text = resources.GetString("label6.Text");
 			// 
-			// btnTestWindowsClock
-			// 
-			this.btnTestWindowsClock.Location = new System.Drawing.Point(258, 289);
-			this.btnTestWindowsClock.Name = "btnTestWindowsClock";
-			this.btnTestWindowsClock.Size = new System.Drawing.Size(198, 23);
-			this.btnTestWindowsClock.TabIndex = 46;
-			this.btnTestWindowsClock.Text = "Test Windows Clock Accuracy";
-			this.btnTestWindowsClock.UseVisualStyleBackColor = true;
-			this.btnTestWindowsClock.Click += new System.EventHandler(this.btnTestWindowsClock_Click);
-			// 
 			// ucNTPTime
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.btnTestWindowsClock);
 			this.Controls.Add(this.label6);
 			this.Controls.Add(this.label5);
 			this.Controls.Add(this.nudHardwareLatencyCorrection);
@@ -326,6 +314,5 @@
 		private System.Windows.Forms.NumericUpDown nudHardwareLatencyCorrection;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.Label label6;
-		private System.Windows.Forms.Button btnTestWindowsClock;
 	}
 }

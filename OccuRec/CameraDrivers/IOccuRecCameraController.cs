@@ -7,7 +7,7 @@ using OccuRec.ASCOM.Interfaces.Devices;
 
 namespace OccuRec.CameraDrivers
 {
-	public interface IOccuRecCameraController
+	public interface IOccuRecCameraController : IDisposable
 	{
 		IVideoDriverSettings Configuration { get; set; }
 		bool Connected { get; set; }

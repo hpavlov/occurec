@@ -103,7 +103,15 @@
     <Compile Include="CameraDrivers\WAT910BD\frmWAT910BDConnectionSettings.Designer.cs">
       <DependentUpon>frmWAT910BDConnectionSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="CameraDrivers\WAT910BD\WAT910BDCameraDriver.cs" />
+    <Compile Include="CameraDrivers\WAT910BD\WAT910BDCameraController.cs" />
+    <Compile Include="CameraDrivers\WAT910BD\WAT910BDDriver.cs" />
+    <Compile Include="CameraDrivers\WAT910BD\WAT910BDStateMachine.cs" />
+    <Compile Include="Config\Panels\ucAscomNotInstalled.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucAscomNotInstalled.Designer.cs">
+      <DependentUpon>ucAscomNotInstalled.cs</DependentUpon>
+    </Compile>
     <Compile Include="Config\Panels\ucFocusing.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -183,12 +191,6 @@
     </Compile>
     <Compile Include="Config\Panels\ucObservatoryControl.Designer.cs">
       <DependentUpon>ucObservatoryControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Helpers\frmTestWindowsClock.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Helpers\frmTestWindowsClock.Designer.cs">
-      <DependentUpon>frmTestWindowsClock.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\UIThreadCaller.cs" />
     <Compile Include="Settings.cs" />
@@ -316,6 +318,9 @@
     <EmbeddedResource Include="Config\Panels\ucAAV.resx">
       <DependentUpon>ucAAV.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucAscomNotInstalled.resx">
+      <DependentUpon>ucAscomNotInstalled.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucDebug.resx">
       <DependentUpon>ucDebug.cs</DependentUpon>
     </EmbeddedResource>
@@ -360,9 +365,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmUnexpectedError.resx">
       <DependentUpon>frmUnexpectedError.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Helpers\frmTestWindowsClock.resx">
-      <DependentUpon>frmTestWindowsClock.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

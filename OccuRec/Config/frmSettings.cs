@@ -37,7 +37,8 @@ namespace OccuRec.Config
         {
 			InitAllPropertyPages(canChangeGrabberSettings);
 
-			m_ObservatoryControl.ObservatoryController = observatoryController;
+			if (m_ObservatoryControl != null)
+				m_ObservatoryControl.ObservatoryController = observatoryController;
 
             foreach (SettingsPanel panel in m_PropertyPages.Values)
                 panel.LoadSettings();
@@ -50,8 +51,17 @@ namespace OccuRec.Config
 			m_PropertyPages.Add(1, new ucAAV());
 			m_PropertyPages.Add(2, new ucNTPTime(canChangeGrabberSettings));
 
-            m_ObservatoryControl = new ucObservatoryControl();
-            m_PropertyPages.Add(3, m_ObservatoryControl);
+			if (ObservatoryController.IsASCOMPlatformInstalled)
+			{
+				m_ObservatoryControl = new ucObservatoryControl();
+				m_PropertyPages.Add(3, m_ObservatoryControl);
+			}
+			else
+			{
+				tvSettings.Nodes["ndObservatoryControl"].Nodes.RemoveByKey("ndTelescope");
+				tvSettings.Nodes["ndObservatoryControl"].Nodes.RemoveByKey("ndFocusing");
+				m_PropertyPages.Add(3, new ucAscomNotInstalled());
+			}
 
 			m_PropertyPages.Add(4, new ucTraking());
             m_PropertyPages.Add(6, new ucTelescope());

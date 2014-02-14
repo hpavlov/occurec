@@ -209,12 +209,5 @@ namespace OccuRec.Config.Panels
 		{
 			lblTestingIndicator.Visible = !lblTestingIndicator.Visible;
 		}
-
-		private void btnTestWindowsClock_Click(object sender, EventArgs e)
-		{
-			var frm = new frmTestWindowsClock();
-			frm.StartPosition = FormStartPosition.CenterParent;
-			frm.ShowDialog(this);
-		}
 	}
 }

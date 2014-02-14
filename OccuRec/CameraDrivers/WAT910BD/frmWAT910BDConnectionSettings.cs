@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
@@ -43,6 +44,11 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 			DialogResult = DialogResult.OK;
 			Close();
+		}
+
+		private void llDriversLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Process.Start("http://www.ftdichip.com/Drivers/VCP.htm");
 		}
 	}
 }

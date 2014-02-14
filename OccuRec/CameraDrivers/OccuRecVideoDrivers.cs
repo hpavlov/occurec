@@ -14,9 +14,9 @@ namespace OccuRec.CameraDrivers
 		{
 			var rv = new List<IOccuRecCameraController>();
 
-			if (cameraName == WAT910BDCameraDriver.CAMERA_NAME)
+			if (cameraName == WAT910BDCameraController.CAMERA_NAME)
 			{
-				rv.Add(new WAT910BDCameraDriver());
+				rv.Add(new WAT910BDCameraController());
 			}
 
 			return rv;

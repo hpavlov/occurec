@@ -22,6 +22,12 @@ namespace OccuRec
 
 			Trace.WriteLine(string.Format("Starting OccuRec v{0}", appVersionString));
 
+			string ascomPlatform = ASCOM.ObservatoryController.GetInstalledASCOMPlatformVersion();
+			if (ascomPlatform == null)
+				Trace.WriteLine("ASCOM Platform is not installed");
+			else
+				Trace.WriteLine(string.Format("ASCOM Platform v{0} installed.", ascomPlatform));
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 

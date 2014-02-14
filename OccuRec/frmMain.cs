@@ -70,8 +70,10 @@ namespace OccuRec
 		    m_ObservatoryController = new ObservatoryController();
 		    m_ObservatoryController.TelescopeConnectionChanged += TelescopeConnectionChanged;
             m_ObservatoryController.FocuserConnectionChanged += FocuserConnectionChanged;
+			m_ObservatoryController.VideoConnectionChanged += VideoConnectionChanged;
 		    m_ObservatoryController.TelescopeStateUpdated += TelescopeStateUpdated;
 		    m_ObservatoryController.FocuserStateUpdated += FocuserStateUpdated;
+			m_ObservatoryController.VideoStateUpdated += VideoStateUpdated;
 
 			Version att = Assembly.GetExecutingAssembly().GetName().Version;
 			appVersion = string.Format("{0}.{1}.{2}", att.Major, att.Minor, att.MinorRevision);
@@ -89,6 +91,8 @@ namespace OccuRec
 			ASCOMClient.Instance.Initialise(Settings.Default.ASCOMLoadInSeparateAppDomain);
 			TelescopeConnectionChanged(ASCOMConnectionState.Disconnected);
 			FocuserConnectionChanged(ASCOMConnectionState.Disconnected);
+			VideoConnectionChanged(ASCOMConnectionState.Disconnected);
+
 		    UpdateASCOMConnectivityState();
 		}
 
@@ -106,6 +110,7 @@ namespace OccuRec
 
 			DisconnectFromCamera();
 		    m_VideoRenderingController.Dispose();
+			m_ObservatoryController.Dispose();
             ASCOMClient.Instance.Dispose();
 		}
 
@@ -227,6 +232,9 @@ namespace OccuRec
                 m_OverlayManager.Finalise();
                 m_OverlayManager = null;
             }
+
+			if (m_ObservatoryController.IsConnectedToVideoCamera())
+				m_ObservatoryController.DisconnectVideoCamera();
 
 			m_PrevStateWasDisconnected = true;
 		}
@@ -1451,8 +1459,8 @@ namespace OccuRec
                     break;
             }
 
-            tsbTelControl.Enabled = true;
-            tsbFocControl.Enabled = true;			
+			tsbTelControl.Enabled = ObservatoryController.IsASCOMPlatformInstalled;
+			tsbFocControl.Enabled = ObservatoryController.IsASCOMPlatformInstalled;            
         }
 
         public void TelescopeConnectionChanged(ASCOMConnectionState state)
@@ -1497,6 +1505,26 @@ namespace OccuRec
             }
         }
 
+		void VideoConnectionChanged(ASCOMConnectionState state)
+		{
+			RefreshASCOMStatusControls(state, tssASCOMFocuser);
+			if (state == ASCOMConnectionState.Connected)
+			{
+				tsbCamControl.Text = "Camera Control";
+				tsbCamControl.Enabled = true;
+			}
+			else if (state == ASCOMConnectionState.Disconnected)
+			{
+				tsbCamControl.Text = "Camera Connect";
+				tsbCamControl.Enabled = true;
+				m_LastVideoCameraState = null;
+			}
+			else
+			{
+				tsbCamControl.Enabled = false;
+			}
+		}
+
         public void TelescopeStateUpdated(TelescopeState state)
         {
             m_LastTelescopeState = state;
@@ -1513,8 +1541,16 @@ namespace OccuRec
             Trace.WriteLine(state.AsSerialized().OuterXml);
         }
 
+		void VideoStateUpdated(VideoState state)
+		{
+			m_LastVideoCameraState = state;
+			Trace.WriteLine(state.AsSerialized().OuterXml);
+		}
+
+
         private TelescopeState m_LastTelescopeState = null;
         private FocuserState m_LastFocuserState = null;
+	    private VideoState m_LastVideoCameraState = null;
 
         private void UpdateTelescopeAndFocuserState()
         {

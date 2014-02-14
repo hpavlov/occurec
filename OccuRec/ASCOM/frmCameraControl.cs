@@ -23,5 +23,6 @@ namespace OccuRec.ASCOM
 		{
 			InitializeComponent();
 		}
+
 	}
 }

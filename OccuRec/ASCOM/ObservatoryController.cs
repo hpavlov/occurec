@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -45,12 +46,15 @@ namespace OccuRec.ASCOM
 
 	public delegate void CallbackAction(ObservatoryControllerCallbackArgs args);
 
-	public interface IObservatoryController
+	public interface IObservatoryController : IDisposable
 	{
         event Action<ASCOMConnectionState> TelescopeConnectionChanged;
         event Action<ASCOMConnectionState> FocuserConnectionChanged;
-        event Action<TelescopeState> TelescopeStateUpdated;
-        event Action<FocuserState> FocuserStateUpdated;
+		event Action<ASCOMConnectionState> VideoConnectionChanged;
+		event Action<TelescopeState> TelescopeStateUpdated;
+		event Action<FocuserState> FocuserStateUpdated;		
+		event Action<VideoState> VideoStateUpdated;
+
 
 		bool IsConnectedToObservatory();
 		bool IsConnectedToTelescope();
@@ -78,7 +82,7 @@ namespace OccuRec.ASCOM
 		bool HasVideoCamera { get; }
 	}
 
-	internal class ObservatoryController : ThreadIsolatedInvoker, IObservatoryController, IDisposable
+	internal class ObservatoryController : ThreadIsolatedInvoker, IObservatoryController
 	{
 		private ITelescope m_ConnectedTelescope = null;
 		private IFocuser m_ConnectedFocuser = null;
@@ -579,7 +583,31 @@ namespace OccuRec.ASCOM
 		#endregion
 
 		public void Dispose()
-		{ }
+		{
+			if (m_CameraDriver != null)
+			{
+				try
+				{
+					if (m_CameraDriver.Connected)
+						m_CameraDriver.Connected = false;
+				}
+				catch (Exception ex)
+				{
+					Trace.WriteLine(ex.GetFullStackTrace());
+				}
+
+				try
+				{
+					m_CameraDriver.Dispose();
+				}
+				catch (Exception ex)
+				{
+					Trace.WriteLine(ex.GetFullStackTrace());
+				}
+
+				m_CameraDriver = null;
+			}
+		}
 
 		public bool IsConnectedToVideoCamera()
 		{
@@ -748,5 +776,59 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
+		
+		public static bool IsASCOMPlatformInstalled
+		{
+			get
+			{
+				CheckASCOMPlatformVersion();
+				return s_ASCOMPlatformVersion.HasValue;
+			}
+		}
+
+		public static bool IsASCOMPlatformVideoAvailable
+		{
+			get
+			{
+				CheckASCOMPlatformVersion();
+				return s_ASCOMPlatformVersion.HasValue && s_ASCOMPlatformVersion.Value > 6.1;
+			}
+		}
+
+		public static string GetInstalledASCOMPlatformVersion()
+		{
+			CheckASCOMPlatformVersion();
+
+			if (s_ASCOMPlatformVersion.HasValue)
+				return s_ASCOMPlatformVersion.Value.ToString(CultureInfo.InvariantCulture);
+			else
+				return null;
+		}
+
+		public static float? s_ASCOMPlatformVersion;
+
+		private static void CheckASCOMPlatformVersion()
+		{
+			if (!s_ASCOMPlatformVersion.HasValue)
+			{
+				try
+				{
+					Type comType = Type.GetTypeFromProgID("ASCOM.Utilities.Util");
+
+					if (comType != null)
+					{
+						// Create an instance.
+						dynamic instance = Activator.CreateInstance(comType);
+
+						string ascomVersionStr = instance.PlatformVersion;
+						s_ASCOMPlatformVersion = float.Parse(ascomVersionStr.Replace(",", "."), CultureInfo.InvariantCulture);
+					}
+				}
+				catch (Exception ex)
+				{
+					Trace.WriteLine(ex.GetFullStackTrace());
+				}
+			}			
+		}
 	}
 }
