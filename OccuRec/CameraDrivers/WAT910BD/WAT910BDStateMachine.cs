@@ -470,13 +470,13 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
 				Command = WAT910BDCommand.ReadShutter,
-				CommandBytes = BuildReadCommand(0x402, "0011 1111") // SHUTTER
+				CommandBytes = BuildReadCommand(0x402, "0001 1111") // SHUTTER
 			});
 
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
 				Command = WAT910BDCommand.ReadGain,
-				CommandBytes = BuildReadCommand(0x417, "0011 1111") // GAIN
+				CommandBytes = BuildReadCommand(0x417, "0001 1111") // GAIN
 			});
 
 			return rv;
@@ -711,7 +711,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		public void SetGamma(SerialPort port, int newGamma, Action<byte[]> onBytesSent)
         {
 			byte gammaVal = GammaIndexToByte(newGamma);
-			byte[] cmd = BuildWriteCommand(0x481, "0011 1111", gammaVal);
+			byte[] cmd = BuildWriteCommand(0x481, "0001 1111", gammaVal);
 			if (SendWriteCommandAndWaitToExecute(port, cmd, onBytesSent))
 				GammaIndex = newGamma;
         }
@@ -759,7 +759,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		public void SetExposure(SerialPort port, int newExposure, Action<byte[]> onBytesSent)
 		{
 			byte shutterVal = ExposureIndexToByte(newExposure);
-			byte[] cmd = BuildWriteCommand(0x402, "0011 1111", shutterVal);
+			byte[] cmd = BuildWriteCommand(0x402, "0001 1111", shutterVal);
 			if (SendWriteCommandAndWaitToExecute(port, cmd, onBytesSent))
 				ExposureIndex = newExposure;
         }
