@@ -6,6 +6,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using OccuRec.Utilities;
 
 namespace OccuRec.CameraDrivers.WAT910BD
 {
@@ -138,7 +139,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 						if (readCommands)
 						{
-							if (!SendReadCommand(command.CommandBytes))
+                            if (!SendReadCommand(command.CommandBytes, command.Command.ToString()))
 								// One of the commands errored. Aborting
 								break;
 
@@ -146,7 +147,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 						}
 						else
 						{
-							if (!SendWriteCommand(command.CommandBytes))
+                            if (!SendWriteCommand(command.CommandBytes, command.Command.ToString()))
 								// One of the commands errored. Aborting
 								break;
 
@@ -168,27 +169,27 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 		public void OSDCommandUp()
 		{
-			DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Up)));
+            DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Up), "OSD-Up"));
 		}
 
 		public void OSDCommandDown()
 		{
-			DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Down)));
+            DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Down), "OSD-Down"));
 		}
 
 		public void OSDCommandLeft()
 		{
-			DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Left)));
+            DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Left), "OSD-Left"));
 		}
 
 		public void OSDCommandRight()
 		{
-			DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Right)));
+            DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Right), "OSD-Right"));
 		}
 
 		public void OSDCommandSet()
 		{
-			DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Set)));
+            DoCameraOperation(() => SendWriteCommand(m_StateMachine.BuildOsdCommand(OsdOperation.Set), "OSD-Set"));
 		}
 
         public void GainUp()
@@ -236,14 +237,14 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			}			
 		}
 
-        private bool SendWriteCommand(byte[] command)
+        private bool SendWriteCommand(byte[] command, string commandId)
         {
-            return m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, command, (cmd) => RaiseOnCommsData(false, cmd));
+            return m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, command, commandId, (cmd) => RaiseOnCommsData(false, cmd));
         }
 
-		private bool SendReadCommand(byte[] command)
+        private bool SendReadCommand(byte[] command, string commandId)
         {
-            return m_StateMachine.SendReadCommandAndWaitToExecute(m_SerialPort, command, (cmd) => RaiseOnCommsData(false, cmd));
+            return m_StateMachine.SendReadCommandAndWaitToExecute(m_SerialPort, command, commandId, (cmd) => RaiseOnCommsData(false, cmd));
         }
 
 	    public string Gain
@@ -308,18 +309,19 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 		private void RaiseOnExecutionCompeted()
 		{
-			RaiseEvent(OnCommandExecutionCompleted, 
+            EventHelper.RaiseEvent(OnCommandExecutionCompleted, 
                 new WAT910DBEventArgs()
 				{
 					IsSuccessful = m_StateMachine.WasLastCameraOperationSuccessful(),
 					ReceivedResponseFromCamera = m_StateMachine.DidLastCameraOperationReceivedResponse(),
+                    CommandId = m_StateMachine.GetLastAttemptedCameraCommand(),
 					ErrorMessage = m_StateMachine.GetLastCameraErrorMessage()
 				});
 		}
 
         private void RaiseOnCommsData(bool received, byte[] data)
         {
-            RaiseEvent(OnSerialComms, 
+            EventHelper.RaiseEvent(OnSerialComms, 
                 new SerialCommsEventArgs()
                 {
 					Data = data,
@@ -416,34 +418,5 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 			m_SerialPort = null;
 		}
-
-        /// <summary>Raises the event (on the UI thread if available).</summary>
-        /// <param name="multicastDelegate">The event to raise.</param>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">An EventArgs that contains the event data.</param>
-        /// <returns>The return value of the event invocation or null if none.</returns>
-        public static object RaiseEvent<T>(MulticastDelegate multicastDelegate, T eventArg)
-        {
-            object retVal = null;
-
-            MulticastDelegate threadSafeMulticastDelegate = multicastDelegate;
-            if (threadSafeMulticastDelegate != null)
-            {
-                foreach (Delegate d in threadSafeMulticastDelegate.GetInvocationList())
-                {
-                    var synchronizeInvoke = d.Target as ISynchronizeInvoke;
-                    if ((synchronizeInvoke != null) && synchronizeInvoke.InvokeRequired)
-                    {
-                        retVal = synchronizeInvoke.EndInvoke(synchronizeInvoke.BeginInvoke(d, new object[] { eventArg }));
-                    }
-                    else
-                    {
-                        retVal = d.DynamicInvoke(new object[] { eventArg });
-                    }
-                }
-            }
-
-            return retVal;
-        }
 	}
 }

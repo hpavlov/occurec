@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.CameraDrivers.WAT910BD;
 
 namespace OccuRec.CameraDrivers
 {
+    public delegate void DriverErrorCallback(DriverErrorEventArgs e);
+
 	public interface IOccuRecCameraController : IDisposable
 	{
 		IVideoDriverSettings Configuration { get; set; }
@@ -29,5 +32,6 @@ namespace OccuRec.CameraDrivers
 		void GainDown();
 		void ExposureUp();
 		void ExposureDown();
+        event DriverErrorCallback OnError;
 	}
 }

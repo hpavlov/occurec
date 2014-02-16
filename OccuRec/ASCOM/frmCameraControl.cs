@@ -21,10 +21,17 @@ namespace OccuRec.ASCOM
 				if (m_ObservatoryController != null)
 				{
 					m_ObservatoryController.VideoStateUpdated += m_ObservatoryController_VideoStateUpdated;
+                    m_ObservatoryController.VideoError += m_ObservatoryController_VideoError;
 				}
 			}
 			private get { return m_ObservatoryController; }
 		}
+
+        void m_ObservatoryController_VideoError(string error)
+        {
+            SetSize(true);
+            tbxErrors.AppendText(error + "\r\n");
+        }
 
 		void m_ObservatoryController_VideoStateUpdated(Interfaces.Devices.VideoState state)
 		{
@@ -43,15 +50,13 @@ namespace OccuRec.ASCOM
 		public frmCameraControl()
 		{
 			InitializeComponent();
+
+            SetSize(false);
 		}
 
 		private void frmCameraControl_Shown(object sender, EventArgs e)
 		{
-		}
-
-		private void btnOSDUp_Click(object sender, EventArgs e)
-		{
-			ObservatoryController.CameraOSDUp();
+            m_ObservatoryController.GetCameraState();
 		}
 
 		private void miDisconnect_Click(object sender, EventArgs e)
@@ -104,6 +109,45 @@ namespace OccuRec.ASCOM
 		{
 			ObservatoryController.CameraGammaUp();
 		}
+
+        private void SetSize(bool errorMode)
+        {
+            if (errorMode)
+            {
+                Height = 306;
+                tbxErrors.Visible = true;
+            }
+            else
+            {
+                Height = 263;
+                tbxErrors.Visible = false;
+            }
+        }
+
+        private void btnOSDUp_Click(object sender, EventArgs e)
+        {
+            ObservatoryController.CameraOSDUp();
+        }
+
+        private void btnOSDDown_Click(object sender, EventArgs e)
+        {
+            ObservatoryController.CameraOSDDown();
+        }
+
+        private void btnOSDRight_Click(object sender, EventArgs e)
+        {
+            ObservatoryController.CameraOSDRight();
+        }
+
+        private void btnOSDLeft_Click(object sender, EventArgs e)
+        {
+            ObservatoryController.CameraOSDLeft();
+        }
+
+        private void btnOSDSet_Click(object sender, EventArgs e)
+        {
+            ObservatoryController.CameraOSDSet();
+        }
 
 	}
 }

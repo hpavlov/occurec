@@ -15,6 +15,7 @@ using OccuRec.CameraDrivers;
 using OccuRec.Helpers;
 using OccuRec.Properties;
 using OccuRec.Utilities;
+using OccuRec.CameraDrivers.WAT910BD;
 
 namespace OccuRec.ASCOM
 {
@@ -52,8 +53,9 @@ namespace OccuRec.ASCOM
         event Action<ASCOMConnectionState> FocuserConnectionChanged;
 		event Action<ASCOMConnectionState> VideoConnectionChanged;
 		event Action<TelescopeState> TelescopeStateUpdated;
-		event Action<FocuserState> FocuserStateUpdated;		
+		event Action<FocuserState> FocuserStateUpdated;
 		event Action<VideoState> VideoStateUpdated;
+        event Action<string> VideoError;
 
 
 		bool IsConnectedToObservatory();
@@ -109,11 +111,24 @@ namespace OccuRec.ASCOM
         public event Action<TelescopeState> TelescopeStateUpdated;
         public event Action<FocuserState> FocuserStateUpdated;
 		public event Action<VideoState> VideoStateUpdated;
+        public event Action<string> VideoError;
 
 		public void SetExternalCameraDriver(IOccuRecCameraController cameraDriver)
 		{
-			m_CameraDriver = cameraDriver;
+            if (m_CameraDriver != cameraDriver)
+            {
+                if (m_CameraDriver != null)
+                    m_CameraDriver.OnError -= m_CameraDriver_OnError;
+
+                m_CameraDriver = cameraDriver;
+                m_CameraDriver.OnError += m_CameraDriver_OnError;
+            }
 		}
+
+        void m_CameraDriver_OnError(DriverErrorEventArgs e)
+        {
+            EventHelper.RaiseEvent(VideoError, string.Format("{0}: {1}", e.CommandId, e.ErrorMessage));
+        }
 
 		public bool HasVideoCamera
 		{
@@ -833,77 +848,77 @@ namespace OccuRec.ASCOM
 		#region UI Callbacks
 		private void OnTelescopeConnecting()
 		{
-            RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Connecting);
+            EventHelper.RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Connecting);
 		}
 
 		private void OnFocuserConnecting()
 		{
-            RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Connecting);
+            EventHelper.RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Connecting);
 		}
 
 		private void OnVideoConnecting()
 		{
-			RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Connecting);
+            EventHelper.RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Connecting);
 		}
 
 		private void OnTelescopeConnected()
 		{
-            RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Connected);
+            EventHelper.RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Connected);
 		}
 
 		private void OnFocuserConnected()
 		{
-            RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Connected);
+            EventHelper.RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Connected);
 		}
 
 		private void OnVideoConnected()
 		{
-			RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Connected);
+            EventHelper.RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Connected);
 		}
 
 		private void OnTelescopeDisconnected()
 		{
-            RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Disconnected);
+            EventHelper.RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Disconnected);
 		}
 
 		private void OnFocuserDisconnected()
 		{
-            RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Disconnected);
+            EventHelper.RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Disconnected);
 		}
 
 		private void OnVideoDisconnected()
 		{
-			RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Disconnected);
+            EventHelper.RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Disconnected);
 		}
 
 		private void OnTelescopeErrored()
 		{
-            RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Errored);
+            EventHelper.RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Errored);
 		}
 
 		private void OnFocuserErrored()
 		{
-            RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Errored);
+            EventHelper.RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Errored);
 		}
 
 		private void OnVideoErrored()
 		{
-			RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Errored);
+            EventHelper.RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Errored);
 		}
 
 		private void OnTelescopeState(TelescopeState state)
 		{
-            RaiseEvent(TelescopeStateUpdated, state);
+            EventHelper.RaiseEvent(TelescopeStateUpdated, state);
 		}		
 
 		private void OnFocuserState(FocuserState state)
 		{
-            RaiseEvent(FocuserStateUpdated, state);
+            EventHelper.RaiseEvent(FocuserStateUpdated, state);
 		}
 
 		private void OnVideoState(VideoState state)
 		{
-            RaiseEvent(VideoStateUpdated, state);
+            EventHelper.RaiseEvent(VideoStateUpdated, state);
 		}
 
 		#endregion

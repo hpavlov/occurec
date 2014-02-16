@@ -5,15 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.Utilities;
 
 namespace OccuRec.CameraDrivers.WAT910BD
 {
+    public class DriverErrorEventArgs : EventArgs
+    {
+        public string ErrorMessage;
+        public string CommandId;
+    }
+
 	internal class WAT910BDCameraController : IOccuRecCameraController
 	{
 		internal static string CAMERA_NAME = "WAT-910BD";
 		internal static string DRIVER_NAME = "WAT-910BD Nano Driver";
 
 		internal const string PROP_COM_PORT = "COM-PORT";
+
+        public event DriverErrorCallback OnError;
 
 		public IVideoDriverSettings Configuration { get; set; }
 
@@ -68,7 +77,14 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 		void m_Driver_OnCommandExecutionCompleted(WAT910DBEventArgs e)
 		{
-			
+			if (!e.IsSuccessful && !string.IsNullOrEmpty(e.ErrorMessage))
+			{
+                EventHelper.RaiseEvent(OnError, new DriverErrorEventArgs
+                {
+                    ErrorMessage = e.ErrorMessage,
+                    CommandId = e.CommandId
+                });
+			}
 		}
 
 		public string Description

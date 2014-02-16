@@ -277,6 +277,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		private bool m_WaitingData = false;
 		private bool m_CommandSuccessful = false;
 		private string m_ErrorMessage = null;
+	    private string m_AttemptedCommand = null;
 		private int m_ReadValue = -1;
 
 		private bool m_CanSendCommand = true;
@@ -487,6 +488,11 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			return m_ErrorMessage;
 		}
 
+        public string GetLastAttemptedCameraCommand()
+        {
+            return m_AttemptedCommand;
+        }
+
 		public bool WasLastCameraOperationSuccessful()
 		{
 			return m_CommandSuccessful;
@@ -497,17 +503,17 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			return IsReceivedMessageComplete;
 		}
 
-		public bool SendReadCommandAndWaitToExecute(SerialPort port, byte[] command, Action<byte[]> onBytesSent)
+        public bool SendReadCommandAndWaitToExecute(SerialPort port, byte[] command, string commandId, Action<byte[]> onBytesSent)
 		{
-			return SendCommandAndWaitToExecute(port, command, true, onBytesSent);
+            return SendCommandAndWaitToExecute(port, command, true, (bt) => { m_AttemptedCommand = commandId; onBytesSent(bt); });
 		}
 
-		public bool SendWriteCommandAndWaitToExecute(SerialPort port, byte[] command, Action<byte[]> onBytesSent)
+		public bool SendWriteCommandAndWaitToExecute(SerialPort port, byte[] command, string commandId, Action<byte[]> onBytesSent)
 		{
-			return SendCommandAndWaitToExecute(port, command, false, onBytesSent);
+            return SendCommandAndWaitToExecute(port, command, false, (bt) => { m_AttemptedCommand = commandId; onBytesSent(bt); });
 		}
 
-		public bool SendCommandAndWaitToExecute(SerialPort port, byte[] command, bool isReadCommand, Action<byte[]> onBytesSent)
+		private bool SendCommandAndWaitToExecute(SerialPort port, byte[] command, bool isReadCommand, Action<byte[]> onBytesSent)
 		{
 			m_CanSendCommand = false;
 			try
@@ -543,7 +549,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 				if (ticks >= 100 && m_ErrorMessage == null)
 				{
 					// Timeout occured
-					SetCommandError("Camera did not respond within 1 sec.");
+					SetCommandError("No response. Check COM port.");
 				}
 
 				return false;
@@ -684,7 +690,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
         {
 	        byte gainVal = GainIndexToByte(newGain);
 			byte[] cmd = BuildWriteCommand(0x417, "0011 1111", gainVal);
-            if (SendWriteCommandAndWaitToExecute(port, cmd, onBytesSent))
+            if (SendWriteCommandAndWaitToExecute(port, cmd, "SetGain", onBytesSent))
                 Gain = newGain;
         }
 
@@ -712,7 +718,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
         {
 			byte gammaVal = GammaIndexToByte(newGamma);
 			byte[] cmd = BuildWriteCommand(0x481, "0001 1111", gammaVal);
-			if (SendWriteCommandAndWaitToExecute(port, cmd, onBytesSent))
+            if (SendWriteCommandAndWaitToExecute(port, cmd, "SetGamma", onBytesSent))
 				GammaIndex = newGamma;
         }
 
@@ -760,7 +766,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		{
 			byte shutterVal = ExposureIndexToByte(newExposure);
 			byte[] cmd = BuildWriteCommand(0x402, "0001 1111", shutterVal);
-			if (SendWriteCommandAndWaitToExecute(port, cmd, onBytesSent))
+            if (SendWriteCommandAndWaitToExecute(port, cmd, "SetExposure", onBytesSent))
 				ExposureIndex = newExposure;
         }
 
