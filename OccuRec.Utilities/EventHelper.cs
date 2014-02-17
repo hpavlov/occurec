@@ -29,7 +29,12 @@ namespace OccuRec.Utilities
                     }
                     else
                     {
-                        retVal = d.DynamicInvoke(new object[] { eventArg });
+						try
+						{
+							retVal = d.DynamicInvoke(new object[] { eventArg });	
+						}
+						catch (ObjectDisposedException)
+	                    { }	                    
                     }
                 }
             }

@@ -43,11 +43,13 @@
 			this.label12 = new System.Windows.Forms.Label();
 			this.cbxRecordSecondaryTimeStamps = new System.Windows.Forms.CheckBox();
 			this.cbxRecordNTPTimeStamps = new System.Windows.Forms.CheckBox();
+			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudSignDiffRatio)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).BeginInit();
+			this.groupBox2.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// cbDebugIntegration
@@ -244,7 +246,8 @@
 			// cbxRecordSecondaryTimeStamps
 			// 
 			this.cbxRecordSecondaryTimeStamps.AutoSize = true;
-			this.cbxRecordSecondaryTimeStamps.Location = new System.Drawing.Point(3, 246);
+			this.cbxRecordSecondaryTimeStamps.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.cbxRecordSecondaryTimeStamps.Location = new System.Drawing.Point(15, 54);
 			this.cbxRecordSecondaryTimeStamps.Name = "cbxRecordSecondaryTimeStamps";
 			this.cbxRecordSecondaryTimeStamps.Size = new System.Drawing.Size(197, 17);
 			this.cbxRecordSecondaryTimeStamps.TabIndex = 49;
@@ -254,31 +257,45 @@
 			// cbxRecordNTPTimeStamps
 			// 
 			this.cbxRecordNTPTimeStamps.AutoSize = true;
-			this.cbxRecordNTPTimeStamps.Location = new System.Drawing.Point(3, 221);
+			this.cbxRecordNTPTimeStamps.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.cbxRecordNTPTimeStamps.Location = new System.Drawing.Point(15, 28);
 			this.cbxRecordNTPTimeStamps.Name = "cbxRecordNTPTimeStamps";
 			this.cbxRecordNTPTimeStamps.Size = new System.Drawing.Size(145, 17);
 			this.cbxRecordNTPTimeStamps.TabIndex = 48;
 			this.cbxRecordNTPTimeStamps.Text = "Record NTP Timestamps";
 			this.cbxRecordNTPTimeStamps.UseVisualStyleBackColor = true;
 			// 
+			// groupBox2
+			// 
+			this.groupBox2.Controls.Add(this.cbxRecordNTPTimeStamps);
+			this.groupBox2.Controls.Add(this.cbxRecordSecondaryTimeStamps);
+			this.groupBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.groupBox2.Location = new System.Drawing.Point(3, 222);
+			this.groupBox2.Name = "groupBox2";
+			this.groupBox2.Size = new System.Drawing.Size(362, 91);
+			this.groupBox2.TabIndex = 50;
+			this.groupBox2.TabStop = false;
+			this.groupBox2.Text = "Computer Timestamp";
+			// 
 			// ucAAV
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.cbxRecordSecondaryTimeStamps);
-			this.Controls.Add(this.cbxRecordNTPTimeStamps);
+			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.cbDebugIntegration);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.cbxFrameProcessingMode);
 			this.Controls.Add(this.label12);
 			this.Name = "ucAAV";
-			this.Size = new System.Drawing.Size(450, 299);
+			this.Size = new System.Drawing.Size(401, 327);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudSignDiffRatio)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).EndInit();
+			this.groupBox2.ResumeLayout(false);
+			this.groupBox2.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -301,5 +318,6 @@
 		private System.Windows.Forms.Label label12;
 		private System.Windows.Forms.CheckBox cbxRecordSecondaryTimeStamps;
 		private System.Windows.Forms.CheckBox cbxRecordNTPTimeStamps;
+		private System.Windows.Forms.GroupBox groupBox2;
 	}
 }

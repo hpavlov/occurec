@@ -74,6 +74,7 @@ namespace OccuRec
 		    m_ObservatoryController.TelescopeStateUpdated += TelescopeStateUpdated;
 		    m_ObservatoryController.FocuserStateUpdated += FocuserStateUpdated;
 			m_ObservatoryController.VideoStateUpdated += VideoStateUpdated;
+			m_ObservatoryController.VideoError += VideoError;
 
 			Version att = Assembly.GetExecutingAssembly().GetName().Version;
 			appVersion = string.Format("{0}.{1}.{2}", att.Major, att.Minor, att.MinorRevision);
@@ -335,6 +336,7 @@ namespace OccuRec
 
 		    frmSettings.ShowDialog(this);
             UpdateASCOMConnectivityState();
+			UpdateNTPConnectivityState();
 		}
 
 		private void miConnect_Click(object sender, EventArgs e)
@@ -553,21 +555,28 @@ namespace OccuRec
 		private void UpdateNTPStatus()
 		{
 			string statusText;
-			Color clr = NTPTimeKeeper.GetCurrentNTPStatusColour(out statusText);
-			if (statusText == null)
+			if (Settings.Default.RecordNTPTimeStampInAAV)
 			{
-				if (tssNTP.Visible)
-					tssNTP.Visible = false;
+				Color clr = NTPTimeKeeper.GetCurrentNTPStatusColour(out statusText);
+				if (statusText == null)
+				{
+					if (tssNTP.Visible)
+						tssNTP.Visible = false;
 
-				tssNTP.ToolTipText = string.Empty;
+					tssNTP.ToolTipText = string.Empty;
+				}
+				else
+				{
+					if (!tssNTP.Visible)
+						tssNTP.Visible = true;
+
+					tssNTP.ForeColor = clr;
+					tssNTP.ToolTipText = string.Empty;
+				}
 			}
 			else
 			{
-				if (!tssNTP.Visible)
-					tssNTP.Visible = true;
-
-				tssNTP.ForeColor = clr;
-				tssNTP.ToolTipText = string.Empty;				
+				tssNTP.Visible = false;
 			}
 		}
 
@@ -925,15 +934,18 @@ namespace OccuRec
                 if (Settings.Default.ObservatoryStatusPingRateSeconds > 0)
                     nextOneMinCheckUTC = DateTime.UtcNow.AddSeconds(Settings.Default.ObservatoryStatusPingRateSeconds);
 
-                try
-                {
-                    float latencyInMilliseconds;
-                    NTPClient.GetNetworkTime(Settings.Default.NTPServer, out latencyInMilliseconds);
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine(ex.GetFullStackTrace());
-                }
+	            if (Settings.Default.RecordNTPTimeStampInAAV)
+	            {
+					try
+					{
+						float latencyInMilliseconds;
+						NTPClient.GetNetworkTime(Settings.Default.NTPServer, out latencyInMilliseconds);
+					}
+					catch (Exception ex)
+					{
+						Trace.WriteLine(ex.GetFullStackTrace());
+					}
+	            }
 
 	            try
 	            {
@@ -1509,7 +1521,7 @@ namespace OccuRec
 
 		void VideoConnectionChanged(ASCOMConnectionState state)
 		{
-			RefreshASCOMStatusControls(state, tssCamera);			
+			RefreshASCOMStatusControls(state, tssCameraControl);			
 			if (state == ASCOMConnectionState.Connected)
 			{
 				tsbCamControl.Text = "Camera Control";
@@ -1549,6 +1561,10 @@ namespace OccuRec
 			Trace.WriteLine(state.AsSerialized().OuterXml);
 		}
 
+		void VideoError(string obj)
+		{
+			RefreshASCOMStatusControls(ASCOMConnectionState.Errored, tssCameraControl);
+		}
 
         private TelescopeState m_LastTelescopeState = null;
         private FocuserState m_LastFocuserState = null;
@@ -1699,6 +1715,11 @@ namespace OccuRec
 			m_VideoFrameInteractionController.RemoveTrackedObjects();
 		}
 
+		private void UpdateNTPConnectivityState()
+		{
+			UpdateNTPStatus();
+		}
+
         private void UpdateASCOMConnectivityState()
         {
             tsbFocControl.Enabled = !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdFocuser);
@@ -1706,6 +1727,20 @@ namespace OccuRec
 	        tsbCamControl.Enabled = m_ObservatoryController.HasVideoCamera;
         }
 
-
+		private void frmMain_Shown(object sender, EventArgs e)
+		{
+			if (!Settings.Default.LicenseAgreementAccepted)
+			{
+				var frm = new frmLicenseAgreement();
+				frm.StartPosition = FormStartPosition.CenterParent;
+				if (frm.ShowDialog(this) == DialogResult.OK)
+				{
+					Settings.Default.LicenseAgreementAccepted = true;
+					Settings.Default.Save();
+				}
+				else
+					Application.Exit();
+			}
+		}
     }
 }

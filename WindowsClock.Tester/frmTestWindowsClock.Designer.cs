@@ -43,6 +43,7 @@
 			this.tbxMeasurements = new System.Windows.Forms.TextBox();
 			this.lblAverageDiffOccuRec = new System.Windows.Forms.Label();
 			this.label7 = new System.Windows.Forms.Label();
+			this.btnPlotData = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.nudFrequency)).BeginInit();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -183,11 +184,22 @@
 			this.label7.TabIndex = 30;
 			this.label7.Text = "Average Difference (OccuRec Clock):";
 			// 
+			// btnPlotData
+			// 
+			this.btnPlotData.Location = new System.Drawing.Point(564, 48);
+			this.btnPlotData.Name = "btnPlotData";
+			this.btnPlotData.Size = new System.Drawing.Size(75, 23);
+			this.btnPlotData.TabIndex = 32;
+			this.btnPlotData.Text = "Plot Data";
+			this.btnPlotData.UseVisualStyleBackColor = true;
+			this.btnPlotData.Click += new System.EventHandler(this.btnPlotData_Click);
+			// 
 			// frmTestWindowsClock
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(651, 325);
+			this.Controls.Add(this.btnPlotData);
 			this.Controls.Add(this.lblAverageDiffOccuRec);
 			this.Controls.Add(this.label7);
 			this.Controls.Add(this.tbxMeasurements);
@@ -225,5 +237,6 @@
 		private System.Windows.Forms.TextBox tbxMeasurements;
 		private System.Windows.Forms.Label lblAverageDiffOccuRec;
 		private System.Windows.Forms.Label label7;
+		private System.Windows.Forms.Button btnPlotData;
 	}
 }

@@ -172,5 +172,12 @@ namespace WindowsClock.Tester
 		{
 			Clipboard.SetText(tbxMeasurements.Text);
 		}
+
+		private void btnPlotData_Click(object sender, EventArgs e)
+		{
+			var frm = new frmPlotClockData();
+			frm.StartPosition = FormStartPosition.CenterParent;
+			frm.ShowDialog(this);
+		}
 	}
 }

@@ -163,6 +163,12 @@
     <Compile Include="frmChooseManualIntegrationRate.Designer.cs">
       <DependentUpon>frmChooseManualIntegrationRate.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmLicenseAgreement.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmLicenseAgreement.Designer.cs">
+      <DependentUpon>frmLicenseAgreement.cs</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\AstroImage.cs" />
     <Compile Include="Helpers\DsHelper.cs" />
     <Compile Include="Config\Panels\SettingsPanel.cs">
@@ -356,6 +362,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmDetectIntegrationConfig.resx">
       <DependentUpon>frmDetectIntegrationConfig.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmLicenseAgreement.resx">
+      <DependentUpon>frmLicenseAgreement.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>

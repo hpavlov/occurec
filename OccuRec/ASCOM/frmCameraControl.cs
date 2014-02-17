@@ -11,12 +11,33 @@ namespace OccuRec.ASCOM
 {
 	public partial class frmCameraControl : Form
 	{
+
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+
+			ObservatoryController = null;
+		}
+
 		private IObservatoryController m_ObservatoryController;
 
 		public IObservatoryController ObservatoryController
 		{
 			set
 			{
+				if (m_ObservatoryController != null && value == null)
+				{
+					m_ObservatoryController.VideoStateUpdated -= m_ObservatoryController_VideoStateUpdated;
+					m_ObservatoryController.VideoError -= m_ObservatoryController_VideoError;
+				}
 				m_ObservatoryController = value;
 				if (m_ObservatoryController != null)
 				{
@@ -45,6 +66,15 @@ namespace OccuRec.ASCOM
 			btnGainUp.Enabled = state.GainIndex < state.MaxGainIndex;
 			btnGammaDown.Enabled = state.GammaIndex > state.MinGammaIndex;
 			btnGammaUp.Enabled = state.GammaIndex < state.MaxGammaIndex;
+
+			if (!btnOSDSet.Enabled)
+			{
+				btnOSDUp.Enabled = true;
+				btnOSDDown.Enabled = true;
+				btnOSDLeft.Enabled = true;
+				btnOSDRight.Enabled = true;
+				btnOSDSet.Enabled = true;				
+			}
 		}
 
 		public frmCameraControl()
@@ -61,8 +91,27 @@ namespace OccuRec.ASCOM
 
 		private void miDisconnect_Click(object sender, EventArgs e)
 		{
-			ObservatoryController.DisconnectTelescope();
+			SetDisabledStateControls();
+			ObservatoryController.DisconnectVideoCamera();
 			Close();
+		}
+
+		private void SetDisabledStateControls()
+		{
+			btnExposureDown.Enabled = false;
+			btnExposureUp.Enabled = false;
+			btnGainDown.Enabled = false;
+			btnGainUp.Enabled = false;
+			btnGammaDown.Enabled = false;
+			btnGammaUp.Enabled = false;
+			btnOSDUp.Enabled = false;
+			btnOSDDown.Enabled = false;
+			btnOSDLeft.Enabled = false;
+			btnOSDRight.Enabled = false;
+			btnOSDSet.Enabled = false;
+
+			tbxErrors.Clear();
+			SetSize(false);
 		}
 
 		private void frmCameraControl_Load(object sender, EventArgs e)
@@ -70,14 +119,8 @@ namespace OccuRec.ASCOM
 			if (!ObservatoryController.Supports5ButtonOSD)
 				tcControls.TabPages.Remove(tabOSDControl);
 
-			btnExposureDown.Enabled = false;
-			btnExposureUp.Enabled = false;
-			btnGainDown.Enabled = false;
-			btnGainUp.Enabled = false;
-			btnGammaDown.Enabled = false;
-			btnGammaUp.Enabled = false;
-
-			ObservatoryController.GetFocuserState();
+			SetDisabledStateControls();
+			ObservatoryController.GetCameraState();
 		}
 
 		private void btnExposureDown_Click(object sender, EventArgs e)
@@ -148,6 +191,12 @@ namespace OccuRec.ASCOM
         {
             ObservatoryController.CameraOSDSet();
         }
+
+		private void miReset_Click(object sender, EventArgs e)
+		{
+			SetDisabledStateControls();
+			ObservatoryController.DisconnectVideoCamera(CallType.Async, (arg) => ObservatoryController.TryConnectVideoCamera());
+		}
 
 	}
 }

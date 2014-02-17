@@ -914,7 +914,7 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool RecordNTPTimeStamp {
+        public bool RecordNTPTimeStampInAAV {
             get {
                 return ((bool)(this["RecordNTPTimeStamp"]));
             }
@@ -926,7 +926,7 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool RecordSecondaryTimeStamp {
+        public bool RecordSecondaryTimeStampInAav {
             get {
                 return ((bool)(this["RecordSecondaryTimeStamp"]));
             }
@@ -1004,6 +1004,18 @@ namespace OccuRec.Properties {
             }
             set {
                 this["VideoDriversCommSettings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool LicenseAgreementAccepted {
+            get {
+                return ((bool)(this["LicenseAgreementAccepted"]));
+            }
+            set {
+                this["LicenseAgreementAccepted"] = value;
             }
         }
     }

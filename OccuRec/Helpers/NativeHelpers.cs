@@ -601,8 +601,8 @@ namespace OccuRec.Helpers
                 Settings.Default.UsesBufferedFrameProcessing ? 1 : 0,
                 Settings.Default.IntegrationDetectionTuning ? 1 : 0,
                 string.Format("OccuRec v{0}", ASSEMBLY_FILE_VERSION.Version),
-				Settings.Default.RecordNTPTimeStamp ? 1 : 0,
-				Settings.Default.RecordSecondaryTimeStamp ? 1 : 0);
+				Settings.Default.RecordNTPTimeStampInAAV ? 1 : 0,
+				Settings.Default.RecordSecondaryTimeStampInAav ? 1 : 0);
         }
 
 		public static string SetupTimestampPreservation(int width, int height)
