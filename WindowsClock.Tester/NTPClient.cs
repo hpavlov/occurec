@@ -21,13 +21,14 @@ namespace WindowsClock.Tester
 			float occuRecTimeDiffErr = 0;
 		    float occuRecTimeDriftCorr = 0;
 		    float winTimeDiff = 0;
+		    float timeDriftStdDev = 0;
 		    bool timeUpdated;
-			return GetNetworkTime(ntpServer, false, out latencyInMilliseconds, ref occuRecTimeDiff, ref occuRecTimeDiffErr, ref occuRecTimeDriftCorr, ref winTimeDiff, out timeUpdated);
+			return GetNetworkTime(ntpServer, false, out latencyInMilliseconds, ref occuRecTimeDiff, ref occuRecTimeDiffErr, ref occuRecTimeDriftCorr, ref timeDriftStdDev, ref winTimeDiff, out timeUpdated);
 	    }
 
 	    // http://stackoverflow.com/questions/1193955/how-to-query-an-ntp-server-using-c
 		public static DateTime GetNetworkTime(string ntpServer, bool timeAgainstOccuRecKeptTime, out float latencyInMilliseconds,
-			ref float occuRecTimeDiff, ref float occuRecTimeDiffErr, ref float occuRecTimeDriftCorr, ref float winTimeDiff, out bool timeUpdated)
+			ref float occuRecTimeDiff, ref float occuRecTimeDiffErr, ref float occuRecTimeDriftCorr, ref float timeDriftStdDev, ref float winTimeDiff, out bool timeUpdated)
         {
 	        NTPTimeKeeper.AttemptingNTPTimeUpdate();
 
@@ -55,7 +56,7 @@ namespace WindowsClock.Tester
 			#region timeAgainstOccuRecKeptTime
 			double maxError = 0;
 			double timeDriftCorrectionMilliseconds = 0;
-			double timeDriftStdDev = 0;
+			timeDriftStdDev = 0;
 			DateTime sentTimeOccuRec = DateTime.MinValue;
 			DateTime rcvdTimeOccuRec = DateTime.MinValue;
 			DateTime sentTimeWindows = DateTime.MinValue;
@@ -478,7 +479,7 @@ namespace WindowsClock.Tester
 			}
 		}
 
-		public static DateTime UtcNow(out double maxErrorMilliseconds, out double timeDriftCorrectionMilliseconds, out double timeDriftStdDev)
+		public static DateTime UtcNow(out double maxErrorMilliseconds, out double timeDriftCorrectionMilliseconds, out float timeDriftStdDev)
 		{
 			if (s_ReferenceFrequency > 0)
 			{
@@ -502,7 +503,7 @@ namespace WindowsClock.Tester
 					{
 						long actMinExpTicks = (long)s_LR.ComputeY(ticksNow - s_LRZeroX);
 						timeDriftCorrectionMilliseconds = (new TimeSpan(actMinExpTicks).TotalMilliseconds) * (utcNowNoDriftCorrection.Ticks - s_ReferenceDateTime.Ticks) / (utcNowNoDriftCorrection.Ticks - s_LRZeroY);
-						timeDriftStdDev = s_LR3SigmaMs;
+						timeDriftStdDev = (float)s_LR3SigmaMs;
 					}
 				}
 

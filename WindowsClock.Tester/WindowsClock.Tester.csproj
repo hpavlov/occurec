@@ -61,6 +61,7 @@
     <Compile Include="frmTestWindowsClock.Designer.cs">
       <DependentUpon>frmTestWindowsClock.cs</DependentUpon>
     </Compile>
+    <Compile Include="HTCCClient.cs" />
     <Compile Include="LinearRegression.cs" />
     <Compile Include="LogData.cs" />
     <Compile Include="NTPClient.cs" />

@@ -44,6 +44,9 @@
 			this.lblAverageDiffOccuRec = new System.Windows.Forms.Label();
 			this.label7 = new System.Windows.Forms.Label();
 			this.btnPlotData = new System.Windows.Forms.Button();
+			this.label6 = new System.Windows.Forms.Label();
+			this.cbxCOMPort = new System.Windows.Forms.ComboBox();
+			this.cbxHTCC = new System.Windows.Forms.CheckBox();
 			((System.ComponentModel.ISupportInitialize)(this.nudFrequency)).BeginInit();
 			this.contextMenuStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -60,7 +63,7 @@
 			// 
 			// nudFrequency
 			// 
-			this.nudFrequency.Location = new System.Drawing.Point(323, 22);
+			this.nudFrequency.Location = new System.Drawing.Point(431, 23);
 			this.nudFrequency.Minimum = new decimal(new int[] {
             10,
             0,
@@ -78,7 +81,7 @@
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(260, 25);
+			this.label1.Location = new System.Drawing.Point(368, 26);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(57, 13);
 			this.label1.TabIndex = 2;
@@ -87,7 +90,7 @@
 			// label2
 			// 
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(373, 25);
+			this.label2.Location = new System.Drawing.Point(481, 26);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(47, 13);
 			this.label2.TabIndex = 3;
@@ -194,11 +197,43 @@
 			this.btnPlotData.UseVisualStyleBackColor = true;
 			this.btnPlotData.Click += new System.EventHandler(this.btnPlotData_Click);
 			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(221, 7);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(103, 13);
+			this.label6.TabIndex = 33;
+			this.label6.Text = "HTCCv38 COM Port";
+			// 
+			// cbxCOMPort
+			// 
+			this.cbxCOMPort.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cbxCOMPort.Enabled = false;
+			this.cbxCOMPort.FormattingEnabled = true;
+			this.cbxCOMPort.Location = new System.Drawing.Point(224, 22);
+			this.cbxCOMPort.Name = "cbxCOMPort";
+			this.cbxCOMPort.Size = new System.Drawing.Size(112, 21);
+			this.cbxCOMPort.TabIndex = 34;
+			// 
+			// cbxHTCC
+			// 
+			this.cbxHTCC.AutoSize = true;
+			this.cbxHTCC.Location = new System.Drawing.Point(203, 26);
+			this.cbxHTCC.Name = "cbxHTCC";
+			this.cbxHTCC.Size = new System.Drawing.Size(15, 14);
+			this.cbxHTCC.TabIndex = 35;
+			this.cbxHTCC.UseVisualStyleBackColor = true;
+			this.cbxHTCC.CheckedChanged += new System.EventHandler(this.cbxHTCC_CheckedChanged);
+			// 
 			// frmTestWindowsClock
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(651, 325);
+			this.Controls.Add(this.cbxHTCC);
+			this.Controls.Add(this.cbxCOMPort);
+			this.Controls.Add(this.label6);
 			this.Controls.Add(this.btnPlotData);
 			this.Controls.Add(this.lblAverageDiffOccuRec);
 			this.Controls.Add(this.label7);
@@ -238,5 +273,8 @@
 		private System.Windows.Forms.Label lblAverageDiffOccuRec;
 		private System.Windows.Forms.Label label7;
 		private System.Windows.Forms.Button btnPlotData;
+		private System.Windows.Forms.Label label6;
+		private System.Windows.Forms.ComboBox cbxCOMPort;
+		private System.Windows.Forms.CheckBox cbxHTCC;
 	}
 }

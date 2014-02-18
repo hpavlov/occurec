@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -19,10 +20,13 @@ namespace WindowsClock.Tester
 		private string m_NTPServer = "";
 		private List<double> m_AllWinTimeDiffs = new List<double>();
 		private List<double> m_AllOccuRecTimeDiffs = new List<double>();
+		private SerialPort m_HTCCPort;
 
 		public frmTestWindowsClock()
 		{
 			InitializeComponent();
+
+			cbxCOMPort.Items.AddRange(SerialPort.GetPortNames());
 		}
 
 		private void btnStartStopTest_Click(object sender, EventArgs e)
@@ -33,12 +37,28 @@ namespace WindowsClock.Tester
 				m_AllOccuRecTimeDiffs.Clear();
 				m_CheckPeriodSeconds = (int) nudFrequency.Value;
 				m_NTPServer = tbxNTPServer.Text;
+				m_HTCCPort = null;
+				if (cbxHTCC.Checked && cbxCOMPort.SelectedItem != null)
+				{
+					m_HTCCPort = new SerialPort();
+					m_HTCCPort.PortName = (string) cbxCOMPort.SelectedItem;
+					m_HTCCPort.BaudRate = 115200;
+					m_HTCCPort.DataBits = 8;
+					m_HTCCPort.Parity = Parity.None;
+					m_HTCCPort.StopBits = StopBits.One;
+					m_HTCCPort.ReadTimeout = 1000;
+					tbxMeasurements.Text = "WinAccu\t\tGpsTimeAccu\tOccuRecAccu\tError\tDriftCorr\tNTPAccu\r\n";
+				}
+				else
+					tbxMeasurements.Text = "WinAccu\t\tWinAccuNorm\tOccuRecAccu\tError\tDriftCorr\tNTPAccu\r\n";
+				 
 
 				ThreadPool.QueueUserWorkItem(TestWorker);
 
 				nudFrequency.Enabled = false;
 				tbxNTPServer.Enabled = false;
-				tbxMeasurements.Text = "WinAccu\t\tWinAccuNorm\tOccuRecAccu\tError\tDriftCorr\tNTPAccu\r\n";
+				cbxHTCC.Enabled = false;
+				cbxCOMPort.Enabled = false;
 
 			
 				lblAverageDiff.Text = "";
@@ -50,16 +70,26 @@ namespace WindowsClock.Tester
 				btnStartStopTest.Text = "Run Test";
 				nudFrequency.Enabled = true;
 				tbxNTPServer.Enabled = true;
+				cbxHTCC.Enabled = true;
+				cbxCOMPort.Enabled = cbxHTCC.Checked;
 			}
 		}
 
-		private void AddMeasurement(float winTimeDiff, float occuRecTimeDiff, float occuRecTimeDiffErr, float currMaxError, float driftCorr, bool timeUpdated)
+		private void AddMeasurement(float winTimeDiff, float occuRecTimeDiff, float occuRecTimeDiffErr, float currMaxError, float driftCorr, float driftCorrErr, bool timeUpdated, float httcMaxErr)
 		{
-			double val1, val2, timeDriftStdDev;
-			DateTime occuRecNormPri = NTPTimeKeeper.UtcNow(out val1, out val2, out timeDriftStdDev);
-			DateTime winNormPri = DateTime.UtcNow;
-			TimeSpan ts = new TimeSpan(winNormPri.Ticks - occuRecNormPri.Ticks);
-			double winTimeDiffNormPri = ts.TotalMilliseconds + occuRecTimeDiff;
+			double val1, val2;
+			float timeDriftStdDev;
+			double winTimeDiffNormPri;
+			if (float.IsNaN(httcMaxErr))
+			{
+				DateTime occuRecNormPri = NTPTimeKeeper.UtcNow(out val1, out val2, out timeDriftStdDev);
+				DateTime winNormPri = DateTime.UtcNow;
+				TimeSpan ts = new TimeSpan(winNormPri.Ticks - occuRecNormPri.Ticks);
+				winTimeDiffNormPri = ts.TotalMilliseconds + occuRecTimeDiff;
+			}
+			else
+				winTimeDiffNormPri = httcMaxErr;
+			
 
 			tbxMeasurements.Text += string.Format("{0}\t\t{1}\t\t{2}\t\t{3}\t{4}+/-{6}\t{5}{7}\r\n",
 				winTimeDiff.ToString("0.0"),
@@ -68,7 +98,7 @@ namespace WindowsClock.Tester
 				occuRecTimeDiffErr.ToString("0.0"),
 				driftCorr.ToString("0.0"),
 				currMaxError.ToString("0.0"),
-				timeDriftStdDev.ToString("0.00"),
+				driftCorrErr.ToString("0.00"),
 				timeUpdated ? "*" : "");
 
 			m_AllWinTimeDiffs.Add(winTimeDiff);
@@ -114,35 +144,26 @@ namespace WindowsClock.Tester
 			float winTimeDiff = 0;
 			bool timeUpdated = false;
 			DateTime initialTime;
-			try
+
+			for (int i = 0; i < 3; i++)
 			{
-				initialTime = NTPClient.GetNetworkTime(m_NTPServer, out latencyInMilliseconds);
-				NTPClient.SetTime(initialTime);
+				try
+				{
+					initialTime = NTPClient.GetNetworkTime(m_NTPServer, out latencyInMilliseconds);
+					NTPClient.SetTime(initialTime);
+				}
+				catch { }
+
+				Thread.Sleep(1000);				
 			}
-			catch { }
-
-			Thread.Sleep(1000);
-
-			try
-			{
-				initialTime = NTPClient.GetNetworkTime(m_NTPServer, out latencyInMilliseconds);
-				NTPClient.SetTime(initialTime);
-			}
-			catch { }
-
-			Thread.Sleep(1000);
-
-			try
-			{
-				initialTime = NTPClient.GetNetworkTime(m_NTPServer, out latencyInMilliseconds);
-				NTPClient.SetTime(initialTime);
-			}
-			catch { }
-
-			Thread.Sleep(1000);
-
+			
 			DateTime winTime = DateTime.MinValue;
 			DateTime occuRecTime = DateTime.MinValue;
+
+			bool usesNTPTimeReference = m_HTCCPort != null;
+			var httcClient = new HTCCClient(m_HTCCPort);
+			float htccLatency = float.NaN;
+			float timeDriftStdDev = 0;
 
 			while (m_Running)
 			{
@@ -151,10 +172,42 @@ namespace WindowsClock.Tester
 					winTimeFirst = !winTimeFirst;
 					try
 					{
-						DateTime networkUTCTime = NTPClient.GetNetworkTime(m_NTPServer, true, out latencyInMilliseconds, ref occuRecTimeDiff, ref occuRecTimeDiffErr, ref occuRecTimeDriftCorr, ref winTimeDiff, out timeUpdated);
+						DateTime networkUTCTime = NTPClient.GetNetworkTime(
+							m_NTPServer, usesNTPTimeReference, out latencyInMilliseconds,
+							ref occuRecTimeDiff, ref occuRecTimeDiffErr, ref occuRecTimeDriftCorr, ref timeDriftStdDev, ref winTimeDiff, out timeUpdated);
+
 						NTPClient.SetTime(networkUTCTime);
 
-						Invoke(new Action<float, float, float, float, float, bool>((winDiff, diff, diffErr, maxErr, corr, updated) => AddMeasurement(winDiff, diff, diffErr, maxErr, corr, updated)), winTimeDiff, occuRecTimeDiff, occuRecTimeDiffErr, latencyInMilliseconds, occuRecTimeDriftCorr, timeUpdated);
+						if (httcClient != null)
+						{
+							double maxErrorMilliseconds = 0;
+							double timeDriftCorrectionMilliseconds = 0;
+							long occuRecTimeTicks = 0;
+							float htccLatency1, htccLatency2;
+
+							long httcTicks = httcClient.TimeActionInUTC(
+									() => occuRecTimeTicks = NTPTimeKeeper.UtcNow(out maxErrorMilliseconds, out timeDriftCorrectionMilliseconds, out timeDriftStdDev).Ticks,
+									out htccLatency1)
+								.Ticks;
+							TimeSpan timeDiff = new TimeSpan(occuRecTimeTicks - httcTicks);
+							occuRecTimeDiff = (float)timeDiff.TotalMilliseconds;
+							occuRecTimeDiffErr = (float)maxErrorMilliseconds;
+							occuRecTimeDriftCorr = (float)timeDriftCorrectionMilliseconds;
+
+							long winTimeTicks = 0;
+							httcTicks = httcClient.TimeActionInUTC(
+									() => winTimeTicks = DateTime.UtcNow.Ticks,
+									out htccLatency2)
+								.Ticks;
+							winTimeDiff = (float)new TimeSpan(winTimeTicks - httcTicks).TotalMilliseconds;
+
+							htccLatency = (htccLatency1 + htccLatency2) / 2.0f;
+						}
+
+						Invoke(new Action<float, float, float, float, float, float, bool, float>(
+							(winDiff, diff, diffErr, maxErr, corr, corrErr, updated, httcMaxErr) =>
+							AddMeasurement(winDiff, diff, diffErr, maxErr, corr, corrErr, updated, httcMaxErr)),
+							winTimeDiff, occuRecTimeDiff, occuRecTimeDiffErr, latencyInMilliseconds, occuRecTimeDriftCorr, timeDriftStdDev, timeUpdated, htccLatency);
 					}
 					catch (Exception ex)
 					{
@@ -178,6 +231,11 @@ namespace WindowsClock.Tester
 			var frm = new frmPlotClockData();
 			frm.StartPosition = FormStartPosition.CenterParent;
 			frm.ShowDialog(this);
+		}
+
+		private void cbxHTCC_CheckedChanged(object sender, EventArgs e)
+		{
+			cbxCOMPort.Enabled = cbxHTCC.Enabled;
 		}
 	}
 }

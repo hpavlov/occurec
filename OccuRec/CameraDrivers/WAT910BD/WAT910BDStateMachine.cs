@@ -477,7 +477,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
 				Command = WAT910BDCommand.ReadGain,
-				CommandBytes = BuildReadCommand(0x417, "0001 1111") // GAIN
+				CommandBytes = BuildReadCommand(0x417, "0011 1111") // GAIN
 			});
 
 			return rv;
