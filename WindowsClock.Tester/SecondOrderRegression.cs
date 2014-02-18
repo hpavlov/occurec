@@ -5,15 +5,18 @@ using System.Text;
 
 namespace WindowsClock.Tester
 {
-	public class LinearRegression
+	public class SecondOrderRegression
 	{
 		private List<double> m_XValues = new List<double>();
 		private List<double> m_YValues = new List<double>();
 
 		private double m_A = 0;
 		private double m_B = 0;
+		private double m_C = 0;
 
-		public LinearRegression()
+		private bool m_IsSolved = false;
+
+		public SecondOrderRegression()
 		{ }
 
 		public void Reset()
@@ -22,6 +25,7 @@ namespace WindowsClock.Tester
 			m_YValues.Clear();
 			m_A = 0;
 			m_B = 0;
+			m_C = 0;
 			m_Residuals = null;
 			m_StdDev = double.NaN;
 		}
@@ -32,23 +36,19 @@ namespace WindowsClock.Tester
 			m_YValues.Add(y);
 		}
 
-	    public int NumberOfDataPoints
-	    {
-            get { return m_YValues.Count; }
-	    }
-
 		public void Solve()
 		{
 			if (m_XValues.Count < 3)
 				throw new InvalidOperationException("Cannot get a linear fit from less than 3 points.");
 
-			SafeMatrix A = new SafeMatrix(m_XValues.Count, 2);
+			SafeMatrix A = new SafeMatrix(m_XValues.Count, 3);
 			SafeMatrix X = new SafeMatrix(m_XValues.Count, 1);
 
 			for (int i = 0; i < m_XValues.Count; i++)
 			{
-				A[i, 0] = m_XValues[i];
-				A[i, 1] = 1;
+				A[i, 0] = m_XValues[i] * m_XValues[i];
+				A[i, 1] = m_XValues[i];
+				A[i, 2] = 1;
 
 				X[i, 0] = m_YValues[i];
 			}
@@ -60,6 +60,9 @@ namespace WindowsClock.Tester
 
 			m_A = bx[0, 0];
 			m_B = bx[1, 0];
+			m_C = bx[2, 0];
+
+			m_IsSolved = true;
 		}
 
 		public double A
@@ -72,14 +75,24 @@ namespace WindowsClock.Tester
 			get { return m_B; }
 		}
 
+		public double C
+		{
+			get { return m_C; }
+		}
+
 		public double ComputeY(double x)
 		{
-			return m_A * x + m_B;
+			return m_A * x * x + m_B * x + m_C;
 		}
 
 		private List<double> m_Residuals;
 		private double m_StdDev = double.NaN;
 		private double m_ChiSquare = double.NaN;
+
+		public bool IsSolved
+		{
+			get { return m_IsSolved; }
+		}
 
 		public double StdDev
 		{

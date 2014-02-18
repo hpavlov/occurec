@@ -147,6 +147,103 @@ namespace WindowsClock.Tester
             return networkDateTime;
         }
 
+        public static DateTime GetNetworkTime(string[] ntpServers, out float latencyInMilliseconds, out bool timeUpdated)
+        {
+            var fit = new LinearRegression();
+
+            latencyInMilliseconds = 0;
+
+            for (int i = 0; i < ntpServers.Length; i++)
+            {
+                long startQPTicks = 0;
+                long endQPTicks = 0;
+                try
+                {
+                    DateTime reference = GetSingleNetworkTimeReference(ntpServers[i], ref startQPTicks, ref endQPTicks);
+
+                    long startTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(startQPTicks);
+                    long endTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(endQPTicks);
+
+                    fit.AddDataPoint(endTicks - startTicks, reference.Ticks - startTicks);
+
+                    latencyInMilliseconds += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+                }
+                catch
+                { }
+            }
+
+            fit.Solve();
+
+            double deltaTicks = fit.B;
+            double referenceTimeError = fit.StdDev;
+
+            latencyInMilliseconds /= fit.NumberOfDataPoints;
+
+            lock (s_SyncLock)
+            {
+                timeUpdated = NTPTimeKeeper.ProcessUTCTimeOffset((long)deltaTicks, (long)referenceTimeError);
+            }
+
+            Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms.", new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"), new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0")));
+
+            double x, y;
+            float z;
+            return NTPTimeKeeper.UtcNow(out x, out y, out z);
+        }
+
+        private static DateTime GetSingleNetworkTimeReference(string ntpServer, ref long startQPTicks, ref long endQPTicks)
+        {
+            NTPTimeKeeper.AttemptingNTPTimeUpdate();
+
+            // NTP message size - 16 bytes of the digest (RFC 2030)
+            var ntpData = new byte[48];
+
+            //Setting the Leap Indicator, Version Number and Mode values
+            ntpData[0] = 0x1B; //LI = 0 (no warning), VN = 3 (IPv4 only), Mode = 3 (Client Mode)
+
+            var addresses = Dns.GetHostEntry(ntpServer).AddressList;
+
+            //The UDP port number assigned to NTP is 123
+            var ipEndPoint = new IPEndPoint(addresses[0], 123);
+            //NTP uses UDP
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+            socket.Connect(ipEndPoint);
+
+            socket.ReceiveTimeout = 3000;
+
+            Profiler.QueryPerformanceCounter(ref startQPTicks);
+            socket.Send(ntpData);
+            socket.Receive(ntpData);
+            Profiler.QueryPerformanceCounter(ref endQPTicks);
+
+            socket.Close();
+
+            //Offset to get to the "Transmit Timestamp" field (time at which the reply 
+            //departed the server for the client, in 64-bit timestamp format."
+            const byte serverReplyTime = 40;
+
+            //Get the seconds part
+            ulong intPart = BitConverter.ToUInt32(ntpData, serverReplyTime);
+
+            //Get the seconds fraction
+            ulong fractPart = BitConverter.ToUInt32(ntpData, serverReplyTime + 4);
+
+            //Convert From big-endian to little-endian
+            intPart = SwapEndianness(intPart);
+            fractPart = SwapEndianness(fractPart);
+
+            ulong milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
+
+            if (milliseconds == 0)
+                throw new InvalidOperationException("NTP Server returned an empty response.");
+
+            //**UTC** time
+            DateTime networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
+
+            return networkDateTime;
+        }
+
         // stackoverflow.com/a/3294698/162671
         static uint SwapEndianness(ulong x)
         {
@@ -215,7 +312,7 @@ namespace WindowsClock.Tester
 		private static List<Tuple<DateTime, long, DateTime>> s_AllNTPReferenceTimes = new List<Tuple<DateTime, long, DateTime>>();
 
 		private static object s_SyncLock = new object();
-		private static LinearRegression s_LR = new LinearRegression();
+		private static SecondOrderRegression s_LR = new SecondOrderRegression();
 		private static long s_LRZeroX = 0;
 		private static long s_LRZeroY = 0;
 		private static double s_LR3SigmaMs = 0;
@@ -326,7 +423,7 @@ namespace WindowsClock.Tester
 			{
 				
 					// DELTA-NTP-TIME[y] = f(DELTA-QPC-TICKS[x])
-					var lr = new LinearRegression();
+					var lr = new SecondOrderRegression();
 					try
 					{
 						long firstNTPTicks = s_6MinAgoReferenceDateTimeTicks;
@@ -479,6 +576,13 @@ namespace WindowsClock.Tester
 			}
 		}
 
+        public static bool ProcessUTCTimeOffset(long deltaTicksUTC, long deltaTicksError)
+        {
+            s_ReferenceDateTime = s_ReferenceDateTime.AddTicks(deltaTicksUTC);
+
+            return false;
+        }
+
 		public static DateTime UtcNow(out double maxErrorMilliseconds, out double timeDriftCorrectionMilliseconds, out float timeDriftStdDev)
 		{
 			if (s_ReferenceFrequency > 0)
@@ -519,5 +623,12 @@ namespace WindowsClock.Tester
 				return DateTime.UtcNow;
 			}
 		}
+
+        public static long GetUtcTimeTicksFromQPCTicksNoDrift(long qpcTicks)
+        {
+            double millsecondsFromReferenceFrame = (qpcTicks - s_ReferenceTicks) * 1000.0f / s_ReferenceFrequency;
+
+            return s_ReferenceDateTime.AddMilliseconds(millsecondsFromReferenceFrame).Ticks;
+        }
 	}
 }

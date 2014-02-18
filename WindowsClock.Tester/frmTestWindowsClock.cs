@@ -17,7 +17,10 @@ namespace WindowsClock.Tester
 	{
 		private bool m_Running = false;
 		private int m_CheckPeriodSeconds = 20;
-		private string m_NTPServer = "";
+		private string m_NTPServer1 = "";
+        private string m_NTPServer2 = "";
+        private string m_NTPServer3 = "";
+        private string m_NTPServer4 = "";
 		private List<double> m_AllWinTimeDiffs = new List<double>();
 		private List<double> m_AllOccuRecTimeDiffs = new List<double>();
 		private SerialPort m_HTCCPort;
@@ -36,7 +39,10 @@ namespace WindowsClock.Tester
 				m_AllWinTimeDiffs.Clear();
 				m_AllOccuRecTimeDiffs.Clear();
 				m_CheckPeriodSeconds = (int) nudFrequency.Value;
-				m_NTPServer = tbxNTPServer.Text;
+				m_NTPServer1 = tbxNTPServer.Text;
+                m_NTPServer2 = tbxNTPServer2.Text;
+                m_NTPServer3 = tbxNTPServer3.Text;
+                m_NTPServer4 = tbxNTPServer4.Text;
 				m_HTCCPort = null;
 				if (cbxHTCC.Checked && cbxCOMPort.SelectedItem != null)
 				{
@@ -47,6 +53,7 @@ namespace WindowsClock.Tester
 					m_HTCCPort.Parity = Parity.None;
 					m_HTCCPort.StopBits = StopBits.One;
 					m_HTCCPort.ReadTimeout = 1000;
+                    m_HTCCPort.Open();
 					tbxMeasurements.Text = "WinAccu\t\tGpsTimeAccu\tOccuRecAccu\tError\tDriftCorr\tNTPAccu\r\n";
 				}
 				else
@@ -57,6 +64,9 @@ namespace WindowsClock.Tester
 
 				nudFrequency.Enabled = false;
 				tbxNTPServer.Enabled = false;
+                tbxNTPServer2.Enabled = false;
+                tbxNTPServer3.Enabled = false;
+                tbxNTPServer4.Enabled = false;
 				cbxHTCC.Enabled = false;
 				cbxCOMPort.Enabled = false;
 
@@ -70,10 +80,18 @@ namespace WindowsClock.Tester
 				btnStartStopTest.Text = "Run Test";
 				nudFrequency.Enabled = true;
 				tbxNTPServer.Enabled = true;
+                tbxNTPServer2.Enabled = true;
+                tbxNTPServer3.Enabled = true;
+                tbxNTPServer4.Enabled = true;
 				cbxHTCC.Enabled = true;
 				cbxCOMPort.Enabled = cbxHTCC.Checked;
 			}
 		}
+
+        private void Error(string message)
+        {
+            MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
 
 		private void AddMeasurement(float winTimeDiff, float occuRecTimeDiff, float occuRecTimeDiffErr, float currMaxError, float driftCorr, float driftCorrErr, bool timeUpdated, float httcMaxErr)
 		{
@@ -145,80 +163,100 @@ namespace WindowsClock.Tester
 			bool timeUpdated = false;
 			DateTime initialTime;
 
-			for (int i = 0; i < 3; i++)
-			{
-				try
-				{
-					initialTime = NTPClient.GetNetworkTime(m_NTPServer, out latencyInMilliseconds);
-					NTPClient.SetTime(initialTime);
-				}
-				catch { }
+		    string[] ntpServerList = new string[] {m_NTPServer1, m_NTPServer2, m_NTPServer3, m_NTPServer4};
+		    var workingServers = new List<string>();
+		    for (int attempts = 0; attempts < 3; attempts++)
+		    {
+                workingServers.Clear();
+                for (int i = 0; i < 4; i++)
+                {
+                    try
+                    {
+                        initialTime = NTPClient.GetNetworkTime(ntpServerList[i], out latencyInMilliseconds);
+                        NTPClient.SetTime(initialTime);
+                        Trace.WriteLine(string.Format("Latency to {0} is {1} ms.", ntpServerList[i], latencyInMilliseconds.ToString("0.0")));
+                        workingServers.Add(ntpServerList[i]);
+                    }
+                    catch (Exception e)
+                    {
 
-				Thread.Sleep(1000);				
-			}
-			
-			DateTime winTime = DateTime.MinValue;
-			DateTime occuRecTime = DateTime.MinValue;
+                    }
 
-			bool usesNTPTimeReference = m_HTCCPort != null;
-			var httcClient = new HTCCClient(m_HTCCPort);
-			float htccLatency = float.NaN;
-			float timeDriftStdDev = 0;
+                    Thread.Sleep(100);
+                }
 
-			while (m_Running)
-			{
-				if (DateTime.UtcNow > nextCheckTime)
-				{
-					winTimeFirst = !winTimeFirst;
-					try
-					{
-						DateTime networkUTCTime = NTPClient.GetNetworkTime(
-							m_NTPServer, usesNTPTimeReference, out latencyInMilliseconds,
-							ref occuRecTimeDiff, ref occuRecTimeDiffErr, ref occuRecTimeDriftCorr, ref timeDriftStdDev, ref winTimeDiff, out timeUpdated);
+                if (workingServers.Count >= 3)
+		            break;
+		    }
 
-						NTPClient.SetTime(networkUTCTime);
+            if (workingServers.Count < 3)
+            {
+                Invoke(new Action<string>((err) => Error(err)), "Less than 3 NTP servers are responding. Cannot continue the test!");
+            }
+            else
+            {
+                DateTime winTime = DateTime.MinValue;
+                DateTime occuRecTime = DateTime.MinValue;
 
-						if (httcClient != null)
-						{
-							double maxErrorMilliseconds = 0;
-							double timeDriftCorrectionMilliseconds = 0;
-							long occuRecTimeTicks = 0;
-							float htccLatency1, htccLatency2;
+                bool usesNTPTimeReference = m_HTCCPort != null;
+                var httcClient = m_HTCCPort != null ? new HTCCClient(m_HTCCPort) : null;
+                float htccLatency = float.NaN;
+                float timeDriftStdDev = 0;
+                string[] ntpServers = workingServers.ToArray();
 
-							long httcTicks = httcClient.TimeActionInUTC(
-									() => occuRecTimeTicks = NTPTimeKeeper.UtcNow(out maxErrorMilliseconds, out timeDriftCorrectionMilliseconds, out timeDriftStdDev).Ticks,
-									out htccLatency1)
-								.Ticks;
-							TimeSpan timeDiff = new TimeSpan(occuRecTimeTicks - httcTicks);
-							occuRecTimeDiff = (float)timeDiff.TotalMilliseconds;
-							occuRecTimeDiffErr = (float)maxErrorMilliseconds;
-							occuRecTimeDriftCorr = (float)timeDriftCorrectionMilliseconds;
+                while (m_Running)
+                {
+                    if (DateTime.UtcNow > nextCheckTime)
+                    {
+                        winTimeFirst = !winTimeFirst;
+                        try
+                        {
+                            DateTime networkUTCTime = NTPClient.GetNetworkTime(ntpServers, out latencyInMilliseconds, out timeUpdated);
 
-							long winTimeTicks = 0;
-							httcTicks = httcClient.TimeActionInUTC(
-									() => winTimeTicks = DateTime.UtcNow.Ticks,
-									out htccLatency2)
-								.Ticks;
-							winTimeDiff = (float)new TimeSpan(winTimeTicks - httcTicks).TotalMilliseconds;
+                            NTPClient.SetTime(networkUTCTime);
 
-							htccLatency = (htccLatency1 + htccLatency2) / 2.0f;
-						}
+                            if (httcClient != null)
+                            {
+                                double maxErrorMilliseconds = 0;
+                                double timeDriftCorrectionMilliseconds = 0;
+                                long occuRecTimeTicks = 0;
+                                float htccLatency1, htccLatency2;
 
-						Invoke(new Action<float, float, float, float, float, float, bool, float>(
-							(winDiff, diff, diffErr, maxErr, corr, corrErr, updated, httcMaxErr) =>
-							AddMeasurement(winDiff, diff, diffErr, maxErr, corr, corrErr, updated, httcMaxErr)),
-							winTimeDiff, occuRecTimeDiff, occuRecTimeDiffErr, latencyInMilliseconds, occuRecTimeDriftCorr, timeDriftStdDev, timeUpdated, htccLatency);
-					}
-					catch (Exception ex)
-					{
-						Trace.WriteLine(ex);
-					}
+                                long httcTicks = httcClient.TimeActionInUTC(
+                                        () => occuRecTimeTicks = NTPTimeKeeper.UtcNow(out maxErrorMilliseconds, out timeDriftCorrectionMilliseconds, out timeDriftStdDev).Ticks,
+                                        out htccLatency1)
+                                    .Ticks;
+                                TimeSpan timeDiff = new TimeSpan(occuRecTimeTicks - httcTicks);
+                                occuRecTimeDiff = (float)timeDiff.TotalMilliseconds;
+                                occuRecTimeDiffErr = (float)maxErrorMilliseconds;
+                                occuRecTimeDriftCorr = (float)timeDriftCorrectionMilliseconds;
 
-					nextCheckTime = DateTime.UtcNow.AddSeconds(m_CheckPeriodSeconds);
-				}
+                                long winTimeTicks = 0;
+                                httcTicks = httcClient.TimeActionInUTC(
+                                        () => winTimeTicks = DateTime.UtcNow.Ticks,
+                                        out htccLatency2)
+                                    .Ticks;
+                                winTimeDiff = (float)new TimeSpan(winTimeTicks - httcTicks).TotalMilliseconds;
 
-				Thread.Sleep(200);
-			}
+                                htccLatency = (htccLatency1 + htccLatency2) / 2.0f;
+                            }
+
+                            Invoke(new Action<float, float, float, float, float, float, bool, float>(
+                                (winDiff, diff, diffErr, maxErr, corr, corrErr, updated, httcMaxErr) =>
+                                AddMeasurement(winDiff, diff, diffErr, maxErr, corr, corrErr, updated, httcMaxErr)),
+                                winTimeDiff, occuRecTimeDiff, occuRecTimeDiffErr, latencyInMilliseconds, occuRecTimeDriftCorr, timeDriftStdDev, timeUpdated, htccLatency);
+                        }
+                        catch (Exception ex)
+                        {
+                            Trace.WriteLine(ex);
+                        }
+
+                        nextCheckTime = DateTime.UtcNow.AddSeconds(m_CheckPeriodSeconds);
+                    }
+
+                    Thread.Sleep(200);
+                }
+            }
 		}
 
 		private void copyAllToolStripMenuItem_Click(object sender, EventArgs e)

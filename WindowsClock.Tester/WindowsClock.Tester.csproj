@@ -63,6 +63,7 @@
     </Compile>
     <Compile Include="HTCCClient.cs" />
     <Compile Include="LinearRegression.cs" />
+    <Compile Include="SecondOrderRegression.cs" />
     <Compile Include="LogData.cs" />
     <Compile Include="NTPClient.cs" />
     <Compile Include="Profiler.cs" />

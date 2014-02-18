@@ -19,9 +19,18 @@ namespace WindowsClock.Tester
 		{
 			byte[] tsCommand = new byte[] { (byte)'C' };
 
+            long startTicksQPC = 0;
+            long endTicksQPC = 0;
+            long clockFrequencyQPC = 0;
+            Profiler.QueryPerformanceCounter(ref startTicksQPC);
+            Profiler.QueryPerformanceFrequency(ref clockFrequencyQPC);
+
 			m_CommPort.Write(tsCommand, 0, 1);
 			actionToTime();
-			m_CommPort.Write(tsCommand, 0, 1);
+            m_CommPort.Write(tsCommand, 0, 1);
+
+            Profiler.QueryPerformanceCounter(ref endTicksQPC);
+            float sendLatency = (endTicksQPC - startTicksQPC) * 1000.0f / clockFrequencyQPC;
 
 			byte[] twoResponses = new byte[30];
 
@@ -34,7 +43,10 @@ namespace WindowsClock.Tester
 			long startTicks = ExtractHtccTime(twoResponses, 0).Ticks;
 			long endTicks = ExtractHtccTime(twoResponses, 15).Ticks;
 
-			htccLatency = (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+			float gpsLatency = (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+
+		    htccLatency = Math.Max(sendLatency, gpsLatency);
+
 			return new DateTime((startTicks + endTicks) / 2);
 		}
 
