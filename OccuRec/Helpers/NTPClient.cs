@@ -104,11 +104,12 @@ namespace OccuRec.Helpers
 			return networkDateTime;
 	    }
 
-		public static DateTime GetNetworkTimeFromMultipleServers(string[] ntpServers, out float latencyInMilliseconds, out bool timeUpdated)
+		public static DateTime GetNetworkTimeFromMultipleServers(string[] ntpServers, out float latencyInMilliseconds, out int aliveServers)
 		{
 			var fit = new LinearRegression();
 
 			latencyInMilliseconds = 0;
+			aliveServers = 0;
 
 			for (int i = 0; i < ntpServers.Length; i++)
 			{
@@ -124,6 +125,7 @@ namespace OccuRec.Helpers
 					fit.AddDataPoint(endTicks - startTicks, reference.Ticks - startTicks);
 
 					latencyInMilliseconds += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+					aliveServers++;
 				}
 				catch
 				{ }
@@ -138,7 +140,7 @@ namespace OccuRec.Helpers
 
 			lock (s_SyncLock)
 			{
-				timeUpdated = NTPTimeKeeper.ProcessUTCTimeOffset((long)deltaTicks, (long)referenceTimeError);
+				NTPTimeKeeper.ProcessUTCTimeOffset((long)deltaTicks, (long)referenceTimeError);
 			}
 
 			Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms.", 

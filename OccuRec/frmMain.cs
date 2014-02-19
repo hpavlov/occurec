@@ -905,7 +905,7 @@ namespace OccuRec
 	        {
 				if (Settings.Default.RecordNTPTimeStampInAAV)
 				{
-					UpdateNTPTimeReferenceForTimestampingVideo();
+					ThreadPool.QueueUserWorkItem(UpdateNTPTimeReferenceForTimestampingVideo);
 				}
 
 				nextNTPTimeOneMinCheckUTC = DateTime.UtcNow.AddMinutes(1);
@@ -970,7 +970,7 @@ namespace OccuRec
 	    private bool m_LastKnownGoodNTPServersInitialised = false;
 	    private string[] m_LastKnownGoodNTPServers = null;
 
-		private void UpdateNTPTimeReferenceForTimestampingVideo()
+		private void UpdateNTPTimeReferenceForTimestampingVideo(object state)
 		{
 			if (!m_LastKnownGoodNTPServersInitialised)
 			{
@@ -1009,8 +1009,8 @@ namespace OccuRec
 				try
 				{
 					float latencyInMilliseconds;
-					bool timeUpdated;
-					NTPClient.GetNetworkTimeFromMultipleServers(m_LastKnownGoodNTPServers, out latencyInMilliseconds, out timeUpdated);
+					int aliveServers;
+					NTPClient.GetNetworkTimeFromMultipleServers(m_LastKnownGoodNTPServers, out latencyInMilliseconds, out aliveServers);
 				}
 				catch (Exception ex)
 				{
@@ -1028,16 +1028,22 @@ namespace OccuRec
 
         private void UpdateTimeFromNTPServer(object state)
         {
-            try
-            {
-	            float latencyInMilliseconds;
-				DateTime networkUTCTime = NTPClient.GetNetworkTime("time.windows.com", false, out latencyInMilliseconds);
-                NTPClient.SetTime(networkUTCTime);
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex);
-            }
+	        for (int i = 0; i < 3; i++)
+	        {
+				try
+				{
+					float latencyInMilliseconds;
+					DateTime networkUTCTime = NTPClient.GetNetworkTime("time.windows.com", false, out latencyInMilliseconds);
+					NTPClient.SetTime(networkUTCTime);
+
+					break;
+				}
+				catch (Exception ex)
+				{
+					Trace.WriteLine(ex);
+				}		        
+	        }
+
         }
 
         private void btnClearSchedule_Click(object sender, EventArgs e)

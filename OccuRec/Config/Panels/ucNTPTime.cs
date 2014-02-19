@@ -59,13 +59,90 @@ namespace OccuRec.Config.Panels
 
 		public override void SaveSettings()
 		{
-			Settings.Default.NTPServer1 = tbxNTPServer.Text;
-			Settings.Default.NTPServer2 = tbxNTPServer2.Text;
-			Settings.Default.NTPServer3 = tbxNTPServer3.Text;
-			Settings.Default.NTPServer4 = tbxNTPServer4.Text;
+			Settings.Default.NTPServer1 = tbxNTPServer.Text.Trim().ToLower();
+			Settings.Default.NTPServer2 = tbxNTPServer2.Text.Trim().ToLower();
+			Settings.Default.NTPServer3 = tbxNTPServer3.Text.Trim().ToLower();
+			Settings.Default.NTPServer4 = tbxNTPServer4.Text.Trim().ToLower();
 			Settings.Default.NTPTimingHardwareCorrection = (int)nudHardwareLatencyCorrection.Value;
 			Settings.Default.RecordNTPTimeStampInAAV = cbxRecordNTPTimeStamps.Checked;
 			Settings.Default.RecordSecondaryTimeStampInAav = cbxRecordSecondaryTimeStamps.Checked;
+		}
+
+		public override bool ValidateSettings()
+		{
+			if (cbxRecordNTPTimeStamps.Checked)
+			{
+				string server1 = tbxNTPServer.Text.Trim().ToLower();
+				string server2 = tbxNTPServer2.Text.Trim().ToLower();
+				string server3 = tbxNTPServer3.Text.Trim().ToLower();
+				string server4 = tbxNTPServer4.Text.Trim().ToLower();
+
+				if (server1 == string.Empty)
+				{
+					ShowMissingServerErrorMessage("NTP Server 1");
+					return false;
+				}
+
+				if (server2 == string.Empty)
+				{
+					ShowMissingServerErrorMessage("NTP Server 2");
+					return false;
+				}
+
+				if (server3 == string.Empty)
+				{
+					ShowMissingServerErrorMessage("NTP Server 3");
+					return false;
+				}
+
+				if (server4 == string.Empty)
+				{
+					ShowMissingServerErrorMessage("NTP Server 4");
+					return false;
+				}
+				if (server1 == server2)
+				{
+					ShowDuplicatedServerErrorMessage(server1);
+					return false;
+				}
+				if (server1 == server3)
+				{
+					ShowDuplicatedServerErrorMessage(server1);
+					return false;
+				}
+				if (server1 == server4)
+				{
+					ShowDuplicatedServerErrorMessage(server1);
+					return false;
+				}
+				if (server2 == server3)
+				{
+					ShowDuplicatedServerErrorMessage(server2);
+					return false;
+				}
+				if (server2 == server4)
+				{
+					ShowDuplicatedServerErrorMessage(server2);
+					return false;
+				}
+				if (server3 == server4)
+				{
+					ShowDuplicatedServerErrorMessage(server3);
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private void ShowDuplicatedServerErrorMessage(string serverName)
+		{
+			MessageBox.Show(string.Format("Server {0} is listed more than once. Each server must be unique.", serverName), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
+
+		private void ShowMissingServerErrorMessage(string serverName)
+		{
+			MessageBox.Show(string.Format("Server {0} is not specified. All 4 servers must be specified.", serverName), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 
 		private void llblFindNTP_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -83,7 +160,8 @@ namespace OccuRec.Config.Panels
 			}
 			else
 			{
-				StartLatencyTesting();
+				if (ValidateSettings())
+					StartLatencyTesting();
 			}
         }
 
@@ -165,31 +243,62 @@ namespace OccuRec.Config.Panels
 
         private void CheckLatency(object state)
         {
-			float avrgLatency;
+			string[] ntpServerList = new string[] { tbxNTPServer.Text, tbxNTPServer2.Text, tbxNTPServer3.Text, tbxNTPServer4.Text };
+			var workingServers = new List<string>();
+
+	        try
+	        {
+		        for (int attempts = 0; attempts < 3; attempts++)
+		        {
+			        workingServers.Clear();
+			        for (int i = 0; i < 4; i++)
+			        {
+				        try
+				        {
+					        float latencyInMilliseconds;
+					        DateTime initialTime = NTPClient.GetNetworkTime(ntpServerList[i], true, out latencyInMilliseconds);
+					        NTPClient.SetTime(initialTime);
+
+					        Trace.WriteLine(string.Format("Latency to {0} is {1} ms.", ntpServerList[i], latencyInMilliseconds.ToString("0.0")));
+					        workingServers.Add(ntpServerList[i]);
+				        }
+				        catch
+				        {
+				        }
+
+				        Thread.Sleep(100);
+			        }
+
+			        if (workingServers.Count >= 3)
+				        break;
+		        }
+	        }
+	        catch
+	        { }
+
+			if (workingServers.Count < 3)
+			{
+				try
+				{
+					this.Invoke(new Action<float?, Exception>(OnNewLatencyMeasurement), new object[] { null, new Exception(string.Format("Only {0} of the specified servers are responding: {1}", workingServers.Count, string.Join(", ", workingServers.ToArray()))) });
+				}
+				catch (InvalidOperationException) { }
+
+				return;
+			}
+
+	        float avrgLatency;
 			while (m_CheckingLatency)
 			{
-				// TODO: Use the full 4 server NTP time keeping 
 				avrgLatency = float.NaN;
 				try
 				{
 					avrgLatency = 0;
 					float latency;
-					DateTime dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, false, out latency);
-					avrgLatency += latency;
+					int aliveServers = 0;
+					NTPClient.GetNetworkTimeFromMultipleServers(workingServers.ToArray(), out latency, out aliveServers);
 
-					if (!float.IsNaN(avrgLatency))
-					{
-						dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, false, out latency);
-						avrgLatency += latency;						
-					}
-
-					if (!float.IsNaN(avrgLatency))
-					{
-						dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, false, out latency);
-						avrgLatency += latency;
-					}
-
-					avrgLatency /= 3;
+					avrgLatency = latency;
 				}
 				catch (Exception ex)
 				{
