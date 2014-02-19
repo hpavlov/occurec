@@ -50,5 +50,10 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		{
 			Process.Start("http://www.ftdichip.com/Drivers/VCP.htm");
 		}
+
+		private void llDriverGuideUrl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+		{
+			Process.Start("http://www.ftdichip.com/Support/Documents/InstallGuides.htm");
+		}
 	}
 }

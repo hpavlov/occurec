@@ -14,64 +14,46 @@ using OccuRec.Utilities;
 
 namespace OccuRec.Helpers
 {
+	// http://stackoverflow.com/questions/1193955/how-to-query-an-ntp-server-using-c
     public class NTPClient
     {
 	    private static object s_SyncLock = new object();
 
-	    public static DateTime GetNetworkTime(string ntpServer, out float latencyInMilliseconds)
+	    public static DateTime GetNetworkTime(string ntpServer, bool feedToNTPTimeKeeper, out float latencyInMilliseconds)
 	    {
-		    float occuRecTimeDiff = 0;
-			float occuRecTimeDiffErr = 0;
-			return GetNetworkTime(ntpServer, false, out latencyInMilliseconds, ref occuRecTimeDiff, ref occuRecTimeDiffErr);
-	    }
+			NTPTimeKeeper.AttemptingNTPTimeUpdate();
 
-	    // http://stackoverflow.com/questions/1193955/how-to-query-an-ntp-server-using-c
-		public static DateTime GetNetworkTime(string ntpServer, bool timeAgainstOccuRecKeptTime, out float latencyInMilliseconds, ref float occuRecTimeDiff, ref float occuRecTimeDiffErr)
-        {
-	        NTPTimeKeeper.AttemptingNTPTimeUpdate();
+			// NTP message size - 16 bytes of the digest (RFC 2030)
+			var ntpData = new byte[48];
 
-            // NTP message size - 16 bytes of the digest (RFC 2030)
-            var ntpData = new byte[48];
+			//Setting the Leap Indicator, Version Number and Mode values
+			ntpData[0] = 0x1B; //LI = 0 (no warning), VN = 3 (IPv4 only), Mode = 3 (Client Mode)
 
-            //Setting the Leap Indicator, Version Number and Mode values
-            ntpData[0] = 0x1B; //LI = 0 (no warning), VN = 3 (IPv4 only), Mode = 3 (Client Mode)
+			var addresses = Dns.GetHostEntry(ntpServer).AddressList;
 
-            var addresses = Dns.GetHostEntry(ntpServer).AddressList;
+			//The UDP port number assigned to NTP is 123
+			var ipEndPoint = new IPEndPoint(addresses[0], 123);
+			//NTP uses UDP
+			var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-            //The UDP port number assigned to NTP is 123
-            var ipEndPoint = new IPEndPoint(addresses[0], 123);
-            //NTP uses UDP
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-            socket.Connect(ipEndPoint);
-	        long startTicks = 0;
+			socket.Connect(ipEndPoint);
+			long startTicks = 0;
 			long endTicks = 0;
 			long clockFrequency = 0;
-            latencyInMilliseconds = 0;
+			latencyInMilliseconds = 0;
 
 			Profiler.QueryPerformanceFrequency(ref clockFrequency);
-
-			#region timeAgainstOccuRecKeptTime
-			double maxError = 0;
-			DateTime sentTimeOccuRec = DateTime.MinValue;
-			DateTime rcvdTimeOccuRec = DateTime.MinValue;
-			if (timeAgainstOccuRecKeptTime) sentTimeOccuRec = NTPTimeKeeper.UtcNow(out maxError);
-			#endregion
-
 			Profiler.QueryPerformanceCounter(ref startTicks);
-            socket.Send(ntpData);
-	        socket.ReceiveTimeout = 3000;
+
+			socket.Send(ntpData);
+			socket.ReceiveTimeout = 3000;
 			try
 			{
 				socket.Receive(ntpData);
 
 				Profiler.QueryPerformanceCounter(ref endTicks);
-				
-				#region timeAgainstOccuRecKeptTime
-				if (timeAgainstOccuRecKeptTime) rcvdTimeOccuRec = NTPTimeKeeper.UtcNow(out maxError);
-				#endregion
 
-				latencyInMilliseconds += (endTicks - startTicks) * 1000.0f / clockFrequency;
+				latencyInMilliseconds = (endTicks - startTicks) * 1000.0f / clockFrequency;
 			}
 			catch (SocketException sex)
 			{
@@ -79,7 +61,7 @@ namespace OccuRec.Helpers
 
 				// http://msdn.microsoft.com/en-us/library/windows/desktop/ms740668(v=vs.85).aspx
 				if (sex.ErrorCode == 995 || /* WSA_OPERATION_ABORTED 995 */
-				    sex.ErrorCode == 10060 /* WSAETIMEDOUT 10060 */)
+					sex.ErrorCode == 10060 /* WSAETIMEDOUT 10060 */)
 				{
 					latencyInMilliseconds = float.NaN;
 				}
@@ -87,47 +69,140 @@ namespace OccuRec.Helpers
 					throw;
 			}
 
-            socket.Close();
+			socket.Close();
 
-            //Offset to get to the "Transmit Timestamp" field (time at which the reply 
-            //departed the server for the client, in 64-bit timestamp format."
-            const byte serverReplyTime = 40;
+			//Offset to get to the "Transmit Timestamp" field (time at which the reply 
+			//departed the server for the client, in 64-bit timestamp format."
+			const byte serverReplyTime = 40;
 
-            //Get the seconds part
-            ulong intPart = BitConverter.ToUInt32(ntpData, serverReplyTime);
+			//Get the seconds part
+			ulong intPart = BitConverter.ToUInt32(ntpData, serverReplyTime);
 
-            //Get the seconds fraction
-            ulong fractPart = BitConverter.ToUInt32(ntpData, serverReplyTime + 4);
+			//Get the seconds fraction
+			ulong fractPart = BitConverter.ToUInt32(ntpData, serverReplyTime + 4);
 
-            //Convert From big-endian to little-endian
-            intPart = SwapEndianness(intPart);
-            fractPart = SwapEndianness(fractPart);
+			//Convert From big-endian to little-endian
+			intPart = SwapEndianness(intPart);
+			fractPart = SwapEndianness(fractPart);
 
-            ulong milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
+			ulong milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
 
-	        if (milliseconds == 0)
-		        throw new InvalidOperationException("NTP Server returned an empty response.");
+			if (milliseconds == 0)
+				throw new InvalidOperationException("NTP Server returned an empty response.");
 
-            //**UTC** time
+			//**UTC** time
 			DateTime networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
 
-			#region timeAgainstOccuRecKeptTime
-			if (timeAgainstOccuRecKeptTime)
+			if (feedToNTPTimeKeeper)
 			{
-				DateTime occuRecKeptTimeStamp = new DateTime((rcvdTimeOccuRec.Ticks + sentTimeOccuRec.Ticks)/2);
-
-				occuRecTimeDiff = (float)new TimeSpan(occuRecKeptTimeStamp.Ticks - networkDateTime.Ticks).TotalMilliseconds;
-				occuRecTimeDiffErr = (float)maxError;
+				lock (s_SyncLock)
+				{
+					NTPTimeKeeper.ProcessNTPResponce(startTicks, endTicks, clockFrequency, networkDateTime);
+				}
 			}
-			#endregion
+
+			return networkDateTime;
+	    }
+
+		public static DateTime GetNetworkTimeFromMultipleServers(string[] ntpServers, out float latencyInMilliseconds, out bool timeUpdated)
+		{
+			var fit = new LinearRegression();
+
+			latencyInMilliseconds = 0;
+
+			for (int i = 0; i < ntpServers.Length; i++)
+			{
+				long startQPTicks = 0;
+				long endQPTicks = 0;
+				try
+				{
+					DateTime reference = GetSingleNetworkTimeReference(ntpServers[i], ref startQPTicks, ref endQPTicks);
+
+					long startTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(startQPTicks);
+					long endTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(endQPTicks);
+
+					fit.AddDataPoint(endTicks - startTicks, reference.Ticks - startTicks);
+
+					latencyInMilliseconds += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+				}
+				catch
+				{ }
+			}
+
+			fit.Solve();
+
+			double deltaTicks = fit.B;
+			double referenceTimeError = fit.StdDev;
+
+			latencyInMilliseconds /= fit.NumberOfDataPoints;
 
 			lock (s_SyncLock)
 			{
-				NTPTimeKeeper.ProcessNTPResponce(startTicks, endTicks, clockFrequency, networkDateTime);	
-			}			
+				timeUpdated = NTPTimeKeeper.ProcessUTCTimeOffset((long)deltaTicks, (long)referenceTimeError);
+			}
 
-            return networkDateTime;
-        }
+			Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms.", 
+				new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"), 
+				new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
+				(1 / fit.A).ToString("0.00"),
+				latencyInMilliseconds.ToString("0.0")));
+
+			double x, y, z;
+			return NTPTimeKeeper.UtcNowNoDriftCorrection(out x, out y, out z);
+		}
+
+		private static DateTime GetSingleNetworkTimeReference(string ntpServer, ref long startQPTicks, ref long endQPTicks)
+		{
+			NTPTimeKeeper.AttemptingNTPTimeUpdate();
+
+			// NTP message size - 16 bytes of the digest (RFC 2030)
+			var ntpData = new byte[48];
+
+			//Setting the Leap Indicator, Version Number and Mode values
+			ntpData[0] = 0x1B; //LI = 0 (no warning), VN = 3 (IPv4 only), Mode = 3 (Client Mode)
+
+			var addresses = Dns.GetHostEntry(ntpServer).AddressList;
+
+			//The UDP port number assigned to NTP is 123
+			var ipEndPoint = new IPEndPoint(addresses[0], 123);
+			//NTP uses UDP
+			var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+			socket.Connect(ipEndPoint);
+
+			socket.ReceiveTimeout = 3000;
+
+			Profiler.QueryPerformanceCounter(ref startQPTicks);
+			socket.Send(ntpData);
+			socket.Receive(ntpData);
+			Profiler.QueryPerformanceCounter(ref endQPTicks);
+
+			socket.Close();
+
+			//Offset to get to the "Transmit Timestamp" field (time at which the reply 
+			//departed the server for the client, in 64-bit timestamp format."
+			const byte serverReplyTime = 40;
+
+			//Get the seconds part
+			ulong intPart = BitConverter.ToUInt32(ntpData, serverReplyTime);
+
+			//Get the seconds fraction
+			ulong fractPart = BitConverter.ToUInt32(ntpData, serverReplyTime + 4);
+
+			//Convert From big-endian to little-endian
+			intPart = SwapEndianness(intPart);
+			fractPart = SwapEndianness(fractPart);
+
+			ulong milliseconds = (intPart * 1000) + ((fractPart * 1000) / 0x100000000L);
+
+			if (milliseconds == 0)
+				throw new InvalidOperationException("NTP Server returned an empty response.");
+
+			//**UTC** time
+			DateTime networkDateTime = (new DateTime(1900, 1, 1)).AddMilliseconds((long)milliseconds);
+
+			return networkDateTime;
+		}
 
         // stackoverflow.com/a/3294698/162671
         static uint SwapEndianness(ulong x)
@@ -188,6 +263,8 @@ namespace OccuRec.Helpers
 		private static long s_10MinAgoReferenceTicks = long.MaxValue;
 		private static long s_FirstReferenceDateTimeTicks = -1;
 		private static long s_10MinAgoReferenceDateTimeTicks = -1;
+		private static double s_LastReferenceCorrection = 0;
+		private static double s_LastReferenceCorrectionError = 0;
 		private static DateTime s_ReferenceDateTime;
 		private static long s_ReferenceFrequency = -1;
 		private static long s_ReferenceMaxError = -1;
@@ -414,6 +491,49 @@ namespace OccuRec.Helpers
 				maxErrorMilliseconds = 60*1000;
 				return DateTime.UtcNow;
 			}
+		}
+
+
+		public static bool ProcessUTCTimeOffset(long deltaTicksUTC, long deltaTicksError)
+		{
+			s_ReferenceDateTime = s_ReferenceDateTime.AddTicks(deltaTicksUTC);
+			s_LastReferenceCorrection = new TimeSpan(deltaTicksUTC).TotalMilliseconds;
+			s_LastReferenceCorrectionError = new TimeSpan(deltaTicksError).TotalMilliseconds;
+
+			return true;
+		}
+
+		public static DateTime UtcNowNoDriftCorrection(out double maxErrorMilliseconds, out double ntpAccu, out double ntpAccuErr)
+		{
+			if (s_ReferenceFrequency > 0)
+			{
+				long ticksNow = 0;
+				Profiler.QueryPerformanceCounter(ref ticksNow);
+				double millsecondsFromReferenceFrame = (ticksNow - s_ReferenceTicks) * 1000.0f / s_ReferenceFrequency;
+				maxErrorMilliseconds = s_ReferenceMaxError;
+
+				ntpAccu = s_LastReferenceCorrection;
+				ntpAccuErr = s_LastReferenceCorrectionError;
+
+				DateTime utcNowNoDriftCorrection = s_ReferenceDateTime
+					.AddMilliseconds(millsecondsFromReferenceFrame); // Add the elapsed milliseconds to the NTP reference time
+
+				return utcNowNoDriftCorrection;
+			}
+			else
+			{
+				maxErrorMilliseconds = 60 * 1000;
+				ntpAccu = 0;
+				ntpAccuErr = 0;
+				return DateTime.UtcNow;
+			}
+		}
+
+		public static long GetUtcTimeTicksFromQPCTicksNoDrift(long qpcTicks)
+		{
+			double millsecondsFromReferenceFrame = (qpcTicks - s_ReferenceTicks) * 1000.0f / s_ReferenceFrequency;
+
+			return s_ReferenceDateTime.AddMilliseconds(millsecondsFromReferenceFrame).Ticks;
 		}
 	}
 }

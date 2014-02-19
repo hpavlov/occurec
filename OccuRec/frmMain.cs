@@ -337,6 +337,7 @@ namespace OccuRec
 		    frmSettings.ShowDialog(this);
             UpdateASCOMConnectivityState();
 			UpdateNTPConnectivityState();
+			m_LastKnownGoodNTPServersInitialised = false;
 		}
 
 		private void miConnect_Click(object sender, EventArgs e)
@@ -868,53 +869,12 @@ namespace OccuRec
         }
 
 	    private DateTime nextNTPSyncTime = DateTime.MinValue;
-        private DateTime nextOneMinCheckUTC = DateTime.MinValue;
+        private DateTime nextNTPTimeOneMinCheckUTC = DateTime.MinValue;
+		private DateTime nextObservatoryCheckUTC = DateTime.MinValue;
 
         private void timerScheduler_Tick(object sender, EventArgs e)
         {
-            ScheduledAction actionToTake = Scheduler.CheckSchedules();
-
-            if (actionToTake != ScheduledAction.None)
-            {
-                switch(actionToTake)
-                {
-                    case ScheduledAction.StartRecording:
-                        if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning)
-                        {
-							if (Settings.Default.FileFormat == "AAV" && !m_StateManager.IsIntegrationLocked)
-							{
-								// If the integration hasn't been locked then try to lock it
-							    m_StateManager.LockIntegration();
-							}
-
-                            string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
-                            recordingfileName = videoObject.StartRecording(fileName);
-                            UpdateState(null);
-                        }
-                        break;
-
-                    case ScheduledAction.StopRecording:
-                        if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
-                        {
-                            videoObject.StopRecording();
-                            UpdateState(null);
-                        }
-                        break;
-                }
-
-                UpdateScheduleDisplay();
-            }
-
-            ScheduleEntry entry = Scheduler.GetNextEntry();
-            if (entry != null)
-            {
-                lblSecheduleWhatsNext.Text = entry.GetRemainingTime();
-                pnlNextScheduledAction.Visible = true;
-            }
-            else
-            {
-                pnlNextScheduledAction.Visible = false;
-            }
+	        CheckAndActionScheduledEntries();
 
 			if (m_StateManager.IsRecordingOcrTestFile && videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
 			{
@@ -926,52 +886,153 @@ namespace OccuRec
 				}
 			}
 
-            if (nextOneMinCheckUTC <= DateTime.UtcNow)
+			if (nextObservatoryCheckUTC <= DateTime.UtcNow)
             {
-                m_ObservatoryController.PerformTelescopePingActions();
-                m_ObservatoryController.PerformFocuserPingActions();
+				if (Settings.Default.ObservatoryStatusPingRateSeconds > 0)
+				{
+					m_ObservatoryController.PerformTelescopePingActions();
+					m_ObservatoryController.PerformFocuserPingActions();					
+				}
 
                 if (Settings.Default.ObservatoryStatusPingRateSeconds > 0)
-                    nextOneMinCheckUTC = DateTime.UtcNow.AddSeconds(Settings.Default.ObservatoryStatusPingRateSeconds);
-
-	            if (Settings.Default.RecordNTPTimeStampInAAV)
-	            {
-					try
-					{
-						float latencyInMilliseconds;
-						NTPClient.GetNetworkTime(Settings.Default.NTPServer, out latencyInMilliseconds);
-					}
-					catch (Exception ex)
-					{
-						Trace.WriteLine(ex.GetFullStackTrace());
-					}
-	            }
-
-	            try
-	            {
-		            Invoke(new Action(UpdateNTPStatus));
-	            }
-	            catch
-	            { }
+					nextObservatoryCheckUTC = DateTime.UtcNow.AddSeconds(Settings.Default.ObservatoryStatusPingRateSeconds);
+				else
+					// Check again in a minute if Settings.Default.ObservatoryStatusPingRateSeconds has changed
+					nextObservatoryCheckUTC = DateTime.UtcNow.AddMinutes(1);
             }
 
-			if (nextNTPSyncTime < DateTime.UtcNow)
+	        if (nextNTPTimeOneMinCheckUTC <= DateTime.UtcNow)
+	        {
+				if (Settings.Default.RecordNTPTimeStampInAAV)
+				{
+					UpdateNTPTimeReferenceForTimestampingVideo();
+				}
+
+				nextNTPTimeOneMinCheckUTC = DateTime.UtcNow.AddMinutes(1);
+	        }
+
+	        if (nextNTPSyncTime < DateTime.UtcNow)
 			{
+				// NOTE: Simply update the system time from 'time.windows.com' once every 30 min
 				ThreadPool.QueueUserWorkItem(UpdateTimeFromNTPServer);
 
-				nextNTPSyncTime = DateTime.UtcNow.AddSeconds(30);
+				nextNTPSyncTime = DateTime.UtcNow.AddMinutes(30);
 			}
         }
+
+		private void CheckAndActionScheduledEntries()
+		{
+			ScheduledAction actionToTake = Scheduler.CheckSchedules();
+
+			if (actionToTake != ScheduledAction.None)
+			{
+				switch (actionToTake)
+				{
+					case ScheduledAction.StartRecording:
+						if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning)
+						{
+							if (Settings.Default.FileFormat == "AAV" && !m_StateManager.IsIntegrationLocked)
+							{
+								// If the integration hasn't been locked then try to lock it
+								m_StateManager.LockIntegration();
+							}
+
+							string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
+							recordingfileName = videoObject.StartRecording(fileName);
+							UpdateState(null);
+						}
+						break;
+
+					case ScheduledAction.StopRecording:
+						if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
+						{
+							videoObject.StopRecording();
+							UpdateState(null);
+						}
+						break;
+				}
+
+				UpdateScheduleDisplay();
+			}
+
+			ScheduleEntry entry = Scheduler.GetNextEntry();
+			if (entry != null)
+			{
+				lblSecheduleWhatsNext.Text = entry.GetRemainingTime();
+				pnlNextScheduledAction.Visible = true;
+			}
+			else
+			{
+				pnlNextScheduledAction.Visible = false;
+			}			
+		}
+
+	    private bool m_LastKnownGoodNTPServersInitialised = false;
+	    private string[] m_LastKnownGoodNTPServers = null;
+
+		private void UpdateNTPTimeReferenceForTimestampingVideo()
+		{
+			if (!m_LastKnownGoodNTPServersInitialised)
+			{
+				string[] ntpServerList = new string[] { Settings.Default.NTPServer1, Settings.Default.NTPServer2, Settings.Default.NTPServer3, Settings.Default.NTPServer4 };
+				var workingServers = new List<string>();
+				for (int attempts = 0; attempts < 3; attempts++)
+				{
+					workingServers.Clear();
+					for (int i = 0; i < 4; i++)
+					{
+						try
+						{
+							float latencyInMilliseconds;
+							DateTime initialTime = NTPClient.GetNetworkTime(ntpServerList[i], true, out latencyInMilliseconds);
+							NTPClient.SetTime(initialTime);
+							
+							Trace.WriteLine(string.Format("Latency to {0} is {1} ms.", ntpServerList[i], latencyInMilliseconds.ToString("0.0")));
+							workingServers.Add(ntpServerList[i]);
+						}
+						catch
+						{ }
+
+						Thread.Sleep(100);
+					}
+
+					if (workingServers.Count >= 3)
+						break;
+				}
+
+				m_LastKnownGoodNTPServers = workingServers.ToArray();
+				m_LastKnownGoodNTPServersInitialised = m_LastKnownGoodNTPServers.Length >= 3;
+			}
+
+			if (m_LastKnownGoodNTPServers != null && m_LastKnownGoodNTPServersInitialised)
+			{
+				try
+				{
+					float latencyInMilliseconds;
+					bool timeUpdated;
+					NTPClient.GetNetworkTimeFromMultipleServers(m_LastKnownGoodNTPServers, out latencyInMilliseconds, out timeUpdated);
+				}
+				catch (Exception ex)
+				{
+					Trace.WriteLine(ex.GetFullStackTrace());
+				}
+
+				try
+				{
+					Invoke(new Action(UpdateNTPStatus));
+				}
+				catch
+				{ }					
+			}		
+		}
 
         private void UpdateTimeFromNTPServer(object state)
         {
             try
             {
 	            float latencyInMilliseconds;
-				DateTime networkUTCTime = NTPClient.GetNetworkTime(Settings.Default.NTPServer, out latencyInMilliseconds);
+				DateTime networkUTCTime = NTPClient.GetNetworkTime("time.windows.com", false, out latencyInMilliseconds);
                 NTPClient.SetTime(networkUTCTime);
-	            double maxError;
-	            DateTime dtDiscard = NTPTimeKeeper.UtcNow(out maxError);
             }
             catch (Exception ex)
             {

@@ -76,6 +76,11 @@ namespace OccuRec.Tracking
 		private double m_StdDev = double.NaN;
 		private double m_ChiSquare = double.NaN;
 
+		public int NumberOfDataPoints
+		{
+			get { return m_YValues.Count; }
+		}
+
 		public double StdDev
 		{
 			get

@@ -32,10 +32,12 @@
 			this.btnOK = new System.Windows.Forms.Button();
 			this.btnCancel = new System.Windows.Forms.Button();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.label2 = new System.Windows.Forms.Label();
-			this.label3 = new System.Windows.Forms.Label();
-			this.llDriversLink = new System.Windows.Forms.LinkLabel();
 			this.label1 = new System.Windows.Forms.Label();
+			this.llDriversLink = new System.Windows.Forms.LinkLabel();
+			this.label3 = new System.Windows.Forms.Label();
+			this.label2 = new System.Windows.Forms.Label();
+			this.llDriverGuideUrl = new System.Windows.Forms.LinkLabel();
+			this.label4 = new System.Windows.Forms.Label();
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -43,14 +45,14 @@
 			// 
 			this.cbxCOMPort.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cbxCOMPort.FormattingEnabled = true;
-			this.cbxCOMPort.Location = new System.Drawing.Point(149, 151);
+			this.cbxCOMPort.Location = new System.Drawing.Point(149, 164);
 			this.cbxCOMPort.Name = "cbxCOMPort";
 			this.cbxCOMPort.Size = new System.Drawing.Size(115, 21);
 			this.cbxCOMPort.TabIndex = 3;
 			// 
 			// btnOK
 			// 
-			this.btnOK.Location = new System.Drawing.Point(207, 209);
+			this.btnOK.Location = new System.Drawing.Point(222, 222);
 			this.btnOK.Name = "btnOK";
 			this.btnOK.Size = new System.Drawing.Size(75, 23);
 			this.btnOK.TabIndex = 4;
@@ -61,7 +63,7 @@
 			// btnCancel
 			// 
 			this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.btnCancel.Location = new System.Drawing.Point(288, 209);
+			this.btnCancel.Location = new System.Drawing.Point(303, 222);
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.Size = new System.Drawing.Size(75, 23);
 			this.btnCancel.TabIndex = 5;
@@ -70,6 +72,8 @@
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.label4);
+			this.groupBox1.Controls.Add(this.llDriverGuideUrl);
 			this.groupBox1.Controls.Add(this.label1);
 			this.groupBox1.Controls.Add(this.llDriversLink);
 			this.groupBox1.Controls.Add(this.label3);
@@ -77,32 +81,23 @@
 			this.groupBox1.Controls.Add(this.cbxCOMPort);
 			this.groupBox1.Location = new System.Drawing.Point(12, 12);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(351, 191);
+			this.groupBox1.Size = new System.Drawing.Size(366, 204);
 			this.groupBox1.TabIndex = 6;
 			this.groupBox1.TabStop = false;
 			// 
-			// label2
+			// label1
 			// 
-			this.label2.Location = new System.Drawing.Point(6, 16);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(329, 49);
-			this.label2.TabIndex = 4;
-			this.label2.Text = "You need to install Virtual COM Port (VCP) drivers  and configure your COM port f" +
-    "rom the control panel before you can connect to the camera. Get the drivers from" +
-    " the link below:";
-			// 
-			// label3
-			// 
-			this.label3.Location = new System.Drawing.Point(6, 103);
-			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(329, 28);
-			this.label3.TabIndex = 5;
-			this.label3.Text = "Once the COM port has been set up in the control panel, select it below:";
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(9, 167);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(134, 13);
+			this.label1.TabIndex = 7;
+			this.label1.Text = "Configured VCP COM Port:";
 			// 
 			// llDriversLink
 			// 
 			this.llDriversLink.AutoSize = true;
-			this.llDriversLink.Location = new System.Drawing.Point(6, 65);
+			this.llDriversLink.Location = new System.Drawing.Point(9, 63);
 			this.llDriversLink.Name = "llDriversLink";
 			this.llDriversLink.Size = new System.Drawing.Size(206, 13);
 			this.llDriversLink.TabIndex = 6;
@@ -110,20 +105,48 @@
 			this.llDriversLink.Text = "http://www.ftdichip.com/Drivers/VCP.htm";
 			this.llDriversLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llDriversLink_LinkClicked);
 			// 
-			// label1
+			// label3
 			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(9, 154);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(134, 13);
-			this.label1.TabIndex = 7;
-			this.label1.Text = "Configured VCP COM Port:";
+			this.label3.Location = new System.Drawing.Point(9, 143);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(329, 17);
+			this.label3.TabIndex = 5;
+			this.label3.Text = "Once a COM port has been set up, specify the port name below:";
+			// 
+			// label2
+			// 
+			this.label2.Location = new System.Drawing.Point(9, 16);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(351, 49);
+			this.label2.TabIndex = 4;
+			this.label2.Text = "You need to install Virtual COM Port (VCP) drivers  and configure your COM port f" +
+    "rom window\'s Device Manager before you can connect to the camera. Get the driver" +
+    "s from the link below:";
+			// 
+			// llDriverGuideUrl
+			// 
+			this.llDriverGuideUrl.AutoSize = true;
+			this.llDriverGuideUrl.Location = new System.Drawing.Point(9, 111);
+			this.llDriverGuideUrl.Name = "llDriverGuideUrl";
+			this.llDriverGuideUrl.Size = new System.Drawing.Size(308, 13);
+			this.llDriverGuideUrl.TabIndex = 8;
+			this.llDriverGuideUrl.TabStop = true;
+			this.llDriverGuideUrl.Text = "http://www.ftdichip.com/Support/Documents/InstallGuides.htm";
+			this.llDriverGuideUrl.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llDriverGuideUrl_LinkClicked);
+			// 
+			// label4
+			// 
+			this.label4.Location = new System.Drawing.Point(9, 93);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(206, 15);
+			this.label4.TabIndex = 7;
+			this.label4.Text = "Driver setup guide is available here:";
 			// 
 			// frmWAT910BDConnectionSettings
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(374, 239);
+			this.ClientSize = new System.Drawing.Size(390, 257);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.btnCancel);
 			this.Controls.Add(this.btnOK);
@@ -148,5 +171,7 @@
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.LinkLabel llDriverGuideUrl;
+		private System.Windows.Forms.Label label4;
 	}
 }

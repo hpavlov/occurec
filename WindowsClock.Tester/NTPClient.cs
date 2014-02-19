@@ -304,6 +304,8 @@ namespace WindowsClock.Tester
 		private static long s_FirstReferenceDateTimeTicks = -1;
 		private static long s_6MinAgoReferenceDateTimeTicks = -1;
 		private static DateTime s_ReferenceDateTime;
+		private static double s_LastReferenceCorrection = 0;
+		private static double s_LastReferenceCorrectionError = 0;
 		private static long s_ReferenceFrequency = -1;
 		private static long s_ReferenceMaxError = -1;
 		private static double s_TimeDriftPerMinuteMilleseconds = 0;
@@ -579,6 +581,8 @@ namespace WindowsClock.Tester
         public static bool ProcessUTCTimeOffset(long deltaTicksUTC, long deltaTicksError)
         {
             s_ReferenceDateTime = s_ReferenceDateTime.AddTicks(deltaTicksUTC);
+	        s_LastReferenceCorrection = new TimeSpan(deltaTicksUTC).TotalMilliseconds;
+			s_LastReferenceCorrectionError = new TimeSpan(deltaTicksError).TotalMilliseconds;
 
             return false;
         }
@@ -620,6 +624,32 @@ namespace WindowsClock.Tester
 				maxErrorMilliseconds = 60*1000;
 				timeDriftCorrectionMilliseconds = 0;
 				timeDriftStdDev = 0;
+				return DateTime.UtcNow;
+			}
+		}
+
+		public static DateTime UtcNowNoDriftCorrection(out double maxErrorMilliseconds, out double ntpAccu, out double ntpAccuErr)
+		{
+			if (s_ReferenceFrequency > 0)
+			{
+				long ticksNow = 0;
+				Profiler.QueryPerformanceCounter(ref ticksNow);
+				double millsecondsFromReferenceFrame = (ticksNow - s_ReferenceTicks) * 1000.0f / s_ReferenceFrequency;
+				maxErrorMilliseconds = s_ReferenceMaxError;
+
+				ntpAccu = s_LastReferenceCorrection;
+				ntpAccuErr = s_LastReferenceCorrectionError;
+
+				DateTime utcNowNoDriftCorrection = s_ReferenceDateTime
+					.AddMilliseconds(millsecondsFromReferenceFrame); // Add the elapsed milliseconds to the NTP reference time
+
+				return utcNowNoDriftCorrection;
+			}
+			else
+			{
+				maxErrorMilliseconds = 60 * 1000;
+				ntpAccu = 0;
+				ntpAccuErr = 0;
 				return DateTime.UtcNow;
 			}
 		}

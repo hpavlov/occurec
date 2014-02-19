@@ -45,14 +45,27 @@ namespace OccuRec.Config.Panels
 
 		public override void LoadSettings()
 		{
-			tbxNTPServer.Text = Settings.Default.NTPServer;
+			cbxRecordNTPTimeStamps.Checked = Settings.Default.RecordNTPTimeStampInAAV;
+			cbxRecordSecondaryTimeStamps.Checked = Settings.Default.RecordSecondaryTimeStampInAav;
+
+			tbxNTPServer.Text = Settings.Default.NTPServer1;
+			tbxNTPServer2.Text = Settings.Default.NTPServer2;
+			tbxNTPServer3.Text = Settings.Default.NTPServer3;
+			tbxNTPServer4.Text = Settings.Default.NTPServer4;
 			nudHardwareLatencyCorrection.SetNUDValue((decimal)Settings.Default.NTPTimingHardwareCorrection);
+
+			gbxNTPTime.Enabled = cbxRecordNTPTimeStamps.Checked;
 		}
 
 		public override void SaveSettings()
 		{
-			Settings.Default.NTPServer = tbxNTPServer.Text;
+			Settings.Default.NTPServer1 = tbxNTPServer.Text;
+			Settings.Default.NTPServer2 = tbxNTPServer2.Text;
+			Settings.Default.NTPServer3 = tbxNTPServer3.Text;
+			Settings.Default.NTPServer4 = tbxNTPServer4.Text;
 			Settings.Default.NTPTimingHardwareCorrection = (int)nudHardwareLatencyCorrection.Value;
+			Settings.Default.RecordNTPTimeStampInAAV = cbxRecordNTPTimeStamps.Checked;
+			Settings.Default.RecordSecondaryTimeStampInAav = cbxRecordSecondaryTimeStamps.Checked;
 		}
 
 		private void llblFindNTP_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -155,23 +168,24 @@ namespace OccuRec.Config.Panels
 			float avrgLatency;
 			while (m_CheckingLatency)
 			{
+				// TODO: Use the full 4 server NTP time keeping 
 				avrgLatency = float.NaN;
 				try
 				{
 					avrgLatency = 0;
 					float latency;
-					DateTime dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
+					DateTime dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, false, out latency);
 					avrgLatency += latency;
 
 					if (!float.IsNaN(avrgLatency))
 					{
-						dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
+						dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, false, out latency);
 						avrgLatency += latency;						
 					}
 
 					if (!float.IsNaN(avrgLatency))
 					{
-						dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, out latency);
+						dt = NTPClient.GetNetworkTime(tbxNTPServer.Text, false, out latency);
 						avrgLatency += latency;
 					}
 
@@ -208,6 +222,11 @@ namespace OccuRec.Config.Panels
 		private void indicatorTimer_Tick(object sender, EventArgs e)
 		{
 			lblTestingIndicator.Visible = !lblTestingIndicator.Visible;
+		}
+
+		private void cbxRecordNTPTimeStamps_CheckedChanged(object sender, EventArgs e)
+		{
+			gbxNTPTime.Enabled = cbxRecordNTPTimeStamps.Checked;
 		}
 	}
 }

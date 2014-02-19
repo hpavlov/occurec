@@ -68,8 +68,8 @@
     <Setting Name="AavImageLayout" Type="OccuRec.Helpers.AavImageLayout" Scope="User">
       <Value Profile="(Default)">CompressedRaw</Value>
     </Setting>
-    <Setting Name="NTPServer" Type="System.String" Scope="User">
-      <Value Profile="(Default)">time.windows.com</Value>
+    <Setting Name="NTPServer1" Type="System.String" Scope="User">
+      <Value Profile="(Default)">ntp2.tpg.com.au</Value>
     </Setting>
     <Setting Name="OcrSimulatorNativeCode" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -224,12 +224,6 @@
     <Setting Name="NTPTimingHardwareCorrection" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">60</Value>
     </Setting>
-    <Setting Name="RecordNTPTimeStamp" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="RecordSecondaryTimeStamp" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
     <Setting Name="WarnOnFreeDiskSpaceLeft" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -250,6 +244,21 @@
     </Setting>
     <Setting Name="LicenseAgreementAccepted" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="RecordNTPTimeStampInAAV" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="RecordSecondaryTimeStampInAav" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="NTPServer2" Type="System.String" Scope="User">
+      <Value Profile="(Default)">ntp0.cs.mu.OZ.AU</Value>
+    </Setting>
+    <Setting Name="NTPServer3" Type="System.String" Scope="User">
+      <Value Profile="(Default)">ntp.tourism.wa.gov.au</Value>
+    </Setting>
+    <Setting Name="NTPServer4" Type="System.String" Scope="User">
+      <Value Profile="(Default)">ntp1.tpg.com.au</Value>
     </Setting>
   </Settings>
 </SettingsFile>

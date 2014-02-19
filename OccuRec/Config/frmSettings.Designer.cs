@@ -29,8 +29,9 @@
 		private void InitializeComponent()
 		{
 			System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("General");
-			System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Astro Analogue Video (AAV)");
-			System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("NTP Time");
+			System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("NTP Timestamps");
+			System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Astro Analogue Video (AAV)", new System.Windows.Forms.TreeNode[] {
+            treeNode2});
 			System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Telescope");
 			System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Focusing");
 			System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Observatory Control", new System.Windows.Forms.TreeNode[] {
@@ -106,12 +107,12 @@
 			treeNode1.Name = "ndGeneral";
 			treeNode1.Tag = "0";
 			treeNode1.Text = "General";
-			treeNode2.Name = "ndAAV";
-			treeNode2.Tag = "1";
-			treeNode2.Text = "Astro Analogue Video (AAV)";
-			treeNode3.Name = "ndNTP";
-			treeNode3.Tag = "2";
-			treeNode3.Text = "NTP Time";
+			treeNode2.Name = "ndNTP";
+			treeNode2.Tag = "2";
+			treeNode2.Text = "NTP Timestamps";
+			treeNode3.Name = "ndAAV";
+			treeNode3.Tag = "1";
+			treeNode3.Text = "Astro Analogue Video (AAV)";
 			treeNode4.Name = "ndTelescope";
 			treeNode4.Tag = "6";
 			treeNode4.Text = "Telescope";
@@ -135,7 +136,6 @@
 			treeNode10.Text = "Debug";
 			this.tvSettings.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1,
-            treeNode2,
             treeNode3,
             treeNode6,
             treeNode9,

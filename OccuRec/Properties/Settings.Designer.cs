@@ -289,13 +289,13 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("time.windows.com")]
-        public string NTPServer {
+        [global::System.Configuration.DefaultSettingValueAttribute("ntp2.tpg.com.au")]
+        public string NTPServer1 {
             get {
-                return ((string)(this["NTPServer"]));
+                return ((string)(this["NTPServer1"]));
             }
             set {
-                this["NTPServer"] = value;
+                this["NTPServer1"] = value;
             }
         }
         
@@ -914,30 +914,6 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool RecordNTPTimeStampInAAV {
-            get {
-                return ((bool)(this["RecordNTPTimeStamp"]));
-            }
-            set {
-                this["RecordNTPTimeStamp"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool RecordSecondaryTimeStampInAav {
-            get {
-                return ((bool)(this["RecordSecondaryTimeStamp"]));
-            }
-            set {
-                this["RecordSecondaryTimeStamp"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool WarnOnFreeDiskSpaceLeft {
             get {
                 return ((bool)(this["WarnOnFreeDiskSpaceLeft"]));
@@ -1016,6 +992,66 @@ namespace OccuRec.Properties {
             }
             set {
                 this["LicenseAgreementAccepted"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RecordNTPTimeStampInAAV {
+            get {
+                return ((bool)(this["RecordNTPTimeStampInAAV"]));
+            }
+            set {
+                this["RecordNTPTimeStampInAAV"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RecordSecondaryTimeStampInAav {
+            get {
+                return ((bool)(this["RecordSecondaryTimeStampInAav"]));
+            }
+            set {
+                this["RecordSecondaryTimeStampInAav"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("ntp0.cs.mu.OZ.AU")]
+        public string NTPServer2 {
+            get {
+                return ((string)(this["NTPServer2"]));
+            }
+            set {
+                this["NTPServer2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("ntp.tourism.wa.gov.au")]
+        public string NTPServer3 {
+            get {
+                return ((string)(this["NTPServer3"]));
+            }
+            set {
+                this["NTPServer3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("ntp1.tpg.com.au")]
+        public string NTPServer4 {
+            get {
+                return ((string)(this["NTPServer4"]));
+            }
+            set {
+                this["NTPServer4"] = value;
             }
         }
     }
