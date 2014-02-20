@@ -106,6 +106,12 @@
     <Compile Include="CameraDrivers\WAT910BD\WAT910BDCameraController.cs" />
     <Compile Include="CameraDrivers\WAT910BD\WAT910BDDriver.cs" />
     <Compile Include="CameraDrivers\WAT910BD\WAT910BDStateMachine.cs" />
+    <Compile Include="Config\Panels\ucFieldIdentification.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucFieldIdentification.Designer.cs">
+      <DependentUpon>ucFieldIdentification.cs</DependentUpon>
+    </Compile>
     <Compile Include="Config\Panels\ucAscomNotInstalled.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -155,6 +161,31 @@
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
     <Compile Include="Drivers\AVISimulator\Video.cs" />
     <Compile Include="Drivers\BasicVideoFrame.cs" />
+    <Compile Include="FieldIdentification\CatalogHelper.cs" />
+    <Compile Include="FieldIdentification\ColourIndexTables.cs" />
+    <Compile Include="FieldIdentification\ICatalogValidator.cs" />
+    <Compile Include="FieldIdentification\IStar.cs" />
+    <Compile Include="FieldIdentification\NOMAD\NOMADCatalogue.cs" />
+    <Compile Include="FieldIdentification\NOMAD\NOMADEntry.cs" />
+    <Compile Include="FieldIdentification\NOMAD\NOMADIndex.cs" />
+    <Compile Include="FieldIdentification\PPMXL\PPMXLCatalogue.cs" />
+    <Compile Include="FieldIdentification\PPMXL\PPMXLEntry.cs" />
+    <Compile Include="FieldIdentification\PPMXL\PPMXLFileIterator.cs" />
+    <Compile Include="FieldIdentification\PPMXL\PPMXLIndex.cs" />
+    <Compile Include="FieldIdentification\StarCatalogueFacade.cs" />
+    <Compile Include="FieldIdentification\UCAC2\BSSBinaryFilesBuilder.cs" />
+    <Compile Include="FieldIdentification\UCAC2\UCAC2Catalogue.cs" />
+    <Compile Include="FieldIdentification\UCAC2\UCAC2Entry.cs" />
+    <Compile Include="FieldIdentification\UCAC2\UCAC2FileIterator.cs" />
+    <Compile Include="FieldIdentification\UCAC2\UCAC2Index.cs" />
+    <Compile Include="FieldIdentification\UCAC3\UCAC3Catalogue.cs" />
+    <Compile Include="FieldIdentification\UCAC3\UCAC3Entry.cs" />
+    <Compile Include="FieldIdentification\UCAC3\UCAC3FileIterator.cs" />
+    <Compile Include="FieldIdentification\UCAC3\UCAC3Index.cs" />
+    <Compile Include="FieldIdentification\UCAC4\UCAC4Catalogue.cs" />
+    <Compile Include="FieldIdentification\UCAC4\UCAC4Entry.cs" />
+    <Compile Include="FieldIdentification\UCAC4\UCAC4FileIterator.cs" />
+    <Compile Include="FieldIdentification\UCAC4\UCAC4Index.cs" />
     <Compile Include="FrameAnalysis\FrameAnalysisManager.cs" />
     <Compile Include="FrameAnalysis\TargetSignalMonitor.cs" />
     <Compile Include="frmChooseManualIntegrationRate.cs">
@@ -169,6 +200,9 @@
     <Compile Include="frmLicenseAgreement.Designer.cs">
       <DependentUpon>frmLicenseAgreement.cs</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\AngleUtility.cs" />
+    <Compile Include="Helpers\AssemblyHelper.cs" />
+    <Compile Include="Helpers\AstroConvert.cs" />
     <Compile Include="Helpers\AstroImage.cs" />
     <Compile Include="Helpers\DsHelper.cs" />
     <Compile Include="Config\Panels\SettingsPanel.cs">
@@ -321,6 +355,9 @@
     <EmbeddedResource Include="CameraDrivers\WAT910BD\frmWAT910BDConnectionSettings.resx">
       <DependentUpon>frmWAT910BDConnectionSettings.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucFieldIdentification.resx">
+      <DependentUpon>ucFieldIdentification.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucAAV.resx">
       <DependentUpon>ucAAV.cs</DependentUpon>
     </EmbeddedResource>
@@ -389,6 +426,12 @@
       <DependentUpon>frmAddScheduleEntry.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
+    <EmbeddedResource Include="FieldIdentification\NOMAD\nomad.idx" />
+    <EmbeddedResource Include="FieldIdentification\UCAC2\bsindex.da" />
+    <EmbeddedResource Include="FieldIdentification\UCAC2\bss2.idx" />
+    <EmbeddedResource Include="FieldIdentification\UCAC2\ucac2.idx" />
+    <EmbeddedResource Include="FieldIdentification\UCAC3\ucac3.idx" />
+    <EmbeddedResource Include="FieldIdentification\UCAC4\ucac4.idx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

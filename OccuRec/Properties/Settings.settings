@@ -263,5 +263,14 @@
     <Setting Name="PreserveVTIEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="StarCatalog" Type="OccuRec.FieldIdentification.StarCatalog" Scope="User">
+      <Value Profile="(Default)">NotSpecified</Value>
+    </Setting>
+    <Setting Name="StarCatalogLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="StarCatalogMagnitudeBandId" Type="System.Guid" Scope="User">
+      <Value Profile="(Default)">00000000-0000-0000-0000-000000000000</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

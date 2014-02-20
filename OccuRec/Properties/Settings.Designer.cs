@@ -1066,5 +1066,41 @@ namespace OccuRec.Properties {
                 this["PreserveVTIEnabled"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public global::OccuRec.FieldIdentification.StarCatalog StarCatalog {
+            get {
+                return ((global::OccuRec.FieldIdentification.StarCatalog)(this["StarCatalog"]));
+            }
+            set {
+                this["StarCatalog"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string StarCatalogLocation {
+            get {
+                return ((string)(this["StarCatalogLocation"]));
+            }
+            set {
+                this["StarCatalogLocation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("00000000-0000-0000-0000-000000000000")]
+        public global::System.Guid StarCatalogMagnitudeBandId {
+            get {
+                return ((global::System.Guid)(this["StarCatalogMagnitudeBandId"]));
+            }
+            set {
+                this["StarCatalogMagnitudeBandId"] = value;
+            }
+        }
     }
 }
