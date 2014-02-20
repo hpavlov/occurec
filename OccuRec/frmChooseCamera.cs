@@ -526,7 +526,7 @@ namespace OccuRec
 
 			// TODO: Once we have more than one driver for the same camera we will need to store the user's choice in Settings.Default.CameraControlDriver
 			
-			cbxCameraDriver.SelectedIndex = 0;
+			cbxCameraDriver.SelectedIndex = -1;
 		}
 
 		private void cbxCameraDriver_SelectedIndexChanged(object sender, EventArgs e)
