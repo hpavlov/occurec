@@ -24,7 +24,7 @@ namespace OccuRec.Astrometry.StarCatalogues
 	{
 		JohnsonV,
 		CousinsR,
-		//Instrumental
+		Instrumental
 	}
 
 	public enum MagInputBand

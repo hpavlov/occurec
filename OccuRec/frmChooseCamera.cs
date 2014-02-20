@@ -29,17 +29,19 @@ namespace OccuRec
 
 		internal class OcrConfigEntry
 		{
-			internal static OcrConfigEntry OcrVtiOsdEntry(string name)
+			internal static OcrConfigEntry OcrVtiOsdEntry(string name, bool isCompatible)
 			{
 				return new OcrConfigEntry()
 				{
 					Name = name,
-					EntryType = OcrConfigEntryType.OcrVtiOsd
+					EntryType = OcrConfigEntryType.OcrVtiOsd,
+					IsComptible = isCompatible
 				};
 			}
 
 			public OcrConfigEntryType EntryType;
 			public string Name;
+			public bool IsComptible;
 
 			public override string ToString()
 			{
@@ -131,19 +133,14 @@ namespace OccuRec
 
             cbxOCRConfigurations.Items.Clear();
 
-	        bool listAllOCRConfigs = cbFileSIM.Enabled; // In simulator mode we show all
-
 			OcrConfigEntry[] matchingOcrConfigEntries = OcrSettings.Instance.Configurations
-				.Where(x => !x.Hidden && (listAllOCRConfigs || x.Alignment.Width == width && x.Alignment.Height == height))
-				.Select(x => OcrConfigEntry.OcrVtiOsdEntry(x.Name))
+				.Where(x => !x.Hidden)
+				.Select(x => OcrConfigEntry.OcrVtiOsdEntry(x.Name, x.Alignment.Width == width && x.Alignment.Height == height))
 				.ToArray();
 
 			cbxOCRConfigurations.Items.Add(new OcrConfigEntry(){ Name = "VTI OSD not available", EntryType = OcrConfigEntryType.VtiOsdNotAvailable});
 
-			if (matchingOcrConfigEntries.Length == 0)
-				cbxOCRConfigurations.Items.Add(new OcrConfigEntry() { Name = string.Format("Reading VTI OSD not supported for {0} x {1}", width, height), EntryType = OcrConfigEntryType.PreserveVtiOsd });
-			else
-				cbxOCRConfigurations.Items.Add(new OcrConfigEntry() { Name = "Preserve VTI OSD", EntryType = OcrConfigEntryType.PreserveVtiOsd });
+			cbxOCRConfigurations.Items.Add(new OcrConfigEntry() { Name = "Preserve VTI OSD", EntryType = OcrConfigEntryType.PreserveVtiOsd });
 
 	        cbxOCRConfigurations.Items.AddRange(matchingOcrConfigEntries);
 
@@ -171,10 +168,14 @@ namespace OccuRec
 			int selectedIndex = -1;
 			for (int i = 0; i < cbxOCRConfigurations.Items.Count; i++)
 			{
-				if (!string.IsNullOrEmpty(byName) && cbxOCRConfigurations.Items[i].ToString() == byName)
+				if (!string.IsNullOrEmpty(byName))
 				{
-					selectedIndex = i;
-					break;
+					if (((OcrConfigEntry) cbxOCRConfigurations.Items[i]).IsComptible &&
+					    cbxOCRConfigurations.Items[i].ToString() == byName)
+					{
+						selectedIndex = i;
+						break;						
+					}
 				}
 				else if (byType == ((OcrConfigEntry) cbxOCRConfigurations.Items[i]).EntryType)
 				{
@@ -258,8 +259,16 @@ namespace OccuRec
 
 				if (selectedOcrItem.EntryType == OcrConfigEntryType.OcrVtiOsd)
                 {
-                    // The first item is "Custom" and next items are actual OCR configurations
-                    Settings.Default.SelectedOcrConfiguration = (string) cbxOCRConfigurations.SelectedItem;
+					if (!selectedOcrItem.IsComptible)
+					{
+						MessageBox.Show(
+							string.Format("'{0}' is not compatible with the current video mode '{1}'.", selectedOcrItem.ToString(), cbxVideoFormats.SelectedItem.ToString()),
+							"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						cbxOCRConfigurations.Focus();
+						return;
+					}
+
+					Settings.Default.SelectedOcrConfiguration = selectedOcrItem.Name;
 					Settings.Default.PreserveVTIEnabled = true;
                     Settings.Default.AavOcrEnabled = true;
                 }
@@ -439,6 +448,8 @@ namespace OccuRec
             }
         }
 
+	    private VideoFormatHelper.SupportedVideoFormat m_CurrenctlySelectedVideoFormat;
+
         private void cbxVideoFormats_SelectedIndexChanged(object sender, EventArgs e)
         {
             var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
@@ -455,7 +466,7 @@ namespace OccuRec
 
 			if (selectedOcrItem.EntryType == OcrConfigEntryType.PreserveVtiOsd && selectedFormat != null)
             {
-                if (Settings.Default.PreserveVTIWidth == selectedFormat.Width && Settings.Default.PreserveVTIHeight == selectedFormat.Height)
+				if (Settings.Default.PreserveVTIWidth == selectedFormat.Width && Settings.Default.PreserveVTIHeight == selectedFormat.Height)
                 {
                     nudPreserveVTITopRow.Value = Settings.Default.PreserveVTIFirstRow;
                     nudPreserveVTIBottomRow.Value = Settings.Default.PreserveVTILastRow;
@@ -476,9 +487,18 @@ namespace OccuRec
                 if (ocrConfig != null)
                 {
                     nudPreserveVTITopRow.Value = ocrConfig.Alignment.FrameTopOdd - 1;
-                    nudPreserveVTIBottomRow.Value = ocrConfig.Alignment.FrameTopOdd + (2 * ocrConfig.Alignment.CharHeight) + 2;
-                    pnlPreserveOSDArea.Enabled = false;
+                    nudPreserveVTIBottomRow.Value = ocrConfig.Alignment.FrameTopOdd + (2 * ocrConfig.Alignment.CharHeight) + 2;                   
                 }
+				if (ocrConfig != null)
+				{
+					pnlPreserveOSDArea.Enabled = false;
+					if (!selectedOcrItem.IsComptible)
+					{
+						MessageBox.Show(
+							string.Format("'{0}' is not compatible with the current video mode '{1}'.", cbxOCRConfigurations.Text, cbxVideoFormats.SelectedItem.ToString()),
+							"OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					}
+				}					
                 else
                     pnlPreserveOSDArea.Enabled = true;
 
