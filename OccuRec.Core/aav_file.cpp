@@ -274,7 +274,7 @@ void AavFile::AddFrameImage(unsigned char layoutId, unsigned char* pixels)
 	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
 	unsigned char *imageBytes = ImageSection->GetDataBytes(layoutId, pixels, &imageBytesCount, &byteMode);
 	
-	int imageSectionBytesCount = imageBytesCount + 2; // +1 byte for the layout id and +1 byte for the byteMode (See few lines below)
+	int imageSectionBytesCount = !m_CurrentImageLayout->IsNoImageLayout ? imageBytesCount + 2 : 2; // +1 byte for the layout id and +1 byte for the byteMode (See few lines below)
 	
 	m_FrameBytes[m_FrameBufferIndex] = imageSectionBytesCount & 0xFF;
 	m_FrameBytes[m_FrameBufferIndex + 1] = (imageSectionBytesCount >> 8) & 0xFF;
@@ -287,9 +287,12 @@ void AavFile::AddFrameImage(unsigned char layoutId, unsigned char* pixels)
 	m_FrameBytes[m_FrameBufferIndex + 1] = byteMode;
 	m_FrameBufferIndex+=2;	
 		
-	memcpy(&m_FrameBytes[m_FrameBufferIndex], &imageBytes[0], imageBytesCount);
-	m_FrameBufferIndex+= imageBytesCount;
-		
+	if (!m_CurrentImageLayout->IsNoImageLayout)
+	{
+		memcpy(&m_FrameBytes[m_FrameBufferIndex], &imageBytes[0], imageBytesCount);
+		m_FrameBufferIndex+= imageBytesCount;
+	}
+
 	unsigned int statusBytesCount = 0;
 	unsigned char *statusBytes = StatusSection->GetDataBytes(&statusBytesCount);
 	

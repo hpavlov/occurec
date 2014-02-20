@@ -21,6 +21,7 @@ AavImageLayout::AavImageLayout(unsigned int width, unsigned int height, unsigned
 	Height = height;
 	KeyFrame = keyFrame;
 	IsDiffCorrLayout = false;
+	IsNoImageLayout = false;
 	
 	SIGNS_MASK = new unsigned char(8);
 	SIGNS_MASK[0] = 0x01;
@@ -148,6 +149,7 @@ void AavImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 		if (0 == strcmp("FULL-IMAGE-DIFFERENTIAL-CODING", tagValue)) m_BytesLayout = FullImageDiffCorrWithSigns;
 		if (0 == strcmp("FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", tagValue)) m_BytesLayout = FullImageDiffCorrNoSigns;
 		IsDiffCorrLayout = m_BytesLayout == FullImageDiffCorrWithSigns || m_BytesLayout == FullImageDiffCorrNoSigns;
+		if (0 == strcmp("STATUS-CHANNEL-ONLY", tagValue)) IsNoImageLayout = true;
 	}	
 }
 

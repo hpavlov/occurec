@@ -28,7 +28,8 @@ namespace OccuRec.Helpers
         UncompressedRaw = 1,
         CompressedDiffCodeNoSigns = 2,
         CompressedDiffCodeWithSigns = 3,
-        CompressedRaw = 4
+        CompressedRaw = 4,
+		StatusSectionOnly = 5
     }
 
     [StructLayout(LayoutKind.Sequential)]

@@ -1069,7 +1069,7 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("NotSpecified")]
         public global::OccuRec.Astrometry.StarCatalogues.StarCatalog StarCatalog {
             get {
                 return ((global::OccuRec.Astrometry.StarCatalogues.StarCatalog)(this["StarCatalog"]));
@@ -1100,6 +1100,18 @@ namespace OccuRec.Properties {
             }
             set {
                 this["StarCatalogMagnitudeBandId"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool RecordStatusSectionOnly {
+            get {
+                return ((bool)(this["RecordStatusSectionOnly"]));
+            }
+            set {
+                this["RecordStatusSectionOnly"] = value;
             }
         }
     }

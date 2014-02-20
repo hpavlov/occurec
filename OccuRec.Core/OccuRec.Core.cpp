@@ -38,7 +38,7 @@ bool USE_BUFFERED_FRAME_PROCESSING = true;
 bool INTEGRATION_DETECTION_TUNING = false;
 bool USE_NTP_TIMESTAMP = false;
 bool USE_SECONDARY_TIMESTAMP = false;
-
+bool RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS = false;
 
 bool OCR_IS_SETUP = false;
 bool RUN_TRACKING = false;
@@ -307,6 +307,7 @@ HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDet
 	INTEGRATION_DETECTION_TUNING = integrationDetectionTuning == 1;
 	USE_NTP_TIMESTAMP = recordNtpTimestamp == 1;
 	USE_SECONDARY_TIMESTAMP = recordSecondaryTimestamp == 1;
+	RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS = useImageLayout == 5;
 
 	if (NULL != integrationChecker)
 	{
@@ -331,8 +332,11 @@ HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDet
 		case 4:
 			DebugViewPrint(L"AAVSetup: ImageLayout = FULL-IMAGE-RAW::QUICKLZ; BufferedMode = %d; IntegrationTuning: %s\n", USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
 			break;
+		case 5:
+			DebugViewPrint(L"AAVSetup: ImageLayout = STATUS-CHANNEL-ONLY::QUICKLZ; BufferedMode = %d; IntegrationTuning: %s\n", USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
+			break;
 		default:
-			DebugViewPrint(L"AAVSetup: ImageLayout = %s; BufferedMode = %d; IntegrationTuning: %s\n", USE_IMAGE_LAYOUT, USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
+			DebugViewPrint(L"AAVSetup: ImageLayout = %d; BufferedMode = %d; IntegrationTuning: %s\n", USE_IMAGE_LAYOUT, USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
 			break;
 	}
 
@@ -1622,19 +1626,25 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 
 	bool frameStartedOk = AavBeginFrame(timeStamp, elapsedTimeMilliseconds, exposureIn10thMilliseconds);
 
-	AavFrameAddStatusTag16(STATUS_TAG_NUMBER_INTEGRATED_FRAMES, nextFrame->NumberOfIntegratedFrames);
-	AavFrameAddStatusTag64(STATUS_TAG_START_FRAME_ID, nextFrame->StartFrameId);
-	AavFrameAddStatusTag64(STATUS_TAG_END_FRAME_ID, nextFrame->EndFrameId);
-	
 	SYSTEMTIME sysTime;
 	GetSystemTime(&sysTime);
 
-	AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime));
+	if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+	{
+		AavFrameAddStatusTag16(STATUS_TAG_NUMBER_INTEGRATED_FRAMES, nextFrame->NumberOfIntegratedFrames);
+		AavFrameAddStatusTag64(STATUS_TAG_START_FRAME_ID, nextFrame->StartFrameId);
+		AavFrameAddStatusTag64(STATUS_TAG_END_FRAME_ID, nextFrame->EndFrameId);
+		AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime));
+	}
 
 	if (OCR_IS_SETUP)
 	{
-		AavFrameAddStatusTag(STATUS_TAG_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]);
-		AavFrameAddStatusTag(STATUS_TAG_END_TIMESTAMP, &nextFrame->EndTimeStampStr[0]);
+		if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+		{
+			AavFrameAddStatusTag(STATUS_TAG_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]);
+			AavFrameAddStatusTag(STATUS_TAG_END_TIMESTAMP, &nextFrame->EndTimeStampStr[0]);
+		}
+
 		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_TRACKED_SATELLITES, nextFrame->GpsTrackedSatellites);
 		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_ALMANAC, nextFrame->GpsAlamancStatus);
 		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_FIX, nextFrame->GpsFixStatus);
@@ -1760,13 +1770,22 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	AavDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", "QUICKLZ", 32, "PREV-FRAME");
 	AavDefineImageLayout(3, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
 	AavDefineImageLayout(4, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
+
+	if (RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+	{
+		AavDefineImageLayout(5, "STATUS-CHANNEL-ONLY", "UNCOMPRESSED", 0, NULL);
+	}
 	
-	STATUS_TAG_SYSTEM_TIME= AavDefineStatusSectionTag("SystemTime", AavTagType::ULong64);
-	STATUS_TAG_NUMBER_INTEGRATED_FRAMES = AavDefineStatusSectionTag("IntegratedFrames", AavTagType::UInt16);
-	STATUS_TAG_START_FRAME_ID = AavDefineStatusSectionTag("StartFrame", AavTagType::ULong64);
-	STATUS_TAG_END_FRAME_ID = AavDefineStatusSectionTag("EndFrame", AavTagType::ULong64);
-	STATUS_TAG_START_TIMESTAMP = AavDefineStatusSectionTag("StartFrameTimestamp", AavTagType::AnsiString255);
-	STATUS_TAG_END_TIMESTAMP = AavDefineStatusSectionTag("EndFrameTimestamp", AavTagType::AnsiString255);
+	if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+	{
+		STATUS_TAG_SYSTEM_TIME= AavDefineStatusSectionTag("SystemTime", AavTagType::ULong64);
+		STATUS_TAG_NUMBER_INTEGRATED_FRAMES = AavDefineStatusSectionTag("IntegratedFrames", AavTagType::UInt16);
+		STATUS_TAG_START_FRAME_ID = AavDefineStatusSectionTag("StartFrame", AavTagType::ULong64);
+		STATUS_TAG_END_FRAME_ID = AavDefineStatusSectionTag("EndFrame", AavTagType::ULong64);
+		STATUS_TAG_START_TIMESTAMP = AavDefineStatusSectionTag("StartFrameTimestamp", AavTagType::AnsiString255);
+		STATUS_TAG_END_TIMESTAMP = AavDefineStatusSectionTag("EndFrameTimestamp", AavTagType::AnsiString255);
+	}
+
 	STATUS_TAG_GPS_TRACKED_SATELLITES = AavDefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8);
 	STATUS_TAG_GPS_ALMANAC = AavDefineStatusSectionTag("GPSAlmanacStatus", AavTagType::UInt8);
 	STATUS_TAG_GPS_FIX = AavDefineStatusSectionTag("GPSFixStatus", AavTagType::UInt8);

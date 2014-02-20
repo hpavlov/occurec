@@ -41,6 +41,7 @@
 			this.nudMinSignDiff = new System.Windows.Forms.NumericUpDown();
 			this.cbxFrameProcessingMode = new System.Windows.Forms.ComboBox();
 			this.label12 = new System.Windows.Forms.Label();
+			this.cbxStatusSectionOnly = new System.Windows.Forms.CheckBox();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
@@ -51,7 +52,7 @@
 			// cbDebugIntegration
 			// 
 			this.cbDebugIntegration.AutoSize = true;
-			this.cbDebugIntegration.Location = new System.Drawing.Point(202, 185);
+			this.cbDebugIntegration.Location = new System.Drawing.Point(3, 219);
 			this.cbDebugIntegration.Name = "cbDebugIntegration";
 			this.cbDebugIntegration.Size = new System.Drawing.Size(161, 17);
 			this.cbDebugIntegration.TabIndex = 24;
@@ -239,10 +240,21 @@
 			this.label12.TabIndex = 23;
 			this.label12.Text = "Frame Processing";
 			// 
+			// cbxStatusSectionOnly
+			// 
+			this.cbxStatusSectionOnly.AutoSize = true;
+			this.cbxStatusSectionOnly.Location = new System.Drawing.Point(3, 242);
+			this.cbxStatusSectionOnly.Name = "cbxStatusSectionOnly";
+			this.cbxStatusSectionOnly.Size = new System.Drawing.Size(157, 17);
+			this.cbxStatusSectionOnly.TabIndex = 26;
+			this.cbxStatusSectionOnly.Text = "Record Status Section Only";
+			this.cbxStatusSectionOnly.UseVisualStyleBackColor = true;
+			// 
 			// ucAAV
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.cbxStatusSectionOnly);
 			this.Controls.Add(this.cbDebugIntegration);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.cbxFrameProcessingMode);
@@ -275,5 +287,6 @@
 		private System.Windows.Forms.NumericUpDown nudMinSignDiff;
 		private System.Windows.Forms.ComboBox cbxFrameProcessingMode;
 		private System.Windows.Forms.Label label12;
+		private System.Windows.Forms.CheckBox cbxStatusSectionOnly;
 	}
 }

@@ -105,7 +105,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 					selectedFormat.AsSerialized(),
                     selectedFormat.FrameRate);
 
-                NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
+				NativeHelpers.SetupAav(Settings.Default.RecordStatusSectionOnly ? AavImageLayout.StatusSectionOnly : Settings.Default.AavImageLayout);
 
 			    ocrEnabled = false;
 				string errorMessage;

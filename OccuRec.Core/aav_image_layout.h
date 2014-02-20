@@ -38,6 +38,7 @@ namespace AavLib
 	
 		const char* Compression;
 		bool IsDiffCorrLayout;
+		bool IsNoImageLayout;
 		int KeyFrame;
 		
 		int MaxFrameBufferSize;
