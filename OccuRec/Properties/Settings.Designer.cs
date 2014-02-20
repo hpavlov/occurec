@@ -1070,9 +1070,9 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public global::OccuRec.FieldIdentification.StarCatalog StarCatalog {
+        public global::OccuRec.Astrometry.StarCatalogues.StarCatalog StarCatalog {
             get {
-                return ((global::OccuRec.FieldIdentification.StarCatalog)(this["StarCatalog"]));
+                return ((global::OccuRec.Astrometry.StarCatalogues.StarCatalog)(this["StarCatalog"]));
             }
             set {
                 this["StarCatalog"] = value;

@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using OccuRec.FieldIdentification;
+using OccuRec.Astrometry.StarCatalogues;
 using OccuRec.Helpers;
 using OccuRec.Properties;
 using OccuRec.Utilities;
@@ -16,18 +16,9 @@ namespace OccuRec.Config.Panels
 {
 	public partial class ucFieldIdentification : SettingsPanel
 	{
-		private ICatalogValidator m_CatalogValidator;
-
 		public ucFieldIdentification()
 		{
 			InitializeComponent();
-		}
-
-		public ucFieldIdentification(ICatalogValidator catalogValidator)
-		{
-			InitializeComponent();
-
-			m_CatalogValidator = catalogValidator;
 		}
 
 		public override void LoadSettings()
@@ -67,7 +58,7 @@ namespace OccuRec.Config.Panels
 				}
 
 				string path = tbxCatalogueLocation.Text;
-				if (!m_CatalogValidator.IsValidCatalogLocation(chosenCatalogue, ref path))
+				if (!StarCatalogueFacade.IsValidCatalogLocation(chosenCatalogue, ref path))
 				{
 					tbxCatalogueLocation.Focus();
 					MessageBox.Show(this,
@@ -89,27 +80,27 @@ namespace OccuRec.Config.Panels
 			{
 				case StarCatalog.UCAC3:
 					cbxCatalogPhotometryBand.Items.Clear();
-					cbxCatalogPhotometryBand.Items.AddRange(m_CatalogValidator.MagnitudeBandsForCatalog(catalog));
+					cbxCatalogPhotometryBand.Items.AddRange(StarCatalogueFacade.MagnitudeBandsForCatalog(catalog));
 					break;
 
 				case StarCatalog.UCAC2:
 					cbxCatalogPhotometryBand.Items.Clear();
-					cbxCatalogPhotometryBand.Items.AddRange(m_CatalogValidator.MagnitudeBandsForCatalog(catalog));
+					cbxCatalogPhotometryBand.Items.AddRange(StarCatalogueFacade.MagnitudeBandsForCatalog(catalog));
 					break;
 
 				case StarCatalog.NOMAD:
 					cbxCatalogPhotometryBand.Items.Clear();
-					cbxCatalogPhotometryBand.Items.AddRange(m_CatalogValidator.MagnitudeBandsForCatalog(catalog));
+					cbxCatalogPhotometryBand.Items.AddRange(StarCatalogueFacade.MagnitudeBandsForCatalog(catalog));
 					break;
 
 				case StarCatalog.PPMXL:
 					cbxCatalogPhotometryBand.Items.Clear();
-					cbxCatalogPhotometryBand.Items.AddRange(m_CatalogValidator.MagnitudeBandsForCatalog(catalog));
+					cbxCatalogPhotometryBand.Items.AddRange(StarCatalogueFacade.MagnitudeBandsForCatalog(catalog));
 					break;
 
 				case StarCatalog.UCAC4:
 					cbxCatalogPhotometryBand.Items.Clear();
-					cbxCatalogPhotometryBand.Items.AddRange(m_CatalogValidator.MagnitudeBandsForCatalog(catalog));
+					cbxCatalogPhotometryBand.Items.AddRange(StarCatalogueFacade.MagnitudeBandsForCatalog(catalog));
 					break;
 			}
 

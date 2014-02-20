@@ -12,7 +12,6 @@ using OccuRec.ASCOM.Wrapper;
 using OccuRec.ASCOM;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Config.Panels;
-using OccuRec.FieldIdentification;
 using OccuRec.Helpers;
 using OccuRec.OCR;
 using OccuRec.Properties;
@@ -70,7 +69,7 @@ namespace OccuRec.Config
 
 			m_PropertyPages.Add(8, new ucTrackingEngine());
 			m_PropertyPages.Add(9, new ucLightCurve());
-			m_PropertyPages.Add(10, new ucFieldIdentification(new StarCatalogueFacade()));
+			m_PropertyPages.Add(10, new ucFieldIdentification());
 
 #if !DEBUG
             tvSettings.Nodes.RemoveByKey("ndDebug");

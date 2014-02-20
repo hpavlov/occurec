@@ -19,13 +19,13 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 			break;
 
 		case DLL_PROCESS_ATTACH:
-			DebugViewPrint(L"TangraCore: DLL_PROCESS_ATTACH\r\n");
+			DebugViewPrint(L"OccuRec: DLL_PROCESS_ATTACH\r\n");
 			hFrameProcessingThread = (HANDLE)_beginthread(FrameProcessingThreadProc, 0, NULL);
 			SyncLock::Initialise();
 			break;
 		
 		case DLL_PROCESS_DETACH:
-			DebugViewPrint(L"TangraCore: DLL_PROCESS_DETACH\r\n");
+			DebugViewPrint(L"OccuRec: DLL_PROCESS_DETACH\r\n");
 			SyncLock::Uninitialise();
 			break;
 	}

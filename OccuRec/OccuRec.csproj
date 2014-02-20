@@ -161,31 +161,6 @@
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
     <Compile Include="Drivers\AVISimulator\Video.cs" />
     <Compile Include="Drivers\BasicVideoFrame.cs" />
-    <Compile Include="FieldIdentification\CatalogHelper.cs" />
-    <Compile Include="FieldIdentification\ColourIndexTables.cs" />
-    <Compile Include="FieldIdentification\ICatalogValidator.cs" />
-    <Compile Include="FieldIdentification\IStar.cs" />
-    <Compile Include="FieldIdentification\NOMAD\NOMADCatalogue.cs" />
-    <Compile Include="FieldIdentification\NOMAD\NOMADEntry.cs" />
-    <Compile Include="FieldIdentification\NOMAD\NOMADIndex.cs" />
-    <Compile Include="FieldIdentification\PPMXL\PPMXLCatalogue.cs" />
-    <Compile Include="FieldIdentification\PPMXL\PPMXLEntry.cs" />
-    <Compile Include="FieldIdentification\PPMXL\PPMXLFileIterator.cs" />
-    <Compile Include="FieldIdentification\PPMXL\PPMXLIndex.cs" />
-    <Compile Include="FieldIdentification\StarCatalogueFacade.cs" />
-    <Compile Include="FieldIdentification\UCAC2\BSSBinaryFilesBuilder.cs" />
-    <Compile Include="FieldIdentification\UCAC2\UCAC2Catalogue.cs" />
-    <Compile Include="FieldIdentification\UCAC2\UCAC2Entry.cs" />
-    <Compile Include="FieldIdentification\UCAC2\UCAC2FileIterator.cs" />
-    <Compile Include="FieldIdentification\UCAC2\UCAC2Index.cs" />
-    <Compile Include="FieldIdentification\UCAC3\UCAC3Catalogue.cs" />
-    <Compile Include="FieldIdentification\UCAC3\UCAC3Entry.cs" />
-    <Compile Include="FieldIdentification\UCAC3\UCAC3FileIterator.cs" />
-    <Compile Include="FieldIdentification\UCAC3\UCAC3Index.cs" />
-    <Compile Include="FieldIdentification\UCAC4\UCAC4Catalogue.cs" />
-    <Compile Include="FieldIdentification\UCAC4\UCAC4Entry.cs" />
-    <Compile Include="FieldIdentification\UCAC4\UCAC4FileIterator.cs" />
-    <Compile Include="FieldIdentification\UCAC4\UCAC4Index.cs" />
     <Compile Include="FrameAnalysis\FrameAnalysisManager.cs" />
     <Compile Include="FrameAnalysis\TargetSignalMonitor.cs" />
     <Compile Include="frmChooseManualIntegrationRate.cs">
@@ -200,9 +175,6 @@
     <Compile Include="frmLicenseAgreement.Designer.cs">
       <DependentUpon>frmLicenseAgreement.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\AngleUtility.cs" />
-    <Compile Include="Helpers\AssemblyHelper.cs" />
-    <Compile Include="Helpers\AstroConvert.cs" />
     <Compile Include="Helpers\AstroImage.cs" />
     <Compile Include="Helpers\DsHelper.cs" />
     <Compile Include="Config\Panels\SettingsPanel.cs">
@@ -426,12 +398,6 @@
       <DependentUpon>frmAddScheduleEntry.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
-    <EmbeddedResource Include="FieldIdentification\NOMAD\nomad.idx" />
-    <EmbeddedResource Include="FieldIdentification\UCAC2\bsindex.da" />
-    <EmbeddedResource Include="FieldIdentification\UCAC2\bss2.idx" />
-    <EmbeddedResource Include="FieldIdentification\UCAC2\ucac2.idx" />
-    <EmbeddedResource Include="FieldIdentification\UCAC3\ucac3.idx" />
-    <EmbeddedResource Include="FieldIdentification\UCAC4\ucac4.idx" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -465,6 +431,10 @@
     <ProjectReference Include="..\OccuRec.ASCOM.Interfaces\OccuRec.ASCOM.Interfaces.csproj">
       <Project>{0376db73-de7b-4b26-941e-e5763c0dc1b2}</Project>
       <Name>OccuRec.ASCOM.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OccuRec.Astrometry\OccuRec.Astrometry.csproj">
+      <Project>{a5b25be9-5e9b-49fc-9195-49e511d96ccb}</Project>
+      <Name>OccuRec.Astrometry</Name>
     </ProjectReference>
     <ProjectReference Include="..\OccuRec.Utilities\OccuRec.Utilities.csproj">
       <Project>{bd4c4c04-d0c5-46aa-b0df-9fa2c1ece01a}</Project>

@@ -42,7 +42,7 @@ void DebugPrintLastError(const char* message)
 
 void make_minidump(EXCEPTION_POINTERS* e)
 {
-	DebugViewPrint(L"TangraCore: CREATING ERROR DUMP\r\n");
+	DebugViewPrint(L"OccuRec: CREATING ERROR DUMP\r\n");
 
     auto hDbgHelp = LoadLibraryA("dbghelp");
     if(hDbgHelp == nullptr)

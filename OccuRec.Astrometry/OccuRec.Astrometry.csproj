@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A5B25BE9-5E9B-49FC-9195-49E511D96CCB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OccuRec.Astrometry</RootNamespace>
+    <AssemblyName>OccuRec.Astrometry</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="StarCatalogues\CatalogHelper.cs" />
+    <Compile Include="StarCatalogues\ColourIndexTables.cs" />
+    <Compile Include="StarCatalogues\IStar.cs" />
+    <Compile Include="StarCatalogues\NOMAD\NOMADCatalogue.cs" />
+    <Compile Include="StarCatalogues\NOMAD\NOMADEntry.cs" />
+    <Compile Include="StarCatalogues\NOMAD\NOMADIndex.cs" />
+    <Compile Include="StarCatalogues\PPMXL\PPMXLCatalogue.cs" />
+    <Compile Include="StarCatalogues\PPMXL\PPMXLEntry.cs" />
+    <Compile Include="StarCatalogues\PPMXL\PPMXLFileIterator.cs" />
+    <Compile Include="StarCatalogues\PPMXL\PPMXLIndex.cs" />
+    <Compile Include="StarCatalogues\StarCatalogueFacade.cs" />
+    <Compile Include="StarCatalogues\UCAC2\UCAC2Catalogue.cs" />
+    <Compile Include="StarCatalogues\UCAC2\UCAC2Entry.cs" />
+    <Compile Include="StarCatalogues\UCAC2\UCAC2FileIterator.cs" />
+    <Compile Include="StarCatalogues\UCAC2\UCAC2Index.cs" />
+    <Compile Include="StarCatalogues\UCAC3\UCAC3Catalogue.cs" />
+    <Compile Include="StarCatalogues\UCAC3\UCAC3Entry.cs" />
+    <Compile Include="StarCatalogues\UCAC3\UCAC3FileIterator.cs" />
+    <Compile Include="StarCatalogues\UCAC3\UCAC3Index.cs" />
+    <Compile Include="StarCatalogues\UCAC4\UCAC4Catalogue.cs" />
+    <Compile Include="StarCatalogues\UCAC4\UCAC4Entry.cs" />
+    <Compile Include="StarCatalogues\UCAC4\UCAC4FileIterator.cs" />
+    <Compile Include="StarCatalogues\UCAC4\UCAC4Index.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="StarCatalogues\NOMAD\nomad.idx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="StarCatalogues\UCAC2\bsindex.da" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="StarCatalogues\UCAC2\bss2.idx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="StarCatalogues\UCAC2\ucac2.idx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="StarCatalogues\UCAC3\ucac3.idx" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="StarCatalogues\UCAC4\ucac4.idx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OccuRec.Utilities\OccuRec.Utilities.csproj">
+      <Project>{bd4c4c04-d0c5-46aa-b0df-9fa2c1ece01a}</Project>
+      <Name>OccuRec.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
