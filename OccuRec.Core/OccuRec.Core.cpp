@@ -49,6 +49,7 @@ float TRACKED_TARGET_APERTURE = 10;
 float TRACKED_GUIDING_APERTURE = 10;
 float TRACKING_BG_INNER_RADIUS = 2;
 long TRACKING_BG_MIN_NUM_PIXELS = 200;
+bool OCR_PRESERVE_VTI;
 long OCR_FRAME_TOP_ODD;
 long OCR_FRAME_TOP_EVEN;
 long OCR_CHAR_WIDTH;
@@ -338,13 +339,17 @@ HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDet
 	return S_OK;
 }
 
-HRESULT SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int areaHeight)
+HRESULT SetupIntegrationPreservationArea(bool preserveVti, int areaTopOdd, int areaTopEven, int areaHeight)
 {
+	OCR_PRESERVE_VTI = preserveVti;
 	OCR_FRAME_TOP_ODD = areaTopOdd;
 	OCR_FRAME_TOP_EVEN = areaTopEven;
 	OCR_CHAR_FIELD_HEIGHT = areaHeight;
 
-	DebugViewPrint(L"IntegrationPreservationArea: From = %d; To = %d\n", OCR_FRAME_TOP_ODD, OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT); 
+	if (OCR_PRESERVE_VTI)
+		DebugViewPrint(L"IntegrationPreservationArea: From = %d; To = %d\n", OCR_FRAME_TOP_ODD, OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT); 
+	else
+		DebugViewPrint(L"IntegrationPreservationArea is turned OFF\n"); 
 			
 	return S_OK;
 }
@@ -954,7 +959,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				*ptrFramePixels = averageValue;
 			}
 
-			if (detectedIntegrationRate > 1)
+			if (detectedIntegrationRate > 1 && OCR_PRESERVE_VTI)
 			{
 				// Only preserve timestamps from different frames IF the integration is bigger than 1 frame
 				if (pixY >= OCR_FRAME_TOP_ODD && pixY < OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT)
@@ -1713,11 +1718,15 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 		AavAddFileTag("OCR-ENGINE", "IOTA-VTI OccuRec OCR v1.1");
 
 	char buffer[128];
-	sprintf(&buffer[0], "%d", OCR_FRAME_TOP_ODD);
-	AavAddFileTag("OSD-FIRST-LINE", &buffer[0]);
 
-	sprintf(&buffer[0], "%d", OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT);
-	AavAddFileTag("OSD-LAST-LINE", &buffer[0]);
+	if (OCR_PRESERVE_VTI)
+	{
+		sprintf(&buffer[0], "%d", OCR_FRAME_TOP_ODD);
+		AavAddFileTag("OSD-FIRST-LINE", &buffer[0]);
+
+		sprintf(&buffer[0], "%d", OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT);
+		AavAddFileTag("OSD-LAST-LINE", &buffer[0]);
+	}
 
 	float effectiveIntegrationRate = videoFrameRate / detectedIntegrationRate;
 	sprintf(&buffer[0], "%.5f", effectiveIntegrationRate);

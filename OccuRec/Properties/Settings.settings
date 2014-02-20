@@ -260,5 +260,8 @@
     <Setting Name="NTPServer4" Type="System.String" Scope="User">
       <Value Profile="(Default)">ntp1.tpg.com.au</Value>
     </Setting>
+    <Setting Name="PreserveVTIEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

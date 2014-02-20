@@ -344,7 +344,7 @@ namespace OccuRec.Helpers
         private static extern int TestNewIntegrationPeriod(long frameNo, float diffSignature, [In, Out] ref bool isNew);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int SetupIntegrationPreservationArea(int areaTopOdd, int areaTopEven, int areaHeight);
+		private static extern int SetupIntegrationPreservationArea(bool preserveVti, int areaTopOdd, int areaTopEven, int areaHeight);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupOcrAlignment(int width, int height, int frameTopOdd, int frameTopEven, int charWidth, int charHeight, int numberOfCharPositions, int numberOfZones, int zoneMode, [In, MarshalAs(UnmanagedType.LPArray)] int[] pixelsInZones);
@@ -608,6 +608,7 @@ namespace OccuRec.Helpers
 		public static string SetupTimestampPreservation(int width, int height)
 		{
 			int hr = SetupIntegrationPreservationArea(
+				Settings.Default.PreserveVTIEnabled,
 				Settings.Default.PreserveVTIFirstRow,
 				Settings.Default.PreserveVTIFirstRow + 1,
                 (Settings.Default.PreserveVTILastRow - Settings.Default.PreserveVTIFirstRow - 1) / 2);
@@ -631,6 +632,7 @@ namespace OccuRec.Helpers
 				return "Each ZoneId must equal the index of the zone in the zone list.";
 
 			SetupIntegrationPreservationArea(
+				true,
 				ocrConfig.Alignment.FrameTopOdd,
 				ocrConfig.Alignment.FrameTopEven,
 				ocrConfig.Alignment.CharHeight);

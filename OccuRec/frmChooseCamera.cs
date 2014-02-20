@@ -20,6 +20,33 @@ namespace OccuRec
 {
     public partial class frmChooseCamera : Form
     {
+		internal enum OcrConfigEntryType
+		{
+			VtiOsdNotAvailable,
+			PreserveVtiOsd,
+			OcrVtiOsd
+		}
+
+		internal class OcrConfigEntry
+		{
+			internal static OcrConfigEntry OcrVtiOsdEntry(string name)
+			{
+				return new OcrConfigEntry()
+				{
+					Name = name,
+					EntryType = OcrConfigEntryType.OcrVtiOsd
+				};
+			}
+
+			public OcrConfigEntryType EntryType;
+			public string Name;
+
+			public override string ToString()
+			{
+				return Name;
+			}
+		}
+
         public frmChooseCamera()
         {
             InitializeComponent();
@@ -37,6 +64,14 @@ namespace OccuRec
 	    private void frmChooseCamera_Load(object sender, EventArgs e)
         {
 			CameraControlDriver = null;
+
+			cbFileSIM.Enabled = Settings.Default.OcrSimulatorTestMode && File.Exists(Settings.Default.SimulatorFilePath);
+
+#if !DEBUG
+			cbFileSIM.Checked = false;
+			cbFileSIM.Visible = false;
+			cbFileSIM.Enabled = false;
+#endif
 
             cbxCameraModel.Text = Settings.Default.CameraModel;
 
@@ -87,41 +122,69 @@ namespace OccuRec
             cbxFlipHorizontally.Checked = Settings.Default.HorizontalFlip;
             cbxFlipVertically.Checked = Settings.Default.VerticalFlip;
 
-            cbFileSIM.Enabled = Settings.Default.OcrSimulatorTestMode && File.Exists(Settings.Default.SimulatorFilePath);
-
-#if !DEBUG
-            cbFileSIM.Checked = false;
-            cbFileSIM.Visible = false;
-#endif
-
             SetSettingsVisibility();
         }
 
         private void LoadVTIConfig(int width, int height)
         {
+			var prevSelectedEntry = cbxOCRConfigurations.SelectedItem as OcrConfigEntry;
+
             cbxOCRConfigurations.Items.Clear();
 
 	        bool listAllOCRConfigs = cbFileSIM.Enabled; // In simulator mode we show all
 
-            OcrSettings.Instance.Configurations
-                .Where(x => !x.Hidden && (listAllOCRConfigs || x.Alignment.Width == width && x.Alignment.Height == height))
-                .ToList()
-                .ForEach(x => cbxOCRConfigurations.Items.Add(x.Name));
+			OcrConfigEntry[] matchingOcrConfigEntries = OcrSettings.Instance.Configurations
+				.Where(x => !x.Hidden && (listAllOCRConfigs || x.Alignment.Width == width && x.Alignment.Height == height))
+				.Select(x => OcrConfigEntry.OcrVtiOsdEntry(x.Name))
+				.ToArray();
 
-			if (cbxOCRConfigurations.Items.Count == 0)
-				cbxOCRConfigurations.Items.Insert(0, string.Format("Reading VTI OSD not supported for {0} x {1}", width, height));
+			cbxOCRConfigurations.Items.Add(new OcrConfigEntry(){ Name = "VTI OSD not available", EntryType = OcrConfigEntryType.VtiOsdNotAvailable});
+
+			if (matchingOcrConfigEntries.Length == 0)
+				cbxOCRConfigurations.Items.Add(new OcrConfigEntry() { Name = string.Format("Reading VTI OSD not supported for {0} x {1}", width, height), EntryType = OcrConfigEntryType.PreserveVtiOsd });
 			else
-				cbxOCRConfigurations.Items.Insert(0, "No VTI OSD reading");
+				cbxOCRConfigurations.Items.Add(new OcrConfigEntry() { Name = "Preserve VTI OSD", EntryType = OcrConfigEntryType.PreserveVtiOsd });
 
-            if (!string.IsNullOrEmpty(Settings.Default.SelectedOcrConfiguration))
-            {
-                int selectedIndex = cbxOCRConfigurations.Items.IndexOf(Settings.Default.SelectedOcrConfiguration);
-                if (selectedIndex == -1) selectedIndex = 0; // Select 'Not Supported'
-                cbxOCRConfigurations.SelectedIndex = selectedIndex;
-            }
-            else
-                cbxOCRConfigurations.SelectedIndex = 0; // Select 'Not Supported'
+	        cbxOCRConfigurations.Items.AddRange(matchingOcrConfigEntries);
+
+			if (prevSelectedEntry != null && prevSelectedEntry.EntryType != OcrConfigEntryType.PreserveVtiOsd)
+			{
+				if (prevSelectedEntry.EntryType == OcrConfigEntryType.OcrVtiOsd)
+					cbxOCRConfigurations.SelectedIndex = GetIndexOfOcrConfigEntry(prevSelectedEntry.Name, prevSelectedEntry.EntryType);
+				else
+					cbxOCRConfigurations.SelectedIndex = GetIndexOfOcrConfigEntry(null, prevSelectedEntry.EntryType);
+			}
+
+			if (cbxOCRConfigurations.SelectedIndex == -1 && !string.IsNullOrEmpty(Settings.Default.SelectedOcrConfiguration))
+			{
+				cbxOCRConfigurations.SelectedIndex = GetIndexOfOcrConfigEntry(Settings.Default.SelectedOcrConfiguration, OcrConfigEntryType.OcrVtiOsd);
+			}
+
+			if (cbxOCRConfigurations.SelectedIndex == -1)
+			{
+				cbxOCRConfigurations.SelectedIndex = GetIndexOfOcrConfigEntry(null, OcrConfigEntryType.PreserveVtiOsd); // Select 'Preserve VTI OSD'
+			}		
         }
+
+		private int GetIndexOfOcrConfigEntry(string byName, OcrConfigEntryType byType)
+		{
+			int selectedIndex = -1;
+			for (int i = 0; i < cbxOCRConfigurations.Items.Count; i++)
+			{
+				if (!string.IsNullOrEmpty(byName) && cbxOCRConfigurations.Items[i].ToString() == byName)
+				{
+					selectedIndex = i;
+					break;
+				}
+				else if (byType == ((OcrConfigEntry) cbxOCRConfigurations.Items[i]).EntryType)
+				{
+					selectedIndex = i;
+					break;
+				}
+			}
+
+			return selectedIndex;
+		}
 
         private void btnOK_Click(object sender, EventArgs e)
         {            
@@ -191,13 +254,16 @@ namespace OccuRec
 
                 Settings.Default.FileFormat = "AAV";
 
-                if (cbxOCRConfigurations.SelectedIndex > 0)
+	            OcrConfigEntry selectedOcrItem = cbxOCRConfigurations.SelectedItem as OcrConfigEntry;
+
+				if (selectedOcrItem.EntryType == OcrConfigEntryType.OcrVtiOsd)
                 {
                     // The first item is "Custom" and next items are actual OCR configurations
                     Settings.Default.SelectedOcrConfiguration = (string) cbxOCRConfigurations.SelectedItem;
+					Settings.Default.PreserveVTIEnabled = true;
                     Settings.Default.AavOcrEnabled = true;
                 }
-                else
+				else if (selectedOcrItem.EntryType == OcrConfigEntryType.PreserveVtiOsd)
                 {
                     if (nudPreserveVTITopRow.Value == 0 && nudPreserveVTIBottomRow.Value == 0)
                     {
@@ -210,10 +276,16 @@ namespace OccuRec
                         nudPreserveVTITopRow.Focus();
                         return;
                     }
+					Settings.Default.PreserveVTIEnabled = true;
                     Settings.Default.AavOcrEnabled = false;
                 }
+				else if (selectedOcrItem.EntryType == OcrConfigEntryType.VtiOsdNotAvailable)
+				{
+					Settings.Default.PreserveVTIEnabled = false;
+					Settings.Default.AavOcrEnabled = false;
+				}
 
-                var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
+	            var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
                 if (selectedFormat != null)
                 {
                     Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
@@ -379,8 +451,9 @@ namespace OccuRec
         private void cbxOCRConfigurations_SelectedIndexChanged(object sender, EventArgs e)
         {
             var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
+			var selectedOcrItem = (OcrConfigEntry)cbxOCRConfigurations.SelectedItem;
 
-            if (cbxOCRConfigurations.SelectedIndex == 0 && selectedFormat != null)
+			if (selectedOcrItem.EntryType == OcrConfigEntryType.PreserveVtiOsd && selectedFormat != null)
             {
                 if (Settings.Default.PreserveVTIWidth == selectedFormat.Width && Settings.Default.PreserveVTIHeight == selectedFormat.Height)
                 {
@@ -394,8 +467,9 @@ namespace OccuRec
                 }
 
                 pnlPreserveOSDArea.Enabled = true;
+				pnlPreserveOSDArea.Visible = true;
             }
-            else
+            else if (selectedOcrItem.EntryType == OcrConfigEntryType.OcrVtiOsd)
             {
                 OcrConfiguration ocrConfig = OcrSettings.Instance.Configurations.SingleOrDefault(x => x.Name == cbxOCRConfigurations.Text);
 
@@ -407,7 +481,13 @@ namespace OccuRec
                 }
                 else
                     pnlPreserveOSDArea.Enabled = true;
+
+				pnlPreserveOSDArea.Visible = true;
             }
+			else if (selectedOcrItem.EntryType == OcrConfigEntryType.VtiOsdNotAvailable)
+			{
+				pnlPreserveOSDArea.Visible = false;
+			}
         }
 
 		private void llOnlineHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
