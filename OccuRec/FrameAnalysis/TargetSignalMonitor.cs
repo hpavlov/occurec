@@ -99,7 +99,8 @@ namespace OccuRec.FrameAnalysis
 								float x2 = 2 + i + 1;
 								float y2 = (52 - (m_AllMeasurements[i + 1].NormalizedMeasurement - min) * scaleY);
 
-								gBuff.DrawLine(Pens.Turquoise, x1, y1, x2, y2);
+								if (!float.IsNaN(y1) && !float.IsNaN(y2) && !float.IsInfinity(y1) && !float.IsInfinity(y2))
+									gBuff.DrawLine(Pens.Turquoise, x1, y1, x2, y2);
 							}
 						}
 

@@ -111,7 +111,8 @@ namespace OccuRec.Drivers.AAVSimulator.AAVPlayerImpl
         {
             if (!IsRunning)
             {
-                ocrTester.Reset();
+				if (ocrTester != null)
+					ocrTester.Reset();
 
                 IsRunning = true;
                 ThreadPool.QueueUserWorkItem(new WaitCallback(Run));
