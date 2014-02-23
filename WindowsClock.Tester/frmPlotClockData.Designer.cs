@@ -34,16 +34,19 @@
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
 			this.pboxPlot = new System.Windows.Forms.PictureBox();
 			this.pnlControls = new System.Windows.Forms.Panel();
-			this.pnlClient = new System.Windows.Forms.Panel();
-			this.nudMinPlot = new System.Windows.Forms.NumericUpDown();
-			this.nudMaxPlot = new System.Windows.Forms.NumericUpDown();
 			this.btnRePlot = new System.Windows.Forms.Button();
+			this.nudMaxPlot = new System.Windows.Forms.NumericUpDown();
+			this.nudMinPlot = new System.Windows.Forms.NumericUpDown();
+			this.pnlClient = new System.Windows.Forms.Panel();
+			this.cbxPlotTimeRef = new System.Windows.Forms.CheckBox();
+			this.cbxPlotOccuRec = new System.Windows.Forms.CheckBox();
+			this.cbxPlotWindows = new System.Windows.Forms.CheckBox();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pboxPlot)).BeginInit();
 			this.pnlControls.SuspendLayout();
-			this.pnlClient.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudMinPlot)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxPlot)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudMinPlot)).BeginInit();
+			this.pnlClient.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -87,6 +90,9 @@
 			// 
 			// pnlControls
 			// 
+			this.pnlControls.Controls.Add(this.cbxPlotWindows);
+			this.pnlControls.Controls.Add(this.cbxPlotOccuRec);
+			this.pnlControls.Controls.Add(this.cbxPlotTimeRef);
 			this.pnlControls.Controls.Add(this.btnRePlot);
 			this.pnlControls.Controls.Add(this.nudMaxPlot);
 			this.pnlControls.Controls.Add(this.nudMinPlot);
@@ -96,32 +102,15 @@
 			this.pnlControls.Size = new System.Drawing.Size(746, 41);
 			this.pnlControls.TabIndex = 2;
 			// 
-			// pnlClient
+			// btnRePlot
 			// 
-			this.pnlClient.Controls.Add(this.pboxPlot);
-			this.pnlClient.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.pnlClient.Location = new System.Drawing.Point(0, 65);
-			this.pnlClient.Name = "pnlClient";
-			this.pnlClient.Size = new System.Drawing.Size(746, 396);
-			this.pnlClient.TabIndex = 3;
-			// 
-			// nudMinPlot
-			// 
-			this.nudMinPlot.DecimalPlaces = 1;
-			this.nudMinPlot.Location = new System.Drawing.Point(35, 10);
-			this.nudMinPlot.Maximum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
-			this.nudMinPlot.Minimum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            -2147483648});
-			this.nudMinPlot.Name = "nudMinPlot";
-			this.nudMinPlot.Size = new System.Drawing.Size(76, 20);
-			this.nudMinPlot.TabIndex = 0;
+			this.btnRePlot.Location = new System.Drawing.Point(254, 9);
+			this.btnRePlot.Name = "btnRePlot";
+			this.btnRePlot.Size = new System.Drawing.Size(75, 23);
+			this.btnRePlot.TabIndex = 2;
+			this.btnRePlot.Text = "Plot";
+			this.btnRePlot.UseVisualStyleBackColor = true;
+			this.btnRePlot.Click += new System.EventHandler(this.btnRePlot_Click);
 			// 
 			// nudMaxPlot
 			// 
@@ -141,15 +130,62 @@
 			this.nudMaxPlot.Size = new System.Drawing.Size(76, 20);
 			this.nudMaxPlot.TabIndex = 1;
 			// 
-			// btnRePlot
+			// nudMinPlot
 			// 
-			this.btnRePlot.Location = new System.Drawing.Point(254, 9);
-			this.btnRePlot.Name = "btnRePlot";
-			this.btnRePlot.Size = new System.Drawing.Size(75, 23);
-			this.btnRePlot.TabIndex = 2;
-			this.btnRePlot.Text = "Plot";
-			this.btnRePlot.UseVisualStyleBackColor = true;
-			this.btnRePlot.Click += new System.EventHandler(this.btnRePlot_Click);
+			this.nudMinPlot.DecimalPlaces = 1;
+			this.nudMinPlot.Location = new System.Drawing.Point(35, 10);
+			this.nudMinPlot.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+			this.nudMinPlot.Minimum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            -2147483648});
+			this.nudMinPlot.Name = "nudMinPlot";
+			this.nudMinPlot.Size = new System.Drawing.Size(76, 20);
+			this.nudMinPlot.TabIndex = 0;
+			// 
+			// pnlClient
+			// 
+			this.pnlClient.Controls.Add(this.pboxPlot);
+			this.pnlClient.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.pnlClient.Location = new System.Drawing.Point(0, 65);
+			this.pnlClient.Name = "pnlClient";
+			this.pnlClient.Size = new System.Drawing.Size(746, 396);
+			this.pnlClient.TabIndex = 3;
+			// 
+			// cbxPlotTimeRef
+			// 
+			this.cbxPlotTimeRef.AutoSize = true;
+			this.cbxPlotTimeRef.Location = new System.Drawing.Point(358, 12);
+			this.cbxPlotTimeRef.Name = "cbxPlotTimeRef";
+			this.cbxPlotTimeRef.Size = new System.Drawing.Size(66, 17);
+			this.cbxPlotTimeRef.TabIndex = 3;
+			this.cbxPlotTimeRef.Text = "TimeRef";
+			this.cbxPlotTimeRef.UseVisualStyleBackColor = true;
+			// 
+			// cbxPlotOccuRec
+			// 
+			this.cbxPlotOccuRec.AutoSize = true;
+			this.cbxPlotOccuRec.Location = new System.Drawing.Point(444, 12);
+			this.cbxPlotOccuRec.Name = "cbxPlotOccuRec";
+			this.cbxPlotOccuRec.Size = new System.Drawing.Size(72, 17);
+			this.cbxPlotOccuRec.TabIndex = 4;
+			this.cbxPlotOccuRec.Text = "OccuRec";
+			this.cbxPlotOccuRec.UseVisualStyleBackColor = true;
+			// 
+			// cbxPlotWindows
+			// 
+			this.cbxPlotWindows.AutoSize = true;
+			this.cbxPlotWindows.Location = new System.Drawing.Point(530, 11);
+			this.cbxPlotWindows.Name = "cbxPlotWindows";
+			this.cbxPlotWindows.Size = new System.Drawing.Size(70, 17);
+			this.cbxPlotWindows.TabIndex = 5;
+			this.cbxPlotWindows.Text = "Windows";
+			this.cbxPlotWindows.UseVisualStyleBackColor = true;
 			// 
 			// frmPlotClockData
 			// 
@@ -167,9 +203,10 @@
 			this.menuStrip1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pboxPlot)).EndInit();
 			this.pnlControls.ResumeLayout(false);
-			this.pnlClient.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.nudMinPlot)).EndInit();
+			this.pnlControls.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxPlot)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudMinPlot)).EndInit();
+			this.pnlClient.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -187,5 +224,8 @@
 		private System.Windows.Forms.NumericUpDown nudMaxPlot;
 		private System.Windows.Forms.NumericUpDown nudMinPlot;
 		private System.Windows.Forms.Button btnRePlot;
+		private System.Windows.Forms.CheckBox cbxPlotWindows;
+		private System.Windows.Forms.CheckBox cbxPlotOccuRec;
+		private System.Windows.Forms.CheckBox cbxPlotTimeRef;
 	}
 }

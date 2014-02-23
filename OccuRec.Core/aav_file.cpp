@@ -82,7 +82,7 @@ bool AavFile::BeginFile(const char* fileName)
 	buffChar = (unsigned char)2;
 	advfwrite(&buffChar, 1, 1, m_File); // Number of sections (image and status) 
 
-	__int64* sectionHeaderOffsetPositions = new __int64[2];
+	__int64 sectionHeaderOffsetPositions[2];
 	
 	WriteString(m_File, "IMAGE");	
 	advfgetpos64(m_File, &sectionHeaderOffsetPositions[0]);
@@ -95,7 +95,7 @@ bool AavFile::BeginFile(const char* fileName)
 	advfwrite(&buffLong, 8, 1, m_File);
 
 	// Write section headers
-	__int64* sectionHeaderOffsets = new __int64[2];
+	__int64 sectionHeaderOffsets[2];
 	advfgetpos64(m_File, &sectionHeaderOffsets[0]);
 	ImageSection->WriteHeader(m_File);
 	advfgetpos64(m_File, &sectionHeaderOffsets[1]);

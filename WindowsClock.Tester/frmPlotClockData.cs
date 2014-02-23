@@ -55,6 +55,10 @@ namespace WindowsClock.Tester
 			float zeroX = pboxPlot.Width * 0.05f;
 			float maxX = pboxPlot.Width * 1.05f;
 
+			bool plotTimeRef = cbxPlotTimeRef.Checked;
+			bool plotOccuRec = cbxPlotOccuRec.Checked;
+			bool plotWindows = cbxPlotWindows.Checked;
+
 			pboxPlot.Image = new Bitmap(pboxPlot.Width, pboxPlot.Height, PixelFormat.Format24bppRgb);
 
 			using (Graphics g = Graphics.FromImage(pboxPlot.Image))
@@ -63,11 +67,14 @@ namespace WindowsClock.Tester
 
 				for (int i = 0; i < data.Data.Count - 1; i++)
 				{
-					g.DrawLine(Pens.DodgerBlue, zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].NTPAccu), zeroX + i * scaleX, zeroY - scaleY * (data.Data[i].NTPAccu));
+					if (plotTimeRef)
+						g.DrawLine(Pens.DodgerBlue, zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].NTPAccu) - 1, zeroX + i * scaleX, zeroY - scaleY * (data.Data[i].NTPAccu) + 1);
 
-					g.DrawLine(Pens.ForestGreen, zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].OccuRecAccu - data.Data[i].OccuRecErr), zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].OccuRecAccu + data.Data[i].OccuRecErr));
+					if (plotOccuRec)
+						g.DrawLine(Pens.ForestGreen, zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].OccuRecAccu - data.Data[i].OccuRecErr) - 1, zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].OccuRecAccu + data.Data[i].OccuRecErr) + 1);
 
-					g.DrawLine(Pens.Red, zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].WinAccu - data.Data[i].OccuRecErr), zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].WinAccu + data.Data[i].OccuRecErr));
+					if (plotWindows)
+						g.DrawLine(Pens.Red, zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].WinAccu - data.Data[i].OccuRecErr) - 1, zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].WinAccu + data.Data[i].OccuRecErr) + 1);
 				}
 
 				for (int i = -4000; i < 4000; i+=50)

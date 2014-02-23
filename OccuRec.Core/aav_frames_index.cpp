@@ -13,7 +13,8 @@ AavFramesIndex::AavFramesIndex()
 
 AavFramesIndex::~AavFramesIndex()
 {
-	// TODO: Need to delete the vector?
+	m_IndexEntries->clear();
+	delete m_IndexEntries;
 }
 
 void AavFramesIndex::AddFrame(unsigned int frameNo, unsigned int elapedTime, __int64 frameOffset, unsigned int  bytesCount)
