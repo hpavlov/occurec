@@ -7,20 +7,25 @@ using OccuRec.Helpers;
 
 namespace OccuRec.FrameAnalysis
 {
-	public class FrameAnalysisManager
+	public class FrameAnalysisManager : IDisposable
 	{
 		internal TargetSignalMonitor TargetSignalMonitor = new TargetSignalMonitor();
-
+	
 		public void ProcessFrame(VideoFrameWrapper frame)
 		{
 			TargetSignalMonitor.ProcessFrame(frame);
 
-			// TODO: Add other analysis classes
+			PlateSolveManager.Instance.ProcessFrame(frame);
 		}
 
 		public void DisplayData(Graphics g, int imageWidth, int imageHeight)
 		{
 			TargetSignalMonitor.DisplayData(g, imageWidth, imageHeight);
+		}
+
+		public void Dispose()
+		{
+			PlateSolveManager.Instance.StopBackgroundProcesing();
 		}
 	}
 }

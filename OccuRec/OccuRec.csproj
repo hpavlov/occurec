@@ -162,6 +162,7 @@
     <Compile Include="Drivers\AVISimulator\Video.cs" />
     <Compile Include="Drivers\BasicVideoFrame.cs" />
     <Compile Include="FrameAnalysis\FrameAnalysisManager.cs" />
+    <Compile Include="FrameAnalysis\PlateSolveManager.cs" />
     <Compile Include="FrameAnalysis\TargetSignalMonitor.cs" />
     <Compile Include="frmChooseManualIntegrationRate.cs">
       <SubType>Form</SubType>

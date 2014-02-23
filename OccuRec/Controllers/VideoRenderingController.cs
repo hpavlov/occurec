@@ -189,6 +189,7 @@ namespace OccuRec.Controllers
         public void Dispose()
         {
             running = false;
+	        analysisManager.Dispose();
         }
     }
 }
