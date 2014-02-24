@@ -31,6 +31,9 @@ namespace OccuRec.Config.Panels
 				if (bnd != null)
 					cbxCatalogPhotometryBand.SelectedItem = bnd;
 			}
+
+			cbxFocalReducer.Checked = Settings.Default.FocalReducerUsed;
+			nudFocalReducerValue.SetNUDValue(Settings.Default.FocalReducerValue);
 		}
 
 		public override void SaveSettings()
@@ -41,6 +44,9 @@ namespace OccuRec.Config.Panels
 				Settings.Default.StarCatalogLocation = tbxCatalogueLocation.Text;
 				Settings.Default.StarCatalogMagnitudeBandId = ((CatalogMagnitudeBand)cbxCatalogPhotometryBand.SelectedItem).Id;
 			}
+
+			Settings.Default.FocalReducerUsed = cbxFocalReducer.Checked;
+			Settings.Default.FocalReducerValue = (float)nudFocalReducerValue.Value; 
 		}
 
 		public override bool ValidateSettings()
@@ -112,6 +118,11 @@ namespace OccuRec.Config.Panels
 		{
 			if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
 				tbxCatalogueLocation.Text = folderBrowserDialog.SelectedPath;
+		}
+
+		private void cbxFocalReducer_CheckedChanged(object sender, EventArgs e)
+		{
+			nudFocalReducerValue.Enabled = cbxFocalReducer.Checked;
 		}
 
 	}

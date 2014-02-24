@@ -27,6 +27,10 @@ namespace OccuRec.ASCOM.Interfaces.Devices
         public double DefaultGuideRateRightAscension;
 
         public double DefaultGuideRateDeclination;
+
+		public double FocalLengthMeters;
+
+		public double ApertureMeters;
 	}
 
     [Serializable]

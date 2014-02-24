@@ -62,8 +62,6 @@ namespace OccuRec
 		    m_StateManager = new CameraStateManager();
             m_StateManager.CameraDisconnected();
 
-			m_AnalysisManager = new FrameAnalysisManager();
-
 			m_VideoRenderingController = new VideoRenderingController(this, m_StateManager, m_AnalysisManager);
             m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
 
@@ -75,6 +73,8 @@ namespace OccuRec
 		    m_ObservatoryController.FocuserStateUpdated += FocuserStateUpdated;
 			m_ObservatoryController.VideoStateUpdated += VideoStateUpdated;
 			m_ObservatoryController.VideoError += VideoError;
+
+			m_AnalysisManager = new FrameAnalysisManager(m_ObservatoryController);
 
 			Version att = Assembly.GetExecutingAssembly().GetName().Version;
 			appVersion = string.Format("{0}.{1}.{2}", att.Major, att.Minor, att.MinorRevision);

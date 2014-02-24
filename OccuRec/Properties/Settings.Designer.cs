@@ -1114,5 +1114,29 @@ namespace OccuRec.Properties {
                 this["RecordStatusSectionOnly"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool FocalReducerUsed {
+            get {
+                return ((bool)(this["FocalReducerUsed"]));
+            }
+            set {
+                this["FocalReducerUsed"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public float FocalReducerValue {
+            get {
+                return ((float)(this["FocalReducerValue"]));
+            }
+            set {
+                this["FocalReducerValue"] = value;
+            }
+        }
     }
 }

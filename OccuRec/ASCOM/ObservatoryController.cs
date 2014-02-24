@@ -53,6 +53,7 @@ namespace OccuRec.ASCOM
         event Action<ASCOMConnectionState> FocuserConnectionChanged;
 		event Action<ASCOMConnectionState> VideoConnectionChanged;
 		event Action<TelescopeState> TelescopeStateUpdated;
+		event Action<TelescopeCapabilities> TelescopeCapabilitiesKnown;
 		event Action<FocuserState> FocuserStateUpdated;
 		event Action<VideoState> VideoStateUpdated;
         event Action<string> VideoError;
@@ -109,6 +110,7 @@ namespace OccuRec.ASCOM
         public event Action<ASCOMConnectionState> FocuserConnectionChanged;
 		public event Action<ASCOMConnectionState> VideoConnectionChanged;
         public event Action<TelescopeState> TelescopeStateUpdated;
+		public event Action<TelescopeCapabilities> TelescopeCapabilitiesKnown;
         public event Action<FocuserState> FocuserStateUpdated;
 		public event Action<VideoState> VideoStateUpdated;
         public event Action<string> VideoError;
@@ -522,6 +524,9 @@ namespace OccuRec.ASCOM
 							OnTelescopeConnected();
 						}
 
+						TelescopeCapabilities capabilities = m_ConnectedTelescope.GetTelescopeCapabilities();
+						OnTelescopeCapabilitiesKnown(capabilities);
+
 						TelescopeState state = m_ConnectedTelescope.GetCurrentState();
 						OnTelescopeState(state);
 
@@ -909,7 +914,12 @@ namespace OccuRec.ASCOM
 		private void OnTelescopeState(TelescopeState state)
 		{
             EventHelper.RaiseEvent(TelescopeStateUpdated, state);
-		}		
+		}
+
+		private void OnTelescopeCapabilitiesKnown(TelescopeCapabilities capabilities)
+		{
+			EventHelper.RaiseEvent(TelescopeCapabilitiesKnown, capabilities);
+		}
 
 		private void OnFocuserState(FocuserState state)
 		{

@@ -17,6 +17,8 @@ namespace OccuRec.ASCOM.Wrapper.Devices
         private TelescopeCapabilities m_TelescopeCapabilities;
         private double m_DefaultGuideRateRightAscension = double.NaN;
         private double m_DefaultGuideRateDeclination = double.NaN;
+	    private double m_FocalLengthMeters = double.NaN;
+		private double m_ApertureDiameterMeters = double.NaN;
 
         private float m_PulseSlowestRate;
         private float m_PulseSlowRate;
@@ -52,6 +54,8 @@ namespace OccuRec.ASCOM.Wrapper.Devices
                     Trace.WriteLine(m_TelescopeCapabilities.AsSerialized().OuterXml);
                     m_DefaultGuideRateRightAscension = m_TelescopeCapabilities.DefaultGuideRateRightAscension;
                     m_DefaultGuideRateDeclination = m_TelescopeCapabilities.DefaultGuideRateDeclination;
+					m_FocalLengthMeters = m_TelescopeCapabilities.FocalLengthMeters;
+					m_ApertureDiameterMeters = m_TelescopeCapabilities.ApertureMeters;
                     m_CapabilitiesKnown = true;
                 }
             }

@@ -22,7 +22,7 @@ namespace OccuRec.Helpers
 		public int? DroppedFramesSinceLocked { get; private set; }
 		public int? OcrErrorsSinceReset { get; private set; }
 		public int ManualIntegrationRateHint { get; private set; }
-
+		
         public VideoFrameWrapper(IVideoFrame videoFrame)
         {
             this.videoFrame = videoFrame;

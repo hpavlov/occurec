@@ -112,6 +112,8 @@ namespace OccuRec.ASCOM.Server
                 rv.DoesRefraction = m_Telescope.DoesRefraction;
                 rv.DefaultGuideRateRightAscension = m_Telescope.GuideRateRightAscension;
                 rv.DefaultGuideRateDeclination = m_Telescope.GuideRateDeclination;
+				rv.FocalLengthMeters = m_Telescope.FocalLength;
+				rv.ApertureMeters = m_Telescope.ApertureDiameter;
             }
             catch (Exception ex)
             {

@@ -36,6 +36,9 @@
 			this.label33 = new System.Windows.Forms.Label();
 			this.cbxCatalogue = new System.Windows.Forms.ComboBox();
 			this.label34 = new System.Windows.Forms.Label();
+			this.nudFocalReducerValue = new System.Windows.Forms.NumericUpDown();
+			this.cbxFocalReducer = new System.Windows.Forms.CheckBox();
+			((System.ComponentModel.ISupportInitialize)(this.nudFocalReducerValue)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// cbxCatalogPhotometryBand
@@ -112,10 +115,46 @@
 			this.label34.TabIndex = 36;
 			this.label34.Text = "Star Catalogue";
 			// 
+			// nudFocalReducerValue
+			// 
+			this.nudFocalReducerValue.DecimalPlaces = 1;
+			this.nudFocalReducerValue.Location = new System.Drawing.Point(171, 154);
+			this.nudFocalReducerValue.Maximum = new decimal(new int[] {
+            30,
+            0,
+            0,
+            0});
+			this.nudFocalReducerValue.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.nudFocalReducerValue.Name = "nudFocalReducerValue";
+			this.nudFocalReducerValue.Size = new System.Drawing.Size(47, 20);
+			this.nudFocalReducerValue.TabIndex = 44;
+			this.nudFocalReducerValue.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// cbxFocalReducer
+			// 
+			this.cbxFocalReducer.AutoSize = true;
+			this.cbxFocalReducer.Location = new System.Drawing.Point(6, 155);
+			this.cbxFocalReducer.Name = "cbxFocalReducer";
+			this.cbxFocalReducer.Size = new System.Drawing.Size(170, 17);
+			this.cbxFocalReducer.TabIndex = 45;
+			this.cbxFocalReducer.Text = "Using a Focal Reducer of F /  ";
+			this.cbxFocalReducer.UseVisualStyleBackColor = true;
+			this.cbxFocalReducer.CheckedChanged += new System.EventHandler(this.cbxFocalReducer_CheckedChanged);
+			// 
 			// ucFieldIdentification
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.nudFocalReducerValue);
+			this.Controls.Add(this.cbxFocalReducer);
 			this.Controls.Add(this.cbxCatalogPhotometryBand);
 			this.Controls.Add(this.label58);
 			this.Controls.Add(this.btnBrowseLocation);
@@ -124,7 +163,8 @@
 			this.Controls.Add(this.cbxCatalogue);
 			this.Controls.Add(this.label34);
 			this.Name = "ucFieldIdentification";
-			this.Size = new System.Drawing.Size(445, 243);
+			this.Size = new System.Drawing.Size(445, 276);
+			((System.ComponentModel.ISupportInitialize)(this.nudFocalReducerValue)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -140,5 +180,7 @@
 		private System.Windows.Forms.Label label33;
 		private System.Windows.Forms.ComboBox cbxCatalogue;
 		private System.Windows.Forms.Label label34;
+		private System.Windows.Forms.NumericUpDown nudFocalReducerValue;
+		private System.Windows.Forms.CheckBox cbxFocalReducer;
 	}
 }
