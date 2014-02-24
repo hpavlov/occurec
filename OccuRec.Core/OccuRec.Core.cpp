@@ -1482,17 +1482,22 @@ HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, 
 
 	unsigned char* buf = reinterpret_cast<unsigned char*>(bmpBits);
 
-	RawFrame* frame = new RawFrame(IMAGE_WIDTH, IMAGE_HEIGHT);
-	frame->CurrentUtcDayAsTicks = currentUtcDayAsTicks;
-	frame->CurrentNtpTimeAsTicks = currentNtpTimeAsTicks;
-	frame->NtpBasedTimeError = ntpBasedTimeError;
-	frame->CurrentSecondaryTimeAsTicks = currentSecondaryTimeAsTicks;
+	if (NULL != buf)
+	{
+		RawFrame* frame = new RawFrame(IMAGE_WIDTH, IMAGE_HEIGHT);
+		frame->CurrentUtcDayAsTicks = currentUtcDayAsTicks;
+		frame->CurrentNtpTimeAsTicks = currentNtpTimeAsTicks;
+		frame->NtpBasedTimeError = ntpBasedTimeError;
+		frame->CurrentSecondaryTimeAsTicks = currentSecondaryTimeAsTicks;
 
-	memcpy(&frame->BmpBits[0], &buf[0], frame->BmpBitsSize);
+		memcpy(&frame->BmpBits[0], &buf[0], frame->BmpBitsSize);
 
-	AddFrameToRawFrameBuffer(frame);
+		AddFrameToRawFrameBuffer(frame);
 
-	return S_OK;
+		return S_OK;
+	}
+	else
+		return E_FAIL;
 }
 
 HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError,  __int64 currentSecondaryTimeAsTicks, FrameProcessingStatus* frameInfo)
