@@ -44,7 +44,7 @@ namespace OccuRec.FrameAnalysis
 			observatoryController.TelescopeStateUpdated += observatoryController_TelescopeStateUpdated;
 			observatoryController.TelescopeCapabilitiesKnown += observatoryController_TelescopeCapabilitiesKnown;
 
-			m_CurrentEpoch = (float)(2000.0 + new TimeSpan(DateTime.UtcNow.Ticks - new DateTime(2000, 0, 0).Ticks).TotalDays / 365.25);
+			m_CurrentEpoch = (float)(2000.0 + new TimeSpan(DateTime.UtcNow.Ticks - new DateTime(2000, 1, 1).Ticks).TotalDays / 365.25);
 
 			m_PlateSolvingThread = new Thread(PlateSolvingBackgroundProcessing);
 			m_PlateSolvingThread.Priority = ThreadPriority.Lowest;

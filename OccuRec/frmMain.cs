@@ -62,9 +62,6 @@ namespace OccuRec
 		    m_StateManager = new CameraStateManager();
             m_StateManager.CameraDisconnected();
 
-			m_VideoRenderingController = new VideoRenderingController(this, m_StateManager, m_AnalysisManager);
-            m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
-
 		    m_ObservatoryController = new ObservatoryController();
 		    m_ObservatoryController.TelescopeConnectionChanged += TelescopeConnectionChanged;
             m_ObservatoryController.FocuserConnectionChanged += FocuserConnectionChanged;
@@ -75,6 +72,8 @@ namespace OccuRec
 			m_ObservatoryController.VideoError += VideoError;
 
 			m_AnalysisManager = new FrameAnalysisManager(m_ObservatoryController);
+            m_VideoRenderingController = new VideoRenderingController(this, m_StateManager, m_AnalysisManager);
+            m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
 
 			Version att = Assembly.GetExecutingAssembly().GetName().Version;
 			appVersion = string.Format("{0}.{1}.{2}", att.Major, att.Minor, att.MinorRevision);
