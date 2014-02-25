@@ -99,6 +99,7 @@ HRESULT SetupOcrChar(char character, long fixedPosition);
 HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue);
 HRESULT DisableOcrProcessing();
 HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp);
+HRESULT SetupNtpDebugParams(long debugValue1, float debugValue2);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* ImageStatus);
 HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, FrameProcessingStatus* frameInfo);

@@ -1138,5 +1138,29 @@ namespace OccuRec.Properties {
                 this["FocalReducerValue"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int NTPDebugConfigValue1 {
+            get {
+                return ((int)(this["NTPDebugConfigValue1"]));
+            }
+            set {
+                this["NTPDebugConfigValue1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public float NTPDebugConfigValue2 {
+            get {
+                return ((float)(this["NTPDebugConfigValue2"]));
+            }
+            set {
+                this["NTPDebugConfigValue2"] = value;
+            }
+        }
     }
 }

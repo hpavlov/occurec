@@ -42,17 +42,23 @@
 			this.cbxFrameProcessingMode = new System.Windows.Forms.ComboBox();
 			this.label12 = new System.Windows.Forms.Label();
 			this.cbxStatusSectionOnly = new System.Windows.Forms.CheckBox();
+			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.nudNTPDebugValue1 = new System.Windows.Forms.NumericUpDown();
+			this.nudNTPDebugValue2 = new System.Windows.Forms.NumericUpDown();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudSignDiffRatio)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).BeginInit();
+			this.groupBox2.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// cbDebugIntegration
 			// 
 			this.cbDebugIntegration.AutoSize = true;
-			this.cbDebugIntegration.Location = new System.Drawing.Point(3, 219);
+			this.cbDebugIntegration.Location = new System.Drawing.Point(13, 22);
 			this.cbDebugIntegration.Name = "cbDebugIntegration";
 			this.cbDebugIntegration.Size = new System.Drawing.Size(161, 17);
 			this.cbDebugIntegration.TabIndex = 24;
@@ -243,19 +249,68 @@
 			// cbxStatusSectionOnly
 			// 
 			this.cbxStatusSectionOnly.AutoSize = true;
-			this.cbxStatusSectionOnly.Location = new System.Drawing.Point(3, 242);
+			this.cbxStatusSectionOnly.Location = new System.Drawing.Point(13, 51);
 			this.cbxStatusSectionOnly.Name = "cbxStatusSectionOnly";
 			this.cbxStatusSectionOnly.Size = new System.Drawing.Size(157, 17);
 			this.cbxStatusSectionOnly.TabIndex = 26;
 			this.cbxStatusSectionOnly.Text = "Record Status Section Only";
 			this.cbxStatusSectionOnly.UseVisualStyleBackColor = true;
 			// 
+			// groupBox2
+			// 
+			this.groupBox2.Controls.Add(this.nudNTPDebugValue2);
+			this.groupBox2.Controls.Add(this.nudNTPDebugValue1);
+			this.groupBox2.Controls.Add(this.cbDebugIntegration);
+			this.groupBox2.Controls.Add(this.cbxStatusSectionOnly);
+			this.groupBox2.Location = new System.Drawing.Point(4, 211);
+			this.groupBox2.Name = "groupBox2";
+			this.groupBox2.Size = new System.Drawing.Size(361, 100);
+			this.groupBox2.TabIndex = 27;
+			this.groupBox2.TabStop = false;
+			this.groupBox2.Text = "Debug";
+			// 
+			// nudNTPDebugValue1
+			// 
+			this.nudNTPDebugValue1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.nudNTPDebugValue1.Location = new System.Drawing.Point(176, 50);
+			this.nudNTPDebugValue1.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.nudNTPDebugValue1.Name = "nudNTPDebugValue1";
+			this.nudNTPDebugValue1.Size = new System.Drawing.Size(43, 20);
+			this.nudNTPDebugValue1.TabIndex = 27;
+			this.nudNTPDebugValue1.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+			// 
+			// nudNTPDebugValue2
+			// 
+			this.nudNTPDebugValue2.DecimalPlaces = 1;
+			this.nudNTPDebugValue2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.nudNTPDebugValue2.Location = new System.Drawing.Point(225, 50);
+			this.nudNTPDebugValue2.Maximum = new decimal(new int[] {
+            50,
+            0,
+            0,
+            0});
+			this.nudNTPDebugValue2.Name = "nudNTPDebugValue2";
+			this.nudNTPDebugValue2.Size = new System.Drawing.Size(49, 20);
+			this.nudNTPDebugValue2.TabIndex = 28;
+			this.nudNTPDebugValue2.Value = new decimal(new int[] {
+            50,
+            0,
+            0,
+            65536});
+			// 
 			// ucAAV
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.cbxStatusSectionOnly);
-			this.Controls.Add(this.cbDebugIntegration);
+			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.cbxFrameProcessingMode);
 			this.Controls.Add(this.label12);
@@ -267,6 +322,10 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudSignDiffRatio)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).EndInit();
+			this.groupBox2.ResumeLayout(false);
+			this.groupBox2.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -288,5 +347,8 @@
 		private System.Windows.Forms.ComboBox cbxFrameProcessingMode;
 		private System.Windows.Forms.Label label12;
 		private System.Windows.Forms.CheckBox cbxStatusSectionOnly;
+		private System.Windows.Forms.GroupBox groupBox2;
+		private System.Windows.Forms.NumericUpDown nudNTPDebugValue2;
+		private System.Windows.Forms.NumericUpDown nudNTPDebugValue1;
 	}
 }

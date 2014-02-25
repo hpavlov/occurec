@@ -39,6 +39,9 @@ bool INTEGRATION_DETECTION_TUNING = false;
 bool USE_NTP_TIMESTAMP = false;
 bool USE_SECONDARY_TIMESTAMP = false;
 bool RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS = false;
+long NTP_DEBUG_REC_FREQ = 1;
+float NTP_DEBUG_MAX_IGNORED_SHIFT = 10;
+
 
 bool OCR_IS_SETUP = false;
 bool RUN_TRACKING = false;
@@ -125,6 +128,9 @@ unsigned char* currTrackedFramePixels = NULL;
 
 HANDLE hRecordingThread = NULL;
 bool recording = false;
+long long numRecordedFrames = 0;
+double averageNtpDebugOffsetMS = 0;
+double aggregatedNtpDebug = 0;
 char cameraModel[128];
 char occuRecVersion[32];
 char grabberName[128];
@@ -339,6 +345,14 @@ HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDet
 			DebugViewPrint(L"AAVSetup: ImageLayout = %d; BufferedMode = %d; IntegrationTuning: %s\n", USE_IMAGE_LAYOUT, USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
 			break;
 	}
+
+	return S_OK;
+}
+
+HRESULT SetupNtpDebugParams(long debugValue1, float debugValue2)
+{
+	NTP_DEBUG_REC_FREQ = debugValue1;
+	NTP_DEBUG_MAX_IGNORED_SHIFT = debugValue2;
 
 	return S_OK;
 }
@@ -1151,7 +1165,41 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 		latestImageStatus.UniqueFrameNo++;
 
-		if (recording && (!OCR_FAILED_TEST_RECORDING || hasOcrErors))
+		bool recordNtpDebugFrame = false;
+
+		if (RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+		{
+			if (NTP_DEBUG_REC_FREQ == 1)
+			{
+				recordNtpDebugFrame = true;
+			}
+			else if (numRecordedFrames < 25 * 60)
+			{
+				// If we haven't recorded 1 min of frames yet (25 * 60) then keep recording
+				double deltaTicksMS = abs(idxFirstFrameTimestamp - firstFrameNtpTimestamp) / 100000.0;
+				aggregatedNtpDebug += deltaTicksMS;
+
+				recordNtpDebugFrame = true;
+			}
+			else
+			{
+				if (averageNtpDebugOffsetMS == 0)
+					// If we have recorded 1 min of frames but haven't determined the average NTP shift then do this now
+					averageNtpDebugOffsetMS = aggregatedNtpDebug / numRecordedFrames;
+				
+				double deltaTicksMS = abs(idxFirstFrameTimestamp - firstFrameNtpTimestamp) / 100000.0;
+
+				if (latestImageStatus.UniqueFrameNo % NTP_DEBUG_REC_FREQ == 0)
+					// If we have recorded 1 min of frames and this is the NTP_DEBUG_REC_FREQ-th unique frame then record it
+					recordNtpDebugFrame = true;
+
+				if (abs(averageNtpDebugOffsetMS - deltaTicksMS) > NTP_DEBUG_MAX_IGNORED_SHIFT)
+					// If we have recorded 1 min of frames and the diff between average and current NTP offset is more than NTP_DEBUG_MAX_IGNORED_SHIFT then record the frame
+					recordNtpDebugFrame = true;
+			}			
+		}
+
+		if (recording && (!OCR_FAILED_TEST_RECORDING || hasOcrErors) && (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS || recordNtpDebugFrame))
 		{
 			// Record every buffered frame in standard mode or only record frames with OCR errors when running OCR testing
 			frame->NumberOfIntegratedFrames = numberOfIntegratedFrames;
@@ -1177,6 +1225,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 
 			numItems = AddFrameToRecordingBuffer(frame);
+
+			numRecordedFrames++;
 		}
 		else
 		{
@@ -1848,6 +1898,9 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	}
 
 	recording = true;
+	numRecordedFrames = 0;
+	averageNtpDebugOffsetMS = 0;
+	aggregatedNtpDebug = 0;
 
 	// Create a new thread
 	hRecordingThread = (HANDLE)_beginthread(RecorderThreadProc, 0, NULL);

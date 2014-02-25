@@ -302,6 +302,9 @@ namespace OccuRec.Helpers
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion, int recordNtpTimestamp, int recordSecondaryTimestamp);
 
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		private static extern int SetupNtpDebugParams(int debugParam1, float debugParam2);
+
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, long currentSecondaryTimeAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
 
@@ -604,6 +607,8 @@ namespace OccuRec.Helpers
                 string.Format("OccuRec v{0}", ASSEMBLY_FILE_VERSION.Version),
 				Settings.Default.RecordNTPTimeStampInAAV ? 1 : 0,
 				Settings.Default.RecordSecondaryTimeStampInAav ? 1 : 0);
+
+			SetupNtpDebugParams(Settings.Default.NTPDebugConfigValue1, Settings.Default.NTPDebugConfigValue2);
         }
 
 		public static string SetupTimestampPreservation(int width, int height)
