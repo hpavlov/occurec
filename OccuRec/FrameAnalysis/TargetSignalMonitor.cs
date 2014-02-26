@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
+using OccuRec.ASCOM;
 using OccuRec.Helpers;
 using OccuRec.Properties;
 using OccuRec.Tracking;
@@ -26,12 +27,20 @@ namespace OccuRec.FrameAnalysis
 		private Bitmap m_PsfBitmap;
 		private Rectangle m_PsfBitmapRect;
 
-		public TargetSignalMonitor()
+		private IObservatoryController m_ObservatoryController;
+		private AutoFocusingManager m_AutoFocusingManager;
+
+		private bool m_AutoPulseGuiding = false;
+
+		internal TargetSignalMonitor(IObservatoryController observatoryController, AutoFocusingManager autoFocusingManager)
 		{
 			m_BufferImage = new Bitmap(204, 54, PixelFormat.Format32bppRgb);
 
 			m_PsfBitmap = new Bitmap(100, 100, PixelFormat.Format32bppRgb);
 			m_PsfBitmapRect = new Rectangle(0, 0, m_PsfBitmap.Width, m_PsfBitmap.Height);
+
+			m_ObservatoryController = observatoryController;
+			m_AutoFocusingManager = autoFocusingManager;
 		}
 
 		public void ProcessFrame(VideoFrameWrapper frame)
@@ -55,7 +64,18 @@ namespace OccuRec.FrameAnalysis
 						FrameNumber = frame.IntegratedFrameNo
 					};
 
-					m_AllMeasurements.Add(mea);					
+					m_AllMeasurements.Add(mea);
+				}
+
+				if (TrackingContext.Current.GuidingStar.IsLocated)
+				{
+					if (m_AutoPulseGuiding)
+					{
+						// TODO: Check if a correction needs to be made in the current thread
+						// TODO: Issue any pulse guiding commands on a seaprate thread (or asynchronously)
+					}
+
+					m_AutoFocusingManager.ProcessFrame(frame, TrackingContext.Current.GuidingStar);
 				}
 			}
 			else if (m_AllMeasurements.Count > 0)
@@ -139,6 +159,11 @@ namespace OccuRec.FrameAnalysis
 
                 g.DrawImage(m_PsfBitmap, imageWidth - 5 - m_PsfBitmapRect.Width, 54 + 5 + 5 + 5 +  m_PsfBitmapRect.Height);
             }
+		}
+
+		public void ChangeAutoPulseGuiding(bool autoPulseGuiding)
+		{
+			m_AutoPulseGuiding = autoPulseGuiding;
 		}
 	}
 }

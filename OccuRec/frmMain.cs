@@ -949,6 +949,24 @@ namespace OccuRec
 							UpdateState(null);
 						}
 						break;
+
+					case ScheduledAction.AutoFocus:
+						if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning && m_ObservatoryController.IsConnectedToFocuser())
+						{
+							m_AnalysisManager.TriggerAutoFocusing();
+							UpdateState(null);
+						}
+						break;
+
+					case ScheduledAction.EnablePulseGuiding:
+						m_AnalysisManager.UpdatePulseGuiding(true);
+						UpdateState(null);
+						break;
+
+					case ScheduledAction.DisablePulseGuiding:
+						m_AnalysisManager.UpdatePulseGuiding(false);
+						UpdateState(null);
+						break;
 				}
 
 				UpdateScheduleDisplay();
@@ -960,9 +978,6 @@ namespace OccuRec
 				double remainingSeconds;
 				lblSecheduleWhatsNext.Text = entry.GetRemainingTime(out remainingSeconds);
 				pnlNextScheduledAction.Visible = true;
-
-				m_AnalysisManager.AutoFocusingTick(entry.AutoFocusing, remainingSeconds);
-				m_AnalysisManager.AutoPulseGuidingTick(entry.AutoPulseGuiding, remainingSeconds);
 			}
 			else
 			{

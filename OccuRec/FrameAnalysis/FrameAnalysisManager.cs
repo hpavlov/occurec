@@ -10,38 +10,39 @@ namespace OccuRec.FrameAnalysis
 {
 	public class FrameAnalysisManager : IDisposable
 	{
-		internal TargetSignalMonitor TargetSignalMonitor = new TargetSignalMonitor();
+		internal TargetSignalMonitor m_TargetSignalMonitor;
 		private PlateSolveManager m_PlateSolveManager;
+		private AutoFocusingManager m_AutoFocusingManager;
 		private IObservatoryController m_ObservatoryController;
 
 		internal FrameAnalysisManager(IObservatoryController observatoryController)
 		{
 			m_PlateSolveManager = new PlateSolveManager(observatoryController);
+			m_AutoFocusingManager = new AutoFocusingManager(observatoryController);
+			m_TargetSignalMonitor = new TargetSignalMonitor(observatoryController, m_AutoFocusingManager);			
 		}
 
 		public void ProcessFrame(VideoFrameWrapper frame, Bitmap bmp)
 		{
 			// TODO: Make this processing Asynchronous so the painting is not delayed unnecessary (is this actually possible?)
-			TargetSignalMonitor.ProcessFrame(frame);
+			m_TargetSignalMonitor.ProcessFrame(frame);
 
 			m_PlateSolveManager.ProcessFrameAsync(frame, bmp);
 		}
 
 		public void DisplayData(Graphics g, int imageWidth, int imageHeight)
 		{
-			TargetSignalMonitor.DisplayData(g, imageWidth, imageHeight);
+			m_TargetSignalMonitor.DisplayData(g, imageWidth, imageHeight);
 		}
 
-		public void AutoFocusingTick(bool autoFocusingRequested, double secondsUntilNextOperation)
+		public void UpdatePulseGuiding(bool autoPulseGuidingRequested)
 		{
-			// TODO: Keep track on how much time is remaining
-			// TODO: Decide on a policy of when to do auto-focusing
-			// TODO: Set a flag so the next call to ProcessFrame() will start and async auto focusing
+			m_TargetSignalMonitor.ChangeAutoPulseGuiding(autoPulseGuidingRequested);
 		}
 
-		public void AutoPulseGuidingTick(bool autoPulseGuidingRequested, double secondsUntilNextOperation)
+		public void TriggerAutoFocusing()
 		{
-			// TODO: Inform the target monitor to do auto-guiding
+			m_AutoFocusingManager.TriggerAutoFocusing();
 		}
 
 		public void Dispose()
