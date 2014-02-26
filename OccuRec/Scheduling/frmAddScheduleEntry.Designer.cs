@@ -56,6 +56,8 @@
 			this.nudSchHours = new System.Windows.Forms.NumericUpDown();
 			this.lblUT = new System.Windows.Forms.Label();
 			this.nudSchSeconds = new System.Windows.Forms.NumericUpDown();
+			this.cbxAutoFocusing = new System.Windows.Forms.CheckBox();
+			this.cbxAutoPulseGuiding = new System.Windows.Forms.CheckBox();
 			this.groupBox1.SuspendLayout();
 			this.tcEntryType.SuspendLayout();
 			this.tabMidTimeWings.SuspendLayout();
@@ -95,7 +97,7 @@
 			// label2
 			// 
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(35, 25);
+			this.label2.Location = new System.Drawing.Point(37, 25);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(32, 13);
 			this.label2.TabIndex = 2;
@@ -104,7 +106,7 @@
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(17, 60);
+			this.label3.Location = new System.Drawing.Point(19, 60);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(50, 13);
 			this.label3.TabIndex = 4;
@@ -113,7 +115,7 @@
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(195, 60);
+			this.label4.Location = new System.Drawing.Point(197, 60);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(24, 13);
 			this.label4.TabIndex = 6;
@@ -121,7 +123,7 @@
 			// 
 			// button1
 			// 
-			this.button1.Location = new System.Drawing.Point(162, 218);
+			this.button1.Location = new System.Drawing.Point(162, 224);
 			this.button1.Name = "button1";
 			this.button1.Size = new System.Drawing.Size(75, 23);
 			this.button1.TabIndex = 7;
@@ -132,7 +134,7 @@
 			// button2
 			// 
 			this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.button2.Location = new System.Drawing.Point(246, 218);
+			this.button2.Location = new System.Drawing.Point(246, 224);
 			this.button2.Name = "button2";
 			this.button2.Size = new System.Drawing.Size(75, 23);
 			this.button2.TabIndex = 8;
@@ -141,20 +143,23 @@
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.cbxAutoPulseGuiding);
+			this.groupBox1.Controls.Add(this.cbxAutoFocusing);
 			this.groupBox1.Controls.Add(this.tcEntryType);
 			this.groupBox1.Controls.Add(this.cbxOperations);
 			this.groupBox1.Controls.Add(this.label1);
 			this.groupBox1.Location = new System.Drawing.Point(12, 12);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(309, 200);
+			this.groupBox1.Size = new System.Drawing.Size(309, 206);
 			this.groupBox1.TabIndex = 9;
 			this.groupBox1.TabStop = false;
 			// 
 			// tcEntryType
 			// 
+			this.tcEntryType.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
 			this.tcEntryType.Controls.Add(this.tabMidTimeWings);
 			this.tcEntryType.Controls.Add(this.tabStartDuration);
-			this.tcEntryType.Location = new System.Drawing.Point(20, 58);
+			this.tcEntryType.Location = new System.Drawing.Point(20, 48);
 			this.tcEntryType.Name = "tcEntryType";
 			this.tcEntryType.SelectedIndex = 0;
 			this.tcEntryType.Size = new System.Drawing.Size(265, 122);
@@ -172,10 +177,10 @@
 			this.tabMidTimeWings.Controls.Add(this.label9);
 			this.tabMidTimeWings.Controls.Add(this.nudMidSecs);
 			this.tabMidTimeWings.Controls.Add(this.label10);
-			this.tabMidTimeWings.Location = new System.Drawing.Point(4, 22);
+			this.tabMidTimeWings.Location = new System.Drawing.Point(4, 25);
 			this.tabMidTimeWings.Name = "tabMidTimeWings";
 			this.tabMidTimeWings.Padding = new System.Windows.Forms.Padding(3);
-			this.tabMidTimeWings.Size = new System.Drawing.Size(257, 96);
+			this.tabMidTimeWings.Size = new System.Drawing.Size(257, 93);
 			this.tabMidTimeWings.TabIndex = 1;
 			this.tabMidTimeWings.Text = "Mid Time + Wings";
 			this.tabMidTimeWings.UseVisualStyleBackColor = true;
@@ -247,7 +252,7 @@
 			// label8
 			// 
 			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(19, 60);
+			this.label8.Location = new System.Drawing.Point(29, 60);
 			this.label8.Name = "label8";
 			this.label8.Size = new System.Drawing.Size(40, 13);
 			this.label8.TabIndex = 16;
@@ -318,10 +323,10 @@
 			this.tabStartDuration.Controls.Add(this.lblUT);
 			this.tabStartDuration.Controls.Add(this.nudSchSeconds);
 			this.tabStartDuration.Controls.Add(this.label2);
-			this.tabStartDuration.Location = new System.Drawing.Point(4, 22);
+			this.tabStartDuration.Location = new System.Drawing.Point(4, 25);
 			this.tabStartDuration.Name = "tabStartDuration";
 			this.tabStartDuration.Padding = new System.Windows.Forms.Padding(3);
-			this.tabStartDuration.Size = new System.Drawing.Size(257, 96);
+			this.tabStartDuration.Size = new System.Drawing.Size(257, 93);
 			this.tabStartDuration.TabIndex = 0;
 			this.tabStartDuration.Text = "Start + Duration";
 			this.tabStartDuration.UseVisualStyleBackColor = true;
@@ -329,7 +334,7 @@
 			// label5
 			// 
 			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(123, 60);
+			this.label5.Location = new System.Drawing.Point(125, 60);
 			this.label5.Name = "label5";
 			this.label5.Size = new System.Drawing.Size(23, 13);
 			this.label5.TabIndex = 8;
@@ -337,7 +342,7 @@
 			// 
 			// nudSchMinutes
 			// 
-			this.nudSchMinutes.Location = new System.Drawing.Point(113, 23);
+			this.nudSchMinutes.Location = new System.Drawing.Point(115, 23);
 			this.nudSchMinutes.Maximum = new decimal(new int[] {
             59,
             0,
@@ -354,7 +359,7 @@
 			// 
 			// nudDurMinutes
 			// 
-			this.nudDurMinutes.Location = new System.Drawing.Point(73, 58);
+			this.nudDurMinutes.Location = new System.Drawing.Point(75, 58);
 			this.nudDurMinutes.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -371,7 +376,7 @@
 			// 
 			// nudDurSeconds
 			// 
-			this.nudDurSeconds.Location = new System.Drawing.Point(155, 58);
+			this.nudDurSeconds.Location = new System.Drawing.Point(157, 58);
 			this.nudDurSeconds.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -383,7 +388,7 @@
 			// 
 			// nudSchHours
 			// 
-			this.nudSchHours.Location = new System.Drawing.Point(73, 23);
+			this.nudSchHours.Location = new System.Drawing.Point(75, 23);
 			this.nudSchHours.Maximum = new decimal(new int[] {
             23,
             0,
@@ -401,7 +406,7 @@
 			// lblUT
 			// 
 			this.lblUT.AutoSize = true;
-			this.lblUT.Location = new System.Drawing.Point(195, 25);
+			this.lblUT.Location = new System.Drawing.Point(197, 25);
 			this.lblUT.Name = "lblUT";
 			this.lblUT.Size = new System.Drawing.Size(22, 13);
 			this.lblUT.TabIndex = 7;
@@ -410,7 +415,7 @@
 			// 
 			// nudSchSeconds
 			// 
-			this.nudSchSeconds.Location = new System.Drawing.Point(154, 23);
+			this.nudSchSeconds.Location = new System.Drawing.Point(156, 23);
 			this.nudSchSeconds.Maximum = new decimal(new int[] {
             59,
             0,
@@ -425,11 +430,31 @@
             0,
             0});
 			// 
+			// cbxAutoFocusing
+			// 
+			this.cbxAutoFocusing.AutoSize = true;
+			this.cbxAutoFocusing.Location = new System.Drawing.Point(181, 173);
+			this.cbxAutoFocusing.Name = "cbxAutoFocusing";
+			this.cbxAutoFocusing.Size = new System.Drawing.Size(94, 17);
+			this.cbxAutoFocusing.TabIndex = 10;
+			this.cbxAutoFocusing.Text = "Auto Focusing";
+			this.cbxAutoFocusing.UseVisualStyleBackColor = true;
+			// 
+			// cbxAutoPulseGuiding
+			// 
+			this.cbxAutoPulseGuiding.AutoSize = true;
+			this.cbxAutoPulseGuiding.Location = new System.Drawing.Point(46, 173);
+			this.cbxAutoPulseGuiding.Name = "cbxAutoPulseGuiding";
+			this.cbxAutoPulseGuiding.Size = new System.Drawing.Size(116, 17);
+			this.cbxAutoPulseGuiding.TabIndex = 11;
+			this.cbxAutoPulseGuiding.Text = "Auto Pulse Guiding";
+			this.cbxAutoPulseGuiding.UseVisualStyleBackColor = true;
+			// 
 			// frmAddScheduleEntry
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(333, 249);
+			this.ClientSize = new System.Drawing.Size(333, 256);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.button2);
 			this.Controls.Add(this.button1);
@@ -487,5 +512,7 @@
 		private System.Windows.Forms.Label label9;
 		private System.Windows.Forms.NumericUpDown nudMidSecs;
 		private System.Windows.Forms.Label label10;
+		private System.Windows.Forms.CheckBox cbxAutoPulseGuiding;
+		private System.Windows.Forms.CheckBox cbxAutoFocusing;
     }
 }

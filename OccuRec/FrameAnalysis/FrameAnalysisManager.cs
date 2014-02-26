@@ -21,14 +21,27 @@ namespace OccuRec.FrameAnalysis
 
 		public void ProcessFrame(VideoFrameWrapper frame, Bitmap bmp)
 		{
+			// TODO: Make this processing Asynchronous so the painting is not delayed unnecessary (is this actually possible?)
 			TargetSignalMonitor.ProcessFrame(frame);
 
-			m_PlateSolveManager.ProcessFrame(frame, bmp);
+			m_PlateSolveManager.ProcessFrameAsync(frame, bmp);
 		}
 
 		public void DisplayData(Graphics g, int imageWidth, int imageHeight)
 		{
 			TargetSignalMonitor.DisplayData(g, imageWidth, imageHeight);
+		}
+
+		public void AutoFocusingTick(bool autoFocusingRequested, double secondsUntilNextOperation)
+		{
+			// TODO: Keep track on how much time is remaining
+			// TODO: Decide on a policy of when to do auto-focusing
+			// TODO: Set a flag so the next call to ProcessFrame() will start and async auto focusing
+		}
+
+		public void AutoPulseGuidingTick(bool autoPulseGuidingRequested, double secondsUntilNextOperation)
+		{
+			// TODO: Inform the target monitor to do auto-guiding
 		}
 
 		public void Dispose()

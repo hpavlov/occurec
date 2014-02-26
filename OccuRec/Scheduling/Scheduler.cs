@@ -18,6 +18,8 @@ namespace OccuRec.Scheduling
         public Guid OperaionId { get; set; }
         public ScheduledAction Action { get; set; }
         public DateTime ActionTime { get; set; }
+		public bool AutoFocusing { get; set; }
+		public bool AutoPulseGuiding { get; set; }
 
         public override string ToString()
         {
@@ -35,10 +37,11 @@ namespace OccuRec.Scheduling
                 return "Invalid";
         }
 
-        public string GetRemainingTime()
+        public string GetRemainingTime(out double remainingSeconds)
         {
             var leftTimeSpan = new TimeSpan(ActionTime.Ticks - DateTime.Now.Ticks);
-            
+	        remainingSeconds = leftTimeSpan.TotalSeconds;
+
             if (Action == ScheduledAction.StartRecording)
                 return string.Format("Rec in {0}", DateTime.Today.AddTicks(leftTimeSpan.Ticks).ToString("HH:mm:ss"));
             else if (Action == ScheduledAction.StopRecording)
@@ -57,7 +60,7 @@ namespace OccuRec.Scheduling
             schedules.Clear();
         }
 
-        public static void ScheduleRecording(DateTime startRecording, int totalSeconds)
+		public static void ScheduleRecording(DateTime startRecording, int totalSeconds, bool autoFocusing, bool autoPulseGuiding)
         {
             Guid operationId = Guid.NewGuid();
             schedules.Add(
@@ -65,14 +68,18 @@ namespace OccuRec.Scheduling
                 {
                     OperaionId = operationId,
                     Action = ScheduledAction.StartRecording,
-                    ActionTime = startRecording
+                    ActionTime = startRecording,
+					AutoFocusing = autoFocusing, 
+					AutoPulseGuiding = autoPulseGuiding
                 });
             schedules.Add(
                 new ScheduleEntry()
                 {
                     OperaionId = operationId,
                     Action = ScheduledAction.StopRecording,
-                    ActionTime = startRecording.AddSeconds(totalSeconds)
+                    ActionTime = startRecording.AddSeconds(totalSeconds),
+					AutoFocusing = false,
+					AutoPulseGuiding = false
                 });
         }
 

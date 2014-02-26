@@ -6,18 +6,33 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using OccuRec.ASCOM;
 using OccuRec.Properties;
 
 namespace OccuRec.Scheduling
 {
     public partial class frmAddScheduleEntry : Form
     {
-        public frmAddScheduleEntry()
+	    private IObservatoryController m_ObservatoryController;
+
+	    public frmAddScheduleEntry()
+	    {
+		    InitializeComponent();
+	    }
+
+	    public frmAddScheduleEntry(IObservatoryController observatoryController)
         {
             InitializeComponent();
 
+	        m_ObservatoryController = observatoryController;
             cbxOperations.SelectedIndex = 0;
             lblUT.Visible = Settings.Default.DisplayTimeInUT;
+
+			cbxAutoFocusing.Enabled = m_ObservatoryController.IsConnectedToFocuser();
+			cbxAutoPulseGuiding.Enabled = m_ObservatoryController.IsConnectedToTelescope();
+
+		    cbxAutoFocusing.Checked = false;
+			cbxAutoPulseGuiding.Checked = false;
 
 			SetTime(Settings.Default.DisplayTimeInUT ? DateTime.UtcNow : DateTime.Now);
         }
@@ -100,9 +115,9 @@ namespace OccuRec.Scheduling
 			int duration = (int)nudDurMinutes.Value * 60 + (int)nudDurSeconds.Value;
 
 			if (Settings.Default.DisplayTimeInUT)
-				Scheduler.ScheduleRecording(scheduleTime.ToLocalTime(), duration);
+				Scheduler.ScheduleRecording(scheduleTime.ToLocalTime(), duration, cbxAutoFocusing.Checked, cbxAutoPulseGuiding.Checked);
 			else
-				Scheduler.ScheduleRecording(scheduleTime, duration);
+				Scheduler.ScheduleRecording(scheduleTime, duration, cbxAutoFocusing.Checked, cbxAutoPulseGuiding.Checked);
 
 			DialogResult = DialogResult.OK;
 			Close();			
@@ -123,9 +138,9 @@ namespace OccuRec.Scheduling
 			int duration = 2 * ((int)nudWingsMinutes.Value * 60 + (int)nudWingsSeconds.Value);
 
 			if (Settings.Default.DisplayTimeInUT)
-				Scheduler.ScheduleRecording(scheduleTime.ToLocalTime(), duration);
+				Scheduler.ScheduleRecording(scheduleTime.ToLocalTime(), duration, cbxAutoFocusing.Checked, cbxAutoPulseGuiding.Checked);
 			else
-				Scheduler.ScheduleRecording(scheduleTime, duration);
+				Scheduler.ScheduleRecording(scheduleTime, duration, cbxAutoFocusing.Checked, cbxAutoPulseGuiding.Checked);
 
 			DialogResult = DialogResult.OK;
 			Close();

@@ -43,16 +43,16 @@
 			this.label12 = new System.Windows.Forms.Label();
 			this.cbxStatusSectionOnly = new System.Windows.Forms.CheckBox();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.nudNTPDebugValue1 = new System.Windows.Forms.NumericUpDown();
 			this.nudNTPDebugValue2 = new System.Windows.Forms.NumericUpDown();
+			this.nudNTPDebugValue1 = new System.Windows.Forms.NumericUpDown();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudSignDiffRatio)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).BeginInit();
 			this.groupBox2.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// cbDebugIntegration
@@ -267,25 +267,7 @@
 			this.groupBox2.Size = new System.Drawing.Size(361, 100);
 			this.groupBox2.TabIndex = 27;
 			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "Debug";
-			// 
-			// nudNTPDebugValue1
-			// 
-			this.nudNTPDebugValue1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.nudNTPDebugValue1.Location = new System.Drawing.Point(176, 50);
-			this.nudNTPDebugValue1.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-			this.nudNTPDebugValue1.Name = "nudNTPDebugValue1";
-			this.nudNTPDebugValue1.Size = new System.Drawing.Size(43, 20);
-			this.nudNTPDebugValue1.TabIndex = 27;
-			this.nudNTPDebugValue1.Value = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
+			this.groupBox2.Text = "NTP Timestmps Debug";
 			// 
 			// nudNTPDebugValue2
 			// 
@@ -306,6 +288,24 @@
             0,
             65536});
 			// 
+			// nudNTPDebugValue1
+			// 
+			this.nudNTPDebugValue1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.nudNTPDebugValue1.Location = new System.Drawing.Point(176, 50);
+			this.nudNTPDebugValue1.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.nudNTPDebugValue1.Name = "nudNTPDebugValue1";
+			this.nudNTPDebugValue1.Size = new System.Drawing.Size(43, 20);
+			this.nudNTPDebugValue1.TabIndex = 27;
+			this.nudNTPDebugValue1.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+			// 
 			// ucAAV
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -324,8 +324,8 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).EndInit();
 			this.groupBox2.ResumeLayout(false);
 			this.groupBox2.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

@@ -86,7 +86,7 @@ namespace OccuRec.FrameAnalysis
 			}
 		}
 
-		public void ProcessFrame(VideoFrameWrapper frame, Bitmap bmp)
+		public void ProcessFrameAsync(VideoFrameWrapper frame, Bitmap bmp)
 		{			
 			lock (m_SyncLock)
 			{

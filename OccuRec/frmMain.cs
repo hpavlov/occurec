@@ -850,7 +850,7 @@ namespace OccuRec
 
         private void btnAddSchedule_Click(object sender, EventArgs e)
         {
-            var frm = new frmAddScheduleEntry();
+            var frm = new frmAddScheduleEntry(m_ObservatoryController);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
                 UpdateScheduleDisplay();
@@ -957,8 +957,12 @@ namespace OccuRec
 			ScheduleEntry entry = Scheduler.GetNextEntry();
 			if (entry != null)
 			{
-				lblSecheduleWhatsNext.Text = entry.GetRemainingTime();
+				double remainingSeconds;
+				lblSecheduleWhatsNext.Text = entry.GetRemainingTime(out remainingSeconds);
 				pnlNextScheduledAction.Visible = true;
+
+				m_AnalysisManager.AutoFocusingTick(entry.AutoFocusing, remainingSeconds);
+				m_AnalysisManager.AutoPulseGuidingTick(entry.AutoPulseGuiding, remainingSeconds);
 			}
 			else
 			{
