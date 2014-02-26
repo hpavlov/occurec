@@ -26,7 +26,6 @@
 			this.nudMove = new System.Windows.Forms.NumericUpDown();
 			this.btnMove = new System.Windows.Forms.Button();
 			this.lblPosition = new System.Windows.Forms.Label();
-			this.lblTemp = new System.Windows.Forms.Label();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.gbxTargetControl = new System.Windows.Forms.GroupBox();
 			this.btnFocusTarget = new System.Windows.Forms.Button();
@@ -43,7 +42,7 @@
 			// cbxTempComp
 			// 
 			this.cbxTempComp.AutoSize = true;
-			this.cbxTempComp.Location = new System.Drawing.Point(54, 41);
+			this.cbxTempComp.Location = new System.Drawing.Point(170, 29);
 			this.cbxTempComp.Name = "cbxTempComp";
 			this.cbxTempComp.Size = new System.Drawing.Size(156, 17);
 			this.cbxTempComp.TabIndex = 0;
@@ -62,11 +61,9 @@
 			this.pnlFocuserControls.Controls.Add(this.nudMove);
 			this.pnlFocuserControls.Controls.Add(this.btnMove);
 			this.pnlFocuserControls.Controls.Add(this.lblPosition);
-			this.pnlFocuserControls.Controls.Add(this.lblTemp);
-			this.pnlFocuserControls.Controls.Add(this.cbxTempComp);
 			this.pnlFocuserControls.Location = new System.Drawing.Point(6, 13);
 			this.pnlFocuserControls.Name = "pnlFocuserControls";
-			this.pnlFocuserControls.Size = new System.Drawing.Size(332, 119);
+			this.pnlFocuserControls.Size = new System.Drawing.Size(332, 35);
 			this.pnlFocuserControls.TabIndex = 2;
 			// 
 			// btnInLargest
@@ -159,7 +156,7 @@
 			// 
 			// btnMove
 			// 
-			this.btnMove.Location = new System.Drawing.Point(72, 71);
+			this.btnMove.Location = new System.Drawing.Point(72, 74);
 			this.btnMove.Name = "btnMove";
 			this.btnMove.Size = new System.Drawing.Size(48, 23);
 			this.btnMove.TabIndex = 7;
@@ -178,39 +175,30 @@
 			this.lblPosition.TabIndex = 5;
 			this.lblPosition.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			// 
-			// lblTemp
-			// 
-			this.lblTemp.AutoSize = true;
-			this.lblTemp.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.lblTemp.Location = new System.Drawing.Point(7, 41);
-			this.lblTemp.Name = "lblTemp";
-			this.lblTemp.Size = new System.Drawing.Size(36, 13);
-			this.lblTemp.TabIndex = 2;
-			this.lblTemp.Text = "12.3 ";
-			this.lblTemp.Visible = false;
-			// 
 			// groupBox1
 			// 
 			this.groupBox1.Controls.Add(this.pnlFocuserControls);
 			this.groupBox1.Location = new System.Drawing.Point(12, 27);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(344, 140);
+			this.groupBox1.Size = new System.Drawing.Size(344, 53);
 			this.groupBox1.TabIndex = 3;
 			this.groupBox1.TabStop = false;
+			this.groupBox1.Text = "Manual Focus";
 			// 
 			// gbxTargetControl
 			// 
 			this.gbxTargetControl.Controls.Add(this.btnFocusTarget);
-			this.gbxTargetControl.Location = new System.Drawing.Point(12, 173);
+			this.gbxTargetControl.Controls.Add(this.cbxTempComp);
+			this.gbxTargetControl.Location = new System.Drawing.Point(12, 86);
 			this.gbxTargetControl.Name = "gbxTargetControl";
-			this.gbxTargetControl.Size = new System.Drawing.Size(344, 75);
+			this.gbxTargetControl.Size = new System.Drawing.Size(344, 62);
 			this.gbxTargetControl.TabIndex = 4;
 			this.gbxTargetControl.TabStop = false;
-			this.gbxTargetControl.Text = "Target Control";
+			this.gbxTargetControl.Text = "Automatic Target Control";
 			// 
 			// btnFocusTarget
 			// 
-			this.btnFocusTarget.Location = new System.Drawing.Point(18, 35);
+			this.btnFocusTarget.Location = new System.Drawing.Point(16, 25);
 			this.btnFocusTarget.Name = "btnFocusTarget";
 			this.btnFocusTarget.Size = new System.Drawing.Size(114, 23);
 			this.btnFocusTarget.TabIndex = 8;
@@ -224,7 +212,7 @@
             this.connectionToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(370, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(369, 24);
 			this.menuStrip1.TabIndex = 14;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -239,7 +227,7 @@
 			// miDisconnect
 			// 
 			this.miDisconnect.Name = "miDisconnect";
-			this.miDisconnect.Size = new System.Drawing.Size(152, 22);
+			this.miDisconnect.Size = new System.Drawing.Size(126, 22);
 			this.miDisconnect.Text = "&Disconnect";
 			this.miDisconnect.Click += new System.EventHandler(this.miDisconnect_Click);
 			// 
@@ -247,7 +235,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(370, 266);
+			this.ClientSize = new System.Drawing.Size(369, 158);
 			this.Controls.Add(this.gbxTargetControl);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.menuStrip1);
@@ -256,14 +244,14 @@
 			this.Name = "frmFocusControl";
 			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Focus Control";
+			this.Text = "Focuser Control";
 			this.TopMost = true;
 			this.Shown += new System.EventHandler(this.frmFocusControl_Shown);
 			this.pnlFocuserControls.ResumeLayout(false);
-			this.pnlFocuserControls.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudMove)).EndInit();
 			this.groupBox1.ResumeLayout(false);
 			this.gbxTargetControl.ResumeLayout(false);
+			this.gbxTargetControl.PerformLayout();
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.ResumeLayout(false);
@@ -275,7 +263,6 @@
 
         private System.Windows.Forms.CheckBox cbxTempComp;
 		private System.Windows.Forms.Panel pnlFocuserControls;
-        private System.Windows.Forms.Label lblTemp;
         private System.Windows.Forms.Label lblPosition;
         private System.Windows.Forms.NumericUpDown nudMove;
         private System.Windows.Forms.Button btnMove;

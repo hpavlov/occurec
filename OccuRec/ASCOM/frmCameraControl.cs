@@ -157,12 +157,12 @@ namespace OccuRec.ASCOM
         {
             if (errorMode)
             {
-                Height = 306;
+				Height = 268;
                 tbxErrors.Visible = true;
             }
             else
             {
-                Height = 263;
+                Height = 205;
                 tbxErrors.Visible = false;
             }
         }

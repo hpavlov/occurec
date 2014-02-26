@@ -57,6 +57,7 @@ namespace OccuRec.ASCOM
 
 		private void frmFocusControl_Shown(object sender, EventArgs e)
 		{
+			UpdateFocuserState(null);
             m_ObservatoryController.GetFocuserState();
 			if (m_ObservatoryController.IsConnectedToFocuser())
 				Text = string.Format("");
@@ -98,23 +99,15 @@ namespace OccuRec.ASCOM
                     }
 				}
 
-                if (double.IsNaN(state.Temperature))
-                {
-                    lblTemp.Visible = false;
-                }
-                else
-                {
-                    lblTemp.Text = state.Temperature.ToString("0.0") + "°";
-                    lblTemp.Visible = true;
-                }
-
 				lblPosition.Text = state.Position.ToString();
 
 				pnlFocuserControls.Enabled = true;
+				gbxTargetControl.Enabled = true;
 			}
 			else
 			{
 				pnlFocuserControls.Enabled = false;
+				gbxTargetControl.Enabled = false;
 			}
 		}
 

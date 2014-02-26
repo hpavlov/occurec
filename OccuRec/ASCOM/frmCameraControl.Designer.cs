@@ -38,8 +38,8 @@
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.miDisconnect = new System.Windows.Forms.ToolStripMenuItem();
-			this.tbxErrors = new System.Windows.Forms.TextBox();
 			this.miReset = new System.Windows.Forms.ToolStripMenuItem();
+			this.tbxErrors = new System.Windows.Forms.TextBox();
 			this.tcControls.SuspendLayout();
 			this.tabDirect.SuspendLayout();
 			this.tabOSDControl.SuspendLayout();
@@ -49,12 +49,13 @@
 			// tcControls
 			// 
 			this.tcControls.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.tcControls.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
 			this.tcControls.Controls.Add(this.tabDirect);
 			this.tcControls.Controls.Add(this.tabOSDControl);
-			this.tcControls.Location = new System.Drawing.Point(12, 78);
+			this.tcControls.Location = new System.Drawing.Point(12, 89);
 			this.tcControls.Name = "tcControls";
 			this.tcControls.SelectedIndex = 0;
-			this.tcControls.Size = new System.Drawing.Size(363, 195);
+			this.tcControls.Size = new System.Drawing.Size(243, 145);
 			this.tcControls.TabIndex = 0;
 			// 
 			// tabDirect
@@ -71,10 +72,10 @@
 			this.tabDirect.Controls.Add(this.label1);
 			this.tabDirect.Controls.Add(this.btnExposureUp);
 			this.tabDirect.Controls.Add(this.btnExposureDown);
-			this.tabDirect.Location = new System.Drawing.Point(4, 22);
+			this.tabDirect.Location = new System.Drawing.Point(4, 25);
 			this.tabDirect.Name = "tabDirect";
 			this.tabDirect.Padding = new System.Windows.Forms.Padding(3);
-			this.tabDirect.Size = new System.Drawing.Size(355, 169);
+			this.tabDirect.Size = new System.Drawing.Size(235, 116);
 			this.tabDirect.TabIndex = 0;
 			this.tabDirect.Text = "Direct Control";
 			this.tabDirect.UseVisualStyleBackColor = true;
@@ -82,7 +83,7 @@
 			// lblGamma
 			// 
 			this.lblGamma.AutoSize = true;
-			this.lblGamma.Location = new System.Drawing.Point(180, 130);
+			this.lblGamma.Location = new System.Drawing.Point(119, 89);
 			this.lblGamma.Name = "lblGamma";
 			this.lblGamma.Size = new System.Drawing.Size(0, 13);
 			this.lblGamma.TabIndex = 14;
@@ -91,7 +92,7 @@
 			// label6
 			// 
 			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(21, 130);
+			this.label6.Location = new System.Drawing.Point(3, 89);
 			this.label6.Name = "label6";
 			this.label6.Size = new System.Drawing.Size(43, 13);
 			this.label6.TabIndex = 13;
@@ -99,9 +100,9 @@
 			// 
 			// btnGammaUp
 			// 
-			this.btnGammaUp.Location = new System.Drawing.Point(247, 125);
+			this.btnGammaUp.Location = new System.Drawing.Point(171, 84);
 			this.btnGammaUp.Name = "btnGammaUp";
-			this.btnGammaUp.Size = new System.Drawing.Size(55, 23);
+			this.btnGammaUp.Size = new System.Drawing.Size(38, 23);
 			this.btnGammaUp.TabIndex = 12;
 			this.btnGammaUp.Text = ">";
 			this.btnGammaUp.UseVisualStyleBackColor = true;
@@ -109,9 +110,9 @@
 			// 
 			// btnGammaDown
 			// 
-			this.btnGammaDown.Location = new System.Drawing.Point(117, 125);
+			this.btnGammaDown.Location = new System.Drawing.Point(71, 84);
 			this.btnGammaDown.Name = "btnGammaDown";
-			this.btnGammaDown.Size = new System.Drawing.Size(55, 23);
+			this.btnGammaDown.Size = new System.Drawing.Size(38, 23);
 			this.btnGammaDown.TabIndex = 11;
 			this.btnGammaDown.Text = "<";
 			this.btnGammaDown.UseVisualStyleBackColor = true;
@@ -120,7 +121,7 @@
 			// lblGain
 			// 
 			this.lblGain.AutoSize = true;
-			this.lblGain.Location = new System.Drawing.Point(180, 77);
+			this.lblGain.Location = new System.Drawing.Point(119, 53);
 			this.lblGain.Name = "lblGain";
 			this.lblGain.Size = new System.Drawing.Size(0, 13);
 			this.lblGain.TabIndex = 10;
@@ -129,7 +130,7 @@
 			// label4
 			// 
 			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(21, 77);
+			this.label4.Location = new System.Drawing.Point(3, 53);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(29, 13);
 			this.label4.TabIndex = 9;
@@ -137,9 +138,9 @@
 			// 
 			// btnGainUp
 			// 
-			this.btnGainUp.Location = new System.Drawing.Point(247, 72);
+			this.btnGainUp.Location = new System.Drawing.Point(171, 48);
 			this.btnGainUp.Name = "btnGainUp";
-			this.btnGainUp.Size = new System.Drawing.Size(55, 23);
+			this.btnGainUp.Size = new System.Drawing.Size(38, 23);
 			this.btnGainUp.TabIndex = 8;
 			this.btnGainUp.Text = ">";
 			this.btnGainUp.UseVisualStyleBackColor = true;
@@ -147,9 +148,9 @@
 			// 
 			// btnGainDown
 			// 
-			this.btnGainDown.Location = new System.Drawing.Point(117, 72);
+			this.btnGainDown.Location = new System.Drawing.Point(71, 48);
 			this.btnGainDown.Name = "btnGainDown";
-			this.btnGainDown.Size = new System.Drawing.Size(55, 23);
+			this.btnGainDown.Size = new System.Drawing.Size(38, 23);
 			this.btnGainDown.TabIndex = 7;
 			this.btnGainDown.Text = "<";
 			this.btnGainDown.UseVisualStyleBackColor = true;
@@ -158,7 +159,7 @@
 			// lblExposure
 			// 
 			this.lblExposure.AutoSize = true;
-			this.lblExposure.Location = new System.Drawing.Point(180, 28);
+			this.lblExposure.Location = new System.Drawing.Point(119, 18);
 			this.lblExposure.Name = "lblExposure";
 			this.lblExposure.Size = new System.Drawing.Size(0, 13);
 			this.lblExposure.TabIndex = 6;
@@ -167,7 +168,7 @@
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(21, 28);
+			this.label1.Location = new System.Drawing.Point(3, 18);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(51, 13);
 			this.label1.TabIndex = 5;
@@ -175,9 +176,9 @@
 			// 
 			// btnExposureUp
 			// 
-			this.btnExposureUp.Location = new System.Drawing.Point(247, 23);
+			this.btnExposureUp.Location = new System.Drawing.Point(171, 13);
 			this.btnExposureUp.Name = "btnExposureUp";
-			this.btnExposureUp.Size = new System.Drawing.Size(55, 23);
+			this.btnExposureUp.Size = new System.Drawing.Size(38, 23);
 			this.btnExposureUp.TabIndex = 4;
 			this.btnExposureUp.Text = ">";
 			this.btnExposureUp.UseVisualStyleBackColor = true;
@@ -185,9 +186,9 @@
 			// 
 			// btnExposureDown
 			// 
-			this.btnExposureDown.Location = new System.Drawing.Point(117, 23);
+			this.btnExposureDown.Location = new System.Drawing.Point(71, 13);
 			this.btnExposureDown.Name = "btnExposureDown";
-			this.btnExposureDown.Size = new System.Drawing.Size(55, 23);
+			this.btnExposureDown.Size = new System.Drawing.Size(38, 23);
 			this.btnExposureDown.TabIndex = 3;
 			this.btnExposureDown.Text = "<";
 			this.btnExposureDown.UseVisualStyleBackColor = true;
@@ -200,17 +201,17 @@
 			this.tabOSDControl.Controls.Add(this.btnOSDDown);
 			this.tabOSDControl.Controls.Add(this.btnOSDLeft);
 			this.tabOSDControl.Controls.Add(this.btnOSDUp);
-			this.tabOSDControl.Location = new System.Drawing.Point(4, 22);
+			this.tabOSDControl.Location = new System.Drawing.Point(4, 25);
 			this.tabOSDControl.Name = "tabOSDControl";
 			this.tabOSDControl.Padding = new System.Windows.Forms.Padding(3);
-			this.tabOSDControl.Size = new System.Drawing.Size(355, 169);
+			this.tabOSDControl.Size = new System.Drawing.Size(235, 116);
 			this.tabOSDControl.TabIndex = 1;
 			this.tabOSDControl.Text = "5-Button OSD Control";
 			this.tabOSDControl.UseVisualStyleBackColor = true;
 			// 
 			// btnOSDSet
 			// 
-			this.btnOSDSet.Location = new System.Drawing.Point(139, 72);
+			this.btnOSDSet.Location = new System.Drawing.Point(82, 50);
 			this.btnOSDSet.Name = "btnOSDSet";
 			this.btnOSDSet.Size = new System.Drawing.Size(65, 23);
 			this.btnOSDSet.TabIndex = 9;
@@ -220,7 +221,7 @@
 			// 
 			// btnOSDRight
 			// 
-			this.btnOSDRight.Location = new System.Drawing.Point(219, 72);
+			this.btnOSDRight.Location = new System.Drawing.Point(162, 50);
 			this.btnOSDRight.Name = "btnOSDRight";
 			this.btnOSDRight.Size = new System.Drawing.Size(55, 23);
 			this.btnOSDRight.TabIndex = 8;
@@ -230,7 +231,7 @@
 			// 
 			// btnOSDDown
 			// 
-			this.btnOSDDown.Location = new System.Drawing.Point(139, 114);
+			this.btnOSDDown.Location = new System.Drawing.Point(82, 92);
 			this.btnOSDDown.Name = "btnOSDDown";
 			this.btnOSDDown.Size = new System.Drawing.Size(65, 23);
 			this.btnOSDDown.TabIndex = 7;
@@ -240,7 +241,7 @@
 			// 
 			// btnOSDLeft
 			// 
-			this.btnOSDLeft.Location = new System.Drawing.Point(70, 72);
+			this.btnOSDLeft.Location = new System.Drawing.Point(13, 50);
 			this.btnOSDLeft.Name = "btnOSDLeft";
 			this.btnOSDLeft.Size = new System.Drawing.Size(55, 23);
 			this.btnOSDLeft.TabIndex = 6;
@@ -250,7 +251,7 @@
 			// 
 			// btnOSDUp
 			// 
-			this.btnOSDUp.Location = new System.Drawing.Point(139, 27);
+			this.btnOSDUp.Location = new System.Drawing.Point(82, 5);
 			this.btnOSDUp.Name = "btnOSDUp";
 			this.btnOSDUp.Size = new System.Drawing.Size(65, 23);
 			this.btnOSDUp.TabIndex = 5;
@@ -264,7 +265,7 @@
             this.connectionToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(385, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(267, 24);
 			this.menuStrip1.TabIndex = 14;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -280,9 +281,16 @@
 			// miDisconnect
 			// 
 			this.miDisconnect.Name = "miDisconnect";
-			this.miDisconnect.Size = new System.Drawing.Size(152, 22);
+			this.miDisconnect.Size = new System.Drawing.Size(126, 22);
 			this.miDisconnect.Text = "&Disconnect";
 			this.miDisconnect.Click += new System.EventHandler(this.miDisconnect_Click);
+			// 
+			// miReset
+			// 
+			this.miReset.Name = "miReset";
+			this.miReset.Size = new System.Drawing.Size(126, 22);
+			this.miReset.Text = "&Reset";
+			this.miReset.Click += new System.EventHandler(this.miReset_Click);
 			// 
 			// tbxErrors
 			// 
@@ -293,21 +301,14 @@
 			this.tbxErrors.Name = "tbxErrors";
 			this.tbxErrors.ReadOnly = true;
 			this.tbxErrors.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.tbxErrors.Size = new System.Drawing.Size(361, 35);
+			this.tbxErrors.Size = new System.Drawing.Size(243, 35);
 			this.tbxErrors.TabIndex = 15;
-			// 
-			// miReset
-			// 
-			this.miReset.Name = "miReset";
-			this.miReset.Size = new System.Drawing.Size(152, 22);
-			this.miReset.Text = "&Reset";
-			this.miReset.Click += new System.EventHandler(this.miReset_Click);
 			// 
 			// frmCameraControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(385, 282);
+			this.ClientSize = new System.Drawing.Size(267, 246);
 			this.Controls.Add(this.tcControls);
 			this.Controls.Add(this.menuStrip1);
 			this.Controls.Add(this.tbxErrors);
