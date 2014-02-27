@@ -30,7 +30,7 @@
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.miDisconnect = new System.Windows.Forms.ToolStripMenuItem();
-			this.button1 = new System.Windows.Forms.Button();
+			this.miCalibratePulseGuiding = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -168,7 +168,8 @@
 			// connectionToolStripMenuItem
 			// 
 			this.connectionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.miDisconnect});
+            this.miDisconnect,
+            this.miCalibratePulseGuiding});
 			this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
 			this.connectionToolStripMenuItem.Size = new System.Drawing.Size(73, 20);
 			this.connectionToolStripMenuItem.Text = "&Connection";
@@ -176,25 +177,22 @@
 			// miDisconnect
 			// 
 			this.miDisconnect.Name = "miDisconnect";
-			this.miDisconnect.Size = new System.Drawing.Size(152, 22);
+			this.miDisconnect.Size = new System.Drawing.Size(183, 22);
 			this.miDisconnect.Text = "&Disconnect";
 			this.miDisconnect.Click += new System.EventHandler(this.miDisconnect_Click);
 			// 
-			// button1
+			// miCalibratePulseGuiding
 			// 
-			this.button1.Location = new System.Drawing.Point(12, 49);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(72, 23);
-			this.button1.TabIndex = 14;
-			this.button1.Text = "Calibrate Directions";
-			this.button1.UseVisualStyleBackColor = true;
+			this.miCalibratePulseGuiding.Name = "miCalibratePulseGuiding";
+			this.miCalibratePulseGuiding.Size = new System.Drawing.Size(183, 22);
+			this.miCalibratePulseGuiding.Text = "&Calibrate Pulse Guiding";
+			this.miCalibratePulseGuiding.Click += new System.EventHandler(this.miCalibratePulseGuiding_Click);
 			// 
 			// frmTelescopeControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(305, 284);
-			this.Controls.Add(this.button1);
 			this.Controls.Add(this.btnPulseSouth3);
 			this.Controls.Add(this.btnPulseSouth2);
 			this.Controls.Add(this.btnPulseNorth3);
@@ -239,6 +237,6 @@
 		private System.Windows.Forms.MenuStrip menuStrip1;
 		private System.Windows.Forms.ToolStripMenuItem connectionToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem miDisconnect;
-		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.ToolStripMenuItem miCalibratePulseGuiding;
     }
 }

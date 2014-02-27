@@ -1780,7 +1780,7 @@ namespace OccuRec
 
                 if (s_FormTelescopeControl == null)
                 {
-                    s_FormTelescopeControl = new frmTelescopeControl();
+                    s_FormTelescopeControl = new frmTelescopeControl(m_AnalysisManager);
                     s_FormTelescopeControl.ObservatoryController = m_ObservatoryController;
                     s_FormTelescopeControl.Show(this);
                 }

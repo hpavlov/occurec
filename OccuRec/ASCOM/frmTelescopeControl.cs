@@ -8,11 +8,26 @@ using System.Text;
 using System.Windows.Forms;
 using OccuRec.ASCOM.Wrapper.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.FrameAnalysis;
 
 namespace OccuRec.ASCOM
 {
     public partial class frmTelescopeControl : Form
     {
+
+		private FrameAnalysisManager m_AnalisysManager;
+
+		public frmTelescopeControl()
+		{
+			InitializeComponent();
+		}
+
+		public frmTelescopeControl(FrameAnalysisManager analisysManager)
+		{
+			InitializeComponent();
+
+			m_AnalisysManager = analisysManager;
+		}
 
 		/// <summary>
 		/// Clean up any resources being used.
@@ -65,11 +80,6 @@ namespace OccuRec.ASCOM
 		{
 			
 		}
-
-        public frmTelescopeControl()
-        {
-            InitializeComponent();
-        }
 
         private void OnPulseCompleted(ObservatoryControllerCallbackArgs args)
         {
@@ -168,6 +178,11 @@ namespace OccuRec.ASCOM
 		{
 			ObservatoryController.DisconnectTelescope();
 			Close();
+		}
+
+		private void miCalibratePulseGuiding_Click(object sender, EventArgs e)
+		{
+			m_AnalisysManager.TriggerPulseGuidingCalibration();
 		}
     }
 }

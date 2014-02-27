@@ -28,11 +28,11 @@ namespace OccuRec.FrameAnalysis
 		private Rectangle m_PsfBitmapRect;
 
 		private IObservatoryController m_ObservatoryController;
-		private AutoFocusingManager m_AutoFocusingManager;
+		private ObservatoryManager m_AutoFocusingManager;
 
 		private bool m_AutoPulseGuiding = false;
 
-		internal TargetSignalMonitor(IObservatoryController observatoryController, AutoFocusingManager autoFocusingManager)
+		internal TargetSignalMonitor(IObservatoryController observatoryController, ObservatoryManager autoFocusingManager)
 		{
 			m_BufferImage = new Bitmap(204, 54, PixelFormat.Format32bppRgb);
 

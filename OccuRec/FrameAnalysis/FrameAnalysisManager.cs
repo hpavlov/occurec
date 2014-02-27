@@ -12,14 +12,14 @@ namespace OccuRec.FrameAnalysis
 	{
 		internal TargetSignalMonitor m_TargetSignalMonitor;
 		private PlateSolveManager m_PlateSolveManager;
-		private AutoFocusingManager m_AutoFocusingManager;
+		private ObservatoryManager m_ObservatoryManager;
 		private IObservatoryController m_ObservatoryController;
 
 		internal FrameAnalysisManager(IObservatoryController observatoryController)
 		{
 			m_PlateSolveManager = new PlateSolveManager(observatoryController);
-			m_AutoFocusingManager = new AutoFocusingManager(observatoryController);
-			m_TargetSignalMonitor = new TargetSignalMonitor(observatoryController, m_AutoFocusingManager);			
+			m_ObservatoryManager = new ObservatoryManager(observatoryController);
+			m_TargetSignalMonitor = new TargetSignalMonitor(observatoryController, m_ObservatoryManager);			
 		}
 
 		public void ProcessFrame(VideoFrameWrapper frame, Bitmap bmp)
@@ -42,7 +42,12 @@ namespace OccuRec.FrameAnalysis
 
 		public void TriggerAutoFocusing()
 		{
-			m_AutoFocusingManager.TriggerAutoFocusing();
+			m_ObservatoryManager.TriggerAutoFocusing();
+		}
+
+		public void TriggerPulseGuidingCalibration()
+		{
+			m_ObservatoryManager.TriggerPulseGuidingCalibration();
 		}
 
 		public void Dispose()

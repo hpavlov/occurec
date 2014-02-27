@@ -161,7 +161,7 @@
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
     <Compile Include="Drivers\AVISimulator\Video.cs" />
     <Compile Include="Drivers\BasicVideoFrame.cs" />
-    <Compile Include="FrameAnalysis\AutoFocusingManager.cs" />
+    <Compile Include="FrameAnalysis\ObservatoryManager.cs" />
     <Compile Include="FrameAnalysis\FrameAnalysisManager.cs" />
     <Compile Include="FrameAnalysis\PlateSolveManager.cs" />
     <Compile Include="FrameAnalysis\TargetSignalMonitor.cs" />

@@ -8,14 +8,14 @@ using OccuRec.Tracking;
 
 namespace OccuRec.FrameAnalysis
 {
-	internal class AutoFocusingManager
+	internal class ObservatoryManager
 	{
 		private IObservatoryController m_ObservatoryController;
 
 		private bool m_RunAutoFocusNow = false;
 		private bool m_IsAutoFocusing = false;
 
-		public AutoFocusingManager(IObservatoryController observatoryController)
+		public ObservatoryManager(IObservatoryController observatoryController)
 		{
 			m_ObservatoryController = observatoryController;
 		}
@@ -24,6 +24,11 @@ namespace OccuRec.FrameAnalysis
 		{
 			if (!m_IsAutoFocusing)
 				m_RunAutoFocusNow = true;
+		}
+
+		public void TriggerPulseGuidingCalibration()
+		{
+			// TODO:
 		}
 
 		public void ProcessFrame(VideoFrameWrapper frame, LastTrackedPosition locatedGuidingStar)
