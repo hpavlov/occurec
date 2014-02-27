@@ -47,8 +47,11 @@
 			this.cbxRecordNTPTimeStamps = new System.Windows.Forms.CheckBox();
 			this.cbxRecordSecondaryTimeStamps = new System.Windows.Forms.CheckBox();
 			this.gbxNTPTime = new System.Windows.Forms.GroupBox();
+			this.nudNumberOfNTPRequestsPerUpdate = new System.Windows.Forms.NumericUpDown();
+			this.label1 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.nudHardwareLatencyCorrection)).BeginInit();
 			this.gbxNTPTime.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.nudNumberOfNTPRequestsPerUpdate)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// indicatorTimer
@@ -332,6 +335,8 @@
 			// 
 			// gbxNTPTime
 			// 
+			this.gbxNTPTime.Controls.Add(this.nudNumberOfNTPRequestsPerUpdate);
+			this.gbxNTPTime.Controls.Add(this.label1);
 			this.gbxNTPTime.Controls.Add(this.label3);
 			this.gbxNTPTime.Controls.Add(this.btnTestNTP);
 			this.gbxNTPTime.Controls.Add(this.cbxRecordSecondaryTimeStamps);
@@ -365,6 +370,37 @@
 			this.gbxNTPTime.TabIndex = 56;
 			this.gbxNTPTime.TabStop = false;
 			// 
+			// nudNumberOfNTPRequestsPerUpdate
+			// 
+			this.nudNumberOfNTPRequestsPerUpdate.Location = new System.Drawing.Point(397, 296);
+			this.nudNumberOfNTPRequestsPerUpdate.Maximum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+			this.nudNumberOfNTPRequestsPerUpdate.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.nudNumberOfNTPRequestsPerUpdate.Name = "nudNumberOfNTPRequestsPerUpdate";
+			this.nudNumberOfNTPRequestsPerUpdate.Size = new System.Drawing.Size(38, 20);
+			this.nudNumberOfNTPRequestsPerUpdate.TabIndex = 57;
+			this.nudNumberOfNTPRequestsPerUpdate.Value = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(266, 299);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(129, 13);
+			this.label1.TabIndex = 56;
+			this.label1.Text = "Number of NTP Requests";
+			// 
 			// ucNTPTime
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -376,6 +412,7 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudHardwareLatencyCorrection)).EndInit();
 			this.gbxNTPTime.ResumeLayout(false);
 			this.gbxNTPTime.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.nudNumberOfNTPRequestsPerUpdate)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -413,5 +450,7 @@
 		private System.Windows.Forms.CheckBox cbxRecordNTPTimeStamps;
 		private System.Windows.Forms.CheckBox cbxRecordSecondaryTimeStamps;
 		private System.Windows.Forms.GroupBox gbxNTPTime;
+		private System.Windows.Forms.NumericUpDown nudNumberOfNTPRequestsPerUpdate;
+		private System.Windows.Forms.Label label1;
 	}
 }

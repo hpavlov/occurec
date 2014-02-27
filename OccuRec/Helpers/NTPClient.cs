@@ -110,37 +110,50 @@ namespace OccuRec.Helpers
  
 		public static DateTime GetNetworkTimeFromMultipleServers(string[] ntpServers, out float latencyInMilliseconds, out int aliveServers, out bool timeUpdated)
 		{
-			var fit = new LinearRegression();
-
 			latencyInMilliseconds = 0;
-			aliveServers = 0;		
+			aliveServers = 0;
+			double deltaTicks = 0;
+			double asyncCoeff = 0;
+			double referenceTimeError = 0;
 
-			for (int i = 0; i < ntpServers.Length; i++)
+			for (int packerIndex = 0; packerIndex < Settings.Default.NumberOfNTPRequestsPerUpdate; packerIndex++)
 			{
-				long startQPTicks = 0;
-				long endQPTicks = 0;
-				try
+				var fit = new LinearRegression();
+
+				float latency = 0;
+
+				for (int i = 0; i < ntpServers.Length; i++)
 				{
-					DateTime reference = GetSingleNetworkTimeReference(ntpServers[i], ref startQPTicks, ref endQPTicks);
+					long startQPTicks = 0;
+					long endQPTicks = 0;
+					try
+					{
+						DateTime reference = GetSingleNetworkTimeReference(ntpServers[i], ref startQPTicks, ref endQPTicks);
 
-					long startTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(startQPTicks);
-					long endTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(endQPTicks);
+						long startTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(startQPTicks);
+						long endTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(endQPTicks);
 
-					fit.AddDataPoint(endTicks - startTicks, reference.Ticks - startTicks);
+						fit.AddDataPoint(endTicks - startTicks, reference.Ticks - startTicks);
 
-					latencyInMilliseconds += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
-					aliveServers++;
+						latency += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+						aliveServers++;
+					}
+					catch
+					{ }
 				}
-				catch
-				{ }
+
+				fit.Solve();
+
+				asyncCoeff += fit.A;
+				deltaTicks += fit.B;
+				referenceTimeError += fit.StdDev;
+				latencyInMilliseconds += (latency / fit.NumberOfDataPoints);
 			}
 
-			fit.Solve();
-
-			double deltaTicks = fit.B;
-			double referenceTimeError = fit.StdDev;
-
-			latencyInMilliseconds /= fit.NumberOfDataPoints;
+			asyncCoeff /= Settings.Default.NumberOfNTPRequestsPerUpdate;
+			deltaTicks /= Settings.Default.NumberOfNTPRequestsPerUpdate;
+			referenceTimeError /= Settings.Default.NumberOfNTPRequestsPerUpdate;
+			latencyInMilliseconds /= Settings.Default.NumberOfNTPRequestsPerUpdate;
 
 			lock (s_SyncLock)
 			{
@@ -157,30 +170,29 @@ namespace OccuRec.Helpers
 					updateTimeReference = Math.Abs(averageLatency - latencyInMilliseconds) < Math.Max(threeSigmaLatency, 5);
 					if (!updateTimeReference)
 					{
-						s_LastFiveNTPLatenciesAlt.Add(latencyInMilliseconds);
 						if (s_LastFiveNTPLatenciesAlt.Count >= 5)
 						{
 							s_LastFiveNTPLatencies.Clear();
 							s_LastFiveNTPLatencies.AddRange(s_LastFiveNTPLatencies.Take(5));
 							updateTimeReference = true;
 						}
-					}
-					else
-					{
-						while (s_LastFiveNTPLatencies.Count >= 5) s_LastFiveNTPLatencies.RemoveAt(0);
-						s_LastFiveNTPLatencies.Add(latencyInMilliseconds);
-						s_LastFiveNTPLatenciesAlt.Clear();
+						else
+							s_LastFiveNTPLatenciesAlt.Add(latencyInMilliseconds);
 					}
 				}
 
 				if (updateTimeReference)
 				{
+					while (s_LastFiveNTPLatencies.Count >= 5) s_LastFiveNTPLatencies.RemoveAt(0);
+					s_LastFiveNTPLatencies.Add(latencyInMilliseconds);
+					s_LastFiveNTPLatenciesAlt.Clear();		
+
 					NTPTimeKeeper.ProcessUTCTimeOffset((long) deltaTicks, (long) referenceTimeError);
 
 					Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms (Average: {4} ms +/- {5} ms).", 
 						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"), 
 						new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
-						(1 / fit.A).ToString("0.00"),
+						(1 / asyncCoeff).ToString("0.00"),
 						latencyInMilliseconds.ToString("0.0"),
 						averageLatency.ToString("0.0"),
 						threeSigmaLatency.ToString("0.00")));
@@ -189,7 +201,7 @@ namespace OccuRec.Helpers
 					Trace.WriteLine(string.Format("Time *NOT* Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms (Average: {4} ms +/- {5} ms).",
 						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"),
 						new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
-						(1 / fit.A).ToString("0.00"),
+						(1 / asyncCoeff).ToString("0.00"),
 						latencyInMilliseconds.ToString("0.0"),
 						averageLatency.ToString("0.0"),
 						threeSigmaLatency.ToString("0.00")));

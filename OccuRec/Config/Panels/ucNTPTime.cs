@@ -52,7 +52,8 @@ namespace OccuRec.Config.Panels
 			tbxNTPServer2.Text = Settings.Default.NTPServer2;
 			tbxNTPServer3.Text = Settings.Default.NTPServer3;
 			tbxNTPServer4.Text = Settings.Default.NTPServer4;
-			nudHardwareLatencyCorrection.SetNUDValue((decimal)Settings.Default.NTPTimingHardwareCorrection);
+			nudHardwareLatencyCorrection.SetNUDValue(Settings.Default.NTPTimingHardwareCorrection);
+			nudNumberOfNTPRequestsPerUpdate.SetNUDValue(Settings.Default.NumberOfNTPRequestsPerUpdate);
 
 			gbxNTPTime.Enabled = cbxRecordNTPTimeStamps.Checked;
 		}
@@ -64,6 +65,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.NTPServer3 = tbxNTPServer3.Text.Trim().ToLower();
 			Settings.Default.NTPServer4 = tbxNTPServer4.Text.Trim().ToLower();
 			Settings.Default.NTPTimingHardwareCorrection = (int)nudHardwareLatencyCorrection.Value;
+			Settings.Default.NumberOfNTPRequestsPerUpdate = (int)nudNumberOfNTPRequestsPerUpdate.Value;
 			Settings.Default.RecordNTPTimeStampInAAV = cbxRecordNTPTimeStamps.Checked;
 			Settings.Default.RecordSecondaryTimeStampInAav = cbxRecordSecondaryTimeStamps.Checked;
 		}
