@@ -1535,13 +1535,15 @@ namespace OccuRec
                     label.Visible = false;
                     break;
                 case ASCOMConnectionState.Connecting:
+				case ASCOMConnectionState.Engaged:
                     label.ForeColor = Color.Goldenrod;
                     label.Visible = true;
                     break;
                 case ASCOMConnectionState.Connected:
+				case ASCOMConnectionState.Ready:
                     label.ForeColor = Color.Green;
                     label.Visible = true;
-                    break;
+                    break;				
                 case ASCOMConnectionState.Disconnecting:
                     label.ForeColor = Color.SlateGray;
                     label.Visible = true;
@@ -1565,12 +1567,12 @@ namespace OccuRec
         public void TelescopeConnectionChanged(ASCOMConnectionState state)
         {
             RefreshASCOMStatusControls(state, tssASCOMTelescope);
-            if (state == ASCOMConnectionState.Connected)
+            if (state == ASCOMConnectionState.Connected || state == ASCOMConnectionState.Ready)
             {
                 tsbTelControl.Text = "Telescope Control";
                 tsbTelControl.Enabled = true;
             }
-            else if (state == ASCOMConnectionState.Disconnected)
+			else if (state == ASCOMConnectionState.Disconnected || state == ASCOMConnectionState.Engaged)
             {
                 tsbTelControl.Text = "Telescope Connect";
                 tsbTelControl.Enabled = true;
@@ -1586,12 +1588,12 @@ namespace OccuRec
         public void FocuserConnectionChanged(ASCOMConnectionState state)
         {
             RefreshASCOMStatusControls(state, tssASCOMFocuser);
-            if (state == ASCOMConnectionState.Connected)
+			if (state == ASCOMConnectionState.Connected || state == ASCOMConnectionState.Ready)
             {
                 tsbFocControl.Text = "Focuser Control";
                 tsbFocControl.Enabled = true;
             }
-            else if (state == ASCOMConnectionState.Disconnected)
+			else if (state == ASCOMConnectionState.Disconnected || state == ASCOMConnectionState.Engaged)
             {
                 tsbFocControl.Text = "Focuser Connect";
                 tsbFocControl.Enabled = true;
@@ -1606,13 +1608,13 @@ namespace OccuRec
 
 		void VideoConnectionChanged(ASCOMConnectionState state)
 		{
-			RefreshASCOMStatusControls(state, tssCameraControl);			
-			if (state == ASCOMConnectionState.Connected)
+			RefreshASCOMStatusControls(state, tssCameraControl);
+			if (state == ASCOMConnectionState.Connected || state == ASCOMConnectionState.Ready)
 			{
 				tsbCamControl.Text = "Camera Control";
 				tsbCamControl.Enabled = true;
 			}
-			else if (state == ASCOMConnectionState.Disconnected)
+			else if (state == ASCOMConnectionState.Disconnected || state == ASCOMConnectionState.Engaged)
 			{
 				tsbCamControl.Text = "Camera Connect";
 				tsbCamControl.Enabled = true;

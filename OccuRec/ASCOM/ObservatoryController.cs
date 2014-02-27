@@ -25,6 +25,8 @@ namespace OccuRec.ASCOM
         Connected,
         Disconnecting,
         Disconnected,
+		Engaged,
+		Ready,
         NotResponding,
         Errored
     }
@@ -47,6 +49,13 @@ namespace OccuRec.ASCOM
 
 	public delegate void CallbackAction(ObservatoryControllerCallbackArgs args);
 
+	public class ObservatoryControlException : Exception
+	{
+		public ObservatoryControlException(string message)
+			: base(message)
+		{ }
+	}
+
 	public interface IObservatoryController : IDisposable
 	{
         event Action<ASCOMConnectionState> TelescopeConnectionChanged;
@@ -66,36 +75,40 @@ namespace OccuRec.ASCOM
 		string ConnectedFocuserDriverName();
 		string ConnectedTelescopeDriverName();
 		string ConnectedVideoCameraDriverName();
-		void DisconnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void DisconnectFocuser(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void DisconnectVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void TryConnectFocuser(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void TryConnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void TryConnectVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-        void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-        void FocuserMoveIn(FocuserStepSize stepSize, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-        void FocuserMoveOut(FocuserStepSize stepSize, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-        void FocuserMove(int step, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-        void FocuserSetTempComp(bool useTempComp, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-        void GetFocuserState(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-        void PerformTelescopePingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-	    void PerformFocuserPingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		
+		Guid? ControlTelescopeLock(bool isEngaged, Guid? clientId);
+		Guid? ControlFocuserLock(bool isEngaged, Guid? clientId);
+
+		void DisconnectTelescope(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void DisconnectFocuser(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void DisconnectVideoCamera(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void TryConnectFocuser(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void TryConnectTelescope(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void TryConnectVideoCamera(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void FocuserMoveIn(FocuserStepSize stepSize, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void FocuserMoveOut(FocuserStepSize stepSize, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void FocuserMove(int step, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void FocuserSetTempComp(bool useTempComp, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void GetFocuserState(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void PerformTelescopePingActions(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void PerformFocuserPingActions(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 
 		void SetExternalCameraDriver(IOccuRecCameraController cameraDriver);
 		bool HasVideoCamera { get; }
 		bool Supports5ButtonOSD { get; }
-		void CameraOSDUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void CameraOSDDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void CameraOSDLeft(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void CameraOSDRight(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void CameraOSDSet(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void GetCameraState(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void CameraGammaDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void CameraGammaUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void CameraGainDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void CameraGainUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void CameraExposureDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
-		void CameraExposureUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraOSDUp(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraOSDDown(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraOSDLeft(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraOSDRight(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraOSDSet(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void GetCameraState(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraGammaDown(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraGammaUp(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraGainDown(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraGainUp(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraExposureDown(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void CameraExposureUp(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 	}
 
 	internal class ObservatoryController : ThreadIsolatedInvoker, IObservatoryController
@@ -145,7 +158,7 @@ namespace OccuRec.ASCOM
 			}
 		}
 
-		public void CameraOSDUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraOSDUp(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -169,7 +182,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);			
 		}
 
-		public void CameraOSDDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraOSDDown(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -193,7 +206,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);		
 		}
 
-		public void CameraOSDLeft(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraOSDLeft(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -217,7 +230,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);	
 		}
 
-		public void CameraOSDRight(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraOSDRight(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -241,7 +254,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);	
 		}
 
-		public void CameraOSDSet(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraOSDSet(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -268,7 +281,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);	
 		}
 
-		public void GetCameraState(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void GetCameraState(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -293,7 +306,7 @@ namespace OccuRec.ASCOM
 				callType, callback, callbackUIControl);
 		}
 
-		public void CameraGammaDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraGammaDown(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -319,7 +332,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
-		public void CameraGammaUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraGammaUp(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -345,7 +358,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
-		public void CameraGainDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraGainDown(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -371,7 +384,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
-		public void CameraGainUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraGainUp(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -397,7 +410,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
-		public void CameraExposureDown(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraExposureDown(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -423,7 +436,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
-		public void CameraExposureUp(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void CameraExposureUp(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -450,7 +463,7 @@ namespace OccuRec.ASCOM
 		}
 
 
-        public void PerformTelescopePingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void PerformTelescopePingActions(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
         {
             IsolatedAction(() =>
             {
@@ -475,7 +488,7 @@ namespace OccuRec.ASCOM
             callType, callback, callbackUIControl);
         }
 
-        public void PerformFocuserPingActions(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void PerformFocuserPingActions(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
         {
             IsolatedAction(() =>
             {
@@ -500,7 +513,95 @@ namespace OccuRec.ASCOM
             callType, callback, callbackUIControl);
         }
 
-		public void TryConnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		private Guid? m_TelescopeEngagedClientId = null;
+		private Guid? m_FocuserEngagedClientId = null;
+		private object m_SyncLock = new object();
+
+		private void AssertTelescopeEngagement(Guid? clientId)
+		{
+			bool operationAuthorised = false;
+
+			lock (m_SyncLock)
+			{
+				operationAuthorised = m_TelescopeEngagedClientId == null || m_TelescopeEngagedClientId == clientId;
+			}
+
+			if (operationAuthorised)
+				throw new ObservatoryControlException("The telescope has been engaged by another client and cannot be controller right now.");
+		}
+
+		private void AssertFocuserEngagement(Guid? clientId)
+		{
+			bool operationAuthorised = false;
+
+			lock (m_SyncLock)
+			{
+				operationAuthorised = m_FocuserEngagedClientId == null || m_FocuserEngagedClientId == clientId;
+			}
+
+			if (operationAuthorised)
+				throw new ObservatoryControlException("The focuser has been engaged by another client and cannot be controller right now.");
+		}
+
+		public Guid? ControlTelescopeLock(bool isEngaged, Guid? clientId)
+		{
+			lock (m_SyncLock)
+			{
+				if (isEngaged)
+				{
+					if (m_TelescopeEngagedClientId != null)
+						return null; // Already engaged
+					else
+					{
+						m_TelescopeEngagedClientId = new Guid();
+						OnTelescopeEngaged();
+						return m_TelescopeEngagedClientId;
+					}
+				}
+				else
+				{
+					if (m_TelescopeEngagedClientId != clientId)
+						return null; // Not engaged by this client
+					else
+					{
+						m_TelescopeEngagedClientId = null;
+						OnTelescopeDisengaged();
+						return clientId;
+					}
+				}
+			}
+		}
+
+		public Guid? ControlFocuserLock(bool isEngaged, Guid? clientId)
+		{
+			lock (m_SyncLock)
+			{
+				if (isEngaged)
+				{
+					if (m_FocuserEngagedClientId != null)
+						return null; // Already engaged
+					else
+					{
+						m_FocuserEngagedClientId = new Guid();
+						OnFocuserEngaged();
+						return m_FocuserEngagedClientId;
+					}
+				}
+				else
+				{
+					if (m_FocuserEngagedClientId != clientId)
+						return null; // Not engaged by this client
+					else
+					{
+						m_FocuserEngagedClientId = null;
+						OnFocuserDisengaged();
+						return clientId;
+					}
+				}
+			}
+		}
+
+		public void TryConnectTelescope(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -508,6 +609,8 @@ namespace OccuRec.ASCOM
 				{
 					if (m_ConnectedTelescope != null && m_ConnectedTelescope.ProgId != Settings.Default.ASCOMProgIdTelescope)
 					{
+						AssertTelescopeEngagement(clientId);
+
 						ASCOMClient.Instance.DisconnectTelescope(m_ConnectedTelescope);
 						m_ConnectedTelescope = null;
 					}
@@ -546,7 +649,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
-		public void TryConnectFocuser(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void TryConnectFocuser(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -554,6 +657,8 @@ namespace OccuRec.ASCOM
 				{
 					if (m_ConnectedFocuser != null && m_ConnectedFocuser.ProgId != Settings.Default.ASCOMProgIdFocuser)
 					{
+						AssertFocuserEngagement(clientId);
+
 						ASCOMClient.Instance.DisconnectFocuser(m_ConnectedFocuser);
 						m_ConnectedFocuser = null;
 					}
@@ -621,7 +726,7 @@ namespace OccuRec.ASCOM
 			return m_ConnectedFocuser != null ? m_ConnectedFocuser.Description : string.Empty;
 		}
 
-		public void DisconnectTelescope(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void DisconnectTelescope(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -629,6 +734,8 @@ namespace OccuRec.ASCOM
 				{
 					if (m_ConnectedTelescope != null)
 					{
+						AssertTelescopeEngagement(clientId);
+
 						ASCOMClient.Instance.DisconnectTelescope(m_ConnectedTelescope);
 						m_ConnectedTelescope = null;
 					}
@@ -648,7 +755,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
-		public void DisconnectFocuser(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void DisconnectFocuser(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			IsolatedAction(() =>
 			{
@@ -656,6 +763,8 @@ namespace OccuRec.ASCOM
 				{
 					if (m_ConnectedFocuser != null)
 					{
+						AssertFocuserEngagement(clientId);
+
 						ASCOMClient.Instance.DisconnectFocuser(m_ConnectedFocuser);
 						m_ConnectedFocuser = null;
 					}
@@ -675,14 +784,16 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
-        public void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
         {
             IsolatedAction((x, y) =>
             {
                 try
                 {
-                    if (m_ConnectedTelescope != null)
+					if (m_ConnectedTelescope != null && m_ConnectedTelescope.Connected)
                     {
+						AssertTelescopeEngagement(clientId);
+
                         m_ConnectedTelescope.PulseGuide(x, y, Settings.Default.TelPulseDuration);
                     }
 
@@ -699,7 +810,7 @@ namespace OccuRec.ASCOM
             direction, pulseRate, callType, callback, callbackUIControl);
         }
 
-        public void FocuserMoveIn(FocuserStepSize stepSize, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void FocuserMoveIn(FocuserStepSize stepSize, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
         {
             IsolatedAction((x) =>
             {
@@ -707,6 +818,8 @@ namespace OccuRec.ASCOM
                 {
                     if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
                     {
+						AssertFocuserEngagement(clientId);
+
                         m_ConnectedFocuser.MoveIn(x);
 
                         FocuserState state = m_ConnectedFocuser.GetCurrentState();
@@ -730,7 +843,7 @@ namespace OccuRec.ASCOM
             
         }
 
-        public void FocuserMoveOut(FocuserStepSize stepSize, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void FocuserMoveOut(FocuserStepSize stepSize, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
         {
             IsolatedAction((x) =>
             {
@@ -738,6 +851,8 @@ namespace OccuRec.ASCOM
                 {
                     if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
                     {
+						AssertFocuserEngagement(clientId);
+
                         m_ConnectedFocuser.MoveOut(x);
 
                         FocuserState state = m_ConnectedFocuser.GetCurrentState();
@@ -760,7 +875,7 @@ namespace OccuRec.ASCOM
             stepSize, callType, callback, callbackUIControl);
         }
 
-        public void FocuserMove(int step, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void FocuserMove(int step, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
         {
             IsolatedAction((x) =>
             {
@@ -768,6 +883,8 @@ namespace OccuRec.ASCOM
                 {
                     if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
                     {
+						AssertFocuserEngagement(clientId);
+
                         m_ConnectedFocuser.Move(x);
 
                         FocuserState state = m_ConnectedFocuser.GetCurrentState();
@@ -790,7 +907,7 @@ namespace OccuRec.ASCOM
             step, callType, callback, callbackUIControl);
         }
 
-        public void FocuserSetTempComp(bool useTempComp, CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void FocuserSetTempComp(bool useTempComp, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
         {
             IsolatedAction((x) =>
             {
@@ -798,6 +915,8 @@ namespace OccuRec.ASCOM
                 {
                     if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
                     {
+						AssertFocuserEngagement(clientId);
+
                         m_ConnectedFocuser.ChangeTempComp(x);
 
                         FocuserState state = m_ConnectedFocuser.GetCurrentState();
@@ -820,7 +939,7 @@ namespace OccuRec.ASCOM
             useTempComp, callType, callback, callbackUIControl);
         }
 
-        public void GetFocuserState(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void GetFocuserState(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
         {
             IsolatedAction(() =>
             {
@@ -828,6 +947,8 @@ namespace OccuRec.ASCOM
                 {
                     if (m_ConnectedFocuser != null && m_ConnectedFocuser.Connected)
                     {
+						// NOTE: Everyone can get the focuser state, even when it has been engaged 
+
                         FocuserState state = m_ConnectedFocuser.GetCurrentState();
 
                         OnFocuserState(state);
@@ -894,6 +1015,26 @@ namespace OccuRec.ASCOM
 		private void OnVideoDisconnected()
 		{
             EventHelper.RaiseEvent(VideoConnectionChanged, ASCOMConnectionState.Disconnected);
+		}
+
+		private void OnTelescopeEngaged()
+		{
+			EventHelper.RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Engaged);
+		}
+
+		private void OnTelescopeDisengaged()
+		{
+			EventHelper.RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Ready);
+		}
+
+		private void OnFocuserEngaged()
+		{
+			EventHelper.RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Engaged);
+		}
+
+		private void OnFocuserDisengaged()
+		{
+			EventHelper.RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Ready);
 		}
 
 		private void OnTelescopeErrored()
@@ -977,7 +1118,7 @@ namespace OccuRec.ASCOM
 				return string.Empty;
 		}
 
-		public void DisconnectVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void DisconnectVideoCamera(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			if (m_ConnectedVideo != null)
 				DisconnectASCOMVideoCamera(callType, callback, callbackUIControl);
@@ -1038,7 +1179,7 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
-		public void TryConnectVideoCamera(CallType callType = CallType.Async, CallbackAction callback = null, Control callbackUIControl = null)
+		public void TryConnectVideoCamera(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{
 			if (m_CameraDriver != null)
 				TryConnectOccuRecVideo(callType, callback, callbackUIControl);

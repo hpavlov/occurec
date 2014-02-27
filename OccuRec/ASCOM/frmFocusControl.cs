@@ -38,15 +38,20 @@ namespace OccuRec.ASCOM
 	    {
 	        set
 	        {
-                if (m_ObservatoryController != value)
-                {
-                    if (m_ObservatoryController != null)
-                        m_ObservatoryController.FocuserStateUpdated -= UpdateFocuserState;
+		        if (m_ObservatoryController != value)
+		        {
+			        if (m_ObservatoryController != null)
+			        {
+				        m_ObservatoryController.FocuserStateUpdated -= UpdateFocuserState;
+				        m_ObservatoryController.FocuserConnectionChanged -= FocuserConnectionChanged;
+			        }
 
-                    m_ObservatoryController = value;
-                    m_ObservatoryController.FocuserStateUpdated += UpdateFocuserState;
-                }
-	            
+			        m_ObservatoryController = value;
+			        m_ObservatoryController.FocuserStateUpdated += UpdateFocuserState;
+			        m_ObservatoryController.FocuserConnectionChanged += FocuserConnectionChanged;
+		        }
+
+				Text = m_ObservatoryController != null ? string.Format("Focuser Control - {0}", m_ObservatoryController.ConnectedFocuserDriverName()) : "Focuser Control";
 	        }
 	    }
 
@@ -108,6 +113,18 @@ namespace OccuRec.ASCOM
 			{
 				pnlFocuserControls.Enabled = false;
 				gbxTargetControl.Enabled = false;
+			}
+		}
+
+		void FocuserConnectionChanged(ASCOMConnectionState state)
+		{
+			if (state == ASCOMConnectionState.Connected || state == ASCOMConnectionState.Ready)
+			{
+				DisableEnableControls(true);
+			}
+			else if (state == ASCOMConnectionState.Disconnected || state == ASCOMConnectionState.Engaged)
+			{
+				DisableEnableControls(false);
 			}
 		}
 

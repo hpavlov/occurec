@@ -73,6 +73,10 @@ namespace OccuRec.FrameAnalysis
 					{
 						// TODO: Check if a correction needs to be made in the current thread
 						// TODO: Issue any pulse guiding commands on a seaprate thread (or asynchronously)
+
+						// TODO: There will ne an issue with the orientation of the video camera field
+						//       Will need to find the correct directions (would have found the correct directions) this current session
+						//       Probably a button on the Telescope Control screen??
 					}
 
 					m_AutoFocusingManager.ProcessFrame(frame, TrackingContext.Current.GuidingStar);

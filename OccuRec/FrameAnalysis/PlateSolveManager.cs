@@ -79,7 +79,7 @@ namespace OccuRec.FrameAnalysis
 
 		void observatoryController_TelescopeConnectionChanged(ASCOMConnectionState connectionState)
 		{
-			if (connectionState != ASCOMConnectionState.Connected)
+			if (connectionState != ASCOMConnectionState.Connected && connectionState != ASCOMConnectionState.Ready)
 			{
 				m_TelescopeIsConnected = false;
 				m_FOVKnown = false;

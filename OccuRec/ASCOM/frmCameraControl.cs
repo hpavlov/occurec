@@ -44,6 +44,8 @@ namespace OccuRec.ASCOM
 					m_ObservatoryController.VideoStateUpdated += m_ObservatoryController_VideoStateUpdated;
                     m_ObservatoryController.VideoError += m_ObservatoryController_VideoError;
 				}
+
+				Text = m_ObservatoryController != null ? string.Format("Camera Control - {0}", m_ObservatoryController.ConnectedVideoCameraDriverName()) : "Camera Control";
 			}
 			private get { return m_ObservatoryController; }
 		}
@@ -195,7 +197,7 @@ namespace OccuRec.ASCOM
 		private void miReset_Click(object sender, EventArgs e)
 		{
 			SetDisabledStateControls();
-			ObservatoryController.DisconnectVideoCamera(CallType.Async, (arg) => ObservatoryController.TryConnectVideoCamera());
+			ObservatoryController.DisconnectVideoCamera(CallType.Async, null, (arg) => ObservatoryController.TryConnectVideoCamera());
 		}
 
 	}

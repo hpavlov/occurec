@@ -229,7 +229,7 @@ namespace OccuRec.Config.Panels
         {
             if (ObservatoryController.IsConnectedToFocuser())
             {
-                ObservatoryController.DisconnectFocuser(CallType.Async, UpdateASCOMControlsState);
+				ObservatoryController.DisconnectFocuser(CallType.Async, null, UpdateASCOMControlsState);
                 btnDisconnectFocuser.Enabled = false;
             }
         }
@@ -238,7 +238,7 @@ namespace OccuRec.Config.Panels
         {
             if (ObservatoryController.IsConnectedToTelescope())
             {
-				ObservatoryController.DisconnectTelescope(CallType.Async, UpdateASCOMControlsState);
+				ObservatoryController.DisconnectTelescope(CallType.Async, null, UpdateASCOMControlsState);
                 btnDisconnectTelescope.Enabled = false;
             }
         }
