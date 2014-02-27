@@ -296,7 +296,8 @@ namespace OccuRec.Config.Panels
 					avrgLatency = 0;
 					float latency;
 					int aliveServers = 0;
-					NTPClient.GetNetworkTimeFromMultipleServers(workingServers.ToArray(), out latency, out aliveServers);
+					bool timeUpdated;
+					NTPClient.GetNetworkTimeFromMultipleServers(workingServers.ToArray(), out latency, out aliveServers, out timeUpdated);
 
 					avrgLatency = latency;
 				}

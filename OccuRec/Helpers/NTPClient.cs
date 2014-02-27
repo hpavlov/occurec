@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
+using OccuRec.Properties;
 using OccuRec.Tracking;
 using OccuRec.Utilities;
 
@@ -104,12 +105,15 @@ namespace OccuRec.Helpers
 			return networkDateTime;
 	    }
 
-		public static DateTime GetNetworkTimeFromMultipleServers(string[] ntpServers, out float latencyInMilliseconds, out int aliveServers)
+	    private static List<double> s_LastFiveNTPLatencies = new List<double>();
+		private static List<double> s_LastFiveNTPLatenciesAlt = new List<double>();
+ 
+		public static DateTime GetNetworkTimeFromMultipleServers(string[] ntpServers, out float latencyInMilliseconds, out int aliveServers, out bool timeUpdated)
 		{
 			var fit = new LinearRegression();
 
 			latencyInMilliseconds = 0;
-			aliveServers = 0;
+			aliveServers = 0;		
 
 			for (int i = 0; i < ntpServers.Length; i++)
 			{
@@ -140,17 +144,74 @@ namespace OccuRec.Helpers
 
 			lock (s_SyncLock)
 			{
-				NTPTimeKeeper.ProcessUTCTimeOffset((long)deltaTicks, (long)referenceTimeError);
+				double averageLatency = 0;
+				double threeSigmaLatency = 0;
+				// Update the time if 
+				//    (1) This is one of the first 5 updates or 
+				//    (2) The average latency in ms is within the Math.Max(3-sigma latency, 5 ms) from the average of last 5 measurements
+				bool updateTimeReference = s_LastFiveNTPLatencies.Count < 5;
+				if (!updateTimeReference)
+				{
+					averageLatency = s_LastFiveNTPLatencies.Average();
+					threeSigmaLatency = 3 * Math.Sqrt(s_LastFiveNTPLatencies.Sum(t => (t - averageLatency) * (t - averageLatency)) / 4);
+					updateTimeReference = Math.Abs(averageLatency - latencyInMilliseconds) < Math.Max(threeSigmaLatency, 5);
+					if (!updateTimeReference)
+					{
+						s_LastFiveNTPLatenciesAlt.Add(latencyInMilliseconds);
+						if (s_LastFiveNTPLatenciesAlt.Count >= 5)
+						{
+							s_LastFiveNTPLatencies.Clear();
+							s_LastFiveNTPLatencies.AddRange(s_LastFiveNTPLatencies.Take(5));
+							updateTimeReference = true;
+						}
+					}
+					else
+					{
+						while (s_LastFiveNTPLatencies.Count >= 5) s_LastFiveNTPLatencies.RemoveAt(0);
+						s_LastFiveNTPLatencies.Add(latencyInMilliseconds);
+						s_LastFiveNTPLatenciesAlt.Clear();
+					}
+				}
+
+				if (updateTimeReference)
+				{
+					NTPTimeKeeper.ProcessUTCTimeOffset((long) deltaTicks, (long) referenceTimeError);
+
+					Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms (Average: {4} ms +/- {5} ms).", 
+						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"), 
+						new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
+						(1 / fit.A).ToString("0.00"),
+						latencyInMilliseconds.ToString("0.0"),
+						averageLatency.ToString("0.0"),
+						threeSigmaLatency.ToString("0.00")));
+				}
+				else
+					Trace.WriteLine(string.Format("Time *NOT* Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms (Average: {4} ms +/- {5} ms).",
+						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"),
+						new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
+						(1 / fit.A).ToString("0.00"),
+						latencyInMilliseconds.ToString("0.0"),
+						averageLatency.ToString("0.0"),
+						threeSigmaLatency.ToString("0.00")));
+
+				timeUpdated = updateTimeReference;
 			}
 
-			Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms.", 
-				new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"), 
-				new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
-				(1 / fit.A).ToString("0.00"),
-				latencyInMilliseconds.ToString("0.0")));
+			// If we are also timestamping with Window's time then we should update the system clock every time too 
+			if (timeUpdated && Settings.Default.RecordSecondaryTimeStampInAav)
+			{
+				DateTime currCorrectWindowsTime = DateTime.UtcNow.AddTicks((long)deltaTicks);
+				NTPClient.SetTime(currCorrectWindowsTime);
+			}
 
 			double x, y, z;
 			return NTPTimeKeeper.UtcNowNoDriftCorrection(out x, out y, out z);
+		}
+
+		public static void PrepareForGettingNetworkTimeFromMultipleServers()
+		{
+			s_LastFiveNTPLatenciesAlt.Clear();
+			s_LastFiveNTPLatencies.Clear();
 		}
 
 		private static DateTime GetSingleNetworkTimeReference(string ntpServer, ref long startQPTicks, ref long endQPTicks)
@@ -498,6 +559,11 @@ namespace OccuRec.Helpers
 
 		public static bool ProcessUTCTimeOffset(long deltaTicksUTC, long deltaTicksError)
 		{
+			// Update the reference frequency every time we update the reference time
+			long currQPFrequency = 0;
+			Profiler.QueryPerformanceFrequency(ref currQPFrequency);
+			s_ReferenceFrequency = currQPFrequency;
+
 			s_ReferenceDateTime = s_ReferenceDateTime.AddTicks(deltaTicksUTC);
 			s_LastReferenceCorrection = new TimeSpan(deltaTicksUTC).TotalMilliseconds;
 			s_LastReferenceCorrectionError = new TimeSpan(deltaTicksError).TotalMilliseconds;
