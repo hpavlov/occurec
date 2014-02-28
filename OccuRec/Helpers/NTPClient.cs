@@ -171,7 +171,7 @@ namespace OccuRec.Helpers
 				{
 					averageLatency = s_LastFiveNTPLatencies.Average();
 					fiveSigmaLatency = 5 * Math.Sqrt(s_LastFiveNTPLatencies.Sum(t => (t - averageLatency) * (t - averageLatency)) / (SLIDING_INTERVAL - 1));
-					updateTimeReference = Math.Abs(averageLatency - latencyInMilliseconds) < Math.Max(fiveSigmaLatency, 5);
+					updateTimeReference = latencyInMilliseconds - averageLatency < Math.Max(fiveSigmaLatency, 5);
 					if (!updateTimeReference)
 					{
 						if (s_LastFiveNTPLatenciesAlt.Count >= SLIDING_INTERVAL)
