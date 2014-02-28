@@ -107,14 +107,15 @@ namespace OccuRec.Helpers
 
 	    private static List<double> s_LastFiveNTPLatencies = new List<double>();
 		private static List<double> s_LastFiveNTPLatenciesAlt = new List<double>();
- 
+	    private static bool s_LastRequstedUpdateSkipped = false;
+
 		public static DateTime GetNetworkTimeFromMultipleServers(string[] ntpServers, out float latencyInMilliseconds, out int aliveServers, out bool timeUpdated)
 		{
 			latencyInMilliseconds = 0;
 			aliveServers = 0;
-			double deltaTicks = 0;
 			double asyncCoeff = 0;
 			double referenceTimeError = 0;
+			var deltaTicksList = new List<double>();
 
 			for (int packerIndex = 0; packerIndex < Settings.Default.NumberOfNTPRequestsPerUpdate; packerIndex++)
 			{
@@ -145,13 +146,14 @@ namespace OccuRec.Helpers
 				fit.Solve();
 
 				asyncCoeff += fit.A;
-				deltaTicks += fit.B;
+				deltaTicksList.Add(fit.B);
 				referenceTimeError += fit.StdDev;
 				latencyInMilliseconds += (latency / fit.NumberOfDataPoints);
 			}
 
 			asyncCoeff /= Settings.Default.NumberOfNTPRequestsPerUpdate;
-			deltaTicks /= Settings.Default.NumberOfNTPRequestsPerUpdate;
+			double deltaTicks = deltaTicksList.Average();
+			double deltaTicksOneSigma = deltaTicksList.Count > 1 ? Math.Sqrt(deltaTicksList.Sum(t => (t - deltaTicks) * (t - deltaTicks)) / (deltaTicksList.Count - 1)) : 0;
 			referenceTimeError /= Settings.Default.NumberOfNTPRequestsPerUpdate;
 			latencyInMilliseconds /= Settings.Default.NumberOfNTPRequestsPerUpdate;
 
@@ -183,6 +185,18 @@ namespace OccuRec.Helpers
 					}
 				}
 
+				if (updateTimeReference && !s_LastRequstedUpdateSkipped && s_LastFiveNTPLatencies.Count >= SLIDING_INTERVAL)
+				{
+					// One-time skip update if delta is bigger than the average latency OR if the latency error is bigger than half the latency
+					if (new TimeSpan((long) deltaTicks).TotalMilliseconds > latencyInMilliseconds ||
+					    new TimeSpan((long) referenceTimeError).TotalMilliseconds > 0.5*latencyInMilliseconds)
+					{
+						updateTimeReference = false;
+						s_LastRequstedUpdateSkipped = true;
+						Trace.WriteLine("One time skip update triggered");
+					}
+				}
+
 				if (updateTimeReference)
 				{
 					while (s_LastFiveNTPLatencies.Count >= SLIDING_INTERVAL) s_LastFiveNTPLatencies.RemoveAt(0);
@@ -191,20 +205,24 @@ namespace OccuRec.Helpers
 
 					NTPTimeKeeper.ProcessUTCTimeOffset((long) deltaTicks, (long) referenceTimeError);
 
-					Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms (Average: {4} ms +/- {5} ms).", 
-						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"), 
-						new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
+					Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms).", 
+						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"),
+						new TimeSpan((long)deltaTicksOneSigma).TotalMilliseconds.ToString("0.00"),
 						(1 / asyncCoeff).ToString("0.00"),
 						latencyInMilliseconds.ToString("0.0"),
+						new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
 						averageLatency.ToString("0.0"),
 						fiveSigmaLatency.ToString("0.00")));
+
+					s_LastRequstedUpdateSkipped = false;
 				}
 				else
-					Trace.WriteLine(string.Format("Time *NOT* Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms (Average: {4} ms +/- {5} ms).",
+					Trace.WriteLine(string.Format("Time *NOT* Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms).",
 						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"),
-						new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
+						new TimeSpan((long)deltaTicksOneSigma).TotalMilliseconds.ToString("0.00"),
 						(1 / asyncCoeff).ToString("0.00"),
 						latencyInMilliseconds.ToString("0.0"),
+						new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
 						averageLatency.ToString("0.0"),
 						fiveSigmaLatency.ToString("0.00")));
 

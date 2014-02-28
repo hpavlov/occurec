@@ -990,6 +990,11 @@ namespace OccuRec
 
 		private void UpdateNTPTimeReferenceForTimestampingVideo(object state)
 		{
+			// Set highest priority
+			Thread.CurrentThread.Priority = ThreadPriority.Highest;
+			// Then trigger a context switch
+			Thread.Sleep(20);
+
 			if (!m_LastKnownGoodNTPServersInitialised)
 			{
 				NTPClient.PrepareForGettingNetworkTimeFromMultipleServers();
