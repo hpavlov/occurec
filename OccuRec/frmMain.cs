@@ -665,8 +665,9 @@ namespace OccuRec
 					}
 				}
 
-                tbsAddTarget.Enabled = TrackingContext.Current.GuidingStar != null;
-				tsbClearTargets.Enabled = TrackingContext.Current.GuidingStar != null;
+				tbsAddTarget.Enabled = TrackingContext.Current.GuidingStar != null && !Scheduler.HasScheduledTasks();
+				tsbClearTargets.Enabled = TrackingContext.Current.GuidingStar != null && !Scheduler.HasScheduledTasks();
+				tsbAddGuidingStar.Enabled = !Scheduler.HasScheduledTasks();
 #if DEBUG
 				if (!double.IsNaN(renderFps))
 				{
@@ -850,7 +851,7 @@ namespace OccuRec
 
         private void btnAddSchedule_Click(object sender, EventArgs e)
         {
-            var frm = new frmAddScheduleEntry(m_ObservatoryController);
+            var frm = new frmAddScheduleEntry(m_ObservatoryController, m_AnalysisManager);
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
                 UpdateScheduleDisplay();

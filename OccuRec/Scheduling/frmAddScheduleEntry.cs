@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.ASCOM;
+using OccuRec.FrameAnalysis;
 using OccuRec.Properties;
 
 namespace OccuRec.Scheduling
@@ -14,22 +15,25 @@ namespace OccuRec.Scheduling
     public partial class frmAddScheduleEntry : Form
     {
 	    private IObservatoryController m_ObservatoryController;
+	    private FrameAnalysisManager m_AnalysisManager;
 
 	    public frmAddScheduleEntry()
 	    {
 		    InitializeComponent();
 	    }
 
-	    public frmAddScheduleEntry(IObservatoryController observatoryController)
+	    public frmAddScheduleEntry(IObservatoryController observatoryController, FrameAnalysisManager analysisManager)
         {
             InitializeComponent();
 
 	        m_ObservatoryController = observatoryController;
+		    m_AnalysisManager = analysisManager;
+
             cbxOperations.SelectedIndex = 0;
             lblUT.Visible = Settings.Default.DisplayTimeInUT;
 
 			cbxAutoFocusing.Enabled = m_ObservatoryController.IsConnectedToFocuser();
-			cbxAutoPulseGuiding.Enabled = m_ObservatoryController.IsConnectedToTelescope();
+			cbxAutoPulseGuiding.Enabled = m_ObservatoryController.IsConnectedToTelescope() && m_AnalysisManager.IsPulseGuidingCalibrated();
 
 		    cbxAutoFocusing.Checked = false;
 			cbxAutoPulseGuiding.Checked = false;

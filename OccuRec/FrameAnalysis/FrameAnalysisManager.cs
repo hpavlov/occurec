@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using OccuRec.ASCOM;
 using OccuRec.Helpers;
+using OccuRec.ObservatoryAutomation;
 
 namespace OccuRec.FrameAnalysis
 {
@@ -45,9 +46,14 @@ namespace OccuRec.FrameAnalysis
 			m_ObservatoryManager.TriggerAutoFocusing();
 		}
 
-		public void TriggerPulseGuidingCalibration()
+		public bool TriggerPulseGuidingCalibration()
 		{
-			m_ObservatoryManager.TriggerPulseGuidingCalibration();
+			return m_ObservatoryManager.TriggerPulseGuidingCalibration();
+		}
+
+		public bool IsPulseGuidingCalibrated()
+		{
+			return m_ObservatoryManager.IsPulseGuidingCalibrated();
 		}
 
 		public void Dispose()

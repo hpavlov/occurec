@@ -182,7 +182,8 @@ namespace OccuRec.ASCOM
 
 		private void miCalibratePulseGuiding_Click(object sender, EventArgs e)
 		{
-			m_AnalisysManager.TriggerPulseGuidingCalibration();
+			if (!m_AnalisysManager.TriggerPulseGuidingCalibration())
+				MessageBox.Show(this, "Pulse Guiding Calibration cannot be started right now. Plase try again later.", "OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
     }
 }

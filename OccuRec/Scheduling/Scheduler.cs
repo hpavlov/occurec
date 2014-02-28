@@ -161,7 +161,12 @@ namespace OccuRec.Scheduling
             return rv;
         }
 
-        public static ScheduledAction CheckSchedules()
+	    public static bool HasScheduledTasks()
+	    {
+		    return schedules.Count > 0;
+	    }
+
+	    public static ScheduledAction CheckSchedules()
         {
             ScheduleEntry next = GetNextEntry();
 

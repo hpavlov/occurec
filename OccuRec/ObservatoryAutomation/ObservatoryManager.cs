@@ -4,13 +4,16 @@ using System.Linq;
 using System.Text;
 using OccuRec.ASCOM;
 using OccuRec.Helpers;
+using OccuRec.ObservatoryAutomation.StateMachine;
+using OccuRec.ObservatoryAutomation.StateMachine.PulseGuiding;
 using OccuRec.Tracking;
 
-namespace OccuRec.FrameAnalysis
+namespace OccuRec.ObservatoryAutomation
 {
 	internal class ObservatoryManager
 	{
 		private IObservatoryController m_ObservatoryController;
+		private AutomationStateMachine m_StateMachine;
 
 		private bool m_RunAutoFocusNow = false;
 		private bool m_IsAutoFocusing = false;
@@ -18,6 +21,7 @@ namespace OccuRec.FrameAnalysis
 		public ObservatoryManager(IObservatoryController observatoryController)
 		{
 			m_ObservatoryController = observatoryController;
+			m_StateMachine = new AutomationStateMachine(observatoryController);
 		}
 
 		public void TriggerAutoFocusing()
@@ -26,9 +30,25 @@ namespace OccuRec.FrameAnalysis
 				m_RunAutoFocusNow = true;
 		}
 
-		public void TriggerPulseGuidingCalibration()
+		public bool TriggerPulseGuidingCalibration()
+		{
+			if (!m_StateMachine.CanTriggerExternalStateChangeNow)
+				return false;
+
+			Guid? lockId = m_ObservatoryController.ControlTelescopeLock(true, null);
+			if (lockId == null)
+				return false;
+
+			m_StateMachine.ChangeState(new PgcInitialState(m_StateMachine, lockId.Value));
+
+			return true;
+		}
+
+		public bool IsPulseGuidingCalibrated()
 		{
 			// TODO:
+
+			return false;
 		}
 
 		public void ProcessFrame(VideoFrameWrapper frame, LastTrackedPosition locatedGuidingStar)

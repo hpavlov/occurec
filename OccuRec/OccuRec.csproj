@@ -161,7 +161,7 @@
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
     <Compile Include="Drivers\AVISimulator\Video.cs" />
     <Compile Include="Drivers\BasicVideoFrame.cs" />
-    <Compile Include="FrameAnalysis\ObservatoryManager.cs" />
+    <Compile Include="ObservatoryAutomation\ObservatoryManager.cs" />
     <Compile Include="FrameAnalysis\FrameAnalysisManager.cs" />
     <Compile Include="FrameAnalysis\PlateSolveManager.cs" />
     <Compile Include="FrameAnalysis\TargetSignalMonitor.cs" />
@@ -207,6 +207,10 @@
       <DependentUpon>ucObservatoryControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\UIThreadCaller.cs" />
+    <Compile Include="ObservatoryAutomation\StateMachine\AutomationState.cs" />
+    <Compile Include="ObservatoryAutomation\StateMachine\AutomationStateMachine.cs" />
+    <Compile Include="ObservatoryAutomation\StateMachine\IdleState.cs" />
+    <Compile Include="ObservatoryAutomation\StateMachine\PulseGuiding\PgcInitialState.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Tracking\AllGreys.cs" />
     <Compile Include="Tracking\ImagePixel.cs" />

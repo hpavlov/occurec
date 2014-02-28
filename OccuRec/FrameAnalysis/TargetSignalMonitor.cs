@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using OccuRec.ASCOM;
 using OccuRec.Helpers;
+using OccuRec.ObservatoryAutomation;
 using OccuRec.Properties;
 using OccuRec.Tracking;
 
