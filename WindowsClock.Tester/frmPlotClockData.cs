@@ -77,10 +77,18 @@ namespace WindowsClock.Tester
 						g.DrawLine(Pens.Red, zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].WinAccu - data.Data[i].OccuRecErr) - 1, zeroX + i * scaleX, zeroY + scaleY * (data.Data[i].WinAccu + data.Data[i].OccuRecErr) + 1);
 				}
 
-				for (int i = -4000; i < 4000; i+=50)
+				for (int i = -200; i < 200; i+=10)
 				{
 					g.DrawLine(Pens.Gray, zeroX, zeroY + scaleY * i, maxX, zeroY + scaleY * i);
 				}
+
+                for (int i = -4000; i < 4000; i += 50)
+                {
+                    g.DrawLine(Pens.Black, zeroX, zeroY + scaleY * i, maxX, zeroY + scaleY * i);
+                }
+
+                g.DrawLine(Pens.Black, zeroX, zeroY + 1, maxX, zeroY +  1);
+                g.DrawLine(Pens.Black, zeroX, zeroY -1, maxX, zeroY -1);
 			}
 		}
 

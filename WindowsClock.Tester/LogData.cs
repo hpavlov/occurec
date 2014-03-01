@@ -28,7 +28,9 @@ namespace WindowsClock.Tester
 			string[] allLines = File.ReadAllLines(fileName);
 			if (allLines.Length > 1)
 			{
-				if (allLines[0].IndexOf("GpsTimeAccu") > -1)
+				if (allLines[0].IndexOf("GPSTrackedSatellites") > -1)
+                    ParseStatuChannelExport(allLines);	
+				else if (allLines[0].IndexOf("GpsTimeAccu") > -1)
 					ParseContentHTCC(allLines);	
 				else
 					ParseContent(allLines);	
@@ -36,6 +38,42 @@ namespace WindowsClock.Tester
 			
 		}
 
+        private void ParseStatuChannelExport(string[] content)
+        {
+            Data.Clear();
+
+            //FrameNo,OCRStartTimestamp,OCREndTimestamp,NTPStartTimestamp,NTPEndTimestamp,StartTimestampSecondary,EndTimestampSecondary,NTPTimestampError,GPSTrackedSatellites,GPSAlmanacStatus,GPSFixStatus
+            //"0","01-Jan-2010 00:00:00.000","01-Jan-2010 00:00:00.000","01-Jan-2010 00:00:00.000","01-Jan-2010 00:00:00.000","01-Jan-2010 00:00:00.000","01-Jan-2010 00:00:00.000","0","0","Uncertain","No Fix"
+            //"1","26-Feb-2014 07:20:16.215","26-Feb-2014 07:20:16.255","26-Feb-2014 07:20:16.245","26-Feb-2014 07:20:16.245","26-Feb-2014 07:20:16.176","26-Feb-2014 07:20:16.176","220","9","Good","P Fix"
+            //"2","26-Feb-2014 07:20:16.255","26-Feb-2014 07:20:16.295","26-Feb-2014 07:20:16.245","26-Feb-2014 07:20:16.285","26-Feb-2014 07:20:16.167","26-Feb-2014 07:20:16.207","220","9","Good","P Fix"
+
+            for (int i = 1; i < content.Length; i++)
+            {
+                string[] tokens = content[i].Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+
+                if (tokens.Length == 11)
+                {
+                    int frameNo = int.Parse(tokens[0].Trim('"'), CultureInfo.InvariantCulture);
+                    DateTime ocrTime = DateTime.ParseExact(tokens[1].Trim('"'), "dd-MMM-yyyy HH:mm:ss.fff", CultureInfo.InvariantCulture);
+                    DateTime ntpTime = DateTime.ParseExact(tokens[3].Trim('"'), "dd-MMM-yyyy HH:mm:ss.fff", CultureInfo.InvariantCulture);
+                    DateTime winTime = DateTime.ParseExact(tokens[5].Trim('"'), "dd-MMM-yyyy HH:mm:ss.fff", CultureInfo.InvariantCulture);
+                    double ntpDiff = new TimeSpan(ocrTime.Ticks - ntpTime.Ticks).TotalMilliseconds;
+                    double winDiff = new TimeSpan(ocrTime.Ticks - winTime.Ticks).TotalMilliseconds;
+
+                    Data.Add(new LogEntry()
+                    {
+                        WinAccu = (long)winDiff,
+                        WinAccuNorm = (long)winDiff,
+                        OccuRecAccu = (long)ntpDiff,
+                        OccuRecErr = 1,
+                        TimeDrift = 0,
+                        TimeDriftErr = 0,
+                        NTPAccu = 1,
+                        NTPTimeUpdate = true
+                    });
+                }
+            }
+        }
 		private void ParseContentHTCC(string[] content)
 		{
 			Data.Clear();

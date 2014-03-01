@@ -197,6 +197,9 @@ namespace OccuRec.Helpers
 					}
 				}
 
+                long freq = 0;
+                Profiler.QueryPerformanceFrequency(ref freq);
+
 				if (updateTimeReference)
 				{
 					while (s_LastFiveNTPLatencies.Count >= SLIDING_INTERVAL) s_LastFiveNTPLatencies.RemoveAt(0);
@@ -205,26 +208,30 @@ namespace OccuRec.Helpers
 
 					NTPTimeKeeper.ProcessUTCTimeOffset((long) deltaTicks, (long) referenceTimeError);
 
-					Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms).", 
+					Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms), QPC Frequency = {7} (Time: {8} UT).", 
 						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"),
 						new TimeSpan((long)deltaTicksOneSigma).TotalMilliseconds.ToString("0.00"),
 						(1 / asyncCoeff).ToString("0.00"),
 						latencyInMilliseconds.ToString("0.0"),
 						new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
 						averageLatency.ToString("0.0"),
-						fiveSigmaLatency.ToString("0.00")));
+						fiveSigmaLatency.ToString("0.00"),
+                        freq,
+                        DateTime.UtcNow.ToString("HH:mm:ss")));
 
 					s_LastRequstedUpdateSkipped = false;
 				}
 				else
-					Trace.WriteLine(string.Format("Time *NOT* Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms).",
+                    Trace.WriteLine(string.Format("Time *NOT* Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms), QPC Frequency = {7} (Time: {8} UT).",
 						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"),
 						new TimeSpan((long)deltaTicksOneSigma).TotalMilliseconds.ToString("0.00"),
 						(1 / asyncCoeff).ToString("0.00"),
 						latencyInMilliseconds.ToString("0.0"),
 						new TimeSpan((long)referenceTimeError).TotalMilliseconds.ToString("0.0"),
 						averageLatency.ToString("0.0"),
-						fiveSigmaLatency.ToString("0.00")));
+                        fiveSigmaLatency.ToString("0.00"),
+                        freq,
+                        DateTime.UtcNow.ToString("HH:mm:ss")));
 
 				timeUpdated = updateTimeReference;
 			}
@@ -342,7 +349,10 @@ namespace OccuRec.Helpers
             systime.wSecond = (ushort)newUtcTime.Second;
             systime.wMilliseconds = (ushort)newUtcTime.Millisecond;
 
-            SetSystemTime(ref systime);
+            if (SetSystemTime(ref systime) != 0)
+                Trace.WriteLine("Windows clock has been updated.");
+            else
+                Trace.WriteLine(string.Format("Error setting the Windows clock. Error code {0}", Marshal.GetLastWin32Error()));
         }
     }
 
