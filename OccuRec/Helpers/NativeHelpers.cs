@@ -300,7 +300,7 @@ namespace OccuRec.Helpers
 		private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int SetupAav(int imageLayout, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion, int recordNtpTimestamp, int recordSecondaryTimestamp);
+		private static extern int SetupAav(int imageLayout, int bpp, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion, int recordNtpTimestamp, int recordSecondaryTimestamp);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupNtpDebugParams(int debugParam1, float debugParam2);
@@ -601,7 +601,8 @@ namespace OccuRec.Helpers
         public static void SetupAav(AavImageLayout imageLayout)
         {
             SetupAav(
-                (int)imageLayout, 
+                (int)imageLayout,
+				Settings.Default.Use16BitAAV ? 16 : 8,
                 Settings.Default.UsesBufferedFrameProcessing ? 1 : 0,
                 Settings.Default.IntegrationDetectionTuning ? 1 : 0,
                 string.Format("OccuRec v{0}", ASSEMBLY_FILE_VERSION.Version),

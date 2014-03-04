@@ -34,7 +34,10 @@ class AavImageSection {
 		AavImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame);
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);
 		void WriteHeader(FILE* pfile);
+
 		unsigned char* GetDataBytes(unsigned char layoutId, unsigned char* currFramePixels, unsigned int *bytesCount, char* byteMode);		
+		unsigned char* GetDataBytes16(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode);
+
 		void BeginFrame();
 		int MaxFrameBufferSize();
 		AavImageLayout* GetImageLayoutById(unsigned char layoutId);

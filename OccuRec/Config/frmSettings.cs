@@ -87,7 +87,7 @@ namespace OccuRec.Config
 				if (currentNode.Parent == null)
 				{
 					// Select the first sibling
-					if (currentNode.Nodes.Count > 0)
+					if (currentNode.Tag == null && currentNode.Nodes.Count > 0)
 						newTitle = string.Format("OccuRec Settings - {0} - {1}", currentNode.Text, currentNode.Nodes[0].Text);
 					else
 						newTitle = string.Format("OccuRec Settings - {0}", currentNode.Text);

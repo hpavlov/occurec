@@ -289,6 +289,37 @@ unsigned int WordSignMask(int bit)
 }
 
 
+unsigned char* AavImageLayout::GetDataBytes16(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount)
+{
+	unsigned char* bytesToCompress;
+	
+	if (m_BytesLayout == FullImageRaw)
+	{
+		bytesToCompress = GetFullImageRawDataBytes16(currFramePixels, bytesCount);
+
+		if (0 == strcmp(Compression, "QUICKLZ"))
+		{
+			unsigned int frameSize = 0;
+
+			// compress and write result 
+			size_t len2 = qlz_compress(bytesToCompress, m_CompressedPixels, *bytesCount, m_StateCompress); 		
+
+	#if _DEBUG
+			DebugViewPrint(L"Compressed to %d %%\r\n",  100 * len2 / *bytesCount);
+	#endif
+			*bytesCount = len2;
+		
+			return (unsigned char*)(m_CompressedPixels);
+		}
+		else if (0 == strcmp(Compression, "UNCOMPRESSED"))
+		{
+			return bytesToCompress;
+		}
+	}
+		
+	return NULL;
+}
+
 unsigned char* AavImageLayout::GetDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount)
 {
 	unsigned char* bytesToCompress;
@@ -326,6 +357,16 @@ unsigned char* AavImageLayout::GetDataBytes(unsigned char* currFramePixels, enum
 	
 		
 	return NULL;
+}
+
+unsigned char* AavImageLayout::GetFullImageRawDataBytes16(unsigned short* currFramePixels, unsigned int *bytesCount)
+{
+	int buffLen = Width * Height * 2 /* 2x 8 bit */;
+	
+	memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
+
+	*bytesCount = buffLen;
+	return m_PixelArrayBuffer;
 }
 
 unsigned char* AavImageLayout::GetFullImageRawDataBytes(unsigned char* currFramePixels, unsigned int *bytesCount)

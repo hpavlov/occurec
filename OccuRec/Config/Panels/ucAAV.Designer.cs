@@ -40,11 +40,14 @@
 			this.label4 = new System.Windows.Forms.Label();
 			this.nudMinSignDiff = new System.Windows.Forms.NumericUpDown();
 			this.cbxFrameProcessingMode = new System.Windows.Forms.ComboBox();
-			this.label12 = new System.Windows.Forms.Label();
 			this.cbxStatusSectionOnly = new System.Windows.Forms.CheckBox();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.nudNTPDebugValue2 = new System.Windows.Forms.NumericUpDown();
 			this.nudNTPDebugValue1 = new System.Windows.Forms.NumericUpDown();
+			this.rbIntegrationAverage = new System.Windows.Forms.RadioButton();
+			this.rbIntegrationBin = new System.Windows.Forms.RadioButton();
+			this.groupBox3 = new System.Windows.Forms.GroupBox();
+			this.groupBox4 = new System.Windows.Forms.GroupBox();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
@@ -53,6 +56,8 @@
 			this.groupBox2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).BeginInit();
+			this.groupBox3.SuspendLayout();
+			this.groupBox4.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// cbDebugIntegration
@@ -77,7 +82,7 @@
 			this.groupBox1.Controls.Add(this.label4);
 			this.groupBox1.Controls.Add(this.nudMinSignDiff);
 			this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.groupBox1.Location = new System.Drawing.Point(3, 3);
+			this.groupBox1.Location = new System.Drawing.Point(4, 76);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(362, 152);
 			this.groupBox1.TabIndex = 25;
@@ -232,19 +237,10 @@
 			this.cbxFrameProcessingMode.Items.AddRange(new object[] {
             "Buffered",
             "Synchronous"});
-			this.cbxFrameProcessingMode.Location = new System.Drawing.Point(3, 183);
+			this.cbxFrameProcessingMode.Location = new System.Drawing.Point(12, 28);
 			this.cbxFrameProcessingMode.Name = "cbxFrameProcessingMode";
-			this.cbxFrameProcessingMode.Size = new System.Drawing.Size(144, 21);
+			this.cbxFrameProcessingMode.Size = new System.Drawing.Size(130, 21);
 			this.cbxFrameProcessingMode.TabIndex = 22;
-			// 
-			// label12
-			// 
-			this.label12.AutoSize = true;
-			this.label12.Location = new System.Drawing.Point(0, 167);
-			this.label12.Name = "label12";
-			this.label12.Size = new System.Drawing.Size(91, 13);
-			this.label12.TabIndex = 23;
-			this.label12.Text = "Frame Processing";
 			// 
 			// cbxStatusSectionOnly
 			// 
@@ -262,7 +258,7 @@
 			this.groupBox2.Controls.Add(this.nudNTPDebugValue1);
 			this.groupBox2.Controls.Add(this.cbDebugIntegration);
 			this.groupBox2.Controls.Add(this.cbxStatusSectionOnly);
-			this.groupBox2.Location = new System.Drawing.Point(4, 211);
+			this.groupBox2.Location = new System.Drawing.Point(4, 234);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Size = new System.Drawing.Size(361, 100);
 			this.groupBox2.TabIndex = 27;
@@ -306,16 +302,59 @@
             0,
             0});
 			// 
+			// rbIntegrationAverage
+			// 
+			this.rbIntegrationAverage.AutoSize = true;
+			this.rbIntegrationAverage.Checked = true;
+			this.rbIntegrationAverage.Location = new System.Drawing.Point(15, 19);
+			this.rbIntegrationAverage.Name = "rbIntegrationAverage";
+			this.rbIntegrationAverage.Size = new System.Drawing.Size(94, 17);
+			this.rbIntegrationAverage.TabIndex = 28;
+			this.rbIntegrationAverage.TabStop = true;
+			this.rbIntegrationAverage.Text = "Average (8 bit)";
+			this.rbIntegrationAverage.UseVisualStyleBackColor = true;
+			// 
+			// rbIntegrationBin
+			// 
+			this.rbIntegrationBin.AutoSize = true;
+			this.rbIntegrationBin.Location = new System.Drawing.Point(15, 42);
+			this.rbIntegrationBin.Name = "rbIntegrationBin";
+			this.rbIntegrationBin.Size = new System.Drawing.Size(180, 17);
+			this.rbIntegrationBin.TabIndex = 29;
+			this.rbIntegrationBin.Text = "Bin (16 bit, x256 Max Integration)";
+			this.rbIntegrationBin.UseVisualStyleBackColor = true;
+			// 
+			// groupBox3
+			// 
+			this.groupBox3.Controls.Add(this.rbIntegrationAverage);
+			this.groupBox3.Controls.Add(this.rbIntegrationBin);
+			this.groupBox3.Location = new System.Drawing.Point(4, 4);
+			this.groupBox3.Name = "groupBox3";
+			this.groupBox3.Size = new System.Drawing.Size(200, 66);
+			this.groupBox3.TabIndex = 30;
+			this.groupBox3.TabStop = false;
+			this.groupBox3.Text = "Integration Recording";
+			// 
+			// groupBox4
+			// 
+			this.groupBox4.Controls.Add(this.cbxFrameProcessingMode);
+			this.groupBox4.Location = new System.Drawing.Point(210, 5);
+			this.groupBox4.Name = "groupBox4";
+			this.groupBox4.Size = new System.Drawing.Size(156, 65);
+			this.groupBox4.TabIndex = 31;
+			this.groupBox4.TabStop = false;
+			this.groupBox4.Text = "Frame Processing";
+			// 
 			// ucAAV
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.groupBox4);
+			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
-			this.Controls.Add(this.cbxFrameProcessingMode);
-			this.Controls.Add(this.label12);
 			this.Name = "ucAAV";
-			this.Size = new System.Drawing.Size(401, 327);
+			this.Size = new System.Drawing.Size(383, 349);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).EndInit();
@@ -326,8 +365,10 @@
 			this.groupBox2.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).EndInit();
+			this.groupBox3.ResumeLayout(false);
+			this.groupBox3.PerformLayout();
+			this.groupBox4.ResumeLayout(false);
 			this.ResumeLayout(false);
-			this.PerformLayout();
 
 		}
 
@@ -345,10 +386,13 @@
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.NumericUpDown nudMinSignDiff;
 		private System.Windows.Forms.ComboBox cbxFrameProcessingMode;
-		private System.Windows.Forms.Label label12;
 		private System.Windows.Forms.CheckBox cbxStatusSectionOnly;
 		private System.Windows.Forms.GroupBox groupBox2;
 		private System.Windows.Forms.NumericUpDown nudNTPDebugValue2;
 		private System.Windows.Forms.NumericUpDown nudNTPDebugValue1;
+		private System.Windows.Forms.RadioButton rbIntegrationAverage;
+		private System.Windows.Forms.RadioButton rbIntegrationBin;
+		private System.Windows.Forms.GroupBox groupBox3;
+		private System.Windows.Forms.GroupBox groupBox4;
 	}
 }

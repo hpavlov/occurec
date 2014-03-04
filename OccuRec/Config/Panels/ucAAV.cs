@@ -30,6 +30,7 @@ namespace OccuRec.Config.Panels
 			cbxStatusSectionOnly.Checked = Settings.Default.RecordStatusSectionOnly;
 			nudNTPDebugValue1.SetNUDValue(Settings.Default.NTPDebugConfigValue1);
 			nudNTPDebugValue2.SetNUDValue(Settings.Default.NTPDebugConfigValue2);
+			rbIntegrationBin.Checked = Settings.Default.Use16BitAAV;
 		}
 
 		public override void SaveSettings()
@@ -45,6 +46,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.RecordStatusSectionOnly = cbxStatusSectionOnly.Checked;
 			Settings.Default.NTPDebugConfigValue1 = (int)nudNTPDebugValue1.Value;
 			Settings.Default.NTPDebugConfigValue2 = (float)nudNTPDebugValue2.Value;
+			Settings.Default.Use16BitAAV = rbIntegrationBin.Checked;
 		}
 	}
 }

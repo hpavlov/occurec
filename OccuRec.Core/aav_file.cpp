@@ -171,7 +171,7 @@ void AavFile::EndFile()
 	m_File = NULL;
 }
 
-void AavFile::AddImageSection(AavLib::AavImageSection* section)
+void AavFile::AddImageSection(AavLib::AavImageSection* section, int bitPix)
 {
 	ImageSection = section;	
 
@@ -182,7 +182,7 @@ void AavFile::AddImageSection(AavLib::AavImageSection* section)
 	snprintf(convStr, 10, "%d", section->Height);
 	m_FileTags.insert(make_pair("HEIGHT", string(convStr)));
 	
-	snprintf(convStr, 10, "%d", 8);
+	snprintf(convStr, 10, "%d", bitPix);
 	m_FileTags.insert(make_pair("BITPIX", string(convStr)));
 }
 
@@ -311,6 +311,50 @@ void AavFile::AddFrameImage(unsigned char layoutId, unsigned char* pixels)
 	}
 }
 			
+void AavFile::AddFrameImage16(unsigned char layoutId, unsigned short* pixels)
+{
+	unsigned int imageBytesCount = 0;	
+	char byteMode = 0;
+	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
+	unsigned char *imageBytes = ImageSection->GetDataBytes16(layoutId, pixels, &imageBytesCount, &byteMode);
+	
+	int imageSectionBytesCount = !m_CurrentImageLayout->IsNoImageLayout ? imageBytesCount + 2 : 2; // +1 byte for the layout id and +1 byte for the byteMode (See few lines below)
+	
+	m_FrameBytes[m_FrameBufferIndex] = imageSectionBytesCount & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 1] = (imageSectionBytesCount >> 8) & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 2] = (imageSectionBytesCount >> 16) & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 3] = (imageSectionBytesCount >> 24) & 0xFF;
+	m_FrameBufferIndex+=4;
+	
+	// It is faster to write the layoutId and byteMode directly here
+	m_FrameBytes[m_FrameBufferIndex] = m_CurrentImageLayout->LayoutId;
+	m_FrameBytes[m_FrameBufferIndex + 1] = byteMode;
+	m_FrameBufferIndex+=2;	
+		
+	if (!m_CurrentImageLayout->IsNoImageLayout)
+	{
+		memcpy(&m_FrameBytes[m_FrameBufferIndex], &imageBytes[0], imageBytesCount);
+		m_FrameBufferIndex+= imageBytesCount;
+	}
+
+	unsigned int statusBytesCount = 0;
+	unsigned char *statusBytes = StatusSection->GetDataBytes(&statusBytesCount);
+	
+	m_FrameBytes[m_FrameBufferIndex] = statusBytesCount & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 1] = (statusBytesCount >> 8) & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 2] = (statusBytesCount >> 16) & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 3] = (statusBytesCount >> 24) & 0xFF;
+	m_FrameBufferIndex+=4;
+	
+	if (statusBytesCount > 0)
+	{
+		memcpy(&m_FrameBytes[m_FrameBufferIndex], &statusBytes[0], statusBytesCount);
+		m_FrameBufferIndex+=statusBytesCount;
+
+		delete statusBytes;		
+	}
+}
+
 void AavFile::EndFrame()
 {	
 	__int64 frameOffset;

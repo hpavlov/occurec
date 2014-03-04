@@ -108,6 +108,45 @@ AavImageLayout* AavImageSection::GetImageLayoutById(unsigned char layoutId)
 	return NULL;
 }
 
+unsigned char* AavImageSection::GetDataBytes16(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode)
+{
+	AavImageLayout* currentLayout = GetImageLayoutById(layoutId);
+	
+	if (m_PreviousLayoutId == layoutId)
+		m_NumFramesInThisLayoutId++;
+	else
+	{
+		m_NumFramesInThisLayoutId = 0;
+		currentLayout->StartNewDiffCorrSequence();
+	}
+	
+	enum GetByteMode mode = Normal;
+	
+	if (currentLayout->IsDiffCorrLayout)
+	{
+		bool isKeyFrame = (m_NumFramesInThisLayoutId % currentLayout->KeyFrame) == 0;
+		bool diffCorrFromPrevFramePixels = isKeyFrame || currentLayout->BaseFrameType == DiffCorrPrevFrame;
+		
+		if (isKeyFrame)
+		{
+			// this is a key frame
+			mode = KeyFrameBytes;		
+		}
+		else
+		{
+			// this is not a key frame, compute and save the diff corr
+			mode = DiffCorrBytes;
+		}
+	}	
+	
+	unsigned char* pixels = currentLayout->GetDataBytes16(currFramePixels, mode, bytesCount);	
+	
+	m_PreviousLayoutId = layoutId;
+	*byteMode = (char)mode;
+	
+	return pixels;
+}
+
 unsigned char* AavImageSection::GetDataBytes(unsigned char layoutId, unsigned char* currFramePixels, unsigned int *bytesCount, char* byteMode)
 {
 	AavImageLayout* currentLayout = GetImageLayoutById(layoutId);

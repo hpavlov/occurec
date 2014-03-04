@@ -1174,5 +1174,17 @@ namespace OccuRec.Properties {
                 this["NumberOfNTPRequestsPerUpdate"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool Use16BitAAV {
+            get {
+                return ((bool)(this["Use16BitAAV"]));
+            }
+            set {
+                this["Use16BitAAV"] = value;
+            }
+        }
     }
 }

@@ -66,10 +66,10 @@ void AavEndFile()
 	g_FileStarted = false;
 }
 
-void AavDefineImageSection(unsigned short width, unsigned short height)
+void AavDefineImageSection(unsigned short width, unsigned short height, int bitPix)
 {
 	AavLib::AavImageSection* imageSection = new AavLib::AavImageSection(width, height);
-	g_AavFile->AddImageSection(imageSection);
+	g_AavFile->AddImageSection(imageSection, bitPix);
 }
 
 void AavDefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame, const char* diffCorrFromBaseFrame)
@@ -119,6 +119,11 @@ bool AavBeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int e
 void AavFrameAddImage(unsigned char layoutId,  unsigned char* pixels)
 {
 	g_AavFile->AddFrameImage(layoutId, pixels);
+}
+
+void AavFrameAddImage16(unsigned char layoutId,  unsigned short* pixels)
+{
+	g_AavFile->AddFrameImage16(layoutId, pixels);
 }
 
 void AavFrameAddStatusTag(unsigned int tagIndex, const char* tagValue)

@@ -50,7 +50,7 @@ namespace AavLib
 		unsigned char* GetFullImageDiffCorrWithSignsDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount);
 		unsigned char* GetFullImageDiffCorrNoSignsDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount);
 		unsigned char* GetFullImageRawDataBytes(unsigned char* currFramePixels, unsigned int *bytesCount);
-		
+		unsigned char* GetFullImageRawDataBytes16(unsigned short* currFramePixels, unsigned int *bytesCount);
 		
 		void ResetBuffers();
 		
@@ -60,6 +60,7 @@ namespace AavLib
 		
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);
 		unsigned char* GetDataBytes(unsigned char* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount);
+		unsigned char* GetDataBytes16(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount);
 		void WriteHeader(FILE* pfile);
 		void StartNewDiffCorrSequence();
 	};

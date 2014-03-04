@@ -43,7 +43,7 @@ namespace AavLib
 			bool BeginFile(const char* fileName);
 			void EndFile();
 			
-			void AddImageSection(AavLib::AavImageSection* section);
+			void AddImageSection(AavLib::AavImageSection* section, int bitPix);
 			
 			int AddFileTag(const char* tagName, const char* tagValue);
 			
@@ -55,6 +55,7 @@ namespace AavLib
 			void AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue);
 			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
 			void AddFrameImage(unsigned char layoutId, unsigned char* pixels);
+			void AddFrameImage16(unsigned char layoutId, unsigned short* pixels);
 			void EndFrame();
 		};
 

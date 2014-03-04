@@ -28,6 +28,7 @@ using namespace OccuOcr;
 #define MEDIAN_CALC_ROWS_TO 11
 #define STARTUP_FRAMES_WITH_NO_OUTPUT 2
 
+bool AAV_16 = false;
 long IMAGE_WIDTH;
 long IMAGE_HEIGHT;
 long IMAGE_STRIDE;
@@ -305,7 +306,7 @@ bool IsNewIntegrationPeriod(float diffSignature)
 }
 
 
-HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp)
+HRESULT SetupAav(long useImageLayout, long bpp, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp)
 {
 	OCR_IS_SETUP = false;
 	USE_IMAGE_LAYOUT = useImageLayout;
@@ -345,6 +346,8 @@ HRESULT SetupAav(long useImageLayout, long usesBufferedMode, long integrationDet
 			DebugViewPrint(L"AAVSetup: ImageLayout = %d; BufferedMode = %d; IntegrationTuning: %s\n", USE_IMAGE_LAYOUT, USE_BUFFERED_FRAME_PROCESSING ? 1:0, INTEGRATION_DETECTION_TUNING ? L"Y":L"N"); 
 			break;
 	}
+
+	AAV_16 = bpp == 16;
 
 	return S_OK;
 }
@@ -910,7 +913,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		unsigned char gpsFixStatus = 0;
 		unsigned char trackedSatellitesCount = 0;
 
-		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
+		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16);
 
 		double* ptrPixels = integratedPixels;
 		unsigned char* singleRawFramePixles = NULL;
@@ -919,6 +922,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		unsigned char* ptr8BitPixels = latestIntegratedFrame;
 
 		unsigned char* ptrFramePixels = frame->Pixels;
+		unsigned short* ptrFramePixels16 = frame->Pixels16;
 
 		bool runOCR = false;
 		if (OCR_IS_SETUP && OCR_ZONE_MATRIX && NULL != firstFrameOcrProcessor)
@@ -956,6 +960,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			//       that will return directly the average value for the given numberOfIntegratedFrames and 
 			//       *ptrPixels (which is of type double but the value is integer from 0 to 255 * numberOfIntegratedFrames)
 			long averageValue = (long)(*ptrPixels / (INTEGRATION_LOCKED ? numberOfIntegratedFrames : 1));
+			unsigned short pixel16 = AAV_16 ? (unsigned short)(*ptrPixels) : 0;
 
 			if (OCR_FAILED_TEST_RECORDING) 
 				// In OCR testing mode always read the raw pixel from the actual frame
@@ -964,18 +969,19 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			if (averageValue <= 0)
 			{
 				*ptr8BitPixels = 0;
-				*ptrFramePixels = 0;
+				averageValue = 0;
 			}
 			else if (averageValue >= 255)
 			{
 				*ptr8BitPixels = 255;
-				*ptrFramePixels = 255;
+				averageValue = 255;
 			}
+
+			*ptr8BitPixels = averageValue;
+			if (AAV_16)
+				*ptrFramePixels16 = pixel16;
 			else
-			{
-				*ptr8BitPixels = averageValue;
 				*ptrFramePixels = averageValue;
-			}
 
 			if (detectedIntegrationRate > 1 && OCR_PRESERVE_VTI)
 			{
@@ -987,19 +993,32 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 					// Preserve the timestamp pixels from the first and last integrated frame in the final image
 					if (pixY % 2 == 0)
 					{
-						*ptrFramePixels = firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
-						*ptr8BitPixels = *ptrFramePixels;
+						if (AAV_16)
+							*ptrFramePixels16 = numberOfIntegratedFrames * firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+						else
+							*ptrFramePixels = firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+
+						*ptr8BitPixels = firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
 					}
 					else
 					{
-						*ptrFramePixels = lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
-						*ptr8BitPixels = *ptrFramePixels;
+						if (AAV_16)
+							*ptrFramePixels16 = numberOfIntegratedFrames * lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+						else
+							*ptrFramePixels = lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+
+						*ptr8BitPixels = lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
 					}
 				}
 			}
 
 			ptr8BitPixels++;
-			ptrFramePixels++;
+
+			if (AAV_16)
+				ptrFramePixels16++;
+			else
+				ptrFramePixels++;
+
 			ptrPixels++;
 			if (OCR_FAILED_TEST_RECORDING) singleRawFramePixles ++;
 		}
@@ -1116,20 +1135,42 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			ocrErrorsSiceLastReset = ocrManager->OcrErrorsSinceReset;
 		}
 
-		if (INTEGRATION_LOCKED && numberOfIntegratedFrames > 1)
+		if (AAV_16)
 		{
-			 // Marks for "summed" frame and "mixed timestamp"
-			frame->Pixels[0] = 255;
-			frame->Pixels[1] = 0;
-			frame->Pixels[2] = 255;
-			frame->Pixels[IMAGE_WIDTH] = 0;
-			frame->Pixels[IMAGE_WIDTH + 2] = 0;
-			frame->Pixels[2 * IMAGE_WIDTH] = 255;
-			frame->Pixels[2 * IMAGE_WIDTH + 1] = 0;
-			frame->Pixels[2 * IMAGE_WIDTH + 2] = 255;
+			unsigned short maxValue = numberOfIntegratedFrames < 255 ? numberOfIntegratedFrames * 255 : 0xFFFF;
+			
+			if (INTEGRATION_LOCKED && numberOfIntegratedFrames > 1)
+			{
+				// Marks for "summed" frame and "mixed timestamp"
+				frame->Pixels16[0] = maxValue;
+				frame->Pixels16[1] = 0;
+				frame->Pixels16[2] = maxValue;
+				frame->Pixels16[IMAGE_WIDTH] = 0;
+				frame->Pixels16[IMAGE_WIDTH + 2] = 0;
+				frame->Pixels16[2 * IMAGE_WIDTH] = maxValue;
+				frame->Pixels16[2 * IMAGE_WIDTH + 1] = 0;
+				frame->Pixels16[2 * IMAGE_WIDTH + 2] = maxValue;
+			}
+			if (restoredPixels > 0) 
+				frame->Pixels16[IMAGE_WIDTH + 1] = maxValue;
 		}
-		if (restoredPixels > 0) 
-			frame->Pixels[IMAGE_WIDTH + 1] = 255;
+		else
+		{
+			if (INTEGRATION_LOCKED && numberOfIntegratedFrames > 1)
+			{
+				// Marks for "summed" frame and "mixed timestamp"
+				frame->Pixels[0] = 255;
+				frame->Pixels[1] = 0;
+				frame->Pixels[2] = 255;
+				frame->Pixels[IMAGE_WIDTH] = 0;
+				frame->Pixels[IMAGE_WIDTH + 2] = 0;
+				frame->Pixels[2 * IMAGE_WIDTH] = 255;
+				frame->Pixels[2 * IMAGE_WIDTH + 1] = 0;
+				frame->Pixels[2 * IMAGE_WIDTH + 2] = 255;
+			}
+			if (restoredPixels > 0) 
+				frame->Pixels[IMAGE_WIDTH + 1] = 255;
+		}
 
 		latestImageStatus.CountedFrames = numberOfIntegratedFrames;
 		latestImageStatus.CutOffRatio = 0; // NULL != integrationChecker ? integrationChecker->NewIntegrationPeriodCutOffRatio : 0;
@@ -1725,7 +1766,10 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 		AavFrameAddStatusTag64(STATUS_TAG_SECONDARY_END_TIMESTAMP, secondaryEndTimeStamp);
 	}
 
-	AavFrameAddImage(USE_IMAGE_LAYOUT, nextFrame->Pixels);
+	if (AAV_16)
+		AavFrameAddImage16(USE_IMAGE_LAYOUT, nextFrame->Pixels16);
+	else
+		AavFrameAddImage(USE_IMAGE_LAYOUT, nextFrame->Pixels);
 
 	AavEndFrame();
 }
@@ -1765,6 +1809,17 @@ void RecorderThreadProc( void* pContext )
     _endthread();
 }
 
+void CopyBuffer(IntegratedFrame* frame, unsigned char* rawPixels)
+{
+	if (AAV_16)
+	{
+		for (int i = 0; i < IMAGE_TOTAL_PIXELS; i++)
+			frame->Pixels16[i] = *(rawPixels + i);
+	}
+	else
+		memcpy(frame->Pixels, rawPixels, IMAGE_TOTAL_PIXELS);
+}
+
 
 HRESULT StartRecordingInternal(LPCTSTR szFileName)
 {
@@ -1781,6 +1836,12 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 
 	if (OCR_IS_SETUP)
 		AavAddFileTag("OCR-ENGINE", "IOTA-VTI OccuRec OCR v1.1");
+
+	if (AAV_16)
+		// TODO: Add "Binning" once the true binning mode is implemented (for Mutual Events)
+		AavAddFileTag("FRAME-COMBINING", "Pseudo-Binning");
+	else
+		AavAddFileTag("FRAME-COMBINING", "Averaging");
 
 	char buffer[128];
 
@@ -1819,7 +1880,7 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	sprintf(&buffer[0], "%d", HARDWARE_TIMING_CORRECTION);
 	AavAddFileTag("CAPHNTP-TIMING-CORRECTION", &buffer[0]);
 
-	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT);
+	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT, AAV_16 ? 16 : 8);
 	
 	AavDefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", 0, NULL);
 	AavDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", "QUICKLZ", 32, "PREV-FRAME");
@@ -1873,8 +1934,8 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	//if (!OCR_FAILED_TEST_RECORDING)
 	{
 		// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
-		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
-		memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
+		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16);
+		CopyBuffer(frame, firstIntegratedFramePixels);
 
 		frame->NumberOfIntegratedFrames = 0;
 		frame->StartFrameId = -1;
@@ -1923,8 +1984,8 @@ HRESULT StopRecording(long* pixels)
 	if (NULL == ocrManager || !ocrManager->IsReceivingTimeStamps())
 	{
 		// As a last frame add a non-integrated frame (to be able to tell the star-end timestamp order)
-		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS);
-		memcpy(frame->Pixels, firstIntegratedFramePixels, IMAGE_TOTAL_PIXELS);
+		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16);
+		CopyBuffer(frame, firstIntegratedFramePixels);
 
 		frame->NumberOfIntegratedFrames = 0;
 		frame->StartFrameId = -1;

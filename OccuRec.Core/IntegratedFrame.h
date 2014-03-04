@@ -6,6 +6,7 @@ private:
 
 public:
 	unsigned char* Pixels;
+	unsigned short* Pixels16;
 	long NumberOfIntegratedFrames;
 	__int64 StartFrameId;
 	__int64 EndFrameId;
@@ -24,7 +25,7 @@ public:
 	__int64 SecondaryEndTimestamp;
 	char OcrErrorMessageStr[255];
 
-	IntegratedFrame(long totalPixelsInFrame);
+	IntegratedFrame(long totalPixelsInFrame, bool is16Bit);
 	~IntegratedFrame(void);
 };
 

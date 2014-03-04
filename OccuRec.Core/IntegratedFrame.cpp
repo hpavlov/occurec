@@ -3,10 +3,19 @@
 #include "stdlib.h"
 
 
-IntegratedFrame::IntegratedFrame(long totalPixelsInFrame)
+IntegratedFrame::IntegratedFrame(long totalPixelsInFrame, bool is16Bit)
 {
 	m_TotalPixelsInFrame = totalPixelsInFrame;
-	Pixels = (unsigned char*)malloc(totalPixelsInFrame);
+	if (is16Bit)
+	{
+		Pixels = NULL;
+		Pixels16 = (unsigned short*)malloc(totalPixelsInFrame * sizeof(unsigned short));
+	}
+	else
+	{
+		Pixels = (unsigned char*)malloc(totalPixelsInFrame);
+		Pixels16 = NULL;
+	}
 }
 
 IntegratedFrame::~IntegratedFrame(void)

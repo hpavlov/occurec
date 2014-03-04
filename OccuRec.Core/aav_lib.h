@@ -10,7 +10,7 @@ extern bool g_FileStarted;
 		
 char* AavGetCurrentFilePath(void);
 void AavNewFile(const char* fileName);
-void AavDefineImageSection(unsigned short width, unsigned short height);
+void AavDefineImageSection(unsigned short width, unsigned short height, int bitPix);
 void AavDefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame, const char* diffCorrFromBaseFrame);
 unsigned int AavDefineStatusSectionTag(const char* tagName, int tagType);
 unsigned int AavAddFileTag(const char* tagName, const char* tagValue);
@@ -18,6 +18,7 @@ void AavAddOrUpdateImageSectionTag(const char* tagName, const char* tagValue);
 void AavEndFile();
 bool AavBeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure);
 void AavFrameAddImage(unsigned char layoutId, unsigned char* pixels);
+void AavFrameAddImage16(unsigned char layoutId,  unsigned short* pixels);
 void AavFrameAddStatusTag(unsigned int tagIndex, const char* tagValue);
 void AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue);
 void AavFrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
