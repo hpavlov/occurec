@@ -68,13 +68,13 @@ void AavEndFile()
 
 void AavDefineImageSection(unsigned short width, unsigned short height, int bitPix)
 {
-	AavLib::AavImageSection* imageSection = new AavLib::AavImageSection(width, height);
+	AavLib::AavImageSection* imageSection = new AavLib::AavImageSection(width, height, bitPix);
 	g_AavFile->AddImageSection(imageSection, bitPix);
 }
 
-void AavDefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame, const char* diffCorrFromBaseFrame)
+void AavDefineImageLayout(unsigned char layoutId, unsigned char bitPix, const char* layoutType, const char* compression, int keyFrame, const char* diffCorrFromBaseFrame)
 {	
-	AavLib::AavImageLayout* imageLayout = g_AavFile->ImageSection->AddImageLayout(layoutId, layoutType, compression, keyFrame);
+	AavLib::AavImageLayout* imageLayout = g_AavFile->ImageSection->AddImageLayout(bitPix, layoutId, layoutType, compression, keyFrame);
 	if (diffCorrFromBaseFrame != NULL)
 		imageLayout->AddOrUpdateTag("DIFFCODE-BASE-FRAME", diffCorrFromBaseFrame);
 }
@@ -88,6 +88,12 @@ unsigned int AavDefineStatusSectionTag(const char* tagName, int tagType)
 unsigned int AavAddFileTag(const char* tagName, const char* tagValue)
 {
 	unsigned int fileTagId = g_AavFile->AddFileTag(tagName, tagValue);
+	return fileTagId;
+}
+
+unsigned int AavAddUserTag(const char* tagName, const char* tagValue)
+{
+	unsigned int fileTagId = g_AavFile->AddUserTag(tagName, tagValue);
 	return fileTagId;
 }
 

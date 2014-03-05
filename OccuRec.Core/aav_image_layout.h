@@ -20,7 +20,8 @@ namespace AavLib
 		unsigned char *SIGNS_MASK;
 		map<string, string> m_LayoutTags;
 		ImageBytesLayout m_BytesLayout;	
-		
+		unsigned char m_BitPix;
+
 		int m_KeyFrameBytesCount;
 		unsigned char *m_PrevFramePixels;
 		unsigned char *m_PrevFramePixelsTemp;
@@ -55,7 +56,7 @@ namespace AavLib
 		void ResetBuffers();
 		
 	public:
-		AavImageLayout(unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame);
+		AavImageLayout(unsigned int width, unsigned int height, unsigned char bitPix, unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame);
 		~AavImageLayout();
 		
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);

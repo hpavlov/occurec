@@ -14,11 +14,12 @@ namespace AavLib
 
 bool m_UsesCompression;
 	
-AavImageLayout::AavImageLayout(unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame)
+AavImageLayout::AavImageLayout(unsigned int width, unsigned int height, unsigned char bitPix, unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame)
 {	
 	LayoutId = layoutId;
 	Width = width;
 	Height = height;
+	m_BitPix = bitPix;
 	KeyFrame = keyFrame;
 	IsDiffCorrLayout = false;
 	IsNoImageLayout = false;
@@ -161,7 +162,7 @@ void AavImageLayout::WriteHeader(FILE* pFile)
 	buffChar = 1;
 	fwrite(&buffChar, 1, 1, pFile); /* Version */
 
-	unsigned char bpp = 8;
+	unsigned char bpp = m_BitPix;
 	fwrite(&bpp, 1, 1, pFile);	
 
 	

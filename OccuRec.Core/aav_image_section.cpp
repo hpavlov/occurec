@@ -16,18 +16,19 @@ namespace AavLib
 unsigned char m_PreviousLayoutId;
 unsigned int m_NumFramesInThisLayoutId;
 
-AavImageSection::AavImageSection(unsigned int width, unsigned int height)
+AavImageSection::AavImageSection(unsigned int width, unsigned int height, unsigned char bitPix)
 {
 	Width = width;
 	Height = height;	
 	
 	m_PreviousLayoutId = UNINITIALIZED_LAYOUT_ID;
 	m_NumFramesInThisLayoutId = 0;
+	m_BitPix = bitPix;
 }
 
-AavImageLayout* AavImageSection::AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame)
+AavImageLayout* AavImageSection::AddImageLayout(unsigned char bitPix, unsigned char layoutId, const char* layoutType, const char* compression, int keyFrame)
 {
-	AavLib::AavImageLayout* layout = new AavLib::AavImageLayout(Width, Height, layoutId, layoutType, compression, keyFrame); 
+	AavLib::AavImageLayout* layout = new AavLib::AavImageLayout(Width, Height, bitPix, layoutId, layoutType, compression, keyFrame); 
 	m_ImageLayouts.insert(make_pair(layoutId, layout));
 	return layout;
 }
@@ -202,7 +203,7 @@ void AavImageSection::WriteHeader(FILE* pFile)
 	
 	fwrite(&Width, 4, 1, pFile);
 	fwrite(&Height, 4, 1, pFile);
-	unsigned char dataBpp = 8;
+	unsigned char dataBpp = m_BitPix;
 
 	fwrite(&dataBpp, 1, 1, pFile);	
 	

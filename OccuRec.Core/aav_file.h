@@ -34,6 +34,8 @@ namespace AavLib
 			unsigned char *m_FrameBytes;
 			unsigned int m_FrameBufferIndex; 
 			unsigned int m_ElapedTime;
+
+			map<const char*, string> m_UserMetadataTags;
 						
 			void InitFileState();
 		public:
@@ -46,6 +48,7 @@ namespace AavLib
 			void AddImageSection(AavLib::AavImageSection* section, int bitPix);
 			
 			int AddFileTag(const char* tagName, const char* tagValue);
+			int AddUserTag(const char* tagName, const char* tagValue);
 			
 			void BeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure);
 			void AddFrameStatusTag(unsigned int tagIndex, const char* tagValue);

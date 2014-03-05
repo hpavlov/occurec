@@ -29,6 +29,7 @@ using namespace OccuOcr;
 #define STARTUP_FRAMES_WITH_NO_OUTPUT 2
 
 bool AAV_16 = false;
+long AAV16_MAX_BINNED_FRAMES = 0;
 long IMAGE_WIDTH;
 long IMAGE_HEIGHT;
 long IMAGE_STRIDE;
@@ -914,6 +915,9 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		unsigned char trackedSatellitesCount = 0;
 
 		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16);
+
+		if (AAV_16 && AAV16_MAX_BINNED_FRAMES < numberOfIntegratedFrames)
+			AAV16_MAX_BINNED_FRAMES = numberOfIntegratedFrames;
 
 		double* ptrPixels = integratedPixels;
 		unsigned char* singleRawFramePixles = NULL;
@@ -1882,14 +1886,14 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT, AAV_16 ? 16 : 8);
 	
-	AavDefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", 0, NULL);
-	AavDefineImageLayout(2, "FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", "QUICKLZ", 32, "PREV-FRAME");
-	AavDefineImageLayout(3, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
-	AavDefineImageLayout(4, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
+	AavDefineImageLayout(1, AAV_16 ? 16 : 8, "FULL-IMAGE-RAW", "UNCOMPRESSED", 0, NULL);
+	AavDefineImageLayout(2, AAV_16 ? 16 : 8, "FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", "QUICKLZ", 32, "PREV-FRAME");
+	AavDefineImageLayout(3, AAV_16 ? 16 : 8, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
+	AavDefineImageLayout(4, AAV_16 ? 16 : 8, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
 
 	if (RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
 	{
-		AavDefineImageLayout(5, "STATUS-CHANNEL-ONLY", "UNCOMPRESSED", 0, NULL);
+		AavDefineImageLayout(5, AAV_16 ? 16 : 8, "STATUS-CHANNEL-ONLY", "UNCOMPRESSED", 0, NULL);
 	}
 	
 	if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
@@ -1931,37 +1935,36 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 		ocrManager->ResetErrorCounter();
 	}
 
-	//if (!OCR_FAILED_TEST_RECORDING)
-	{
-		// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
-		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16);
-		CopyBuffer(frame, firstIntegratedFramePixels);
+	// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
+	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16);
+	CopyBuffer(frame, firstIntegratedFramePixels);
 
-		frame->NumberOfIntegratedFrames = 0;
-		frame->StartFrameId = -1;
-		frame->EndFrameId = -1;
-		frame->StartTimeStamp = 0;
-		frame->EndTimeStamp = 0;
-		frame->FrameNumber = -1;
-		frame->GpsTrackedSatellites = 0;
-		frame->GpsAlamancStatus = 0;
-		frame->GpsFixStatus = 0;
-		frame->StartTimeStampStr[0] = 0;
-		frame->EndTimeStampStr[0] = 0;
-		frame->OcrErrorMessageStr[0] = 0;
-		frame->NTPStartTimestamp = 0;
-		frame->NTPEndTimestamp = 0;
-		frame->NTPTimestampError = 0;
-		frame->SecondaryStartTimestamp = 0;
-		frame->SecondaryEndTimestamp = 0;
+	frame->NumberOfIntegratedFrames = 0;
+	frame->StartFrameId = -1;
+	frame->EndFrameId = -1;
+	frame->StartTimeStamp = 0;
+	frame->EndTimeStamp = 0;
+	frame->FrameNumber = -1;
+	frame->GpsTrackedSatellites = 0;
+	frame->GpsAlamancStatus = 0;
+	frame->GpsFixStatus = 0;
+	frame->StartTimeStampStr[0] = 0;
+	frame->EndTimeStampStr[0] = 0;
+	frame->OcrErrorMessageStr[0] = 0;
+	frame->NTPStartTimestamp = 0;
+	frame->NTPEndTimestamp = 0;
+	frame->NTPTimestampError = 0;
+	frame->SecondaryStartTimestamp = 0;
+	frame->SecondaryEndTimestamp = 0;
 
-		RecordCurrentFrame(frame);
-	}
+	RecordCurrentFrame(frame);
 
 	recording = true;
 	numRecordedFrames = 0;
 	averageNtpDebugOffsetMS = 0;
 	aggregatedNtpDebug = 0;
+
+	AAV16_MAX_BINNED_FRAMES = 0;
 
 	// Create a new thread
 	hRecordingThread = (HANDLE)_beginthread(RecorderThreadProc, 0, NULL);
@@ -2006,6 +2009,14 @@ HRESULT StopRecording(long* pixels)
 		frame->SecondaryEndTimestamp = 0;
 
 		RecordCurrentFrame(frame);
+	}
+
+	if (AAV_16)
+	{
+		// Add the max pixel value for normalisation in AAV-16 mode
+		char buffer[128];
+		sprintf(&buffer[0], "%d", AAV16_MAX_BINNED_FRAMES * 255);
+		AavAddUserTag("AAV16-NORMVAL", &buffer[0]);
 	}
 
 	AavEndFile();

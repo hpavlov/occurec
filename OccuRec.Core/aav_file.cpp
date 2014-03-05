@@ -55,6 +55,8 @@ AavFile::~AavFile()
 		delete m_FrameBytes;
 		m_FrameBytes = NULL;
 	}
+
+	m_UserMetadataTags.clear();
 }
 
 unsigned char CURRENT_DATAFORMAT_VERSION = 1;
@@ -140,6 +142,8 @@ bool AavFile::BeginFile(const char* fileName)
 		
 	m_FrameNo = 0;
 	
+	m_UserMetadataTags.clear();
+
 	return true;
 }
 
@@ -159,11 +163,23 @@ void AavFile::EndFile()
 	advfseek(m_File, 0x19, SEEK_SET);	
 	advfwrite(&userMetaTableOffset, 8, 1, m_File);
 		
-	// Write an empty user metadata table
+	// Write the metadata table
 	advfseek(m_File, 0, SEEK_END);	
-	unsigned int userTagsCount = 0;
+
+	unsigned int userTagsCount = m_UserMetadataTags.size();
 	advfwrite(&userTagsCount, 4, 1, m_File);
 	
+	map<const char*, string>::iterator curr = m_UserMetadataTags.begin();
+	while (curr != m_UserMetadataTags.end()) 
+	{
+		char* userTagName = const_cast<char*>(curr->first);	
+		WriteString(m_File, userTagName);
+		
+		char* userTagValue = const_cast<char*>(curr->second.c_str());	
+		WriteString(m_File, userTagValue);
+		
+		curr++;
+	}
 	
 	advfflush(m_File);
 	advfclose(m_File);	
@@ -191,6 +207,13 @@ int AavFile::AddFileTag(const char* tagName, const char* tagValue)
 	m_FileTags.insert((make_pair(tagName, string(tagValue == NULL ? "" : tagValue))));
 	
 	return m_FileTags.size();	
+}
+
+int AavFile::AddUserTag(const char* tagName, const char* tagValue)
+{
+	m_UserMetadataTags.insert((make_pair(tagName, string(tagValue == NULL ? "" : tagValue))));
+	
+	return m_UserMetadataTags.size();	
 }
 
 void AavFile::BeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
