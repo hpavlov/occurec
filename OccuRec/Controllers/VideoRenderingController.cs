@@ -59,14 +59,6 @@ namespace OccuRec.Controllers
             {
                 imageWidth = videoObject.Width;
                 imageHeight = videoObject.Height;
-
-				if (Settings.Default.RecordStatusSectionOnly)
-					MessageBox.Show(
-						m_MainForm,
-						"The 'Record Status Section Only' flag is currently enabled. No video images will be recorded.", 
-						"OccuRec", 
-						MessageBoxButtons.OK, 
-						MessageBoxIcon.Warning);
             }
 
             return videoObject;

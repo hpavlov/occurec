@@ -198,6 +198,14 @@ namespace OccuRec
 
 					m_OverlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager);
 					m_VideoFrameInteractionController.OnNewVideoSource(videoObject);
+
+					if (Settings.Default.RecordStatusSectionOnly)
+						MessageBox.Show(
+							this,
+							"The 'Record Status Section Only' flag is currently enabled. No video images will be recorded.",
+							"OccuRec",
+							MessageBoxButtons.OK,
+							MessageBoxIcon.Warning);
 				}
 
                 m_StateManager.CameraConnected(driverInstance, m_OverlayManager, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");
@@ -374,17 +382,20 @@ namespace OccuRec
 
 			if (isEmptyFrame)
 			{
-				using (Graphics g = Graphics.FromImage(picVideoFrame.Image))
+				if (picVideoFrame.Image != null)
 				{
-					if (bmp == null)
-						g.Clear(Color.Green);
-					else
-						g.DrawImage(bmp, 0, 0);
+					using (Graphics g = Graphics.FromImage(picVideoFrame.Image))
+					{
+						if (bmp == null)
+							g.Clear(Color.Green);
+						else
+							g.DrawImage(bmp, 0, 0);
 
-                    if (m_OverlayManager != null)
-    				    m_OverlayManager.ProcessFrame(g);
+						if (m_OverlayManager != null)
+							m_OverlayManager.ProcessFrame(g);
 
-					g.Save();
+						g.Save();
+					}					
 				}
 
 				picVideoFrame.Invalidate();
@@ -406,14 +417,17 @@ namespace OccuRec
 				startTicks = DateTime.Now.Ticks;
 			}
 
-			using (Graphics g = Graphics.FromImage(picVideoFrame.Image))
+			if (picVideoFrame.Image != null)
 			{
-			    g.DrawImage(bmp, 0, 0);
+				using (Graphics g = Graphics.FromImage(picVideoFrame.Image))
+				{
+					g.DrawImage(bmp, 0, 0);
 
-                if (m_OverlayManager != null)
-			        m_OverlayManager.ProcessFrame(g);
+					if (m_OverlayManager != null)
+						m_OverlayManager.ProcessFrame(g);
 
-			    g.Save();
+					g.Save();
+				}				
 			}
 
 			picVideoFrame.Invalidate();
