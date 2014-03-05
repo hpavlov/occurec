@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using OccuRec.Drivers;
 using OccuRec.FrameAnalysis;
 using OccuRec.Helpers;
+using OccuRec.Properties;
 using OccuRec.StateManagement;
 using OccuRec.Tracking;
 using OccuRec.Utilities;
@@ -58,6 +59,14 @@ namespace OccuRec.Controllers
             {
                 imageWidth = videoObject.Width;
                 imageHeight = videoObject.Height;
+
+				if (Settings.Default.RecordStatusSectionOnly)
+					MessageBox.Show(
+						m_MainForm,
+						"The 'Record Status Section Only' flag is currently enabled. No video images will be recorded.", 
+						"OccuRec", 
+						MessageBoxButtons.OK, 
+						MessageBoxIcon.Warning);
             }
 
             return videoObject;

@@ -1837,6 +1837,7 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	AavAddFileTag("GRABBER", grabberName);
 	AavAddFileTag("VIDEO-MODE", videoMode);
 	AavAddFileTag("CAMERA-MODEL", cameraModel);
+	AavAddFileTag("CAMERA-BITPIX", "8");
 
 	if (OCR_IS_SETUP)
 		AavAddFileTag("OCR-ENGINE", "IOTA-VTI OccuRec OCR v1.1");
@@ -1885,6 +1886,7 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	AavAddFileTag("CAPHNTP-TIMING-CORRECTION", &buffer[0]);
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT, AAV_16 ? 16 : 8);
+	AavAddOrUpdateImageSectionTag("IMAGE-BYTE-ORDER", "LITTLE-ENDIAN");
 	
 	AavDefineImageLayout(1, AAV_16 ? 16 : 8, "FULL-IMAGE-RAW", "UNCOMPRESSED", 0, NULL);
 	AavDefineImageLayout(2, AAV_16 ? 16 : 8, "FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", "QUICKLZ", 32, "PREV-FRAME");

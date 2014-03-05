@@ -236,6 +236,7 @@ void AavImageSection::WriteHeader(FILE* pFile)
 		
 		curr++;
 	}
+	
 }
 
 }

@@ -37,7 +37,7 @@ AavImageLayout::AavImageLayout(unsigned int width, unsigned int height, unsigned
 	MaxFrameBufferSize = Width * Height * 4 + 1 + 4 + + 16; //NOTE: The buufer is for 32bit data!! should be Width * Height rather than Width * Height * 4
 
 	AddOrUpdateTag("DATA-LAYOUT", layoutType);
-	AddOrUpdateTag("SECTION-DATA-COMPRESSION", compression);
+	AddOrUpdateTag("SECTION-DATA-COMPRESSION", compression);	
 
 	Compression = new char[strlen(compression) + 1];
 	strcpy(const_cast<char*>(Compression), compression);
