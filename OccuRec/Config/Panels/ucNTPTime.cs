@@ -241,6 +241,7 @@ namespace OccuRec.Config.Panels
         private void CheckLatency(object state)
         {
 			string[] ntpServerList = new string[] { tbxNTPServer.Text, tbxNTPServer2.Text, tbxNTPServer3.Text, tbxNTPServer4.Text };
+            ntpServerList = ntpServerList.Cast<string>().Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 			var workingServers = new List<string>();
 
 	        try

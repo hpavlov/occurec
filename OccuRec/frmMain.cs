@@ -1015,6 +1015,7 @@ namespace OccuRec
 				NTPClient.PrepareForGettingNetworkTimeFromMultipleServers();
 
 				string[] ntpServerList = new string[] { Settings.Default.NTPServer1, Settings.Default.NTPServer2, Settings.Default.NTPServer3, Settings.Default.NTPServer4 };
+                ntpServerList = ntpServerList.Cast<string>().Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 				var workingServers = new List<string>();
 				for (int attempts = 0; attempts < 3; attempts++)
 				{
@@ -1036,12 +1037,12 @@ namespace OccuRec
 						Thread.Sleep(100);
 					}
 
-					if (workingServers.Count >= 3)
+					if (workingServers.Count >= 1)
 						break;
 				}
 
 				m_LastKnownGoodNTPServers = workingServers.ToArray();
-				m_LastKnownGoodNTPServersInitialised = m_LastKnownGoodNTPServers.Length >= 3;
+				m_LastKnownGoodNTPServersInitialised = m_LastKnownGoodNTPServers.Length >= 1;
 			}
 
 			if (m_LastKnownGoodNTPServers != null && m_LastKnownGoodNTPServersInitialised)
@@ -1051,7 +1052,7 @@ namespace OccuRec
 					float latencyInMilliseconds;
 					int aliveServers;
 					bool timeUpdated;
-					NTPClient.GetNetworkTimeFromMultipleServers(m_LastKnownGoodNTPServers, out latencyInMilliseconds, out aliveServers, out timeUpdated);					
+					NTPClient.GetNetworkTimeFromMultipleServers(m_LastKnownGoodNTPServers, out latencyInMilliseconds, out aliveServers, out timeUpdated);
 				}
 				catch (Exception ex)
 				{

@@ -173,7 +173,7 @@ namespace OccuRec.Helpers
                             DateTime currTime = new DateTime((startTicks + endTicks) / 2); 
 
                             latency += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
-                            delta += new TimeSpan(currTime.Ticks - reference.Ticks).Ticks;
+                            delta += new TimeSpan(reference.Ticks - currTime.Ticks).Ticks;
                             stdDev += (endTicks - startTicks) / 4;
                             aliveServers++;
                         }
@@ -182,7 +182,7 @@ namespace OccuRec.Helpers
                     }
 
                     asyncCoeff += 1;
-                    deltaTicksList.Add(delta);
+                    deltaTicksList.Add(delta / aliveServers);
                     referenceTimeError += (stdDev / aliveServers);
                     latencyInMilliseconds += (latency / aliveServers);
                 }

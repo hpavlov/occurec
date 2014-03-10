@@ -194,6 +194,7 @@ namespace WindowsClock.Tester
 			DateTime initialTime;
 
 		    string[] ntpServerList = new string[] {m_NTPServer1, m_NTPServer2, m_NTPServer3, m_NTPServer4};
+            ntpServerList = ntpServerList.Cast<string>().Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 		    var workingServers = new List<string>();
 		    for (int attempts = 0; attempts < 3; attempts++)
 		    {
