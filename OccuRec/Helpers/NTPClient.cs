@@ -119,36 +119,74 @@ namespace OccuRec.Helpers
 
 			for (int packerIndex = 0; packerIndex < Settings.Default.NumberOfNTPRequestsPerUpdate; packerIndex++)
 			{
-				var fit = new LinearRegression();
+                if (ntpServers.Length > 2)
+                {
+                    var fit = new LinearRegression();
 
-				float latency = 0;
+                    float latency = 0;
 
-				for (int i = 0; i < ntpServers.Length; i++)
-				{
-					long startQPTicks = 0;
-					long endQPTicks = 0;
-					try
-					{
-						DateTime reference = GetSingleNetworkTimeReference(ntpServers[i], ref startQPTicks, ref endQPTicks);
+                    for (int i = 0; i < ntpServers.Length; i++)
+                    {
+                        long startQPTicks = 0;
+                        long endQPTicks = 0;
+                        try
+                        {
+                            DateTime reference = GetSingleNetworkTimeReference(ntpServers[i], ref startQPTicks, ref endQPTicks);
 
-						long startTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(startQPTicks);
-						long endTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(endQPTicks);
+                            long startTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(startQPTicks);
+                            long endTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(endQPTicks);
 
-						fit.AddDataPoint(endTicks - startTicks, reference.Ticks - startTicks);
+                            fit.AddDataPoint(endTicks - startTicks, reference.Ticks - startTicks);
 
-						latency += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
-						aliveServers++;
-					}
-					catch
-					{ }
-				}
+                            latency += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+                            aliveServers++;
+                        }
+                        catch
+                        { }
+                    }
 
-				fit.Solve();
+                    fit.Solve();
 
-				asyncCoeff += fit.A;
-				deltaTicksList.Add(fit.B);
-				referenceTimeError += fit.StdDev;
-				latencyInMilliseconds += (latency / fit.NumberOfDataPoints);
+                    asyncCoeff += fit.A;
+                    deltaTicksList.Add(fit.B);
+                    referenceTimeError += fit.StdDev;
+                    latencyInMilliseconds += (latency / fit.NumberOfDataPoints);
+                }
+                else
+                {
+                    float latency = 0;
+                    float delta = 0;
+                    float stdDev = 0;
+                    aliveServers = 0;
+
+                    for (int i = 0; i < ntpServers.Length; i++)
+                    {
+                        long startQPTicks = 0;
+                        long endQPTicks = 0;
+                        try
+                        {
+                            DateTime reference = GetSingleNetworkTimeReference(ntpServers[i], ref startQPTicks, ref endQPTicks);
+
+                            long startTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(startQPTicks);
+                            long endTicks = NTPTimeKeeper.GetUtcTimeTicksFromQPCTicksNoDrift(endQPTicks);
+
+                            DateTime currTime = new DateTime((startTicks + endTicks) / 2); 
+
+                            latency += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+                            delta += new TimeSpan(currTime.Ticks - reference.Ticks).Ticks;
+                            stdDev += (endTicks - startTicks) / 4;
+                            aliveServers++;
+                        }
+                        catch
+                        { }
+                    }
+
+                    asyncCoeff += 1;
+                    deltaTicksList.Add(delta);
+                    referenceTimeError += (stdDev / aliveServers);
+                    latencyInMilliseconds += (latency / aliveServers);
+                }
+
 			}
 
 			asyncCoeff /= Settings.Default.NumberOfNTPRequestsPerUpdate;

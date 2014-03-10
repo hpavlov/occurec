@@ -85,23 +85,18 @@ namespace OccuRec.Config.Panels
 					return false;
 				}
 
-				if (server2 == string.Empty)
+                if (server2 == string.Empty && (server3 != string.Empty || server4 != string.Empty))
 				{
 					ShowMissingServerErrorMessage("NTP Server 2");
 					return false;
 				}
 
-				if (server3 == string.Empty)
+                if (server3 == string.Empty && server4 != string.Empty)
 				{
 					ShowMissingServerErrorMessage("NTP Server 3");
 					return false;
 				}
 
-				if (server4 == string.Empty)
-				{
-					ShowMissingServerErrorMessage("NTP Server 4");
-					return false;
-				}
 				if (server1 == server2)
 				{
 					ShowDuplicatedServerErrorMessage(server1);
@@ -117,17 +112,17 @@ namespace OccuRec.Config.Panels
 					ShowDuplicatedServerErrorMessage(server1);
 					return false;
 				}
-				if (server2 == server3)
+                if (server2 != string.Empty && server2 == server3)
 				{
 					ShowDuplicatedServerErrorMessage(server2);
 					return false;
 				}
-				if (server2 == server4)
+                if (server2 != string.Empty && server2 == server4)
 				{
 					ShowDuplicatedServerErrorMessage(server2);
 					return false;
 				}
-				if (server3 == server4)
+                if (server3 != string.Empty && server3 == server4)
 				{
 					ShowDuplicatedServerErrorMessage(server3);
 					return false;
@@ -144,7 +139,7 @@ namespace OccuRec.Config.Panels
 
 		private void ShowMissingServerErrorMessage(string serverName)
 		{
-			MessageBox.Show(string.Format("Server {0} is not specified. All 4 servers must be specified.", serverName), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			MessageBox.Show(string.Format("Server {0} is not specified.", serverName), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 
 		private void llblFindNTP_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -278,11 +273,11 @@ namespace OccuRec.Config.Panels
 	        catch
 	        { }
 
-			if (workingServers.Count < 3)
+			if (workingServers.Count == 0)
 			{
 				try
 				{
-					this.Invoke(new Action<float?, Exception>(OnNewLatencyMeasurement), new object[] { null, new Exception(string.Format("Only {0} of the specified servers are responding: {1}", workingServers.Count, string.Join(", ", workingServers.ToArray()))) });
+					this.Invoke(new Action<float?, Exception>(OnNewLatencyMeasurement), new object[] { null, new Exception(string.Format("None of the specified servers are responding: {1}", workingServers.Count, string.Join(", ", workingServers.ToArray()))) });
 				}
 				catch (InvalidOperationException) { }
 
