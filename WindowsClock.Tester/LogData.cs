@@ -51,14 +51,18 @@ namespace WindowsClock.Tester
             {
                 string[] tokens = content[i].Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
 
-                if (tokens.Length == 11)
+                if (tokens.Length == 11 || tokens.Length == 9)
                 {
                     int frameNo = int.Parse(tokens[0].Trim('"'), CultureInfo.InvariantCulture);
                     DateTime ocrTime = DateTime.ParseExact(tokens[1].Trim('"'), "dd-MMM-yyyy HH:mm:ss.fff", CultureInfo.InvariantCulture);
                     DateTime ntpTime = DateTime.ParseExact(tokens[3].Trim('"'), "dd-MMM-yyyy HH:mm:ss.fff", CultureInfo.InvariantCulture);
-                    DateTime winTime = DateTime.ParseExact(tokens[5].Trim('"'), "dd-MMM-yyyy HH:mm:ss.fff", CultureInfo.InvariantCulture);
                     double ntpDiff = new TimeSpan(ocrTime.Ticks - ntpTime.Ticks).TotalMilliseconds;
-                    double winDiff = new TimeSpan(ocrTime.Ticks - winTime.Ticks).TotalMilliseconds;
+                    double winDiff = 0;
+                    if (tokens.Length == 11)
+                    {
+                        DateTime winTime = DateTime.ParseExact(tokens[5].Trim('"'), "dd-MMM-yyyy HH:mm:ss.fff", CultureInfo.InvariantCulture);
+                        winDiff = new TimeSpan(ocrTime.Ticks - winTime.Ticks).TotalMilliseconds;
+                    }
 
                     Data.Add(new LogEntry()
                     {

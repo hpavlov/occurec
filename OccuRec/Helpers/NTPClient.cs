@@ -116,8 +116,10 @@ namespace OccuRec.Helpers
 			double asyncCoeff = 0;
 			double referenceTimeError = 0;
 			var deltaTicksList = new List<double>();
+		    double[] serverLatencies = new double[ntpServers.Length];
+            int[] serverAttempts = new int[ntpServers.Length];
 
-			for (int packerIndex = 0; packerIndex < Settings.Default.NumberOfNTPRequestsPerUpdate; packerIndex++)
+            for (int packerIndex = 0; packerIndex < Settings.Default.NumberOfNTPRequestsPerUpdate; packerIndex++)
 			{
                 if (ntpServers.Length > 2)
                 {
@@ -139,6 +141,8 @@ namespace OccuRec.Helpers
                             fit.AddDataPoint(endTicks - startTicks, reference.Ticks - startTicks);
 
                             latency += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+                            serverLatencies[i] += (float) new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+                            serverAttempts[i]++;
                             aliveServers++;
                         }
                         catch
@@ -175,6 +179,8 @@ namespace OccuRec.Helpers
                             latency += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
                             delta += new TimeSpan(reference.Ticks - currTime.Ticks).Ticks;
                             stdDev += (endTicks - startTicks) / 4;
+                            serverLatencies[i] += (float)new TimeSpan(endTicks - startTicks).TotalMilliseconds;
+                            serverAttempts[i]++;
                             aliveServers++;
                         }
                         catch
@@ -186,7 +192,6 @@ namespace OccuRec.Helpers
                     referenceTimeError += (stdDev / aliveServers);
                     latencyInMilliseconds += (latency / aliveServers);
                 }
-
 			}
 
 			asyncCoeff /= Settings.Default.NumberOfNTPRequestsPerUpdate;
@@ -246,7 +251,17 @@ namespace OccuRec.Helpers
 
 					NTPTimeKeeper.ProcessUTCTimeOffset((long) deltaTicks, (long) referenceTimeError);
 
-					Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms), QPC Frequency = {7} (Time: {8} UT).", 
+				    var individualLatencies = new StringBuilder("(Latencies: ");
+				    for (int i = 0; i < ntpServers.Length; i++)
+				    {
+				        if (serverAttempts[i] > 0)
+				            individualLatencies.AppendFormat("{0:F1} ms;", serverLatencies[i]/(serverAttempts[i]));
+                        else
+                            individualLatencies.Append("...;");
+				    }
+				    individualLatencies.Append(")");
+
+				    Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms), QPC Frequency = {7} (Time: {8} UT) {9}.", 
 						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"),
 						new TimeSpan((long)deltaTicksOneSigma).TotalMilliseconds.ToString("0.00"),
 						(1 / asyncCoeff).ToString("0.00"),
@@ -255,7 +270,8 @@ namespace OccuRec.Helpers
 						averageLatency.ToString("0.0"),
 						fiveSigmaLatency.ToString("0.00"),
                         freq,
-                        DateTime.UtcNow.ToString("HH:mm:ss")));
+                        DateTime.UtcNow.ToString("HH:mm:ss"),
+                        individualLatencies.ToString()));
 
 					s_LastRequstedUpdateSkipped = false;
 				}
