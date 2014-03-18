@@ -248,7 +248,7 @@
     <Setting Name="RecordNTPTimeStampInAAV" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="RecordSecondaryTimeStampInAav" Type="System.Boolean" Scope="User">
+    <Setting Name="RecordSecondaryTimeStampInAavFile" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="NTPServer2" Type="System.String" Scope="User">
@@ -292,6 +292,12 @@
     </Setting>
     <Setting Name="Use16BitAAV" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="NTPOutlierValue" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">500</Value>
+    </Setting>
+    <Setting Name="NTPOutlierIgnore" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -36,12 +36,18 @@ namespace OccuRec
 
             #region Make sure the settings are not forgotten between application version updates
 
-
-            if (Properties.Settings.Default.ApplicationVersion != appVersion.ToString())
+            try
             {
-                Properties.Settings.Default.Upgrade();
-                Properties.Settings.Default.ApplicationVersion = appVersionString;
-                Properties.Settings.Default.Save();
+                if (Properties.Settings.Default.ApplicationVersion != appVersion.ToString())
+                {
+                    Properties.Settings.Default.Upgrade();
+                    Properties.Settings.Default.ApplicationVersion = appVersionString;
+                    Properties.Settings.Default.Save();
+                }
+            }
+            catch (Exception ex)
+            {
+                // NOTE: It is better to start the application than to fail upgrading the settings.
             }
             #endregion
 

@@ -607,7 +607,7 @@ namespace OccuRec.Helpers
                 Settings.Default.IntegrationDetectionTuning ? 1 : 0,
                 string.Format("OccuRec v{0}", ASSEMBLY_FILE_VERSION.Version),
 				Settings.Default.RecordNTPTimeStampInAAV ? 1 : 0,
-				Settings.Default.RecordSecondaryTimeStampInAav ? 1 : 0);
+				Settings.Default.RecordSecondaryTimeStampInAavFile ? 1 : 0);
 
 			SetupNtpDebugParams(Settings.Default.NTPDebugConfigValue1, Settings.Default.NTPDebugConfigValue2);
         }

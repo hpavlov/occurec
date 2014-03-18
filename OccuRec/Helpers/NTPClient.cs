@@ -240,8 +240,26 @@ namespace OccuRec.Helpers
 					}
 				}
 
+                if (updateTimeReference && Settings.Default.NTPOutlierIgnore &&
+                    Math.Abs(new TimeSpan((long) deltaTicks).TotalMilliseconds) > Settings.Default.NTPOutlierValue)
+                {
+                    updateTimeReference = false;
+                    s_LastRequstedUpdateSkipped = true;
+                    Trace.WriteLine(string.Format("Ignoring outlier bigger than {0} ms", Settings.Default.NTPOutlierValue));
+                }
+
                 long freq = 0;
                 Profiler.QueryPerformanceFrequency(ref freq);
+
+				var individualLatencies = new StringBuilder("(Latencies: ");
+				for (int i = 0; i < ntpServers.Length; i++)
+				{
+				    if (serverAttempts[i] > 0)
+				        individualLatencies.AppendFormat("{0:F1} ms;", serverLatencies[i]/(serverAttempts[i]));
+                    else
+                        individualLatencies.Append("...;");
+				}
+				individualLatencies.Append(")");
 
 				if (updateTimeReference)
 				{
@@ -250,16 +268,6 @@ namespace OccuRec.Helpers
 					s_LastFiveNTPLatenciesAlt.Clear();		
 
 					NTPTimeKeeper.ProcessUTCTimeOffset((long) deltaTicks, (long) referenceTimeError);
-
-				    var individualLatencies = new StringBuilder("(Latencies: ");
-				    for (int i = 0; i < ntpServers.Length; i++)
-				    {
-				        if (serverAttempts[i] > 0)
-				            individualLatencies.AppendFormat("{0:F1} ms;", serverLatencies[i]/(serverAttempts[i]));
-                        else
-                            individualLatencies.Append("...;");
-				    }
-				    individualLatencies.Append(")");
 
 				    Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms), QPC Frequency = {7} (Time: {8} UT) {9}.", 
 						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"),
@@ -276,7 +284,7 @@ namespace OccuRec.Helpers
 					s_LastRequstedUpdateSkipped = false;
 				}
 				else
-                    Trace.WriteLine(string.Format("Time *NOT* Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms), QPC Frequency = {7} (Time: {8} UT).",
+                    Trace.WriteLine(string.Format("Time *NOT* Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms), QPC Frequency = {7} (Time: {8} UT) {9}.",
 						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"),
 						new TimeSpan((long)deltaTicksOneSigma).TotalMilliseconds.ToString("0.00"),
 						(1 / asyncCoeff).ToString("0.00"),
@@ -285,13 +293,14 @@ namespace OccuRec.Helpers
 						averageLatency.ToString("0.0"),
                         fiveSigmaLatency.ToString("0.00"),
                         freq,
-                        DateTime.UtcNow.ToString("HH:mm:ss")));
+                        DateTime.UtcNow.ToString("HH:mm:ss"),
+                         individualLatencies.ToString()));
 
 				timeUpdated = updateTimeReference;
 			}
 
 			// If we are also timestamping with Window's time then we should update the system clock every time too 
-			if (timeUpdated && Settings.Default.RecordSecondaryTimeStampInAav)
+			if (timeUpdated && Settings.Default.RecordSecondaryTimeStampInAavFile)
 			{
 				DateTime currCorrectWindowsTime = DateTime.UtcNow.AddTicks((long)deltaTicks);
 				NTPClient.SetTime(currCorrectWindowsTime);
