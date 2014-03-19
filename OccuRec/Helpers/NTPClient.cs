@@ -107,6 +107,9 @@ namespace OccuRec.Helpers
 
 	    private static List<double> s_LastFiveNTPLatencies = new List<double>();
 		private static List<double> s_LastFiveNTPLatenciesAlt = new List<double>();
+        private static List<double> s_Last60AsyncCoefficients = new List<double>();
+        private static double s_AverageAsyncCoeff = double.NaN;
+        private static double s_FiveSigmaAverageAsyncCoeff = double.NaN;
 	    private static bool s_LastRequstedUpdateSkipped = false;
 
 		public static DateTime GetNetworkTimeFromMultipleServers(string[] ntpServers, out float latencyInMilliseconds, out int aliveServers, out bool timeUpdated)
@@ -240,12 +243,31 @@ namespace OccuRec.Helpers
 					}
 				}
 
+                if (updateTimeReference && !double.IsNaN(s_AverageAsyncCoeff) && !double.IsNaN(s_FiveSigmaAverageAsyncCoeff))
+                {
+                    double currCoeffDiff = Math.Abs(asyncCoeff - s_AverageAsyncCoeff);
+                    if (currCoeffDiff > s_FiveSigmaAverageAsyncCoeff &&
+                        currCoeffDiff > s_AverageAsyncCoeff * 0.25)
+                    {
+                        updateTimeReference = false;
+                        Trace.WriteLine(string.Format("Ignoring async coefficient outlier of {0:F2}. Average coeff = {1:F2}; 5-sigma = {2:F2}; 25% coeff diff = {3:F2}", asyncCoeff, s_AverageAsyncCoeff, s_FiveSigmaAverageAsyncCoeff, s_AverageAsyncCoeff * 0.25));
+                    }
+                }
+
                 if (updateTimeReference && Settings.Default.NTPOutlierIgnore &&
                     Math.Abs(new TimeSpan((long) deltaTicks).TotalMilliseconds) > Settings.Default.NTPOutlierValue)
                 {
                     updateTimeReference = false;
-                    s_LastRequstedUpdateSkipped = true;
-                    Trace.WriteLine(string.Format("Ignoring outlier bigger than {0} ms", Settings.Default.NTPOutlierValue));
+                    Trace.WriteLine(string.Format("Ignoring outlier bigger than {0:F1} ms", Settings.Default.NTPOutlierValue));
+                }
+
+                if (s_Last60AsyncCoefficients.Count > 1 && s_Last60AsyncCoefficients.Count < 10)
+                {
+                    if (Math.Sign(asyncCoeff) != Math.Sign(s_Last60AsyncCoefficients.Average()))
+                    {
+                        updateTimeReference = false;
+                        Trace.WriteLine(string.Format("Ignoring value with async coeff of {0:F2} which has oposite direction than the current average coeff of {1:F2}", asyncCoeff, s_Last60AsyncCoefficients.Average()));
+                    }
                 }
 
                 long freq = 0;
@@ -258,6 +280,9 @@ namespace OccuRec.Helpers
 				        individualLatencies.AppendFormat("{0:F1} ms;", serverLatencies[i]/(serverAttempts[i]));
                     else
                         individualLatencies.Append("...;");
+
+                    if (!double.IsNaN(s_AverageAsyncCoeff) && !double.IsNaN(s_FiveSigmaAverageAsyncCoeff))
+                        individualLatencies.AppendFormat("; AsyncCoeff: {0:F2} +/- {1:F2} (5-sigma)", s_AverageAsyncCoeff, s_FiveSigmaAverageAsyncCoeff);
 				}
 				individualLatencies.Append(")");
 
@@ -265,9 +290,9 @@ namespace OccuRec.Helpers
 				{
 					while (s_LastFiveNTPLatencies.Count >= SLIDING_INTERVAL) s_LastFiveNTPLatencies.RemoveAt(0);
 					s_LastFiveNTPLatencies.Add(latencyInMilliseconds);
-					s_LastFiveNTPLatenciesAlt.Clear();		
+					s_LastFiveNTPLatenciesAlt.Clear();
 
-					NTPTimeKeeper.ProcessUTCTimeOffset((long) deltaTicks, (long) referenceTimeError);
+                    NTPTimeKeeper.ProcessUTCTimeOffset((long)deltaTicks, (long)referenceTimeError, latencyInMilliseconds, !double.IsNaN(s_AverageAsyncCoeff));
 
 				    Trace.WriteLine(string.Format("Time Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms), QPC Frequency = {7} (Time: {8} UT) {9}.", 
 						new TimeSpan((long)deltaTicks).TotalMilliseconds.ToString("0.0"),
@@ -282,6 +307,28 @@ namespace OccuRec.Helpers
                         individualLatencies.ToString()));
 
 					s_LastRequstedUpdateSkipped = false;
+
+                    s_Last60AsyncCoefficients.Add(asyncCoeff);
+                    if (s_Last60AsyncCoefficients.Count > 60) s_Last60AsyncCoefficients.RemoveAt(0);
+                    if (s_Last60AsyncCoefficients.Count > 10)
+                    {
+                        s_AverageAsyncCoeff = s_Last60AsyncCoefficients.Average();
+                        s_FiveSigmaAverageAsyncCoeff = 5 * Math.Sqrt(s_Last60AsyncCoefficients.Sum(t => (t - s_AverageAsyncCoeff) * (t - s_AverageAsyncCoeff)) / (s_Last60AsyncCoefficients.Count - 1));
+                    }
+
+                    if (s_Last60AsyncCoefficients.Count < 10 && s_Last60AsyncCoefficients.Count >= 3)
+                    {
+                        // While still collecting up to 10 measurements for the async coefficients, we can reject everything which more than 50% away from the rest of the coefficients
+                        for (int i = s_Last60AsyncCoefficients.Count - 1; i >= 0; i--)
+                        {
+                            double averageOfRest = s_Last60AsyncCoefficients.Where((xx, idx) => idx != i).Average();
+                            if (Math.Abs(s_Last60AsyncCoefficients[i] - averageOfRest) > 0.5 * averageOfRest)
+                                s_Last60AsyncCoefficients.RemoveAt(i);
+
+                            if (s_Last60AsyncCoefficients.Count <= 3)
+                                break;
+                        }
+                    }
 				}
 				else
                     Trace.WriteLine(string.Format("Time *NOT* Updated: Delta = {0} ms +/- {1} ms. AsyncCoeff = {2}, Latency = {3} ms +/- {4} ms (Average: {5} ms +/- {6} ms), QPC Frequency = {7} (Time: {8} UT) {9}.",
@@ -314,6 +361,9 @@ namespace OccuRec.Helpers
 		{
 			s_LastFiveNTPLatenciesAlt.Clear();
 			s_LastFiveNTPLatencies.Clear();
+		    s_Last60AsyncCoefficients.Clear();
+            s_AverageAsyncCoeff = double.NaN;
+            s_FiveSigmaAverageAsyncCoeff = double.NaN;
 		}
 
 		private static DateTime GetSingleNetworkTimeReference(string ntpServer, ref long startQPTicks, ref long endQPTicks)
@@ -436,6 +486,7 @@ namespace OccuRec.Helpers
 		private static DateTime s_ReferenceDateTime;
 		private static long s_ReferenceFrequency = -1;
 		private static long s_ReferenceMaxError = -1;
+	    private static bool s_HasAsyncData = false;
 		//private static double s_TimeDriftPerMinuteMilleseconds = 0;
 
 		private static DateTime s_FirtstAttemptedDateTimeUpdate = DateTime.MinValue;
@@ -447,7 +498,14 @@ namespace OccuRec.Helpers
 				s_FirtstAttemptedDateTimeUpdate = DateTime.UtcNow;
 		}
 
-		public static void ProcessNTPResponce(long startTicks, long endTicks, long frequency, DateTime utcTime)
+	    public static void ProcessNTPResponceFromMultipleServers(long maxErrorMilliseconds, bool hasAsyncData)
+	    {
+	        if (maxErrorMilliseconds > s_ReferenceMaxError)
+	            s_ReferenceMaxError = maxErrorMilliseconds;
+	        s_HasAsyncData = hasAsyncData;
+	    }
+
+	    public static void ProcessNTPResponce(long startTicks, long endTicks, long frequency, DateTime utcTime)
 		{
             long maxError = (long)(0.5 + (endTicks - startTicks) * 1000.0f / frequency);
 		    if (maxError <= 0) return;
@@ -587,7 +645,7 @@ namespace OccuRec.Helpers
 				{
 					// This is how we tell that no NTP status is yet known
 					statusMessage = null;
-					return SystemColors.Control;					
+					return SystemColors.Control;
 				}
 			}
 
@@ -616,8 +674,16 @@ namespace OccuRec.Helpers
 			// If the interval between the first reference and now is more than 5 min and curent error is less than 100ms, this is status Green
 			if (s_ReferenceMaxError <= 100)
 			{
-				statusMessage = "Current NTP time error is smaller than 100 ms.";
-				return Color.Green;
+                if (!s_HasAsyncData)
+                {
+                    statusMessage = "Insufficient Async Coefficient data. Let the system run for at least 10 minutes.";
+                    return Color.DarkGoldenrod;
+                }
+                else
+                {
+                    statusMessage = "Current NTP time error is smaller than 100 ms.";
+                    return Color.Green;
+                }
 			}
 
 			statusMessage = null;
@@ -664,7 +730,7 @@ namespace OccuRec.Helpers
 		}
 
 
-		public static bool ProcessUTCTimeOffset(long deltaTicksUTC, long deltaTicksError)
+		public static bool ProcessUTCTimeOffset(long deltaTicksUTC, long deltaTicksError, double latencyInMS, bool hasAsyncCoeffData)
 		{
 			// Update the reference frequency every time we update the reference time
 			long currQPFrequency = 0;
@@ -674,6 +740,9 @@ namespace OccuRec.Helpers
 			s_ReferenceDateTime = s_ReferenceDateTime.AddTicks(deltaTicksUTC);
 			s_LastReferenceCorrection = new TimeSpan(deltaTicksUTC).TotalMilliseconds;
 			s_LastReferenceCorrectionError = new TimeSpan(deltaTicksError).TotalMilliseconds;
+
+		    s_ReferenceMaxError = (long)latencyInMS;
+		    s_HasAsyncData = hasAsyncCoeffData;
 
 			return true;
 		}

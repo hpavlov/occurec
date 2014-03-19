@@ -121,7 +121,7 @@
     <value>17, 17</value>
   </metadata>
   <data name="label6.Text" xml:space="preserve">
-    <value>Timestamping based on NTP reference time also requires a correction for capturing hardware latency. This is the time between the first analogue video field being received by your capturing hardware and the time the reconstructed video frame has been made available via DirectShow. This time could be measured experimentally.</value>
+    <value>Timestamping based on NTP reference time requires a Calibration Correction for the capturing hardware latency and NTP servers configuration. Re-calibration is required every time any of the following changes: hardware components being used, internet connection type, internet access point, choise of NTP servers. This correction can be measured experimentally observing Lunar Occultations.</value>
   </data>
   <data name="label3.Text" xml:space="preserve">
     <value>The accuracy of the NTP time based timestamps depends greatly on the latency berween you and the NTP servers. For this reason if you want to timestamp using NTP time you must choose servers that are very close to you. Four different working servers are required.</value>
