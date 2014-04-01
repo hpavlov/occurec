@@ -1357,7 +1357,7 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 			latestImageStatus.TrkdGuidingHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;
 		}
 
-		trackedThisIntegrationPeriod = true;
+		trackedThisIntegrationPeriod = INTEGRATION_LOCKED;
 	}
 	else
 	{

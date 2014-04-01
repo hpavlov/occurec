@@ -75,7 +75,7 @@ namespace OccuRec.Controllers
                 }
                 else if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingtTargetStar)
                 {
-                    if (SelectingtTargetStar(typedState.Item1, typedState.Item2, typedState.Item3))
+                    if (SelectingTargetStar(typedState.Item1, typedState.Item2, typedState.Item3))
 						m_MainForm.Invoke(new Action(() => ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None)));
                 }
             }
@@ -121,7 +121,7 @@ namespace OccuRec.Controllers
             return false;
         }
 
-		private bool SelectingtTargetStar(Point location, bool shiftHeld, bool controlHeld)
+		private bool SelectingTargetStar(Point location, bool shiftHeld, bool controlHeld)
         {
 			IVideoFrame currentVideoFrame = m_VideoRenderingController.GetCurrentFrame();
 			if (currentVideoFrame != null)
