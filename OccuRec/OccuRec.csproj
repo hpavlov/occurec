@@ -169,6 +169,8 @@
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
     <Compile Include="Drivers\AVISimulator\Video.cs" />
     <Compile Include="Drivers\BasicVideoFrame.cs" />
+    <Compile Include="Drivers\DirectShowSimulator\DxPlayImpl\DxPlayer.cs" />
+    <Compile Include="Drivers\DirectShowSimulator\Video.cs" />
     <Compile Include="ObservatoryAutomation\ObservatoryManager.cs" />
     <Compile Include="FrameAnalysis\FrameAnalysisManager.cs" />
     <Compile Include="FrameAnalysis\PlateSolveManager.cs" />

@@ -154,7 +154,8 @@ namespace OccuRec
 					if (Settings.Default.FileSimulation)
 					{
 						if (".avi".Equals(Path.GetExtension(Settings.Default.SimulatorFilePath), StringComparison.InvariantCultureIgnoreCase))
-							driverInstance = new Drivers.AVISimulator.Video(true);
+							//driverInstance = new Drivers.AVISimulator.Video(true);
+							driverInstance = new Drivers.DirectShowSimulator.Video(true);
 						else
 							driverInstance = new Drivers.AAVSimulator.Video(true);
 					}
@@ -175,7 +176,8 @@ namespace OccuRec
 					if (Settings.Default.FileSimulation)
 					{
 						if (".avi".Equals(Path.GetExtension(Settings.Default.SimulatorFilePath), StringComparison.InvariantCultureIgnoreCase))
-							driverInstance = new Drivers.AVISimulator.Video(false);
+							//driverInstance = new Drivers.AVISimulator.Video(false);
+							driverInstance = new Drivers.DirectShowSimulator.Video(true);
 						else
 							driverInstance = new Drivers.AAVSimulator.Video(false);
 					}

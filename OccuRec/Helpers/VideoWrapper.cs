@@ -25,7 +25,8 @@ namespace OccuRec.Helpers
 			SupportsTargetTracking =
 				video is OccuRec.Drivers.AAVTimer.Video ||
 				video is OccuRec.Drivers.AAVSimulator.Video ||
-				video is OccuRec.Drivers.AVISimulator.Video;
+				video is OccuRec.Drivers.AVISimulator.Video ||
+				video is OccuRec.Drivers.DirectShowSimulator.Video;
 
             video.SetCallbacks(this);
 		}
