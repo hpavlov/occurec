@@ -32,9 +32,6 @@
 			this.cbxOcrCameraTestModeAav = new System.Windows.Forms.CheckBox();
 			this.label5 = new System.Windows.Forms.Label();
 			this.nudMaxErrorsPerTestRun = new System.Windows.Forms.NumericUpDown();
-			this.cbxGraphDebugMode = new System.Windows.Forms.CheckBox();
-			this.cbxImageLayoutMode = new System.Windows.Forms.ComboBox();
-			this.label8 = new System.Windows.Forms.Label();
 			this.gbxOcrTesting = new System.Windows.Forms.GroupBox();
 			this.label9 = new System.Windows.Forms.Label();
 			this.rbNativeOCR = new System.Windows.Forms.RadioButton();
@@ -95,34 +92,6 @@
             0,
             0,
             0});
-			// 
-			// cbxGraphDebugMode
-			// 
-			this.cbxGraphDebugMode.AutoSize = true;
-			this.cbxGraphDebugMode.Location = new System.Drawing.Point(12, 157);
-			this.cbxGraphDebugMode.Name = "cbxGraphDebugMode";
-			this.cbxGraphDebugMode.Size = new System.Drawing.Size(150, 17);
-			this.cbxGraphDebugMode.TabIndex = 33;
-			this.cbxGraphDebugMode.Text = "Video Graph Debug Mode";
-			this.cbxGraphDebugMode.UseVisualStyleBackColor = true;
-			// 
-			// cbxImageLayoutMode
-			// 
-			this.cbxImageLayoutMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cbxImageLayoutMode.FormattingEnabled = true;
-			this.cbxImageLayoutMode.Location = new System.Drawing.Point(71, 187);
-			this.cbxImageLayoutMode.Name = "cbxImageLayoutMode";
-			this.cbxImageLayoutMode.Size = new System.Drawing.Size(152, 21);
-			this.cbxImageLayoutMode.TabIndex = 32;
-			// 
-			// label8
-			// 
-			this.label8.AutoSize = true;
-			this.label8.Location = new System.Drawing.Point(11, 190);
-			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(59, 13);
-			this.label8.TabIndex = 30;
-			this.label8.Text = "Img Layout";
 			// 
 			// gbxOcrTesting
 			// 
@@ -232,9 +201,6 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.pnlOCRTesting);
-			this.Controls.Add(this.cbxGraphDebugMode);
-			this.Controls.Add(this.cbxImageLayoutMode);
-			this.Controls.Add(this.label8);
 			this.Controls.Add(this.gbxOcrTesting);
 			this.Name = "ucDebug";
 			this.Size = new System.Drawing.Size(428, 274);
@@ -244,7 +210,6 @@
 			this.gbxOcrTesting.ResumeLayout(false);
 			this.gbxOcrTesting.PerformLayout();
 			this.ResumeLayout(false);
-			this.PerformLayout();
 
 		}
 
@@ -254,9 +219,6 @@
 		private System.Windows.Forms.CheckBox cbxOcrCameraTestModeAav;
 		private System.Windows.Forms.Label label5;
 		private System.Windows.Forms.NumericUpDown nudMaxErrorsPerTestRun;
-		private System.Windows.Forms.CheckBox cbxGraphDebugMode;
-		private System.Windows.Forms.ComboBox cbxImageLayoutMode;
-		private System.Windows.Forms.Label label8;
 		private System.Windows.Forms.GroupBox gbxOcrTesting;
 		private System.Windows.Forms.Label label9;
 		private System.Windows.Forms.RadioButton rbNativeOCR;

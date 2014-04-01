@@ -9,7 +9,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.CameraDrivers;
-using OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl;
+using OccuRec.Config;
+using OccuRec.Context;
 using OccuRec.Helpers;
 using OccuRec.OCR;
 using OccuRec.Properties;
@@ -20,35 +21,6 @@ namespace OccuRec
 {
     public partial class frmChooseCamera : Form
     {
-		internal enum OcrConfigEntryType
-		{
-			VtiOsdNotAvailable,
-			PreserveVtiOsd,
-			OcrVtiOsd
-		}
-
-		internal class OcrConfigEntry
-		{
-			internal static OcrConfigEntry OcrVtiOsdEntry(string name, bool isCompatible)
-			{
-				return new OcrConfigEntry()
-				{
-					Name = name,
-					EntryType = OcrConfigEntryType.OcrVtiOsd,
-					IsComptible = isCompatible
-				};
-			}
-
-			public OcrConfigEntryType EntryType;
-			public string Name;
-			public bool IsComptible;
-
-			public override string ToString()
-			{
-				return Name;
-			}
-		}
-
         public frmChooseCamera()
         {
             InitializeComponent();
@@ -91,101 +63,10 @@ namespace OccuRec
                     cbxCaptureDevices.SelectedIndex = 0;
             }
 
-            RadioButton rbCodec;
-
-            List<SystemCodecEntry> systemCodecs = VideoCodecs.GetSupportedVideoCodecs();
-            foreach (SystemCodecEntry codec in systemCodecs)
-            {
-                rbCodec = gbxCodecs
-                    .Controls
-                    .Cast<Control>()
-                    .SingleOrDefault(x => x is RadioButton && string.Equals(x.Text, codec.DeviceName.ToString())) as RadioButton;
-
-                if (rbCodec != null)
-                {
-                    rbCodec.Enabled = codec.DeviceName != null && codec.IsInstalled;
-                    rbCodec.Checked = codec.DeviceName == Settings.Default.PreferredCompressorDevice;
-                    rbCodec.Tag = codec;
-                }
-            }
-
-            rbCodec = gbxCodecs
-                        .Controls
-                        .Cast<Control>()
-                        .SingleOrDefault(x => x is RadioButton && ((RadioButton)x).Checked) as RadioButton;
-
-            if (rbCodec == null)
-                rbCodecUncompressed.Checked = true;
-
-            rbFileAAV.Checked = Settings.Default.FileFormat == "AAV";
-            rbFileAVI.Checked = Settings.Default.FileFormat == "AVI";
-
             cbxIsIntegrating.Checked = Settings.Default.IsIntegrating;
             cbxFlipHorizontally.Checked = Settings.Default.HorizontalFlip;
             cbxFlipVertically.Checked = Settings.Default.VerticalFlip;
-
-            SetSettingsVisibility();
         }
-
-        private void LoadVTIConfig(int width, int height)
-        {
-			var prevSelectedEntry = cbxOCRConfigurations.SelectedItem as OcrConfigEntry;
-
-            cbxOCRConfigurations.Items.Clear();
-
-			OcrConfigEntry[] matchingOcrConfigEntries = OcrSettings.Instance.Configurations
-				.Where(x => !x.Hidden)
-				.Select(x => OcrConfigEntry.OcrVtiOsdEntry(x.Name, x.Alignment.Width == width && x.Alignment.Height == height))
-				.ToArray();
-
-			cbxOCRConfigurations.Items.Add(new OcrConfigEntry(){ Name = "VTI OSD not available", EntryType = OcrConfigEntryType.VtiOsdNotAvailable});
-
-			cbxOCRConfigurations.Items.Add(new OcrConfigEntry() { Name = "Preserve VTI OSD", EntryType = OcrConfigEntryType.PreserveVtiOsd });
-
-	        cbxOCRConfigurations.Items.AddRange(matchingOcrConfigEntries);
-
-			if (prevSelectedEntry != null && prevSelectedEntry.EntryType != OcrConfigEntryType.PreserveVtiOsd)
-			{
-				if (prevSelectedEntry.EntryType == OcrConfigEntryType.OcrVtiOsd)
-					cbxOCRConfigurations.SelectedIndex = GetIndexOfOcrConfigEntry(prevSelectedEntry.Name, prevSelectedEntry.EntryType);
-				else
-					cbxOCRConfigurations.SelectedIndex = GetIndexOfOcrConfigEntry(null, prevSelectedEntry.EntryType);
-			}
-
-			if (cbxOCRConfigurations.SelectedIndex == -1 && !string.IsNullOrEmpty(Settings.Default.SelectedOcrConfiguration))
-			{
-				cbxOCRConfigurations.SelectedIndex = GetIndexOfOcrConfigEntry(Settings.Default.SelectedOcrConfiguration, OcrConfigEntryType.OcrVtiOsd);
-			}
-
-			if (cbxOCRConfigurations.SelectedIndex == -1)
-			{
-				cbxOCRConfigurations.SelectedIndex = GetIndexOfOcrConfigEntry(null, OcrConfigEntryType.PreserveVtiOsd); // Select 'Preserve VTI OSD'
-			}		
-        }
-
-		private int GetIndexOfOcrConfigEntry(string byName, OcrConfigEntryType byType)
-		{
-			int selectedIndex = -1;
-			for (int i = 0; i < cbxOCRConfigurations.Items.Count; i++)
-			{
-				if (!string.IsNullOrEmpty(byName))
-				{
-					if (((OcrConfigEntry) cbxOCRConfigurations.Items[i]).IsComptible &&
-					    cbxOCRConfigurations.Items[i].ToString() == byName)
-					{
-						selectedIndex = i;
-						break;						
-					}
-				}
-				else if (byType == ((OcrConfigEntry) cbxOCRConfigurations.Items[i]).EntryType)
-				{
-					selectedIndex = i;
-					break;
-				}
-			}
-
-			return selectedIndex;
-		}
 
         private void btnOK_Click(object sender, EventArgs e)
         {            
@@ -212,112 +93,76 @@ namespace OccuRec
             Settings.Default.CameraModel = cbxCameraModel.Text;
             Settings.Default.PreferredCaptureDevice = (string)cbxCaptureDevices.SelectedItem;
 
-            if (rbFileAAV.Checked)
+            if (string.IsNullOrEmpty(cbxCameraModel.Text))
             {
-                if (string.IsNullOrEmpty(cbxCameraModel.Text))
-                {
-                    MessageBox.Show(
-                        this,
-                        "Please specify a camera model.",
-                        "OccuRec",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                MessageBox.Show(
+                    this,
+                    "Please specify a camera model.",
+                    "OccuRec",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
 
-                    cbxCameraModel.Focus();
-                    return;
-                }
+                cbxCameraModel.Focus();
+                return;
+            }
 
-				
-
-				if (CameraControlDriver != null)
+			if (CameraControlDriver != null)
+			{
+				if (!CameraControlDriver.IsConfigured)
 				{
-					if (!CameraControlDriver.IsConfigured)
-					{
-						while (!CameraControlDriver.IsConfigured && ConfigureCurrentCameraDriver())
-						{ }
+					while (!CameraControlDriver.IsConfigured && ConfigureCurrentCameraDriver())
+					{ }
 
-						if (CameraControlDriver != null && !CameraControlDriver.IsConfigured)
-						{
-							MessageBox.Show(
-								this,
-								"Please complete the camera driver configuration or choose a different driver.",
-								"OccuRec",
-								MessageBoxButtons.OK,
-								MessageBoxIcon.Error);
-
-							cbxCameraDriver.Focus();
-							return;						
-						}					
-					}
-
-					Settings.Default.CameraControlDriver = CameraControlDriver.DriverName;
-				}
-
-                Settings.Default.FileFormat = "AAV";
-
-	            OcrConfigEntry selectedOcrItem = cbxOCRConfigurations.SelectedItem as OcrConfigEntry;
-
-				if (selectedOcrItem.EntryType == OcrConfigEntryType.OcrVtiOsd)
-                {
-					if (!selectedOcrItem.IsComptible)
+					if (CameraControlDriver != null && !CameraControlDriver.IsConfigured)
 					{
 						MessageBox.Show(
-							string.Format("'{0}' is not compatible with the current video mode '{1}'.", selectedOcrItem.ToString(), cbxVideoFormats.SelectedItem.ToString()),
-							"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-						cbxOCRConfigurations.Focus();
-						return;
-					}
+							this,
+							"Please complete the camera driver configuration or choose a different driver.",
+							"OccuRec",
+							MessageBoxButtons.OK,
+							MessageBoxIcon.Error);
 
-					Settings.Default.SelectedOcrConfiguration = selectedOcrItem.Name;
-					Settings.Default.PreserveVTIEnabled = true;
-                    Settings.Default.AavOcrEnabled = true;
-                }
-				else if (selectedOcrItem.EntryType == OcrConfigEntryType.PreserveVtiOsd)
-                {
-                    if (nudPreserveVTITopRow.Value == 0 && nudPreserveVTIBottomRow.Value == 0)
-                    {
-                        MessageBox.Show(
-                            this, 
-                            "Please specify VTI OSD rows to preserve or the timestamps will end up blurred. For more information see the online help from Help -> Index and then read the section 'How to use OccuRec'.",
-                            "OccuRec",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
-                        nudPreserveVTITopRow.Focus();
-                        return;
-                    }
-					Settings.Default.PreserveVTIEnabled = true;
-                    Settings.Default.AavOcrEnabled = false;
-                }
-				else if (selectedOcrItem.EntryType == OcrConfigEntryType.VtiOsdNotAvailable)
-				{
-					Settings.Default.PreserveVTIEnabled = false;
-					Settings.Default.AavOcrEnabled = false;
+						cbxCameraDriver.Focus();
+						return;						
+					}					
 				}
 
-	            var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
-                if (selectedFormat != null)
-                {
-                    Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
-                    Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;
-                    Settings.Default.PreserveVTIWidth = selectedFormat.Width;
-                    Settings.Default.PreserveVTIHeight = selectedFormat.Height;
-                    Settings.Default.Save();
-                }
-            }
-            else if (rbFileAVI.Checked)
-                Settings.Default.FileFormat = "AVI";
+				Settings.Default.CameraControlDriver = CameraControlDriver.DriverName;
+			}
+
+			if (Settings.Default.EasyCAPOCR)
+			{
+				var selectedFormat = (VideoFormatHelper.SupportedVideoFormat) cbxVideoFormats.SelectedItem;
+				if (!OcrConfigEntry.Default.IsCompatible(selectedFormat))
+				{
+					MessageBox.Show(
+						string.Format("'{0}' is not compatible with the current video mode '{1}'.", OcrConfigEntry.Default.ToString(), selectedFormat.ToString()),
+						"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				}
+				else
+				{
+					Settings.Default.SelectedOcrConfiguration = OcrConfigEntry.Default.Name;
+					Settings.Default.PreserveVTIEnabled = true;
+					Settings.Default.AavOcrEnabled = true;
+				}
+			}
+			else
+			{
+				Settings.Default.PreserveVTIEnabled = true;
+				Settings.Default.AavOcrEnabled = false;				
+			}
+
+			//var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
+			//if (selectedFormat != null)
+			//{
+			//	Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
+			//	Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;
+			//	Settings.Default.PreserveVTIWidth = selectedFormat.Width;
+			//	Settings.Default.PreserveVTIHeight = selectedFormat.Height;
+			//	Settings.Default.Save();
+			//}
 
             Settings.Default.FileSimulation = cbFileSIM.Checked;
-
-            RadioButton rbCodec = gbxCodecs
-                                .Controls
-                                .Cast<Control>()
-                                .SingleOrDefault(x => x is RadioButton && ((RadioButton)x).Checked) as RadioButton;
-
-            if (rbCodec != null && rbCodec.Tag is SystemCodecEntry)
-                Settings.Default.PreferredCompressorDevice = ((SystemCodecEntry)rbCodec.Tag).DeviceName;
-            else
-                Settings.Default.PreferredCompressorDevice = VideoCodecs.UNCOMPRESSED_VIDEO;
 
             Settings.Default.IsIntegrating = cbxIsIntegrating.Checked;
             Settings.Default.HorizontalFlip = cbxFlipHorizontally.Checked;
@@ -325,38 +170,10 @@ namespace OccuRec
 
             Settings.Default.Save();
 
+	        OccuRecContext.Current.IsAAV = true;
+
             DialogResult = DialogResult.OK;
             Close();
-        }
-
-        private void rbFileAAV_CheckedChanged(object sender, EventArgs e)
-        {
-            SetSettingsVisibility();
-        }
-
-        private void rbFileAVI_CheckedChanged(object sender, EventArgs e)
-        {
-            SetSettingsVisibility();
-        }
-
-        private void SetSettingsVisibility()
-        {
-            if (rbFileAVI.Checked)
-            {
-                gbxAAVSettings.Visible = false;
-                gbxAAVSettings.SendToBack();
-                gbxCodecs.Visible = true;
-                gbxCodecs.BringToFront();
-	            pnlFlipControls.Visible = false;
-            }
-            else
-            {
-                gbxCodecs.Visible = false;
-                gbxCodecs.SendToBack();
-                gbxAAVSettings.Visible = true;
-                gbxAAVSettings.BringToFront();
-				pnlFlipControls.Visible = true;
-            }
         }
 
         void cbxCrossbarInput_SelectedIndexChanged(object sender, EventArgs e)
@@ -384,6 +201,13 @@ namespace OccuRec
                 }
             }
         }
+
+		private void cbxVideoFormats_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
+			Settings.Default.SelectedVideoFormat = selectedFormat.AsSerialized();
+			Settings.Default.Save();
+		}
 
         private void cbxCaptureDevices_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -447,73 +271,6 @@ namespace OccuRec
                     cbxVideoFormats.SelectedIndex = 0;
             }
         }
-
-	    private VideoFormatHelper.SupportedVideoFormat m_CurrenctlySelectedVideoFormat;
-
-        private void cbxVideoFormats_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
-            Settings.Default.SelectedVideoFormat = selectedFormat.AsSerialized();
-            Settings.Default.Save();
-
-            LoadVTIConfig(selectedFormat.Width, selectedFormat.Height);
-        }
-
-        private void cbxOCRConfigurations_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
-			var selectedOcrItem = (OcrConfigEntry)cbxOCRConfigurations.SelectedItem;
-
-			if (selectedOcrItem.EntryType == OcrConfigEntryType.PreserveVtiOsd && selectedFormat != null)
-            {
-				if (Settings.Default.PreserveVTIWidth == selectedFormat.Width && Settings.Default.PreserveVTIHeight == selectedFormat.Height)
-                {
-                    nudPreserveVTITopRow.Value = Settings.Default.PreserveVTIFirstRow;
-                    nudPreserveVTIBottomRow.Value = Settings.Default.PreserveVTILastRow;
-                }
-                else
-                {
-                    nudPreserveVTITopRow.Value = 0;
-                    nudPreserveVTIBottomRow.Value = 0;
-                }
-
-                pnlPreserveOSDArea.Enabled = true;
-				pnlPreserveOSDArea.Visible = true;
-            }
-            else if (selectedOcrItem.EntryType == OcrConfigEntryType.OcrVtiOsd)
-            {
-                OcrConfiguration ocrConfig = OcrSettings.Instance.Configurations.SingleOrDefault(x => x.Name == cbxOCRConfigurations.Text);
-
-                if (ocrConfig != null)
-                {
-                    nudPreserveVTITopRow.Value = ocrConfig.Alignment.FrameTopOdd - 1;
-                    nudPreserveVTIBottomRow.Value = ocrConfig.Alignment.FrameTopOdd + (2 * ocrConfig.Alignment.CharHeight) + 2;                   
-                }
-				if (ocrConfig != null)
-				{
-					pnlPreserveOSDArea.Enabled = false;
-					if (!selectedOcrItem.IsComptible)
-					{
-						MessageBox.Show(
-							string.Format("'{0}' is not compatible with the current video mode '{1}'.", cbxOCRConfigurations.Text, cbxVideoFormats.SelectedItem.ToString()),
-							"OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					}
-				}					
-                else
-                    pnlPreserveOSDArea.Enabled = true;
-
-				pnlPreserveOSDArea.Visible = true;
-            }
-			else if (selectedOcrItem.EntryType == OcrConfigEntryType.VtiOsdNotAvailable)
-			{
-				pnlPreserveOSDArea.Visible = false;
-			}
-        }
-
-		private void llOnlineHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-		{
-			Process.Start("http://www.hristopavlov.net/OccuRec/IOTA-VTI/");
-		}
 
 		private void cbxCameraModel_SelectedIndexChanged(object sender, EventArgs e)
 		{

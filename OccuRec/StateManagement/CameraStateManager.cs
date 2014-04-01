@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using OccuRec.Context;
 using OccuRec.Drivers;
 using OccuRec.Helpers;
 using OccuRec.Properties;
@@ -99,7 +100,7 @@ namespace OccuRec.StateManagement
 		{
 			if (driverInstance != null)
 			{
-				string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
+				string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
 				fileName = Path.GetFullPath(string.Format("{0}\\{1}-OCR-TEST.aav", Path.GetDirectoryName(fileName), Path.GetFileNameWithoutExtension(fileName)));
 				driverInstance.Action("StartOcrTesting", fileName);
 

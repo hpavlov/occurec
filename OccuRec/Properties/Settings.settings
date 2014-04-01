@@ -11,12 +11,6 @@
     <Setting Name="PreferredCaptureDevice" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="FileFormat" Type="System.String" Scope="User">
-      <Value Profile="(Default)">AAV</Value>
-    </Setting>
-    <Setting Name="PreferredCompressorDevice" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="IsIntegrating" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -124,12 +118,6 @@
     </Setting>
     <Setting Name="ForceIntegrationRatesRestrictions" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="PreserveVTIWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
-    </Setting>
-    <Setting Name="PreserveVTIHeight" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="ASCOMProgIdTelescope" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -298,6 +286,12 @@
     </Setting>
     <Setting Name="NTPOutlierIgnore" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="EasyCAPOCR" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PreserveVTIUserSpecifiedValues" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
-using OccuRec.Drivers.DirectShowCapture;
 using OccuRec.Helpers;
 using OccuRec.Properties;
 using DirectShowLib;

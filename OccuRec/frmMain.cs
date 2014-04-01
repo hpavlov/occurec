@@ -21,6 +21,7 @@ using OccuRec.ASCOM;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.CameraDrivers;
 using OccuRec.Config;
+using OccuRec.Context;
 using OccuRec.Controllers;
 using OccuRec.Drivers;
 using OccuRec.FrameAnalysis;
@@ -145,18 +146,19 @@ namespace OccuRec
 		    var chooser = new frmChooseCamera();
             if (chooser.ShowDialog(this) == DialogResult.OK)
             {
-                if (!string.IsNullOrEmpty(Settings.Default.FileFormat))
-                {
-                    IVideo driverInstance;
-                    if (Settings.Default.FileSimulation)
-                    {
-                        bool fullAAVSimulation = Settings.Default.FileFormat == "AAV";
-                        if (".avi".Equals(Path.GetExtension(Settings.Default.SimulatorFilePath), StringComparison.InvariantCultureIgnoreCase))
-                            driverInstance = new Drivers.AVISimulator.Video(fullAAVSimulation);
-                        else
-                            driverInstance = new Drivers.AAVSimulator.Video(fullAAVSimulation);
-                    }
-					else if (Settings.Default.FileFormat == "AAV")
+
+				IVideo driverInstance = null;
+
+				if (OccuRecContext.Current.IsAAV)
+				{
+					if (Settings.Default.FileSimulation)
+					{
+						if (".avi".Equals(Path.GetExtension(Settings.Default.SimulatorFilePath), StringComparison.InvariantCultureIgnoreCase))
+							driverInstance = new Drivers.AVISimulator.Video(true);
+						else
+							driverInstance = new Drivers.AAVSimulator.Video(true);
+					}
+					else
 					{
 						driverInstance = new Drivers.AAVTimer.Video();
 						if (chooser.CameraControlDriver != null)
@@ -165,13 +167,27 @@ namespace OccuRec
 							VideoConnectionChanged(ASCOMConnectionState.Disconnected);
 						}
 					}
-					else if (Settings.Default.FileFormat == "AVI")
-						driverInstance = new Drivers.DirectShowCapture.Video();
-					else
-						throw new NotSupportedException();
 
-	                ConnectToDriver(driverInstance);
-                }                
+					
+				}
+				else
+				{
+					if (Settings.Default.FileSimulation)
+					{
+						if (".avi".Equals(Path.GetExtension(Settings.Default.SimulatorFilePath), StringComparison.InvariantCultureIgnoreCase))
+							driverInstance = new Drivers.AVISimulator.Video(false);
+						else
+							driverInstance = new Drivers.AAVSimulator.Video(false);
+					}
+					else
+					{
+						// TODO:
+						MessageBox.Show("ASCOM Video is not implemented yet!");						
+					}
+				}
+
+	            if (driverInstance != null)
+		            ConnectToDriver(driverInstance);
             }
 		}
 
@@ -193,11 +209,13 @@ namespace OccuRec
 					picVideoFrame.Image = new Bitmap(imageWidth, imageHeight);
 
 					ResizeVideoFrameTo(imageWidth, imageHeight);
-					tssIntegrationRate.Visible = Settings.Default.IsIntegrating && Settings.Default.FileFormat == "AAV";
-					pnlAAV.Visible = Settings.Default.FileFormat == "AAV";
+					tssIntegrationRate.Visible = Settings.Default.IsIntegrating && OccuRecContext.Current.IsAAV;
+					pnlAAV.Visible = OccuRecContext.Current.IsAAV;
 
 					m_OverlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager);
 					m_VideoFrameInteractionController.OnNewVideoSource(videoObject);
+
+					OccuRecContext.Current.IsConnected = true;
 
 					if (Settings.Default.RecordStatusSectionOnly)
 						MessageBox.Show(
@@ -208,7 +226,7 @@ namespace OccuRec
 							MessageBoxIcon.Warning);
 				}
 
-                m_StateManager.CameraConnected(driverInstance, m_OverlayManager, Settings.Default.OcrMaxErrorsPerCameraTestRun, Settings.Default.FileFormat == "AAV");
+				m_StateManager.CameraConnected(driverInstance, m_OverlayManager, Settings.Default.OcrMaxErrorsPerCameraTestRun, OccuRecContext.Current.IsAAV);
 				UpdateScheduleDisplay();
 			}
 			finally
@@ -246,6 +264,7 @@ namespace OccuRec
 				m_ObservatoryController.DisconnectVideoCamera();
 
 			m_PrevStateWasDisconnected = true;
+			OccuRecContext.Current.IsConnected = false;
 		}
 
         private bool CanRecordNow(bool connected)
@@ -309,8 +328,8 @@ namespace OccuRec
                     pnlCrossbar.Visible = true;
                 }
 
-                pnlOcrTesting.Visible = 
-                     (Settings.Default.OcrCameraAavTestMode && Settings.Default.FileFormat == "AAV");
+                pnlOcrTesting.Visible =
+					 (Settings.Default.OcrCameraAavTestMode && OccuRecContext.Current.IsAAV);
 			}
 			else
 			{
@@ -798,7 +817,7 @@ namespace OccuRec
 		{
 			if (videoObject != null)
 			{
-                string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
+				string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
 
 				recordingfileName = videoObject.StartRecording(fileName);
 
@@ -850,7 +869,7 @@ namespace OccuRec
                 MessageBox.Show("OCR testing cannot be done if there are scheduled tasks.");
             else
             {
-                if (Settings.Default.FileFormat == "AAV")
+				if (OccuRecContext.Current.IsAAV)
                 {
                     if (videoObject != null)
                     {
@@ -945,13 +964,13 @@ namespace OccuRec
 					case ScheduledAction.StartRecording:
 						if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRunning)
 						{
-							if (Settings.Default.FileFormat == "AAV" && !m_StateManager.IsIntegrationLocked)
+							if (OccuRecContext.Current.IsAAV && !m_StateManager.IsIntegrationLocked)
 							{
 								// If the integration hasn't been locked then try to lock it
 								m_StateManager.LockIntegration();
 							}
 
-							string fileName = FileNameGenerator.GenerateFileName(Settings.Default.FileFormat == "AAV");
+							string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
 							recordingfileName = videoObject.StartRecording(fileName);
 							UpdateState(null);
 						}
@@ -1852,6 +1871,12 @@ namespace OccuRec
 				else
 					Application.Exit();
 			}
+		}
+
+		private void fileToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
+		{
+			miASCOMConnect.Enabled = ObservatoryController.IsASCOMPlatformInstalled &&
+			                         ObservatoryController.IsASCOMPlatformVideoAvailable;
 		}
     }
 }

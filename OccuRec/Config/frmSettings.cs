@@ -70,6 +70,7 @@ namespace OccuRec.Config
 			m_PropertyPages.Add(8, new ucTrackingEngine());
 			m_PropertyPages.Add(9, new ucLightCurve());
 			m_PropertyPages.Add(10, new ucFieldIdentification());
+			m_PropertyPages.Add(11, new ucAdvanced());
 
 #if !DEBUG
             tvSettings.Nodes.RemoveByKey("ndDebug");

@@ -20,7 +20,7 @@ namespace OccuRec.Config.Panels
 
 		public override void LoadSettings()
 		{
-			cbxGraphDebugMode.Checked = Settings.Default.VideoGraphDebugMode;
+			
 			tbxSimlatorFilePath.Text = Settings.Default.SimulatorFilePath;
 
 			cbxOcrCameraTestModeAav.Checked = Settings.Default.OcrCameraAavTestMode;
@@ -29,20 +29,11 @@ namespace OccuRec.Config.Panels
 			cbxSimulatorRunOCR.Checked = Settings.Default.SimulatorRunOCR;
 			rbNativeOCR.Checked = Settings.Default.OcrSimulatorNativeCode;
 
-			cbxImageLayoutMode.Items.Clear();
-			cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedRaw);
-			cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedDiffCodeNoSigns);
-			cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedDiffCodeWithSigns);
-			cbxImageLayoutMode.Items.Add(AavImageLayout.UncompressedRaw);
-
-			cbxImageLayoutMode.SelectedIndex = cbxImageLayoutMode.Items.IndexOf(Settings.Default.AavImageLayout);
-
 			UpdateControls();
 		}
 
 		public override void SaveSettings()
 		{
-			Settings.Default.VideoGraphDebugMode = cbxGraphDebugMode.Checked;
 			Settings.Default.SimulatorFilePath = tbxSimlatorFilePath.Text;
 
 			Settings.Default.OcrCameraAavTestMode = cbxOcrCameraTestModeAav.Checked;
@@ -51,7 +42,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.SimulatorRunOCR = cbxSimulatorRunOCR.Checked;
 
 			Settings.Default.OcrSimulatorNativeCode = rbNativeOCR.Checked;
-			Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
+			
 		}
 
 		private void btnBrowseSimulatorFile_Click(object sender, EventArgs e)

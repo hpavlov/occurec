@@ -28,7 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.cbDebugIntegration = new System.Windows.Forms.CheckBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.cbForceIntegrationRateRestrictions = new System.Windows.Forms.CheckBox();
 			this.label15 = new System.Windows.Forms.Label();
@@ -40,10 +39,6 @@
 			this.label4 = new System.Windows.Forms.Label();
 			this.nudMinSignDiff = new System.Windows.Forms.NumericUpDown();
 			this.cbxFrameProcessingMode = new System.Windows.Forms.ComboBox();
-			this.cbxStatusSectionOnly = new System.Windows.Forms.CheckBox();
-			this.groupBox2 = new System.Windows.Forms.GroupBox();
-			this.nudNTPDebugValue2 = new System.Windows.Forms.NumericUpDown();
-			this.nudNTPDebugValue1 = new System.Windows.Forms.NumericUpDown();
 			this.rbIntegrationAverage = new System.Windows.Forms.RadioButton();
 			this.rbIntegrationBin = new System.Windows.Forms.RadioButton();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -53,22 +48,9 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudSignDiffRatio)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).BeginInit();
-			this.groupBox2.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).BeginInit();
 			this.groupBox3.SuspendLayout();
 			this.groupBox4.SuspendLayout();
 			this.SuspendLayout();
-			// 
-			// cbDebugIntegration
-			// 
-			this.cbDebugIntegration.AutoSize = true;
-			this.cbDebugIntegration.Location = new System.Drawing.Point(13, 22);
-			this.cbDebugIntegration.Name = "cbDebugIntegration";
-			this.cbDebugIntegration.Size = new System.Drawing.Size(161, 17);
-			this.cbDebugIntegration.TabIndex = 24;
-			this.cbDebugIntegration.Text = "Integration Detection Tuning";
-			this.cbDebugIntegration.UseVisualStyleBackColor = true;
 			// 
 			// groupBox1
 			// 
@@ -242,66 +224,6 @@
 			this.cbxFrameProcessingMode.Size = new System.Drawing.Size(130, 21);
 			this.cbxFrameProcessingMode.TabIndex = 22;
 			// 
-			// cbxStatusSectionOnly
-			// 
-			this.cbxStatusSectionOnly.AutoSize = true;
-			this.cbxStatusSectionOnly.Location = new System.Drawing.Point(13, 51);
-			this.cbxStatusSectionOnly.Name = "cbxStatusSectionOnly";
-			this.cbxStatusSectionOnly.Size = new System.Drawing.Size(157, 17);
-			this.cbxStatusSectionOnly.TabIndex = 26;
-			this.cbxStatusSectionOnly.Text = "Record Status Section Only";
-			this.cbxStatusSectionOnly.UseVisualStyleBackColor = true;
-			// 
-			// groupBox2
-			// 
-			this.groupBox2.Controls.Add(this.nudNTPDebugValue2);
-			this.groupBox2.Controls.Add(this.nudNTPDebugValue1);
-			this.groupBox2.Controls.Add(this.cbDebugIntegration);
-			this.groupBox2.Controls.Add(this.cbxStatusSectionOnly);
-			this.groupBox2.Location = new System.Drawing.Point(4, 234);
-			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(361, 100);
-			this.groupBox2.TabIndex = 27;
-			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "NTP Timestmps Debug";
-			// 
-			// nudNTPDebugValue2
-			// 
-			this.nudNTPDebugValue2.DecimalPlaces = 1;
-			this.nudNTPDebugValue2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.nudNTPDebugValue2.Location = new System.Drawing.Point(225, 50);
-			this.nudNTPDebugValue2.Maximum = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-			this.nudNTPDebugValue2.Name = "nudNTPDebugValue2";
-			this.nudNTPDebugValue2.Size = new System.Drawing.Size(49, 20);
-			this.nudNTPDebugValue2.TabIndex = 28;
-			this.nudNTPDebugValue2.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            65536});
-			// 
-			// nudNTPDebugValue1
-			// 
-			this.nudNTPDebugValue1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-			this.nudNTPDebugValue1.Location = new System.Drawing.Point(176, 50);
-			this.nudNTPDebugValue1.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-			this.nudNTPDebugValue1.Name = "nudNTPDebugValue1";
-			this.nudNTPDebugValue1.Size = new System.Drawing.Size(43, 20);
-			this.nudNTPDebugValue1.TabIndex = 27;
-			this.nudNTPDebugValue1.Value = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-			// 
 			// rbIntegrationAverage
 			// 
 			this.rbIntegrationAverage.AutoSize = true;
@@ -351,7 +273,6 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.groupBox3);
-			this.Controls.Add(this.groupBox2);
 			this.Controls.Add(this.groupBox1);
 			this.Name = "ucAAV";
 			this.Size = new System.Drawing.Size(383, 349);
@@ -361,10 +282,6 @@
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudSignDiffRatio)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).EndInit();
-			this.groupBox2.ResumeLayout(false);
-			this.groupBox2.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).EndInit();
 			this.groupBox3.ResumeLayout(false);
 			this.groupBox3.PerformLayout();
 			this.groupBox4.ResumeLayout(false);
@@ -374,7 +291,6 @@
 
 		#endregion
 
-		private System.Windows.Forms.CheckBox cbDebugIntegration;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.CheckBox cbForceIntegrationRateRestrictions;
 		private System.Windows.Forms.Label label15;
@@ -386,10 +302,6 @@
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.NumericUpDown nudMinSignDiff;
 		private System.Windows.Forms.ComboBox cbxFrameProcessingMode;
-		private System.Windows.Forms.CheckBox cbxStatusSectionOnly;
-		private System.Windows.Forms.GroupBox groupBox2;
-		private System.Windows.Forms.NumericUpDown nudNTPDebugValue2;
-		private System.Windows.Forms.NumericUpDown nudNTPDebugValue1;
 		private System.Windows.Forms.RadioButton rbIntegrationAverage;
 		private System.Windows.Forms.RadioButton rbIntegrationBin;
 		private System.Windows.Forms.GroupBox groupBox3;

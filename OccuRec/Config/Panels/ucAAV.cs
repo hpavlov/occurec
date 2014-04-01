@@ -26,10 +26,6 @@ namespace OccuRec.Config.Panels
 			nudCalibrIntegrRate.Value = Settings.Default.CalibrationIntegrationRate;
 			cbForceIntegrationRateRestrictions.Checked = Settings.Default.ForceIntegrationRatesRestrictions;
 			cbxFrameProcessingMode.SelectedIndex = Settings.Default.UsesBufferedFrameProcessing ? 0 : 1;
-			cbDebugIntegration.Checked = Settings.Default.IntegrationDetectionTuning;
-			cbxStatusSectionOnly.Checked = Settings.Default.RecordStatusSectionOnly;
-			nudNTPDebugValue1.SetNUDValue(Settings.Default.NTPDebugConfigValue1);
-			nudNTPDebugValue2.SetNUDValue(Settings.Default.NTPDebugConfigValue2);
 			rbIntegrationBin.Checked = Settings.Default.Use16BitAAV;
 		}
 
@@ -42,10 +38,6 @@ namespace OccuRec.Config.Panels
 			Settings.Default.ForceIntegrationRatesRestrictions = cbForceIntegrationRateRestrictions.Checked;
 
 			Settings.Default.UsesBufferedFrameProcessing = cbxFrameProcessingMode.SelectedIndex == 0;
-			Settings.Default.IntegrationDetectionTuning = cbDebugIntegration.Checked;
-			Settings.Default.RecordStatusSectionOnly = cbxStatusSectionOnly.Checked;
-			Settings.Default.NTPDebugConfigValue1 = (int)nudNTPDebugValue1.Value;
-			Settings.Default.NTPDebugConfigValue2 = (float)nudNTPDebugValue2.Value;
 			Settings.Default.Use16BitAAV = rbIntegrationBin.Checked;
 		}
 	}

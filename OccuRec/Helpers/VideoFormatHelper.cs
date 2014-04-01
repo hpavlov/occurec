@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using OccuRec.Drivers.DirectShowCapture.VideoCaptureImpl;
 using DirectShowLib;
 
 namespace OccuRec.Helpers

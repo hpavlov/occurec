@@ -106,6 +106,13 @@
     <Compile Include="CameraDrivers\WAT910BD\WAT910BDCameraController.cs" />
     <Compile Include="CameraDrivers\WAT910BD\WAT910BDDriver.cs" />
     <Compile Include="CameraDrivers\WAT910BD\WAT910BDStateMachine.cs" />
+    <Compile Include="Config\OcrConfigEntry.cs" />
+    <Compile Include="Config\Panels\ucAdvanced.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucAdvanced.Designer.cs">
+      <DependentUpon>ucAdvanced.cs</DependentUpon>
+    </Compile>
     <Compile Include="Config\Panels\ucFieldIdentification.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -154,6 +161,7 @@
     <Compile Include="Config\Panels\ucTraking.Designer.cs">
       <DependentUpon>ucTraking.cs</DependentUpon>
     </Compile>
+    <Compile Include="Context\OccuRecContext.cs" />
     <Compile Include="Controllers\VideoFrameInteractionController.cs" />
     <Compile Include="Controllers\VideoRenderingController.cs" />
     <Compile Include="Drivers\AAVSimulator\AAVPlayerImpl\AAVPlayer.cs" />
@@ -259,12 +267,6 @@
     <Compile Include="Drivers\AAVTimer\VideoCaptureImpl\Profiler.cs" />
     <Compile Include="Drivers\AAVTimer\VideoCaptureImpl\VideoCameraFrame.cs" />
     <Compile Include="Drivers\AAVTimer\VideoCaptureImpl\VideoCapture.cs" />
-    <Compile Include="Drivers\DirectShowCapture\Video.cs" />
-    <Compile Include="Drivers\DirectShowCapture\VideoCaptureImpl\DirectShowCapture.cs" />
-    <Compile Include="Drivers\DirectShowCapture\VideoCaptureImpl\VideoCameraFrame.cs" />
-    <Compile Include="Drivers\DirectShowCapture\VideoCaptureImpl\VideoCapture.cs" />
-    <Compile Include="Drivers\DirectShowCapture\VideoCaptureImpl\VideoCodecs.cs" />
-    <Compile Include="Drivers\DirectShowCapture\VideoFrame.cs" />
     <Compile Include="Drivers\IVideo.cs" />
     <Compile Include="Drivers\Shared.cs" />
     <Compile Include="frmChooseCamera.cs">
@@ -332,6 +334,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CameraDrivers\WAT910BD\frmWAT910BDConnectionSettings.resx">
       <DependentUpon>frmWAT910BDConnectionSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucAdvanced.resx">
+      <DependentUpon>ucAdvanced.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucFieldIdentification.resx">
       <DependentUpon>ucFieldIdentification.cs</DependentUpon>
@@ -423,10 +428,10 @@
     <Content Include="license.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="OCR-Settings.xml">
+    <EmbeddedResource Include="OCR-Settings.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
-    </Content>
+    </EmbeddedResource>
     <Content Include="TODO List.txt" />
   </ItemGroup>
   <ItemGroup>

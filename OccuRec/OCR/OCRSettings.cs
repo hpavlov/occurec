@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using OccuRec.Utilities;
 
 namespace OccuRec.OCR
 {
@@ -203,15 +204,8 @@ namespace OccuRec.OCR
             {
                 if (s_OCRSettings == null)
                 {
-                    string configFileName = Path.GetFullPath(string.Format("{0}\\OCR-Settings.xml", AppDomain.CurrentDomain.BaseDirectory));
-
-                    if (!File.Exists(configFileName))
-                    {
-                        File.WriteAllText(configFileName, new OcrSettings().ToXml());
-                    }
-
-                    string xmlConfig = File.ReadAllText(configFileName);
-
+					string xmlConfig = AssemblyHelper.GetEmbededResource("OccuRec", "OCR-Settings.xml");
+					
                     var ser = new XmlSerializer(typeof(OcrSettings));
                     using (TextReader rdr = new StringReader(xmlConfig))
                     {

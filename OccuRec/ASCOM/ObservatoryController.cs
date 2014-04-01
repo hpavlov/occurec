@@ -1283,7 +1283,7 @@ namespace OccuRec.ASCOM
 			get
 			{
 				CheckASCOMPlatformVersion();
-				return s_ASCOMPlatformVersion.HasValue && s_ASCOMPlatformVersion.Value > 6.1;
+				return s_ASCOMPlatformVersion.HasValue && (s_ASCOMPlatformVersion.Value - 6.1 + 0.005 /* Dealing with floating point comparison */ > 0);
 			}
 		}
 

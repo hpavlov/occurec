@@ -43,7 +43,8 @@
             treeNode7,
             treeNode8});
 			System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Field Identification");
-			System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Debug");
+			System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Advanced");
+			System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Debug");
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSettings));
 			this.btnCancel = new System.Windows.Forms.Button();
 			this.btnSave = new System.Windows.Forms.Button();
@@ -135,16 +136,20 @@
 			treeNode10.Name = "ndPlateSolve";
 			treeNode10.Tag = "10";
 			treeNode10.Text = "Field Identification";
-			treeNode11.Name = "ndDebug";
-			treeNode11.Tag = "5";
-			treeNode11.Text = "Debug";
+			treeNode11.Name = "ndAdvanced";
+			treeNode11.Tag = "11";
+			treeNode11.Text = "Advanced";
+			treeNode12.Name = "ndDebug";
+			treeNode12.Tag = "5";
+			treeNode12.Text = "Debug";
 			this.tvSettings.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
             treeNode1,
             treeNode3,
             treeNode6,
             treeNode9,
             treeNode10,
-            treeNode11});
+            treeNode11,
+            treeNode12});
 			this.tvSettings.Size = new System.Drawing.Size(176, 359);
 			this.tvSettings.TabIndex = 15;
 			this.tvSettings.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvSettings_BeforeSelect);
