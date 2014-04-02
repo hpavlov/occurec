@@ -125,7 +125,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 				}
 				else
 				{
-					errorMessage = NativeHelpers.SetupTimestampPreservation(iWidth, iHeight);
+					errorMessage = NativeHelpers.SetupTimestampPreservation(false, 0, 0);
 					if (errorMessage != null && callbacksObject != null)
 						callbacksObject.OnError(-1, errorMessage);
 

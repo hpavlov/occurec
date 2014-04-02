@@ -83,7 +83,7 @@ namespace OccuRec.Drivers.AVISimulator.AVIPlayerImpl
 					}
 	            }
 	            else
-		            errorMessage = NativeHelpers.SetupTimestampPreservation(ImageWidth, ImageHeight);
+		            errorMessage = NativeHelpers.SetupTimestampPreservation(false, 0, 0);
 
 	            if (errorMessage != null && callbacksObject != null)
                     callbacksObject.OnError(-1, errorMessage);                

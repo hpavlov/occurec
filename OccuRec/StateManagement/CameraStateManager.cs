@@ -68,7 +68,7 @@ namespace OccuRec.StateManagement
             ocrMayBeRunning = driverInstanceSupportedActions.Contains("DisableOcr");
 
             if (isIntegrating)
-                ChangeState(UndeterminedIntegrationCameraState.Instance);
+				ChangeState(UndeterminedVtiOsdLocationState.Instance);
             else
                 ChangeState(NoIntegrationSupportedCameraState.Instance);
         }
@@ -203,6 +203,15 @@ namespace OccuRec.StateManagement
                     currentState.NumberConsequtiveSameIntegrationIntegratedFrames >= MIN_CONSEQUTIVE_FRAMES_TO_LOCK_INTEGRATION;
             }
         }
+
+		public bool VtiOsdPositionUnknown
+		{
+			get
+			{
+				return
+					currentState is UndeterminedVtiOsdLocationState;
+			}
+		}
 
 	    public int PercentDoneDetectingIntegration
 	    {

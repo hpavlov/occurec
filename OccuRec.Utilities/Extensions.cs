@@ -184,5 +184,16 @@ namespace OccuRec.Utilities
 			stream.Close();
 			return stream.ToString();
 		}
+
+		public static T Median<T>(this IList<T> list)
+		{
+			if (list.Count == 0)
+				return default(T);
+
+			T[] arrayList = list.ToArray();
+			Array.Sort(arrayList);
+
+			return arrayList[list.Count / 2];
+		}
     }
 }

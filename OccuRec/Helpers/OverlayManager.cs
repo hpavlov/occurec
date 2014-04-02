@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using OccuRec.FrameAnalysis;
 using OccuRec.Properties;
+using OccuRec.StateManagement;
 using OccuRec.Tracking;
 
 namespace OccuRec.Helpers
@@ -27,15 +28,17 @@ namespace OccuRec.Helpers
 
 	    private OverlayState overlayState;
 	    private FrameAnalysisManager analysisManager;
+	    private CameraStateManager stateManager;
 
         private object syncRoot = new object();
 
-		public OverlayManager(int width, int height, List<string> initializationErrorMessages, FrameAnalysisManager analysisManager)
+		public OverlayManager(int width, int height, List<string> initializationErrorMessages, FrameAnalysisManager analysisManager, CameraStateManager stateManager)
         {
             imageWidth = width;
             imageHeight = height;
             currentOcrStamp = null;
 			this.analysisManager = analysisManager;
+			this.stateManager = stateManager;
 
             foreach (string message in initializationErrorMessages)
                 errorMessagesQueue.Enqueue(message);
@@ -150,6 +153,11 @@ namespace OccuRec.Helpers
 				}
 
 				analysisManager.DisplayData(g, imageWidth, imageHeight);
+			}
+
+			if (stateManager.VtiOsdPositionUnknown)
+			{
+				g.DrawRectangle(Pens.Lime, 0, Settings.Default.PreserveVTIFirstRow, imageWidth - 3, Settings.Default.PreserveVTILastRow - Settings.Default.PreserveVTIFirstRow - 3);
 			}
         }
 

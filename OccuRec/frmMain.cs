@@ -214,7 +214,7 @@ namespace OccuRec
 					tssIntegrationRate.Visible = Settings.Default.IsIntegrating && OccuRecContext.Current.IsAAV;
 					pnlAAV.Visible = OccuRecContext.Current.IsAAV;
 
-					m_OverlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager);
+					m_OverlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager, m_StateManager);
 					m_VideoFrameInteractionController.OnNewVideoSource(videoObject);
 
 					OccuRecContext.Current.IsConnected = true;
@@ -754,6 +754,32 @@ namespace OccuRec
                     btnRecord.Enabled = false;
                     btnStopRecording.Enabled = false;
                 }
+
+				if (videoObject.State == VideoCameraState.videoCameraRunning)
+				{
+					if (m_StateManager.VtiOsdPositionUnknown)
+					{
+						if (pnlAAV.Visible) pnlAAV.Visible = false;
+						if (!pnlVtiOsd.Visible) pnlVtiOsd.Visible = true;
+
+						if (tssVTIOSD.Visible ^ !Settings.Default.PreserveVTIUserSpecifiedValues)
+							tssVTIOSD.Visible = !Settings.Default.PreserveVTIUserSpecifiedValues;
+					}
+					else
+					{
+						if (!pnlAAV.Visible) pnlAAV.Visible = true;
+						if (pnlVtiOsd.Visible) pnlVtiOsd.Visible = false;
+					}
+
+					if (btnConfirmUserVtiOsd.Enabled ^ Settings.Default.PreserveVTIUserSpecifiedValues)
+						btnConfirmUserVtiOsd.Enabled = Settings.Default.PreserveVTIUserSpecifiedValues;
+				}
+				else
+				{
+					if (pnlAAV.Visible) pnlAAV.Visible = false;
+					if (pnlVtiOsd.Visible) pnlVtiOsd.Visible = false;
+					if (tssVTIOSD.Visible) tssVTIOSD.Visible = false;
+				}
 
 				btnLockIntegration.Enabled = 
 					(
@@ -1714,7 +1740,7 @@ namespace OccuRec
                 tslTelFocStatus.Text = string.Empty;
         }
 
-		private void tsbCrosshair_Click(object sender, EventArgs e)
+		private void DetectionTesting()
 		{
 			Regex rex = new Regex("FRID:(\\d+).*DF:([0-9\\.]+)");
 
@@ -1729,7 +1755,7 @@ namespace OccuRec
 					float diff = float.Parse(match.Groups[2].Value);
 					NativeHelpers.IntegrationDetectionTestNextFrame(frameNo, diff);
 				}
-			}
+			}			
 		}
 
 		private static frmCameraControl s_FormCameraControl = null;
@@ -1879,6 +1905,18 @@ namespace OccuRec
 		{
 			miASCOMConnect.Enabled = ObservatoryController.IsASCOMPlatformInstalled &&
 			                         ObservatoryController.IsASCOMPlatformVideoAvailable;
+		}
+
+		private void btnUpdateVtiOsd_Click(object sender, EventArgs e)
+		{
+			var frm = new frmConfigureVtiOsdLines();
+			frm.SetFrameHeight(m_VideoRenderingController.Height);
+			frm.ShowDialog(this);
+		}
+
+		private void btnConfirmUserVtiOsd_Click(object sender, EventArgs e)
+		{
+			m_StateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
 		}
     }
 }

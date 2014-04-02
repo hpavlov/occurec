@@ -28,6 +28,7 @@
 			this.tssCameraControl = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssOcrErr = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssNTP = new System.Windows.Forms.ToolStripStatusLabel();
+			this.tssVTIOSD = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssRecordingFile = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssFreeDiskSpace = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pnlNewVersionAvailable = new System.Windows.Forms.ToolStripStatusLabel();
@@ -35,6 +36,7 @@
 			this.msMain = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.miConnect = new System.Windows.Forms.ToolStripMenuItem();
+			this.miASCOMConnect = new System.Windows.Forms.ToolStripMenuItem();
 			this.miDisconnect = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.miOpenFile = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,16 +44,15 @@
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.miSettings = new System.Windows.Forms.ToolStripMenuItem();
 			this.miHelp = new System.Windows.Forms.ToolStripMenuItem();
-			this.miHelpIndex = new System.Windows.Forms.ToolStripMenuItem();
-			this.miYahooGroup = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
 			this.miCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
 			this.pnlClient = new System.Windows.Forms.Panel();
 			this.pnlVideoFrames = new System.Windows.Forms.Panel();
 			this.pnlVideo = new System.Windows.Forms.Panel();
-			this.picVideoFrame = new System.Windows.Forms.PictureBox();
 			this.pnlTargets = new System.Windows.Forms.Panel();
 			this.pnlVideoControls = new System.Windows.Forms.Panel();
+			this.pnlVtiOsd = new System.Windows.Forms.Panel();
+			this.label4 = new System.Windows.Forms.Label();
 			this.pnlOcrTesting = new System.Windows.Forms.Panel();
 			this.btnOcrTesting = new System.Windows.Forms.Button();
 			this.pnlCrossbar = new System.Windows.Forms.Panel();
@@ -77,31 +78,35 @@
 			this.btnRecord = new System.Windows.Forms.Button();
 			this.timerScheduler = new System.Windows.Forms.Timer(this.components);
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-			this.tsbConnectDisconnect = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
-			this.tsbAddGuidingStar = new System.Windows.Forms.ToolStripButton();
-			this.tbsAddTarget = new System.Windows.Forms.ToolStripButton();
-			this.tsbClearTargets = new System.Windows.Forms.ToolStripLabel();
 			this.tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-			this.tsbTelControl = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-			this.tsbFocControl = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
-			this.tsbCamControl = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.tslTelFocStatus = new System.Windows.Forms.ToolStripLabel();
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-			this.miASCOMConnect = new System.Windows.Forms.ToolStripMenuItem();
+			this.btnUpdateVtiOsd = new System.Windows.Forms.Button();
+			this.btnConfirmUserVtiOsd = new System.Windows.Forms.Button();
+			this.picVideoFrame = new System.Windows.Forms.PictureBox();
+			this.tsbConnectDisconnect = new System.Windows.Forms.ToolStripButton();
+			this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
+			this.tsbAddGuidingStar = new System.Windows.Forms.ToolStripButton();
+			this.tbsAddTarget = new System.Windows.Forms.ToolStripButton();
+			this.tsbClearTargets = new System.Windows.Forms.ToolStripLabel();
+			this.tsbTelControl = new System.Windows.Forms.ToolStripButton();
+			this.tsbFocControl = new System.Windows.Forms.ToolStripButton();
+			this.tsbCamControl = new System.Windows.Forms.ToolStripButton();
+			this.miHelpIndex = new System.Windows.Forms.ToolStripMenuItem();
+			this.miYahooGroup = new System.Windows.Forms.ToolStripMenuItem();
 			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
 			this.pnlVideoFrames.SuspendLayout();
 			this.pnlVideo.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.picVideoFrame)).BeginInit();
 			this.pnlVideoControls.SuspendLayout();
+			this.pnlVtiOsd.SuspendLayout();
 			this.pnlOcrTesting.SuspendLayout();
 			this.pnlCrossbar.SuspendLayout();
 			this.gbxSchedules.SuspendLayout();
@@ -109,6 +114,7 @@
 			this.pnlAAV.SuspendLayout();
 			this.toolStrip1.SuspendLayout();
 			this.pnlControlArea.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.picVideoFrame)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// statusStrip
@@ -125,6 +131,7 @@
             this.tssCameraControl,
             this.tssOcrErr,
             this.tssNTP,
+            this.tssVTIOSD,
             this.tssRecordingFile,
             this.tssFreeDiskSpace,
             this.pnlNewVersionAvailable});
@@ -242,6 +249,18 @@
 			this.tssNTP.Text = "NTP";
 			this.tssNTP.Visible = false;
 			// 
+			// tssVTIOSD
+			// 
+			this.tssVTIOSD.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+			this.tssVTIOSD.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+			this.tssVTIOSD.ForeColor = System.Drawing.Color.Red;
+			this.tssVTIOSD.Name = "tssVTIOSD";
+			this.tssVTIOSD.Size = new System.Drawing.Size(60, 19);
+			this.tssVTIOSD.Text = "VTI-OSD";
+			this.tssVTIOSD.Visible = false;
+			// 
 			// tssRecordingFile
 			// 
 			this.tssRecordingFile.BackColor = System.Drawing.Color.MistyRose;
@@ -320,6 +339,12 @@
 			this.miConnect.Text = "&Connect AAV";
 			this.miConnect.Click += new System.EventHandler(this.miConnect_Click);
 			// 
+			// miASCOMConnect
+			// 
+			this.miASCOMConnect.Name = "miASCOMConnect";
+			this.miASCOMConnect.Size = new System.Drawing.Size(164, 22);
+			this.miASCOMConnect.Text = "Connect &ASCOM";
+			// 
 			// miDisconnect
 			// 
 			this.miDisconnect.Enabled = false;
@@ -370,22 +395,6 @@
 			this.miHelp.Size = new System.Drawing.Size(44, 20);
 			this.miHelp.Text = "&Help";
 			// 
-			// miHelpIndex
-			// 
-			this.miHelpIndex.Image = ((System.Drawing.Image)(resources.GetObject("miHelpIndex.Image")));
-			this.miHelpIndex.Name = "miHelpIndex";
-			this.miHelpIndex.Size = new System.Drawing.Size(194, 22);
-			this.miHelpIndex.Text = "&Index";
-			this.miHelpIndex.Click += new System.EventHandler(this.miHelpIndex_Click);
-			// 
-			// miYahooGroup
-			// 
-			this.miYahooGroup.Image = ((System.Drawing.Image)(resources.GetObject("miYahooGroup.Image")));
-			this.miYahooGroup.Name = "miYahooGroup";
-			this.miYahooGroup.Size = new System.Drawing.Size(194, 22);
-			this.miYahooGroup.Text = "OccuRec Yahoo Group";
-			this.miYahooGroup.Click += new System.EventHandler(this.miYahooGroup_Click);
-			// 
 			// toolStripMenuItem1
 			// 
 			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
@@ -428,20 +437,6 @@
 			this.pnlVideo.Size = new System.Drawing.Size(720, 574);
 			this.pnlVideo.TabIndex = 2;
 			// 
-			// picVideoFrame
-			// 
-			this.picVideoFrame.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.picVideoFrame.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.picVideoFrame.Location = new System.Drawing.Point(0, 0);
-			this.picVideoFrame.Name = "picVideoFrame";
-			this.picVideoFrame.Size = new System.Drawing.Size(720, 574);
-			this.picVideoFrame.TabIndex = 0;
-			this.picVideoFrame.TabStop = false;
-			this.picVideoFrame.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseDown);
-			this.picVideoFrame.MouseLeave += new System.EventHandler(this.pictureBox_MouseLeave);
-			this.picVideoFrame.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseMove);
-			this.picVideoFrame.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseUp);
-			// 
 			// pnlTargets
 			// 
 			this.pnlTargets.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -457,18 +452,41 @@
 			this.pnlVideoControls.Controls.Add(this.pnlOcrTesting);
 			this.pnlVideoControls.Controls.Add(this.pnlCrossbar);
 			this.pnlVideoControls.Controls.Add(this.gbxSchedules);
-			this.pnlVideoControls.Controls.Add(this.pnlAAV);
 			this.pnlVideoControls.Controls.Add(this.btnImageSettings);
 			this.pnlVideoControls.Controls.Add(this.lblVideoFormat);
 			this.pnlVideoControls.Controls.Add(this.btnStopRecording);
 			this.pnlVideoControls.Controls.Add(this.label5);
 			this.pnlVideoControls.Controls.Add(this.btnRecord);
+			this.pnlVideoControls.Controls.Add(this.pnlVtiOsd);
+			this.pnlVideoControls.Controls.Add(this.pnlAAV);
 			this.pnlVideoControls.Dock = System.Windows.Forms.DockStyle.Right;
 			this.pnlVideoControls.Enabled = false;
 			this.pnlVideoControls.Location = new System.Drawing.Point(720, 0);
 			this.pnlVideoControls.Name = "pnlVideoControls";
 			this.pnlVideoControls.Size = new System.Drawing.Size(200, 574);
 			this.pnlVideoControls.TabIndex = 1;
+			// 
+			// pnlVtiOsd
+			// 
+			this.pnlVtiOsd.BackColor = System.Drawing.SystemColors.Info;
+			this.pnlVtiOsd.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.pnlVtiOsd.Controls.Add(this.btnUpdateVtiOsd);
+			this.pnlVtiOsd.Controls.Add(this.btnConfirmUserVtiOsd);
+			this.pnlVtiOsd.Controls.Add(this.label4);
+			this.pnlVtiOsd.Location = new System.Drawing.Point(4, 88);
+			this.pnlVtiOsd.Name = "pnlVtiOsd";
+			this.pnlVtiOsd.Size = new System.Drawing.Size(189, 59);
+			this.pnlVtiOsd.TabIndex = 26;
+			this.pnlVtiOsd.Visible = false;
+			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.Location = new System.Drawing.Point(12, 6);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(90, 13);
+			this.label4.TabIndex = 15;
+			this.label4.Text = "VTI-OSD Position";
 			// 
 			// pnlOcrTesting
 			// 
@@ -593,6 +611,8 @@
 			// 
 			// pnlAAV
 			// 
+			this.pnlAAV.BackColor = System.Drawing.SystemColors.Info;
+			this.pnlAAV.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.pnlAAV.Controls.Add(this.btnManualIntegration);
 			this.pnlAAV.Controls.Add(this.pbarIntDetPercentDone);
 			this.pnlAAV.Controls.Add(this.btnCalibrateIntegration);
@@ -738,106 +758,25 @@
 			this.toolStrip1.TabIndex = 5;
 			this.toolStrip1.Text = "toolStrip1";
 			// 
-			// tsbConnectDisconnect
-			// 
-			this.tsbConnectDisconnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.tsbConnectDisconnect.Image = ((System.Drawing.Image)(resources.GetObject("tsbConnectDisconnect.Image")));
-			this.tsbConnectDisconnect.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.tsbConnectDisconnect.Name = "tsbConnectDisconnect";
-			this.tsbConnectDisconnect.Size = new System.Drawing.Size(23, 22);
-			this.tsbConnectDisconnect.Text = "toolStripButton1";
-			this.tsbConnectDisconnect.Click += new System.EventHandler(this.tsbConnectDisconnect_Click);
-			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
 			this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-			// 
-			// tsbCrosshair
-			// 
-			this.tsbCrosshair.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.tsbCrosshair.Image = ((System.Drawing.Image)(resources.GetObject("tsbCrosshair.Image")));
-			this.tsbCrosshair.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.tsbCrosshair.Name = "tsbCrosshair";
-			this.tsbCrosshair.Size = new System.Drawing.Size(23, 22);
-			this.tsbCrosshair.ToolTipText = "Crosshair";
-			this.tsbCrosshair.Visible = false;
-			this.tsbCrosshair.Click += new System.EventHandler(this.tsbCrosshair_Click);
-			// 
-			// tsbAddGuidingStar
-			// 
-			this.tsbAddGuidingStar.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.tsbAddGuidingStar.Image = ((System.Drawing.Image)(resources.GetObject("tsbAddGuidingStar.Image")));
-			this.tsbAddGuidingStar.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.tsbAddGuidingStar.Name = "tsbAddGuidingStar";
-			this.tsbAddGuidingStar.Size = new System.Drawing.Size(23, 22);
-			this.tsbAddGuidingStar.ToolTipText = "Select Guiding Star";
-			this.tsbAddGuidingStar.Click += new System.EventHandler(this.tsbAddGuidingStar_Click);
-			// 
-			// tbsAddTarget
-			// 
-			this.tbsAddTarget.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.tbsAddTarget.Enabled = false;
-			this.tbsAddTarget.Image = ((System.Drawing.Image)(resources.GetObject("tbsAddTarget.Image")));
-			this.tbsAddTarget.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.tbsAddTarget.Name = "tbsAddTarget";
-			this.tbsAddTarget.Size = new System.Drawing.Size(23, 22);
-			this.tbsAddTarget.ToolTipText = "Select Target";
-			this.tbsAddTarget.Click += new System.EventHandler(this.tbsAddTarget_Click);
-			// 
-			// tsbClearTargets
-			// 
-			this.tsbClearTargets.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.tsbClearTargets.Image = global::OccuRec.Properties.Resources.brush;
-			this.tsbClearTargets.Name = "tsbClearTargets";
-			this.tsbClearTargets.Size = new System.Drawing.Size(16, 22);
-			this.tsbClearTargets.ToolTipText = "Remove Tracked Objects";
-			this.tsbClearTargets.Click += new System.EventHandler(this.tsbClearTargets_Click);
 			// 
 			// tsSeparator2
 			// 
 			this.tsSeparator2.Name = "tsSeparator2";
 			this.tsSeparator2.Size = new System.Drawing.Size(6, 25);
 			// 
-			// tsbTelControl
-			// 
-			this.tsbTelControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.tsbTelControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbTelControl.Image")));
-			this.tsbTelControl.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.tsbTelControl.Name = "tsbTelControl";
-			this.tsbTelControl.Size = new System.Drawing.Size(107, 22);
-			this.tsbTelControl.Text = "Telescope Control";
-			this.tsbTelControl.Click += new System.EventHandler(this.tsbTelControl_Click);
-			// 
 			// toolStripSeparator5
 			// 
 			this.toolStripSeparator5.Name = "toolStripSeparator5";
 			this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
 			// 
-			// tsbFocControl
-			// 
-			this.tsbFocControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.tsbFocControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbFocControl.Image")));
-			this.tsbFocControl.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.tsbFocControl.Name = "tsbFocControl";
-			this.tsbFocControl.Size = new System.Drawing.Size(95, 22);
-			this.tsbFocControl.Text = "Focuser Control";
-			this.tsbFocControl.Click += new System.EventHandler(this.tsbFocControl_Click);
-			// 
 			// toolStripSeparator6
 			// 
 			this.toolStripSeparator6.Name = "toolStripSeparator6";
 			this.toolStripSeparator6.Size = new System.Drawing.Size(6, 25);
-			// 
-			// tsbCamControl
-			// 
-			this.tsbCamControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.tsbCamControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbCamControl.Image")));
-			this.tsbCamControl.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.tsbCamControl.Name = "tsbCamControl";
-			this.tsbCamControl.Size = new System.Drawing.Size(95, 22);
-			this.tsbCamControl.Text = "Camera Control";
-			this.tsbCamControl.Click += new System.EventHandler(this.tsbCamControl_Click);
 			// 
 			// toolStripSeparator4
 			// 
@@ -872,11 +811,135 @@
 			this.openFileDialog.DefaultExt = "avi";
 			this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
 			// 
-			// miASCOMConnect
+			// btnUpdateVtiOsd
 			// 
-			this.miASCOMConnect.Name = "miASCOMConnect";
-			this.miASCOMConnect.Size = new System.Drawing.Size(164, 22);
-			this.miASCOMConnect.Text = "Connect &ASCOM";
+			this.btnUpdateVtiOsd.Location = new System.Drawing.Point(96, 26);
+			this.btnUpdateVtiOsd.Name = "btnUpdateVtiOsd";
+			this.btnUpdateVtiOsd.Size = new System.Drawing.Size(80, 23);
+			this.btnUpdateVtiOsd.TabIndex = 19;
+			this.btnUpdateVtiOsd.Text = "Configure";
+			this.btnUpdateVtiOsd.UseVisualStyleBackColor = true;
+			this.btnUpdateVtiOsd.Click += new System.EventHandler(this.btnUpdateVtiOsd_Click);
+			// 
+			// btnConfirmUserVtiOsd
+			// 
+			this.btnConfirmUserVtiOsd.Location = new System.Drawing.Point(13, 26);
+			this.btnConfirmUserVtiOsd.Name = "btnConfirmUserVtiOsd";
+			this.btnConfirmUserVtiOsd.Size = new System.Drawing.Size(79, 23);
+			this.btnConfirmUserVtiOsd.TabIndex = 18;
+			this.btnConfirmUserVtiOsd.Text = "Confirm";
+			this.btnConfirmUserVtiOsd.UseVisualStyleBackColor = true;
+			this.btnConfirmUserVtiOsd.Click += new System.EventHandler(this.btnConfirmUserVtiOsd_Click);
+			// 
+			// picVideoFrame
+			// 
+			this.picVideoFrame.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.picVideoFrame.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.picVideoFrame.Location = new System.Drawing.Point(0, 0);
+			this.picVideoFrame.Name = "picVideoFrame";
+			this.picVideoFrame.Size = new System.Drawing.Size(720, 574);
+			this.picVideoFrame.TabIndex = 0;
+			this.picVideoFrame.TabStop = false;
+			this.picVideoFrame.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseDown);
+			this.picVideoFrame.MouseLeave += new System.EventHandler(this.pictureBox_MouseLeave);
+			this.picVideoFrame.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseMove);
+			this.picVideoFrame.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseUp);
+			// 
+			// tsbConnectDisconnect
+			// 
+			this.tsbConnectDisconnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.tsbConnectDisconnect.Image = ((System.Drawing.Image)(resources.GetObject("tsbConnectDisconnect.Image")));
+			this.tsbConnectDisconnect.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbConnectDisconnect.Name = "tsbConnectDisconnect";
+			this.tsbConnectDisconnect.Size = new System.Drawing.Size(23, 22);
+			this.tsbConnectDisconnect.Text = "toolStripButton1";
+			this.tsbConnectDisconnect.Click += new System.EventHandler(this.tsbConnectDisconnect_Click);
+			// 
+			// tsbCrosshair
+			// 
+			this.tsbCrosshair.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.tsbCrosshair.Image = ((System.Drawing.Image)(resources.GetObject("tsbCrosshair.Image")));
+			this.tsbCrosshair.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbCrosshair.Name = "tsbCrosshair";
+			this.tsbCrosshair.Size = new System.Drawing.Size(23, 22);
+			this.tsbCrosshair.ToolTipText = "Crosshair";
+			this.tsbCrosshair.Visible = false;
+			// 
+			// tsbAddGuidingStar
+			// 
+			this.tsbAddGuidingStar.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.tsbAddGuidingStar.Image = ((System.Drawing.Image)(resources.GetObject("tsbAddGuidingStar.Image")));
+			this.tsbAddGuidingStar.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbAddGuidingStar.Name = "tsbAddGuidingStar";
+			this.tsbAddGuidingStar.Size = new System.Drawing.Size(23, 22);
+			this.tsbAddGuidingStar.ToolTipText = "Select Guiding Star";
+			this.tsbAddGuidingStar.Click += new System.EventHandler(this.tsbAddGuidingStar_Click);
+			// 
+			// tbsAddTarget
+			// 
+			this.tbsAddTarget.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.tbsAddTarget.Enabled = false;
+			this.tbsAddTarget.Image = ((System.Drawing.Image)(resources.GetObject("tbsAddTarget.Image")));
+			this.tbsAddTarget.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tbsAddTarget.Name = "tbsAddTarget";
+			this.tbsAddTarget.Size = new System.Drawing.Size(23, 22);
+			this.tbsAddTarget.ToolTipText = "Select Target";
+			this.tbsAddTarget.Click += new System.EventHandler(this.tbsAddTarget_Click);
+			// 
+			// tsbClearTargets
+			// 
+			this.tsbClearTargets.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.tsbClearTargets.Image = global::OccuRec.Properties.Resources.brush;
+			this.tsbClearTargets.Name = "tsbClearTargets";
+			this.tsbClearTargets.Size = new System.Drawing.Size(16, 22);
+			this.tsbClearTargets.ToolTipText = "Remove Tracked Objects";
+			this.tsbClearTargets.Click += new System.EventHandler(this.tsbClearTargets_Click);
+			// 
+			// tsbTelControl
+			// 
+			this.tsbTelControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.tsbTelControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbTelControl.Image")));
+			this.tsbTelControl.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbTelControl.Name = "tsbTelControl";
+			this.tsbTelControl.Size = new System.Drawing.Size(107, 22);
+			this.tsbTelControl.Text = "Telescope Control";
+			this.tsbTelControl.Click += new System.EventHandler(this.tsbTelControl_Click);
+			// 
+			// tsbFocControl
+			// 
+			this.tsbFocControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.tsbFocControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbFocControl.Image")));
+			this.tsbFocControl.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbFocControl.Name = "tsbFocControl";
+			this.tsbFocControl.Size = new System.Drawing.Size(95, 22);
+			this.tsbFocControl.Text = "Focuser Control";
+			this.tsbFocControl.Click += new System.EventHandler(this.tsbFocControl_Click);
+			// 
+			// tsbCamControl
+			// 
+			this.tsbCamControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.tsbCamControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbCamControl.Image")));
+			this.tsbCamControl.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbCamControl.Name = "tsbCamControl";
+			this.tsbCamControl.Size = new System.Drawing.Size(95, 22);
+			this.tsbCamControl.Text = "Camera Control";
+			this.tsbCamControl.Click += new System.EventHandler(this.tsbCamControl_Click);
+			// 
+			// miHelpIndex
+			// 
+			this.miHelpIndex.Image = ((System.Drawing.Image)(resources.GetObject("miHelpIndex.Image")));
+			this.miHelpIndex.Name = "miHelpIndex";
+			this.miHelpIndex.Size = new System.Drawing.Size(194, 22);
+			this.miHelpIndex.Text = "&Index";
+			this.miHelpIndex.Click += new System.EventHandler(this.miHelpIndex_Click);
+			// 
+			// miYahooGroup
+			// 
+			this.miYahooGroup.Image = ((System.Drawing.Image)(resources.GetObject("miYahooGroup.Image")));
+			this.miYahooGroup.Name = "miYahooGroup";
+			this.miYahooGroup.Size = new System.Drawing.Size(194, 22);
+			this.miYahooGroup.Text = "OccuRec Yahoo Group";
+			this.miYahooGroup.Click += new System.EventHandler(this.miYahooGroup_Click);
 			// 
 			// frmMain
 			// 
@@ -902,9 +965,10 @@
 			this.pnlClient.ResumeLayout(false);
 			this.pnlVideoFrames.ResumeLayout(false);
 			this.pnlVideo.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.picVideoFrame)).EndInit();
 			this.pnlVideoControls.ResumeLayout(false);
 			this.pnlVideoControls.PerformLayout();
+			this.pnlVtiOsd.ResumeLayout(false);
+			this.pnlVtiOsd.PerformLayout();
 			this.pnlOcrTesting.ResumeLayout(false);
 			this.pnlCrossbar.ResumeLayout(false);
 			this.pnlCrossbar.PerformLayout();
@@ -916,6 +980,7 @@
 			this.toolStrip1.ResumeLayout(false);
 			this.toolStrip1.PerformLayout();
 			this.pnlControlArea.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.picVideoFrame)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -1001,6 +1066,11 @@
 		private System.Windows.Forms.ToolStripLabel tsbClearTargets;
 		private System.Windows.Forms.ToolStripStatusLabel tssCameraControl;
 		private System.Windows.Forms.ToolStripMenuItem miASCOMConnect;
+		private System.Windows.Forms.ToolStripStatusLabel tssVTIOSD;
+		private System.Windows.Forms.Panel pnlVtiOsd;
+		private System.Windows.Forms.Label label4;
+		private System.Windows.Forms.Button btnUpdateVtiOsd;
+		private System.Windows.Forms.Button btnConfirmUserVtiOsd;
 	}
 }
 

@@ -612,13 +612,19 @@ namespace OccuRec.Helpers
 			SetupNtpDebugParams(Settings.Default.NTPDebugConfigValue1, Settings.Default.NTPDebugConfigValue2);
         }
 
-		public static string SetupTimestampPreservation(int width, int height)
+		public static string SetupTimestampPreservation(bool enabled, int areaTopOdd, int areaHeight)
 		{
 			int hr = SetupIntegrationPreservationArea(
-				Settings.Default.PreserveVTIEnabled,
-				Settings.Default.PreserveVTIFirstRow,
-				Settings.Default.PreserveVTIFirstRow + 1,
-                (Settings.Default.PreserveVTILastRow - Settings.Default.PreserveVTIFirstRow - 1) / 2);
+				enabled,
+				areaTopOdd,
+				areaTopOdd + 1,
+				areaHeight);
+
+			//int hr = SetupIntegrationPreservationArea(
+			//	Settings.Default.PreserveVTIEnabled, 
+			//	Settings.Default.PreserveVTIFirstRow, 
+			//	Settings.Default.PreserveVTIFirstRow + 1, 
+			//	(Settings.Default.PreserveVTILastRow - Settings.Default.PreserveVTIFirstRow - 1) / 2);
 
 			if (hr != 0)
 				return "Could not configure the timestamp preservation.";

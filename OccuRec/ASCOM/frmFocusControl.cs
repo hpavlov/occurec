@@ -47,11 +47,17 @@ namespace OccuRec.ASCOM
 			        }
 
 			        m_ObservatoryController = value;
-			        m_ObservatoryController.FocuserStateUpdated += UpdateFocuserState;
-			        m_ObservatoryController.FocuserConnectionChanged += FocuserConnectionChanged;
+
+			        if (m_ObservatoryController != null)
+			        {
+				        m_ObservatoryController.FocuserStateUpdated += UpdateFocuserState;
+				        m_ObservatoryController.FocuserConnectionChanged += FocuserConnectionChanged;
+			        }
 		        }
 
-				Text = m_ObservatoryController != null ? string.Format("Focuser Control - {0}", m_ObservatoryController.ConnectedFocuserDriverName()) : "Focuser Control";
+				Text = m_ObservatoryController != null 
+					? string.Format("Focuser Control - {0}", m_ObservatoryController.ConnectedFocuserDriverName()) 
+					: "Focuser Control";
 	        }
 	    }
 

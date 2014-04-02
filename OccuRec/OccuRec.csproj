@@ -171,6 +171,12 @@
     <Compile Include="Drivers\BasicVideoFrame.cs" />
     <Compile Include="Drivers\DirectShowSimulator\DxPlayImpl\DxPlayer.cs" />
     <Compile Include="Drivers\DirectShowSimulator\Video.cs" />
+    <Compile Include="frmConfigureVtiOsdLines.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmConfigureVtiOsdLines.Designer.cs">
+      <DependentUpon>frmConfigureVtiOsdLines.cs</DependentUpon>
+    </Compile>
     <Compile Include="ObservatoryAutomation\ObservatoryManager.cs" />
     <Compile Include="FrameAnalysis\FrameAnalysisManager.cs" />
     <Compile Include="FrameAnalysis\PlateSolveManager.cs" />
@@ -222,6 +228,7 @@
     <Compile Include="ObservatoryAutomation\StateMachine\IdleState.cs" />
     <Compile Include="ObservatoryAutomation\StateMachine\PulseGuiding\PgcInitialState.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="StateManagement\UndeterminedVtiOsdLocationState.cs" />
     <Compile Include="Tracking\AllGreys.cs" />
     <Compile Include="Tracking\ImagePixel.cs" />
     <Compile Include="Tracking\ITrackedObject.cs" />
@@ -381,6 +388,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmChooseManualIntegrationRate.resx">
       <DependentUpon>frmChooseManualIntegrationRate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmConfigureVtiOsdLines.resx">
+      <DependentUpon>frmConfigureVtiOsdLines.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmDetectIntegrationConfig.resx">
       <DependentUpon>frmDetectIntegrationConfig.cs</DependentUpon>
