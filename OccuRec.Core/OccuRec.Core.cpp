@@ -914,7 +914,11 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		unsigned char gpsFixStatus = 0;
 		unsigned char trackedSatellitesCount = 0;
 
-		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16);
+		bool integratedFrameCouldBeRecorded = recording || OCR_FAILED_TEST_RECORDING || RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS;
+
+		IntegratedFrame* frame = integratedFrameCouldBeRecorded 
+			? new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16) 
+			: NULL;
 
 		if (AAV_16 && AAV16_MAX_BINNED_FRAMES < numberOfIntegratedFrames)
 			AAV16_MAX_BINNED_FRAMES = numberOfIntegratedFrames;
@@ -925,8 +929,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 		unsigned char* ptr8BitPixels = latestIntegratedFrame;
 
-		unsigned char* ptrFramePixels = frame->Pixels;
-		unsigned short* ptrFramePixels16 = frame->Pixels16;
+		unsigned char* ptrFramePixels = integratedFrameCouldBeRecorded ? frame->Pixels : NULL;
+		unsigned short* ptrFramePixels16 = integratedFrameCouldBeRecorded ? frame->Pixels16 : NULL;
 
 		bool runOCR = false;
 		if (OCR_IS_SETUP && OCR_ZONE_MATRIX && NULL != firstFrameOcrProcessor)
@@ -982,10 +986,13 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			}
 
 			*ptr8BitPixels = averageValue;
-			if (AAV_16)
-				*ptrFramePixels16 = pixel16;
-			else
-				*ptrFramePixels = averageValue;
+			if (integratedFrameCouldBeRecorded)
+			{
+				if (AAV_16)
+					*ptrFramePixels16 = pixel16;
+				else
+					*ptrFramePixels = averageValue;
+			}
 
 			if (detectedIntegrationRate > 1 && OCR_PRESERVE_VTI)
 			{
@@ -997,19 +1004,25 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 					// Preserve the timestamp pixels from the first and last integrated frame in the final image
 					if (pixY % 2 == 0)
 					{
-						if (AAV_16)
-							*ptrFramePixels16 = numberOfIntegratedFrames * firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
-						else
-							*ptrFramePixels = firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+						if (integratedFrameCouldBeRecorded)
+						{
+							if (AAV_16)
+								*ptrFramePixels16 = numberOfIntegratedFrames * firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+							else
+								*ptrFramePixels = firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+						}
 
 						*ptr8BitPixels = firstIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
 					}
 					else
 					{
-						if (AAV_16)
-							*ptrFramePixels16 = numberOfIntegratedFrames * lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
-						else
-							*ptrFramePixels = lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+						if (integratedFrameCouldBeRecorded)
+						{
+							if (AAV_16)
+								*ptrFramePixels16 = numberOfIntegratedFrames * lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+							else
+								*ptrFramePixels = lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
+						}
 
 						*ptr8BitPixels = lastIntegratedFramePixels[pixY * IMAGE_WIDTH + pixX];
 					}
@@ -1018,10 +1031,13 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 			ptr8BitPixels++;
 
-			if (AAV_16)
-				ptrFramePixels16++;
-			else
-				ptrFramePixels++;
+			if (integratedFrameCouldBeRecorded)
+			{
+				if (AAV_16)
+					ptrFramePixels16++;
+				else
+					ptrFramePixels++;
+			}
 
 			ptrPixels++;
 			if (OCR_FAILED_TEST_RECORDING) singleRawFramePixles ++;
@@ -1139,41 +1155,44 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			ocrErrorsSiceLastReset = ocrManager->OcrErrorsSinceReset;
 		}
 
-		if (AAV_16)
+		if (integratedFrameCouldBeRecorded)
 		{
-			unsigned short maxValue = numberOfIntegratedFrames < 255 ? numberOfIntegratedFrames * 255 : 0xFFFF;
+			if (AAV_16)
+			{
+				unsigned short maxValue = numberOfIntegratedFrames < 255 ? numberOfIntegratedFrames * 255 : 0xFFFF;
 			
-			if (INTEGRATION_LOCKED && numberOfIntegratedFrames > 1)
-			{
-				// Marks for "summed" frame and "mixed timestamp"
-				frame->Pixels16[0] = maxValue;
-				frame->Pixels16[1] = 0;
-				frame->Pixels16[2] = maxValue;
-				frame->Pixels16[IMAGE_WIDTH] = 0;
-				frame->Pixels16[IMAGE_WIDTH + 2] = 0;
-				frame->Pixels16[2 * IMAGE_WIDTH] = maxValue;
-				frame->Pixels16[2 * IMAGE_WIDTH + 1] = 0;
-				frame->Pixels16[2 * IMAGE_WIDTH + 2] = maxValue;
+				if (INTEGRATION_LOCKED && numberOfIntegratedFrames > 1)
+				{
+					// Marks for "summed" frame and "mixed timestamp"
+					frame->Pixels16[0] = maxValue;
+					frame->Pixels16[1] = 0;
+					frame->Pixels16[2] = maxValue;
+					frame->Pixels16[IMAGE_WIDTH] = 0;
+					frame->Pixels16[IMAGE_WIDTH + 2] = 0;
+					frame->Pixels16[2 * IMAGE_WIDTH] = maxValue;
+					frame->Pixels16[2 * IMAGE_WIDTH + 1] = 0;
+					frame->Pixels16[2 * IMAGE_WIDTH + 2] = maxValue;
+				}
+				if (restoredPixels > 0) 
+					frame->Pixels16[IMAGE_WIDTH + 1] = maxValue;
 			}
-			if (restoredPixels > 0) 
-				frame->Pixels16[IMAGE_WIDTH + 1] = maxValue;
-		}
-		else
-		{
-			if (INTEGRATION_LOCKED && numberOfIntegratedFrames > 1)
+			else
 			{
-				// Marks for "summed" frame and "mixed timestamp"
-				frame->Pixels[0] = 255;
-				frame->Pixels[1] = 0;
-				frame->Pixels[2] = 255;
-				frame->Pixels[IMAGE_WIDTH] = 0;
-				frame->Pixels[IMAGE_WIDTH + 2] = 0;
-				frame->Pixels[2 * IMAGE_WIDTH] = 255;
-				frame->Pixels[2 * IMAGE_WIDTH + 1] = 0;
-				frame->Pixels[2 * IMAGE_WIDTH + 2] = 255;
+				if (INTEGRATION_LOCKED && numberOfIntegratedFrames > 1)
+				{
+					// Marks for "summed" frame and "mixed timestamp"
+					frame->Pixels[0] = 255;
+					frame->Pixels[1] = 0;
+					frame->Pixels[2] = 255;
+					frame->Pixels[IMAGE_WIDTH] = 0;
+					frame->Pixels[IMAGE_WIDTH + 2] = 0;
+					frame->Pixels[2 * IMAGE_WIDTH] = 255;
+					frame->Pixels[2 * IMAGE_WIDTH + 1] = 0;
+					frame->Pixels[2 * IMAGE_WIDTH + 2] = 255;
+				}
+				if (restoredPixels > 0) 
+					frame->Pixels[IMAGE_WIDTH + 1] = 255;
 			}
-			if (restoredPixels > 0) 
-				frame->Pixels[IMAGE_WIDTH + 1] = 255;
 		}
 
 		latestImageStatus.CountedFrames = numberOfIntegratedFrames;
@@ -1273,7 +1292,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 			numRecordedFrames++;
 		}
-		else
+		else if (NULL != frame)
 		{
 			delete frame;
 		}

@@ -25,4 +25,10 @@ IntegratedFrame::~IntegratedFrame(void)
 		delete Pixels;
 		Pixels = NULL;
 	}
+
+	if (Pixels16 != NULL)
+	{
+		delete Pixels16;
+		Pixels16 = NULL;
+	}
 }
