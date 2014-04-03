@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using OccuRec.Context;
 using OccuRec.FrameAnalysis;
 using OccuRec.Properties;
 using OccuRec.StateManagement;
@@ -155,7 +156,7 @@ namespace OccuRec.Helpers
 				analysisManager.DisplayData(g, imageWidth, imageHeight);
 			}
 
-			if (stateManager.VtiOsdPositionUnknown)
+			if (stateManager.VtiOsdPositionUnknown || OccuRecContext.Current.ShowAssumedVtiOsdPosition)
 			{
 				g.DrawRectangle(Pens.Lime, 0, Settings.Default.PreserveVTIFirstRow, imageWidth - 3, Settings.Default.PreserveVTILastRow - Settings.Default.PreserveVTIFirstRow - 3);
 			}

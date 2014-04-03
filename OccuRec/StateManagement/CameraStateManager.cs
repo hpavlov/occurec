@@ -213,6 +213,15 @@ namespace OccuRec.StateManagement
 			}
 		}
 
+		public bool VtiOsdAutomaticDetectionFailed
+		{
+			get
+			{
+				UndeterminedVtiOsdLocationState state = currentState as UndeterminedVtiOsdLocationState;
+				return state != null && state.VtiOsdAutomaticDetectionFailed;
+			}
+		}
+
 	    public int PercentDoneDetectingIntegration
 	    {
 			get

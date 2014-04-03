@@ -19,8 +19,7 @@ namespace OccuRec.Config.Panels
 		}
 
 		public override void LoadSettings()
-		{
-			
+		{			
 			tbxSimlatorFilePath.Text = Settings.Default.SimulatorFilePath;
 
 			cbxOcrCameraTestModeAav.Checked = Settings.Default.OcrCameraAavTestMode;
@@ -28,6 +27,7 @@ namespace OccuRec.Config.Panels
 			cbxOcrSimlatorTestMode.Checked = Settings.Default.OcrSimulatorTestMode;
 			cbxSimulatorRunOCR.Checked = Settings.Default.SimulatorRunOCR;
 			rbNativeOCR.Checked = Settings.Default.OcrSimulatorNativeCode;
+			cbxSimulateFailedVtiOsdDetection.Checked = Settings.Default.SimulateFailedVtiOsdDetection;
 
 			UpdateControls();
 		}
@@ -42,7 +42,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.SimulatorRunOCR = cbxSimulatorRunOCR.Checked;
 
 			Settings.Default.OcrSimulatorNativeCode = rbNativeOCR.Checked;
-			
+			Settings.Default.SimulateFailedVtiOsdDetection = cbxSimulateFailedVtiOsdDetection.Checked; 
 		}
 
 		private void btnBrowseSimulatorFile_Click(object sender, EventArgs e)

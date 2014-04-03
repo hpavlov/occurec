@@ -42,6 +42,7 @@
 			this.tbxSimlatorFilePath = new System.Windows.Forms.TextBox();
 			this.btnBrowseSimulatorFile = new System.Windows.Forms.Button();
 			this.openAavFileDialog = new System.Windows.Forms.OpenFileDialog();
+			this.cbxSimulateFailedVtiOsdDetection = new System.Windows.Forms.CheckBox();
 			this.pnlOCRTesting.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxErrorsPerTestRun)).BeginInit();
 			this.gbxOcrTesting.SuspendLayout();
@@ -52,7 +53,7 @@
 			this.pnlOCRTesting.Controls.Add(this.cbxOcrCameraTestModeAav);
 			this.pnlOCRTesting.Controls.Add(this.label5);
 			this.pnlOCRTesting.Controls.Add(this.nudMaxErrorsPerTestRun);
-			this.pnlOCRTesting.Location = new System.Drawing.Point(10, 97);
+			this.pnlOCRTesting.Location = new System.Drawing.Point(8, 97);
 			this.pnlOCRTesting.Name = "pnlOCRTesting";
 			this.pnlOCRTesting.Size = new System.Drawing.Size(363, 34);
 			this.pnlOCRTesting.TabIndex = 34;
@@ -60,7 +61,7 @@
 			// cbxOcrCameraTestModeAav
 			// 
 			this.cbxOcrCameraTestModeAav.AutoSize = true;
-			this.cbxOcrCameraTestModeAav.Location = new System.Drawing.Point(3, 8);
+			this.cbxOcrCameraTestModeAav.Location = new System.Drawing.Point(7, 8);
 			this.cbxOcrCameraTestModeAav.Name = "cbxOcrCameraTestModeAav";
 			this.cbxOcrCameraTestModeAav.Size = new System.Drawing.Size(182, 17);
 			this.cbxOcrCameraTestModeAav.TabIndex = 27;
@@ -196,10 +197,21 @@
 			this.openAavFileDialog.FileName = "Open AAV/AVI File";
 			this.openAavFileDialog.Filter = "Supported Video Files (*.aav;*.avi)|*.aav;*.avi";
 			// 
+			// cbxSimulateFailedVtiOsdDetection
+			// 
+			this.cbxSimulateFailedVtiOsdDetection.AutoSize = true;
+			this.cbxSimulateFailedVtiOsdDetection.Location = new System.Drawing.Point(13, 153);
+			this.cbxSimulateFailedVtiOsdDetection.Name = "cbxSimulateFailedVtiOsdDetection";
+			this.cbxSimulateFailedVtiOsdDetection.Size = new System.Drawing.Size(192, 17);
+			this.cbxSimulateFailedVtiOsdDetection.TabIndex = 35;
+			this.cbxSimulateFailedVtiOsdDetection.Text = "Simulate Failed VTI-OSD Detection";
+			this.cbxSimulateFailedVtiOsdDetection.UseVisualStyleBackColor = true;
+			// 
 			// ucDebug
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.cbxSimulateFailedVtiOsdDetection);
 			this.Controls.Add(this.pnlOCRTesting);
 			this.Controls.Add(this.gbxOcrTesting);
 			this.Name = "ucDebug";
@@ -210,6 +222,7 @@
 			this.gbxOcrTesting.ResumeLayout(false);
 			this.gbxOcrTesting.PerformLayout();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
@@ -229,5 +242,6 @@
 		private System.Windows.Forms.TextBox tbxSimlatorFilePath;
 		private System.Windows.Forms.Button btnBrowseSimulatorFile;
 		private System.Windows.Forms.OpenFileDialog openAavFileDialog;
+		private System.Windows.Forms.CheckBox cbxSimulateFailedVtiOsdDetection;
 	}
 }

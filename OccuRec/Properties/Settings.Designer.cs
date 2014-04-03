@@ -1186,5 +1186,17 @@ namespace OccuRec.Properties {
                 this["PreserveVTIUserSpecifiedValues"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SimulateFailedVtiOsdDetection {
+            get {
+                return ((bool)(this["SimulateFailedVtiOsdDetection"]));
+            }
+            set {
+                this["SimulateFailedVtiOsdDetection"] = value;
+            }
+        }
     }
 }

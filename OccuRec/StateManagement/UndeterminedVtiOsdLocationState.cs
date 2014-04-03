@@ -4,7 +4,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
+using OccuRec.Context;
 using OccuRec.Helpers;
+using OccuRec.Properties;
 using OccuRec.Utilities;
 
 namespace OccuRec.StateManagement
@@ -28,6 +30,23 @@ namespace OccuRec.StateManagement
 		private int m_FieldAreaWidth;
 		private bool m_IotaVtiTvSafeMode;
 
+		private int m_AttemptedFrames = 0;
+
+		public bool VtiOsdAutomaticDetectionFailed
+		{
+			get { return m_AttemptedFrames > 25; }
+		}
+
+		public override void InitialiseState()
+		{
+			base.InitialiseState();
+
+			m_AttemptedFrames = 0;
+
+			// We want frames to be output one by one while configuring the VTI-OSD location
+			NativeHelpers.UnlockIntegration();
+		}
+
 		public override void ProcessFrame(CameraStateManager stateManager, Helpers.VideoFrameWrapper frame)
 		{
 			if (frame.ImageArray is int[,])
@@ -49,9 +68,23 @@ namespace OccuRec.StateManagement
 
 				if (LocateTimestampPosition(data, imageWidth, imageHeight))
 				{
+#if DEBUG
+					if (Settings.Default.SimulateFailedVtiOsdDetection)
+					{
+						m_AttemptedFrames++;
+						return;
+					}
+#endif
 					NativeHelpers.SetupTimestampPreservation(true, m_FromLine, m_ToLine - m_FromLine);
 
+					// Keep showing the AssumedVtiOsd lines for another 5 sec for user's visual confirmation that they are correct
+					OccuRecContext.Current.ShowAssumedVtiOsdPositionUntil = DateTime.Now.AddSeconds(5);
+
 					stateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
+				}
+				else
+				{
+					m_AttemptedFrames++;
 				}
 			}
 		}

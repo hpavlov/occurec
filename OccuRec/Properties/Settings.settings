@@ -293,5 +293,8 @@
     <Setting Name="PreserveVTIUserSpecifiedValues" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="SimulateFailedVtiOsdDetection" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

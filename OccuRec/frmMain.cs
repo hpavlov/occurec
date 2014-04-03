@@ -760,6 +760,7 @@ namespace OccuRec
 					if (m_StateManager.VtiOsdPositionUnknown)
 					{
 						if (pnlAAV.Visible) pnlAAV.Visible = false;
+
 						if (!pnlVtiOsd.Visible) pnlVtiOsd.Visible = true;
 
 						if (tssVTIOSD.Visible ^ !Settings.Default.PreserveVTIUserSpecifiedValues)
@@ -769,6 +770,7 @@ namespace OccuRec
 					{
 						if (!pnlAAV.Visible) pnlAAV.Visible = true;
 						if (pnlVtiOsd.Visible) pnlVtiOsd.Visible = false;
+						if (tssVTIOSD.Visible) tssVTIOSD.Visible = false;
 					}
 
 					if (btnConfirmUserVtiOsd.Enabled ^ Settings.Default.PreserveVTIUserSpecifiedValues)
@@ -1916,6 +1918,11 @@ namespace OccuRec
 
 		private void btnConfirmUserVtiOsd_Click(object sender, EventArgs e)
 		{
+			NativeHelpers.SetupTimestampPreservation(true, Settings.Default.PreserveVTIFirstRow, Settings.Default.PreserveVTILastRow - Settings.Default.PreserveVTIFirstRow);
+
+			// Keep showing the AssumedVtiOsd lines for another 5 sec for user's visual confirmation that they are correct
+			OccuRecContext.Current.ShowAssumedVtiOsdPositionUntil = DateTime.Now.AddSeconds(5);
+
 			m_StateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
 		}
     }
