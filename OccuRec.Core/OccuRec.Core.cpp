@@ -1862,8 +1862,7 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 		AavAddFileTag("OCR-ENGINE", "IOTA-VTI OccuRec OCR v1.1");
 
 	if (AAV_16)
-		// TODO: Add "Binning" once the true binning mode is implemented (for Mutual Events)
-		AavAddFileTag("FRAME-COMBINING", "Pseudo-Binning");
+		AavAddFileTag("FRAME-COMBINING", "Binning");
 	else
 		AavAddFileTag("FRAME-COMBINING", "Averaging");
 

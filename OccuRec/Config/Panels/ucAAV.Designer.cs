@@ -219,31 +219,31 @@
 			this.cbxFrameProcessingMode.Items.AddRange(new object[] {
             "Buffered",
             "Synchronous"});
-			this.cbxFrameProcessingMode.Location = new System.Drawing.Point(12, 28);
+			this.cbxFrameProcessingMode.Location = new System.Drawing.Point(13, 28);
 			this.cbxFrameProcessingMode.Name = "cbxFrameProcessingMode";
-			this.cbxFrameProcessingMode.Size = new System.Drawing.Size(130, 21);
+			this.cbxFrameProcessingMode.Size = new System.Drawing.Size(103, 21);
 			this.cbxFrameProcessingMode.TabIndex = 22;
 			// 
 			// rbIntegrationAverage
 			// 
 			this.rbIntegrationAverage.AutoSize = true;
 			this.rbIntegrationAverage.Checked = true;
-			this.rbIntegrationAverage.Location = new System.Drawing.Point(15, 19);
+			this.rbIntegrationAverage.Location = new System.Drawing.Point(14, 43);
 			this.rbIntegrationAverage.Name = "rbIntegrationAverage";
-			this.rbIntegrationAverage.Size = new System.Drawing.Size(94, 17);
+			this.rbIntegrationAverage.Size = new System.Drawing.Size(102, 17);
 			this.rbIntegrationAverage.TabIndex = 28;
 			this.rbIntegrationAverage.TabStop = true;
-			this.rbIntegrationAverage.Text = "Average (8 bit)";
+			this.rbIntegrationAverage.Text = "Averaging (8 bit)";
 			this.rbIntegrationAverage.UseVisualStyleBackColor = true;
 			// 
 			// rbIntegrationBin
 			// 
 			this.rbIntegrationBin.AutoSize = true;
-			this.rbIntegrationBin.Location = new System.Drawing.Point(15, 42);
+			this.rbIntegrationBin.Location = new System.Drawing.Point(14, 19);
 			this.rbIntegrationBin.Name = "rbIntegrationBin";
-			this.rbIntegrationBin.Size = new System.Drawing.Size(180, 17);
+			this.rbIntegrationBin.Size = new System.Drawing.Size(200, 17);
 			this.rbIntegrationBin.TabIndex = 29;
-			this.rbIntegrationBin.Text = "Bin (16 bit, x256 Max Integration)";
+			this.rbIntegrationBin.Text = "Binning (16 bit, x256 Max Integration)";
 			this.rbIntegrationBin.UseVisualStyleBackColor = true;
 			// 
 			// groupBox3
@@ -252,17 +252,17 @@
 			this.groupBox3.Controls.Add(this.rbIntegrationBin);
 			this.groupBox3.Location = new System.Drawing.Point(4, 4);
 			this.groupBox3.Name = "groupBox3";
-			this.groupBox3.Size = new System.Drawing.Size(200, 66);
+			this.groupBox3.Size = new System.Drawing.Size(226, 66);
 			this.groupBox3.TabIndex = 30;
 			this.groupBox3.TabStop = false;
-			this.groupBox3.Text = "Integration Recording";
+			this.groupBox3.Text = "Pixel Integration";
 			// 
 			// groupBox4
 			// 
 			this.groupBox4.Controls.Add(this.cbxFrameProcessingMode);
-			this.groupBox4.Location = new System.Drawing.Point(210, 5);
+			this.groupBox4.Location = new System.Drawing.Point(236, 5);
 			this.groupBox4.Name = "groupBox4";
-			this.groupBox4.Size = new System.Drawing.Size(156, 65);
+			this.groupBox4.Size = new System.Drawing.Size(130, 65);
 			this.groupBox4.TabIndex = 31;
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "Frame Processing";
@@ -275,7 +275,7 @@
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox1);
 			this.Name = "ucAAV";
-			this.Size = new System.Drawing.Size(383, 349);
+			this.Size = new System.Drawing.Size(383, 257);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).EndInit();
