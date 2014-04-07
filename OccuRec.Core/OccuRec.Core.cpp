@@ -1303,6 +1303,8 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 void HandleTracking(unsigned char* pixelsChar, long* pixels)
 {
+	// DebugViewPrint(L"HandleTracking: %s %s %i %l", RUN_TRACKING ? "Y" : "N", trackedThisIntegrationPeriod ? "Y" : "N", TRACKING_FREQUENCY, idxFrameNumber);
+
 	if (RUN_TRACKING && 
 		idxFrameNumber % TRACKING_FREQUENCY == 0 &&
 		!trackedThisIntegrationPeriod)
@@ -1626,7 +1628,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 	idxFrameNumber++;
 	
-	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
+	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);	
 
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera
@@ -1660,6 +1662,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	double* ptrPixels = integratedPixels;
 
 	unsigned char* ptrFirstOrLastFrameCopy = NULL;
+	unsigned char* ptrCurrTrackedFramePixels = currTrackedFramePixels;
 
 	if (isNewIntegrationPeriod)
 	{
@@ -1700,10 +1703,12 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 			// Saving the first/last frame raw pixels for OCR-ing
 			*ptrFirstOrLastFrameCopy = thisPixel;
+			*ptrCurrTrackedFramePixels = thisPixel;
 		    *ptrPixels += thisPixel;
 
 			ptrPixels++;
 			ptrFirstOrLastFrameCopy++;
+			ptrCurrTrackedFramePixels++;
 			ptrPixelItt+=3;
 		}
 
@@ -1718,6 +1723,11 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	frameInfo->CameraFrameNo = idxFrameNumber;
 	frameInfo->IntegratedFrameNo = idxIntegratedFrameNumber;
 	frameInfo->IntegratedFramesSoFar = numberOfIntegratedFrames;
+
+	HandleTracking(currTrackedFramePixels, NULL);
+
+	if (lastFrameWasNewIntegrationPeriod)
+		trackedThisIntegrationPeriod = false;
 
 	return S_OK;
 }

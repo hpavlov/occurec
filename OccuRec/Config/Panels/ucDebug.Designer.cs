@@ -43,6 +43,7 @@
 			this.btnBrowseSimulatorFile = new System.Windows.Forms.Button();
 			this.openAavFileDialog = new System.Windows.Forms.OpenFileDialog();
 			this.cbxSimulateFailedVtiOsdDetection = new System.Windows.Forms.CheckBox();
+			this.btnResetVtiOsdSettings = new System.Windows.Forms.Button();
 			this.pnlOCRTesting.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudMaxErrorsPerTestRun)).BeginInit();
 			this.gbxOcrTesting.SuspendLayout();
@@ -207,10 +208,21 @@
 			this.cbxSimulateFailedVtiOsdDetection.Text = "Simulate Failed VTI-OSD Detection";
 			this.cbxSimulateFailedVtiOsdDetection.UseVisualStyleBackColor = true;
 			// 
+			// btnResetVtiOsdSettings
+			// 
+			this.btnResetVtiOsdSettings.Location = new System.Drawing.Point(209, 148);
+			this.btnResetVtiOsdSettings.Name = "btnResetVtiOsdSettings";
+			this.btnResetVtiOsdSettings.Size = new System.Drawing.Size(43, 23);
+			this.btnResetVtiOsdSettings.TabIndex = 36;
+			this.btnResetVtiOsdSettings.Text = "Reset";
+			this.btnResetVtiOsdSettings.UseVisualStyleBackColor = true;
+			this.btnResetVtiOsdSettings.Click += new System.EventHandler(this.btnResetVtiOsdSettings_Click);
+			// 
 			// ucDebug
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.btnResetVtiOsdSettings);
 			this.Controls.Add(this.cbxSimulateFailedVtiOsdDetection);
 			this.Controls.Add(this.pnlOCRTesting);
 			this.Controls.Add(this.gbxOcrTesting);
@@ -243,5 +255,6 @@
 		private System.Windows.Forms.Button btnBrowseSimulatorFile;
 		private System.Windows.Forms.OpenFileDialog openAavFileDialog;
 		private System.Windows.Forms.CheckBox cbxSimulateFailedVtiOsdDetection;
+		private System.Windows.Forms.Button btnResetVtiOsdSettings;
 	}
 }

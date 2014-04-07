@@ -69,6 +69,7 @@
             0,
             0,
             0});
+			this.nudPreserveVTIBottomRow.ValueChanged += new System.EventHandler(this.nudPreserveVTIBottomRow_ValueChanged);
 			// 
 			// nudPreserveVTITopRow
 			// 
@@ -87,6 +88,7 @@
             0,
             0,
             0});
+			this.nudPreserveVTITopRow.ValueChanged += new System.EventHandler(this.nudPreserveVTITopRow_ValueChanged);
 			// 
 			// label3
 			// 
@@ -120,13 +122,13 @@
 			// 
 			// btnCancel
 			// 
-			this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.btnCancel.Location = new System.Drawing.Point(143, 84);
 			this.btnCancel.Name = "btnCancel";
 			this.btnCancel.Size = new System.Drawing.Size(75, 23);
 			this.btnCancel.TabIndex = 38;
 			this.btnCancel.Text = "Cancel";
 			this.btnCancel.UseVisualStyleBackColor = true;
+			this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
 			// 
 			// frmConfigureVtiOsdLines
 			// 

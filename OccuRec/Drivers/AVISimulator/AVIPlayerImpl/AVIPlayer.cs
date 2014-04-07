@@ -241,7 +241,7 @@ namespace OccuRec.Drivers.AVISimulator.AVIPlayerImpl
                     double frameTime = ConvertFrameNumberToSeconds((int) frameNo);
                     using (Bitmap bmp = GetImageAtTime(frameTime))
                     {
-                        int[,] pixels = ImageUtils.GetPixelArray(bmp, AdvImageSection.GetPixelMode.Raw8Bit);
+                        int[,] pixels = ImageUtils.GetPixelArray(ImageWidth, ImageHeight, bmp, AdvImageSection.GetPixelMode.Raw8Bit);
 
                         if (fullAAVSimulation)
                         {

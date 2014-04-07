@@ -56,7 +56,7 @@ namespace OccuRec.Drivers
         {
             var rv = new BasicVideoFrame();
 
-            rv.pixels = ImageUtils.GetPixelArray(cameraFrame);
+            rv.pixels = ImageUtils.GetPixelArray(width, height, cameraFrame);
             rv.previewBitmap = cameraFrame;
             rv.pixelsVariant = null;
 

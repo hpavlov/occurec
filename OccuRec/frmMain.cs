@@ -761,7 +761,15 @@ namespace OccuRec
 					{
 						if (pnlAAV.Visible) pnlAAV.Visible = false;
 
-						if (!pnlVtiOsd.Visible) pnlVtiOsd.Visible = true;
+						if (!pnlVtiOsd.Visible)
+						{
+							pnlVtiOsd.Visible = true;
+							if (!Settings.Default.PreserveVTIUserSpecifiedValues)
+							{
+								Settings.Default.PreserveVTIFirstRow = videoObject.Height - 28;
+								Settings.Default.PreserveVTILastRow = videoObject.Height;
+							}
+						}
 
 						if (tssVTIOSD.Visible ^ !Settings.Default.PreserveVTIUserSpecifiedValues)
 							tssVTIOSD.Visible = !Settings.Default.PreserveVTIUserSpecifiedValues;

@@ -61,5 +61,14 @@ namespace OccuRec.Config.Panels
 			rbManagedSim.Enabled = cbxSimulatorRunOCR.Checked;
 			rbNativeOCR.Enabled = cbxSimulatorRunOCR.Checked;
 		}
+
+		private void btnResetVtiOsdSettings_Click(object sender, EventArgs e)
+		{
+			Settings.Default.PreserveVTIFirstRow = 0;
+			Settings.Default.PreserveVTILastRow = 0;
+			Settings.Default.PreserveVTIEnabled = true;
+			Settings.Default.PreserveVTIUserSpecifiedValues = false;
+			Settings.Default.Save();
+		}
 	}
 }

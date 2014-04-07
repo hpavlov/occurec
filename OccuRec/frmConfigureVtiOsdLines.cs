@@ -14,6 +14,8 @@ namespace OccuRec
 	public partial class frmConfigureVtiOsdLines : Form
 	{
 		private int m_Height = 0;
+		private int m_OldFirstLine = -1;
+		private int m_OldLastLine = -1;
 
 		public frmConfigureVtiOsdLines()
 		{
@@ -49,6 +51,8 @@ namespace OccuRec
 				}
 			}
 
+			m_OldFirstLine = Settings.Default.PreserveVTIFirstRow;
+			m_OldLastLine = Settings.Default.PreserveVTILastRow;
 		}
 
 		private void btnOK_Click(object sender, EventArgs e)
@@ -67,6 +71,22 @@ namespace OccuRec
 
 			DialogResult = DialogResult.OK;
 			Close();
+		}
+
+		private void btnCancel_Click(object sender, EventArgs e)
+		{
+			Settings.Default.PreserveVTIFirstRow = m_OldFirstLine;
+			Settings.Default.PreserveVTILastRow = m_OldLastLine;
+		}
+
+		private void nudPreserveVTITopRow_ValueChanged(object sender, EventArgs e)
+		{
+			Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;			
+		}
+
+		private void nudPreserveVTIBottomRow_ValueChanged(object sender, EventArgs e)
+		{
+			Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;
 		}
 	}
 }

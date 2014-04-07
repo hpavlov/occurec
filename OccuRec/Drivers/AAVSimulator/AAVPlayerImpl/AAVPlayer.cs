@@ -147,7 +147,7 @@ namespace OccuRec.Drivers.AAVSimulator.AAVPlayerImpl
                     long frameNo = aavStream.FirstFrame + (frameCounter % (aavStream.LastFrame - aavStream.FirstFrame));
                     using (Bitmap bmp = aavStream.GetFrame((int)frameNo))
                     {
-                        int[,] pixels = ImageUtils.GetPixelArray(bmp, AdvImageSection.GetPixelMode.Raw8Bit);
+						int[,] pixels = ImageUtils.GetPixelArray(aavStream.Width, aavStream.Height, bmp, AdvImageSection.GetPixelMode.Raw8Bit);
 
                         if (fullAAVSimulation)
                         {
