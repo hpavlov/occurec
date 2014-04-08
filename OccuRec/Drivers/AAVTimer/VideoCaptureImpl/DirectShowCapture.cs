@@ -136,6 +136,10 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 			catch
 			{
 				CloseResources();
+
+				if (callbacksObject != null)
+					callbacksObject.OnError(-1, "Error initialising the camera. The selected video mode may not be supported by the camera.");
+
 				throw;
 			}
 		}
@@ -336,6 +340,14 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
                     // Copy out the videoinfoheader
                     VideoInfoHeader v = new VideoInfoHeader();
                     Marshal.PtrToStructure(media.formatPtr, v);
+
+					if (selectedFormat != null && iWidth == 0 && iHeight == 0)
+					{
+						// Use the config from the selected format
+						iWidth = selectedFormat.Width;
+						iHeight = selectedFormat.Height;
+						iFrameRate = (float) selectedFormat.FrameRate;
+					}
 
                     // If overriding the framerate, set the frame rate
                     if (iFrameRate > 0)

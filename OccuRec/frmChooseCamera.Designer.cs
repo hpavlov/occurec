@@ -49,9 +49,14 @@
 			this.pnlFlipControls = new System.Windows.Forms.Panel();
 			this.cbxFlipVertically = new System.Windows.Forms.CheckBox();
 			this.cbxFlipHorizontally = new System.Windows.Forms.CheckBox();
+			this.pnlSimpleFrameRate = new System.Windows.Forms.Panel();
+			this.rbOtherMode = new System.Windows.Forms.RadioButton();
+			this.rbNTSC = new System.Windows.Forms.RadioButton();
+			this.rbPAL = new System.Windows.Forms.RadioButton();
 			this.gbxAAVSettings.SuspendLayout();
 			this.pnlCrossbar.SuspendLayout();
 			this.pnlFlipControls.SuspendLayout();
+			this.pnlSimpleFrameRate.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// btnOK
@@ -192,7 +197,7 @@
 			// 
 			this.pnlCrossbar.Controls.Add(this.cbxCrossbarInput);
 			this.pnlCrossbar.Controls.Add(this.label5);
-			this.pnlCrossbar.Location = new System.Drawing.Point(228, 59);
+			this.pnlCrossbar.Location = new System.Drawing.Point(228, 2);
 			this.pnlCrossbar.Name = "pnlCrossbar";
 			this.pnlCrossbar.Size = new System.Drawing.Size(214, 56);
 			this.pnlCrossbar.TabIndex = 23;
@@ -240,7 +245,7 @@
 			// 
 			this.pnlFlipControls.Controls.Add(this.cbxFlipVertically);
 			this.pnlFlipControls.Controls.Add(this.cbxFlipHorizontally);
-			this.pnlFlipControls.Location = new System.Drawing.Point(228, 16);
+			this.pnlFlipControls.Location = new System.Drawing.Point(233, 75);
 			this.pnlFlipControls.Name = "pnlFlipControls";
 			this.pnlFlipControls.Size = new System.Drawing.Size(214, 37);
 			this.pnlFlipControls.TabIndex = 28;
@@ -265,11 +270,61 @@
 			this.cbxFlipHorizontally.Text = "Flip Horizontally";
 			this.cbxFlipHorizontally.UseVisualStyleBackColor = true;
 			// 
+			// pnlSimpleFrameRate
+			// 
+			this.pnlSimpleFrameRate.Controls.Add(this.rbOtherMode);
+			this.pnlSimpleFrameRate.Controls.Add(this.rbNTSC);
+			this.pnlSimpleFrameRate.Controls.Add(this.rbPAL);
+			this.pnlSimpleFrameRate.Location = new System.Drawing.Point(3, 85);
+			this.pnlSimpleFrameRate.Name = "pnlSimpleFrameRate";
+			this.pnlSimpleFrameRate.Size = new System.Drawing.Size(180, 22);
+			this.pnlSimpleFrameRate.TabIndex = 29;
+			// 
+			// rbOtherMode
+			// 
+			this.rbOtherMode.AutoSize = true;
+			this.rbOtherMode.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.rbOtherMode.ForeColor = System.Drawing.Color.Black;
+			this.rbOtherMode.Location = new System.Drawing.Point(127, 2);
+			this.rbOtherMode.Name = "rbOtherMode";
+			this.rbOtherMode.Size = new System.Drawing.Size(51, 17);
+			this.rbOtherMode.TabIndex = 31;
+			this.rbOtherMode.Text = "Other";
+			this.rbOtherMode.UseVisualStyleBackColor = true;
+			this.rbOtherMode.CheckedChanged += new System.EventHandler(this.rbOtherMode_CheckedChanged);
+			// 
+			// rbNTSC
+			// 
+			this.rbNTSC.AutoSize = true;
+			this.rbNTSC.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.rbNTSC.ForeColor = System.Drawing.Color.OrangeRed;
+			this.rbNTSC.Location = new System.Drawing.Point(63, 2);
+			this.rbNTSC.Name = "rbNTSC";
+			this.rbNTSC.Size = new System.Drawing.Size(58, 17);
+			this.rbNTSC.TabIndex = 30;
+			this.rbNTSC.Text = "NTSC";
+			this.rbNTSC.UseVisualStyleBackColor = true;
+			// 
+			// rbPAL
+			// 
+			this.rbPAL.AutoSize = true;
+			this.rbPAL.Checked = true;
+			this.rbPAL.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+			this.rbPAL.ForeColor = System.Drawing.Color.Green;
+			this.rbPAL.Location = new System.Drawing.Point(11, 2);
+			this.rbPAL.Name = "rbPAL";
+			this.rbPAL.Size = new System.Drawing.Size(48, 17);
+			this.rbPAL.TabIndex = 0;
+			this.rbPAL.TabStop = true;
+			this.rbPAL.Text = "PAL";
+			this.rbPAL.UseVisualStyleBackColor = true;
+			// 
 			// frmChooseCamera
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(456, 276);
+			this.Controls.Add(this.pnlSimpleFrameRate);
 			this.Controls.Add(this.pnlFlipControls);
 			this.Controls.Add(this.gbxAAVSettings);
 			this.Controls.Add(this.label1);
@@ -292,6 +347,8 @@
 			this.pnlCrossbar.PerformLayout();
 			this.pnlFlipControls.ResumeLayout(false);
 			this.pnlFlipControls.PerformLayout();
+			this.pnlSimpleFrameRate.ResumeLayout(false);
+			this.pnlSimpleFrameRate.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -319,5 +376,9 @@
 		private System.Windows.Forms.Label label6;
 		private System.Windows.Forms.ComboBox cbxCameraDriver;
 		private System.Windows.Forms.Button btnConfigureCameraDriver;
+		private System.Windows.Forms.Panel pnlSimpleFrameRate;
+		private System.Windows.Forms.RadioButton rbOtherMode;
+		private System.Windows.Forms.RadioButton rbNTSC;
+		private System.Windows.Forms.RadioButton rbPAL;
     }
 }

@@ -247,7 +247,12 @@ namespace OccuRec
                 cbxVideoFormats.SelectedIndexChanged -= new EventHandler(cbxVideoFormats_SelectedIndexChanged);
                 try
                 {
-                    VideoFormatHelper.LoadSupportedVideoFormats(deviceName, cbxVideoFormats);
+	                bool palSupported;
+	                bool ntscSupported;
+					VideoFormatHelper.LoadSupportedVideoFormats(deviceName, cbxVideoFormats, out palSupported, out ntscSupported);
+
+	                rbPAL.ForeColor = palSupported ? Color.Green : Color.OrangeRed;
+					rbNTSC.ForeColor = palSupported ? Color.Green : Color.OrangeRed;
                 }
                 finally
                 {
@@ -269,6 +274,8 @@ namespace OccuRec
                     cbxVideoFormats.SelectedItem = selectedVideoFormat;
                 else
                     cbxVideoFormats.SelectedIndex = 0;
+
+	            UpdateSelectedVideoFormatControls(selectedVideoFormat);
             }
         }
 
@@ -276,6 +283,7 @@ namespace OccuRec
 		{
 			List<IOccuRecCameraController> availableDrivers = OccuRecVideoDrivers.GetAvailableDriversForCamera((string) cbxCameraModel.SelectedItem);
 			cbxCameraDriver.Items.Clear();
+			cbxCameraDriver.Items.Add("");
 			cbxCameraDriver.Items.AddRange(availableDrivers.ToArray());
 			cbxCameraDriver.Enabled = availableDrivers.Count > 0;
 			if (cbxCameraDriver.Items.Count == 0)
@@ -315,6 +323,44 @@ namespace OccuRec
 			}
 
 			return configChanged;
+		}
+
+		private void UpdateSelectedVideoFormatControls(VideoFormatHelper.SupportedVideoFormat selectedVideoFormat)
+		{
+			if (selectedVideoFormat != null)
+			{
+				if (selectedVideoFormat.IsPal())
+				{
+					rbPAL.Checked = true;
+					pnlSimpleFrameRate.Visible = true;
+					cbxVideoFormats.Visible = false;
+				}
+				else if (selectedVideoFormat.IsNtsc())
+				{
+					rbNTSC.Checked = true;
+					pnlSimpleFrameRate.Visible = true;
+					cbxVideoFormats.Visible = false;
+				}
+				else
+				{
+					pnlSimpleFrameRate.Visible = false;
+					cbxVideoFormats.Visible = true;
+				}
+			}
+			else
+			{
+				pnlSimpleFrameRate.Visible = true;
+				cbxVideoFormats.Visible = false;
+			}			
+		}
+
+		private void rbOtherMode_CheckedChanged(object sender, EventArgs e)
+		{
+			if (rbOtherMode.Checked)
+			{
+				pnlSimpleFrameRate.Visible = false;
+				cbxVideoFormats.Visible = true;				
+			}
 		}
     }
 }

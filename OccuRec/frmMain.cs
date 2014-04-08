@@ -144,6 +144,7 @@ namespace OccuRec
 		private void ConnectToCamera()
 		{
 		    var chooser = new frmChooseCamera();
+			chooser.StartPosition = FormStartPosition.CenterParent;
             if (chooser.ShowDialog(this) == DialogResult.OK)
             {
 
@@ -234,6 +235,14 @@ namespace OccuRec
 			finally
 			{
 				Cursor = Cursors.Default;
+
+				if (videoObject == null || !videoObject.Connected)
+				{
+					foreach (string error in initializationErrorMessages)
+					{
+						MessageBox.Show(this, error, "OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					}					
+				}
 			}
 
 

@@ -21,7 +21,10 @@ namespace OccuRec.Helpers
 
 			private static Regex REGEX_FORMATTER = new Regex("^(\\d+) x (\\d+) @([\\d\\.]+) fps \\((\\d+) bpp\\)$");
 
-            public SupportedVideoFormat(string stringRep)
+			public static SupportedVideoFormat PAL = new SupportedVideoFormat("720 x 576 @25 fps (24 bpp)");
+			public static SupportedVideoFormat NTSC = new SupportedVideoFormat("720 x 480 @29.97 fps (24 bpp)");
+
+			public SupportedVideoFormat(string stringRep)
             {
                 if (!string.IsNullOrEmpty(stringRep))
                 {
@@ -35,6 +38,16 @@ namespace OccuRec.Helpers
                     }
                 }
             }
+
+			public bool IsPal()
+			{
+				return Width == 720 && Height == 576 && Math.Abs(FrameRate - 25.00) < 0.01;
+			}
+
+			public bool IsNtsc()
+			{
+				return Width == 720 && Height == 480 && Math.Abs(FrameRate - 29.97) < 0.01;
+			}
 
             public bool Matches(SupportedVideoFormat compareTo)
             {
@@ -61,8 +74,13 @@ namespace OccuRec.Helpers
 			}
         }
 
-        public static void LoadSupportedVideoFormats(string deviceName, ComboBox cbxCrossbarInput)
+        public static void LoadSupportedVideoFormats(string deviceName, ComboBox cbxCrossbarInput, out bool palSupported, out bool ntscSupported)
         {
+	        palSupported = false;
+	        ntscSupported = false;
+	        bool palFound = false;
+			bool ntscFound = false;
+
 	        var allFormatsDict = new Dictionary<string, SupportedVideoFormat>();
 			DoSupportedVideoFormatsOperation(
                 deviceName,
@@ -77,8 +95,22 @@ namespace OccuRec.Helpers
 							allFormatsDict[key] = format;
 					}
 					else
-						allFormatsDict.Add(key, format);                    
+						allFormatsDict.Add(key, format);
+
+					if (format.IsPal()) palFound = true;
+					if (format.IsNtsc()) ntscFound = true;
+
                 });
+
+	        if (ntscFound)
+		        ntscSupported = true;
+			else	        
+				allFormatsDict.Add("NTCS", SupportedVideoFormat.NTSC);
+
+			if (palFound)
+				palSupported = true;
+			else
+				allFormatsDict.Add("PAL", SupportedVideoFormat.PAL);
 
 			List<SupportedVideoFormat> uniqueFormats = allFormatsDict.Values.ToList();
 	        uniqueFormats.Sort(
