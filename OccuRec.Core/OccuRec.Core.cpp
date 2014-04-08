@@ -1303,8 +1303,6 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 void HandleTracking(unsigned char* pixelsChar, long* pixels)
 {
-	// DebugViewPrint(L"HandleTracking: %s %s %i %l", RUN_TRACKING ? "Y" : "N", trackedThisIntegrationPeriod ? "Y" : "N", TRACKING_FREQUENCY, idxFrameNumber);
-
 	if (RUN_TRACKING && 
 		idxFrameNumber % TRACKING_FREQUENCY == 0 &&
 		!trackedThisIntegrationPeriod)
@@ -1358,7 +1356,7 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 			latestImageStatus.TrkdGuidingMeasurement = totalReading;
 			latestImageStatus.TrkdGuidingHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;
 		}
-
+		
 		trackedThisIntegrationPeriod = INTEGRATION_LOCKED;
 	}
 	else

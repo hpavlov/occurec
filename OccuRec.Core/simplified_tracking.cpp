@@ -625,6 +625,18 @@ float MeasureObjectUsingAperturePhotometry(
 	return totalReading - (medianBackground *  *totalPixels);
 }
 
+float squareRoot(float x)
+{
+  unsigned int i = *(unsigned int*) &x;
+
+  // adjust bias
+  i  += 127 << 23;
+  // approximation of square root
+  i >>= 1;
+
+  return *(float*) &i;
+}
+
 float MeasureObjectUsingAperturePhotometry_int8(
 	unsigned char* data, float aperture, 
 	long nWidth, long nHeight, float x0, float y0, unsigned char saturationValue, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture,
@@ -638,12 +650,15 @@ float MeasureObjectUsingAperturePhotometry_int8(
 	float innerRadius = (float)(innerRadiusOfBackgroundApertureInSignalApertures * aperture);
     float outernRadius = (float)sqrt(numberOfPixelsInBackgroundAperture/M_PI + innerRadius * innerRadius);
 
-    for (int x = 0; x < nWidth; x++)
+	for (int x = 0; x < nWidth; x++)
 	{
         for (int y = 0; y < nHeight; y++)
-        {
-            double dist = sqrt((x0 - x) * (x0 - x) + (y0 - y) * (y0 - y));
-            if (dist + 1.5 <= aperture)
+        {	
+			float f1 = (x0 - x) * (x0 - x) + (y0 - y) * (y0 - y);
+			
+            float dist = squareRoot(f1);
+
+			if (dist + 1.5 <= aperture)
             {
                 // If the point plus 1 pixel diagonal is still in the aperture
                 // then add the reading directly
@@ -663,8 +678,8 @@ float MeasureObjectUsingAperturePhotometry_int8(
                 for (int dx = -2; dx <= 2; dx++)
                     for (int dy = -2; dy <= 2; dy++)
                     {
-                        double xx = x + dx / 5.0;
-                        double yy = y + dy / 5.0;
+                        float xx = x + dx / 5.0;
+                        float yy = y + dy / 5.0;
                         dist = sqrt((x0 - xx) * (x0 - xx) + (y0 - yy) * (y0 - yy));
                         if (dist <= aperture)
                             subpixels += 1.0f / 25;
@@ -679,7 +694,7 @@ float MeasureObjectUsingAperturePhotometry_int8(
             {
                 unsigned char reading = *(data + x + nWidth* y);
 				allBackgroundReadings.push_back(reading);
-            }
+            } 
         }
 	}
 
