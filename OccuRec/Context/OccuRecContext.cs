@@ -30,5 +30,20 @@ namespace OccuRec.Context
 				return show;
 			}
 		}
+
+		public int SecondsRemainingToShowAssumedVtiOsdPosition
+		{
+			get
+			{
+				int val = 0;
+				if (ShowAssumedVtiOsdPositionUntil.HasValue)
+				{
+					val = (int)Math.Round(new TimeSpan(ShowAssumedVtiOsdPositionUntil.Value.Ticks - DateTime.Now.Ticks).TotalSeconds + 0.5);
+					if (val <= 0) val = 1;
+				}
+
+				return val;
+			}
+		}
 	}
 }

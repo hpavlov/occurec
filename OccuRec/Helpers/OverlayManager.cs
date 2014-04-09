@@ -158,9 +158,25 @@ namespace OccuRec.Helpers
 
 			if (stateManager.VtiOsdPositionUnknown || OccuRecContext.Current.ShowAssumedVtiOsdPosition)
 			{
-				g.DrawRectangle(Pens.Lime, 0, Settings.Default.PreserveVTIFirstRow, imageWidth - 3, Settings.Default.PreserveVTILastRow - Settings.Default.PreserveVTIFirstRow - 3);
+				if (Settings.Default.PreserveVtiOsdFirstRawAuto + Settings.Default.PreserveVtiOsdLastRawAuto > 0)
+					g.DrawRectangle(Pens.Lime, 0, Settings.Default.PreserveVtiOsdFirstRawAuto, imageWidth - 3, Settings.Default.PreserveVtiOsdLastRawAuto - Settings.Default.PreserveVtiOsdFirstRawAuto - 3);
+				else
+					g.DrawRectangle(Pens.Lime, 0, Settings.Default.PreserveVTIFirstRow, imageWidth - 3, Settings.Default.PreserveVTILastRow - Settings.Default.PreserveVTIFirstRow - 3);
+
+				if (OccuRecContext.Current.SecondsRemainingToShowAssumedVtiOsdPosition > 0)
+				{
+					string outText = OccuRecContext.Current.SecondsRemainingToShowAssumedVtiOsdPosition.ToString();
+					SizeF pos = g.MeasureString(outText, s_VtiOsdFont);
+					if (Settings.Default.PreserveVtiOsdFirstRawAuto > 0)
+						g.DrawString(outText, s_VtiOsdFont, Brushes.Lime, imageWidth - 6 - pos.Width, Settings.Default.PreserveVtiOsdFirstRawAuto);
+					else
+						g.DrawString(outText, s_VtiOsdFont, Brushes.Lime, imageWidth - 6 - pos.Width, Settings.Default.PreserveVTIFirstRow);
+				}
+				
 			}
         }
+
+	    private static Font s_VtiOsdFont = new Font(FontFamily.GenericSansSerif, 7.5f, FontStyle.Regular);
 
         private void PrintCurrentErrorMessage(Graphics g)
         {

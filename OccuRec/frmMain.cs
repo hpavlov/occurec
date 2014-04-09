@@ -599,7 +599,7 @@ namespace OccuRec
 		private void UpdateNTPStatus()
 		{
 			string statusText;
-			if (Settings.Default.RecordNTPTimeStampInAAV)
+			if (Settings.Default.NTPTimeStampsInAAVEnabled)
 			{
 				Color clr = NTPTimeKeeper.GetCurrentNTPStatusColour(out statusText);
 				if (statusText == null)
@@ -983,7 +983,7 @@ namespace OccuRec
 
 	        if (nextNTPTimeOneMinCheckUTC <= DateTime.UtcNow)
 	        {
-				if (Settings.Default.RecordNTPTimeStampInAAV)
+				if (Settings.Default.NTPTimeStampsInAAVEnabled)
 				{
 					ThreadPool.QueueUserWorkItem(UpdateNTPTimeReferenceForTimestampingVideo);
 				}

@@ -43,6 +43,9 @@ namespace OccuRec.StateManagement
 
 			m_AttemptedFrames = 0;
 
+			Settings.Default.PreserveVtiOsdFirstRawAuto = 0;
+			Settings.Default.PreserveVtiOsdLastRawAuto = 0;
+
 			// We want frames to be output one by one while configuring the VTI-OSD location
 			NativeHelpers.UnlockIntegration();
 		}
@@ -75,7 +78,10 @@ namespace OccuRec.StateManagement
 						return;
 					}
 #endif
-					NativeHelpers.SetupTimestampPreservation(true, m_FromLine, m_ToLine - m_FromLine);
+					Settings.Default.PreserveVtiOsdFirstRawAuto = m_FromLine;
+					Settings.Default.PreserveVtiOsdLastRawAuto = m_ToLine;
+
+					NativeHelpers.SetupTimestampPreservation(true, Settings.Default.PreserveVtiOsdFirstRawAuto, Settings.Default.PreserveVtiOsdLastRawAuto - Settings.Default.PreserveVtiOsdFirstRawAuto);
 
 					// Keep showing the AssumedVtiOsd lines for another 5 sec for user's visual confirmation that they are correct
 					OccuRecContext.Current.ShowAssumedVtiOsdPositionUntil = DateTime.Now.AddSeconds(5);
@@ -181,8 +187,8 @@ namespace OccuRec.StateManagement
 				return false;
 			}
 
-			m_FromLine = bestTopPosition - 10;
-			m_ToLine = bestBottomPosition + 10;
+			m_FromLine = bestTopPosition - 1;
+			m_ToLine = bestBottomPosition + 3;
 			if (m_ToLine > frameHeight)
 				m_ToLine = frameHeight - 2;
 

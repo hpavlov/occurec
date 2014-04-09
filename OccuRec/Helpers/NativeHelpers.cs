@@ -606,7 +606,7 @@ namespace OccuRec.Helpers
                 Settings.Default.UsesBufferedFrameProcessing ? 1 : 0,
                 Settings.Default.IntegrationDetectionTuning ? 1 : 0,
                 string.Format("OccuRec v{0}", ASSEMBLY_FILE_VERSION.Version),
-				Settings.Default.RecordNTPTimeStampInAAV ? 1 : 0,
+				Settings.Default.NTPTimeStampsInAAVEnabled ? 1 : 0,
 				Settings.Default.RecordSecondaryTimeStampInAavFile ? 1 : 0);
 
 			SetupNtpDebugParams(Settings.Default.NTPDebugConfigValue1, Settings.Default.NTPDebugConfigValue2);

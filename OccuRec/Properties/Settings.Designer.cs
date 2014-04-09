@@ -950,12 +950,12 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool RecordNTPTimeStampInAAV {
+        public bool NTPTimeStampsInAAVEnabled {
             get {
-                return ((bool)(this["RecordNTPTimeStampInAAV"]));
+                return ((bool)(this["NTPTimeStampsInAAVEnabled"]));
             }
             set {
-                this["RecordNTPTimeStampInAAV"] = value;
+                this["NTPTimeStampsInAAVEnabled"] = value;
             }
         }
         
@@ -1196,6 +1196,30 @@ namespace OccuRec.Properties {
             }
             set {
                 this["SimulateFailedVtiOsdDetection"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PreserveVtiOsdFirstRawAuto {
+            get {
+                return ((int)(this["PreserveVtiOsdFirstRawAuto"]));
+            }
+            set {
+                this["PreserveVtiOsdFirstRawAuto"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PreserveVtiOsdLastRawAuto {
+            get {
+                return ((int)(this["PreserveVtiOsdLastRawAuto"]));
+            }
+            set {
+                this["PreserveVtiOsdLastRawAuto"] = value;
             }
         }
     }

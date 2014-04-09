@@ -233,7 +233,7 @@
     <Setting Name="LicenseAgreementAccepted" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="RecordNTPTimeStampInAAV" Type="System.Boolean" Scope="User">
+    <Setting Name="NTPTimeStampsInAAVEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="RecordSecondaryTimeStampInAavFile" Type="System.Boolean" Scope="User">
@@ -295,6 +295,12 @@
     </Setting>
     <Setting Name="SimulateFailedVtiOsdDetection" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PreserveVtiOsdFirstRawAuto" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="PreserveVtiOsdLastRawAuto" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

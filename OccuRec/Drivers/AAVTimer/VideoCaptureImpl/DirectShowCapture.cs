@@ -128,9 +128,6 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 					errorMessage = NativeHelpers.SetupTimestampPreservation(false, 0, 0);
 					if (errorMessage != null && callbacksObject != null)
 						callbacksObject.OnError(-1, errorMessage);
-
-					if (callbacksObject != null)
-						callbacksObject.OnError(-1, "IOTA VTI Timestamp OCR is disabled.");
 				}
 			}
 			catch

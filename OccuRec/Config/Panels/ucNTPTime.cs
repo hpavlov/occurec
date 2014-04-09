@@ -45,7 +45,7 @@ namespace OccuRec.Config.Panels
 
 		public override void LoadSettings()
 		{
-			cbxRecordNTPTimeStamps.Checked = Settings.Default.RecordNTPTimeStampInAAV;
+			cbxRecordNTPTimeStamps.Checked = Settings.Default.NTPTimeStampsInAAVEnabled;
             cbxOutlier.Checked = Settings.Default.NTPOutlierIgnore;
             nudNTPOutlier.SetNUDValue(Settings.Default.NTPOutlierValue);
 
@@ -67,7 +67,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.NTPServer4 = tbxNTPServer4.Text.Trim().ToLower();
 			Settings.Default.NTPTimingHardwareCorrection = (int)nudHardwareLatencyCorrection.Value;
 			Settings.Default.NumberOfNTPRequestsPerUpdate = (int)nudNumberOfNTPRequestsPerUpdate.Value;
-			Settings.Default.RecordNTPTimeStampInAAV = cbxRecordNTPTimeStamps.Checked;
+			Settings.Default.NTPTimeStampsInAAVEnabled = cbxRecordNTPTimeStamps.Checked;
             Settings.Default.NTPOutlierIgnore = cbxOutlier.Checked;
 		    Settings.Default.NTPOutlierValue = (float)nudNTPOutlier.Value;
 		}
