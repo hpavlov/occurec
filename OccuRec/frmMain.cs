@@ -1659,15 +1659,15 @@ namespace OccuRec
             RefreshASCOMStatusControls(state, tssASCOMTelescope);
             if (state == ASCOMConnectionState.Connected || state == ASCOMConnectionState.Ready)
             {
-                tsbTelControl.Text = "Telescope Control";
+                tsbTelControl.Text = "Control Telescope";
                 tsbTelControl.Enabled = true;
             }
 			else if (state == ASCOMConnectionState.Disconnected || state == ASCOMConnectionState.Engaged)
             {
-                tsbTelControl.Text = "Telescope Connect";
+                tsbTelControl.Text = "Connect to Telescope";
                 tsbTelControl.Enabled = true;
                 m_LastTelescopeState = null;
-                UpdateTelescopeAndFocuserState();
+                UpdateConnectedDevicesState();
             }
             else
             {
@@ -1680,15 +1680,15 @@ namespace OccuRec
             RefreshASCOMStatusControls(state, tssASCOMFocuser);
 			if (state == ASCOMConnectionState.Connected || state == ASCOMConnectionState.Ready)
             {
-                tsbFocControl.Text = "Focuser Control";
+                tsbFocControl.Text = "Control Focuser";
                 tsbFocControl.Enabled = true;
             }
 			else if (state == ASCOMConnectionState.Disconnected || state == ASCOMConnectionState.Engaged)
             {
-                tsbFocControl.Text = "Focuser Connect";
+                tsbFocControl.Text = "Connect to Focuser";
                 tsbFocControl.Enabled = true;
                 m_LastFocuserState = null;
-                UpdateTelescopeAndFocuserState();
+                UpdateConnectedDevicesState();
             }
             else
             {
@@ -1701,12 +1701,12 @@ namespace OccuRec
 			RefreshASCOMStatusControls(state, tssCameraControl);
 			if (state == ASCOMConnectionState.Connected || state == ASCOMConnectionState.Ready)
 			{
-				tsbCamControl.Text = "Camera Control";
+                tsbCamControl.Text = "Control Camera";
 				tsbCamControl.Enabled = true;
 			}
 			else if (state == ASCOMConnectionState.Disconnected || state == ASCOMConnectionState.Engaged)
 			{
-				tsbCamControl.Text = "Camera Connect";
+                tsbCamControl.Text = "Connect to Camera";
 				tsbCamControl.Enabled = true;
 				m_LastVideoCameraState = null;
 			}
@@ -1719,7 +1719,7 @@ namespace OccuRec
         public void TelescopeStateUpdated(TelescopeState state)
         {
             m_LastTelescopeState = state;
-            UpdateTelescopeAndFocuserState();
+            UpdateConnectedDevicesState();
 
             Trace.WriteLine(state.AsSerialized().OuterXml);
         }
@@ -1727,7 +1727,7 @@ namespace OccuRec
         public void FocuserStateUpdated(FocuserState state)
         {
             m_LastFocuserState = state;
-            UpdateTelescopeAndFocuserState();
+            UpdateConnectedDevicesState();
 
             Trace.WriteLine(state.AsSerialized().OuterXml);
         }
@@ -1735,6 +1735,8 @@ namespace OccuRec
 		void VideoStateUpdated(VideoState state)
 		{
 			m_LastVideoCameraState = state;
+		    UpdateConnectedDevicesState();
+
 			Trace.WriteLine(state.AsSerialized().OuterXml);
 		}
 
@@ -1747,16 +1749,29 @@ namespace OccuRec
         private FocuserState m_LastFocuserState = null;
 	    private VideoState m_LastVideoCameraState = null;
 
-        private void UpdateTelescopeAndFocuserState()
+        private void UpdateConnectedDevicesState()
         {
+            string stateStr = string.Empty;
+
             if (m_LastFocuserState != null && !double.IsNaN(m_LastFocuserState.Temperature) && m_LastTelescopeState != null)
-                tslTelFocStatus.Text = string.Format("Alt: {0}°| Az: {1}° | Temp: {2}° {3}", (int)Math.Round(m_LastTelescopeState.Altitude), (int)Math.Round(m_LastTelescopeState.Azimuth), m_LastFocuserState.Temperature.ToString("0.0"), Settings.Default.FocuserTemperatureIn);
+                stateStr = string.Format("Alt: {0}°| Az: {1}° | Temp: {2}° {3}", (int)Math.Round(m_LastTelescopeState.Altitude), (int)Math.Round(m_LastTelescopeState.Azimuth), m_LastFocuserState.Temperature.ToString("0.0"), Settings.Default.FocuserTemperatureIn);
             else if (m_LastTelescopeState != null)
-                tslTelFocStatus.Text = string.Format("Alt: {0}° | Az: {1}°", (int)Math.Round(m_LastTelescopeState.Altitude), (int)Math.Round(m_LastTelescopeState.Azimuth));
+                stateStr = string.Format("Alt: {0}° | Az: {1}°", (int)Math.Round(m_LastTelescopeState.Altitude), (int)Math.Round(m_LastTelescopeState.Azimuth));
             else if (m_LastFocuserState != null && !double.IsNaN(m_LastFocuserState.Temperature))
-                tslTelFocStatus.Text = string.Format("Temp: {0}° {1}", m_LastFocuserState.Temperature.ToString("0.0"), Settings.Default.FocuserTemperatureIn);
+                stateStr = string.Format("Temp: {0}° {1}", m_LastFocuserState.Temperature.ToString("0.0"), Settings.Default.FocuserTemperatureIn);
             else
-                tslTelFocStatus.Text = string.Empty;
+                stateStr = string.Empty;
+
+            if (m_LastVideoCameraState != null)
+            {
+                string cameraState = string.Format("{0} ({1}, {2})", m_LastVideoCameraState.Exposure, m_LastVideoCameraState.Gain, m_LastVideoCameraState.Gamma);
+                if (string.IsNullOrWhiteSpace(stateStr))
+                    stateStr = cameraState;
+                else
+                    stateStr = " | " + cameraState;
+            }
+
+            tslTelFocStatus.Text = stateStr;
         }
 
 		private void DetectionTesting()

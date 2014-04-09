@@ -51,8 +51,6 @@ namespace OccuRec
             }
             #endregion
 
-	        Trace.WriteLine(OccuRec.OCR.OcrSettings.Instance.ToXml());
-
             Application.Run(new frmMain());
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -159,19 +160,20 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		ReadBLCMode,
 		ReadSensUp,
 		ReadDigitOut,
-		Write3DNR,
-		WriteZoom,
-		WriteMotion,
-		WriteMotionView,
-		WriteWDRMode,
-		WriteSharpness,
-		WriteAGCMode,
-		WriteBLCMode,
-		WriteSensUp,
-		WriteDigitOut
+		Reset3DNR,
+		ResetZoom,
+		ResetMotion,
+		ResetMotionView,
+		ResetWDRMode,
+		ResetSharpness,
+		ResetAGCMode,
+		ResetBLCMode,
+		ResetSensUp,
+		ResetDigitOut,
+        ResetGamma
 	}
 
-	public struct WAT910BDCommandWithResponse
+	public class WAT910BDCommandWithResponse
 	{
 		public WAT910BDCommand Command;
 		public byte[] CommandBytes;
@@ -348,55 +350,59 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
-				Command = WAT910BDCommand.Write3DNR,
+				Command = WAT910BDCommand.Reset3DNR,
 				CommandBytes = BuildWriteCommand(0x450, "0000 0001", 0) // 3DNR = OFF
 			});
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
-				Command = WAT910BDCommand.WriteZoom,
+				Command = WAT910BDCommand.ResetZoom,
 				CommandBytes = BuildWriteCommand(0x4A8, "0000 0001", 0) // ZOOM = OFF
 			});
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
-				Command = WAT910BDCommand.WriteMotion,
+				Command = WAT910BDCommand.ResetMotion,
 				CommandBytes = BuildWriteCommand(0x460, "0000 0001", 0) // MOTION = OFF
 			});
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
-				Command = WAT910BDCommand.WriteMotionView,
+				Command = WAT910BDCommand.ResetMotionView,
 				CommandBytes = BuildWriteCommand(0x461, "0100 0000", 0) // MOTION VIEW = OFF
 			});
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
-				Command = WAT910BDCommand.WriteWDRMode,
+				Command = WAT910BDCommand.ResetWDRMode,
 				CommandBytes = BuildWriteCommand(0x448, "0000 0011", 0) // WDR MODE = OFF
 			});
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
-				Command = WAT910BDCommand.WriteSharpness,
+				Command = WAT910BDCommand.ResetSharpness,
 				CommandBytes = BuildWriteCommand(0x451, "0011 1111", 0) // SHARPNESS = OFF
 			});
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
-				Command = WAT910BDCommand.WriteAGCMode,
+				Command = WAT910BDCommand.ResetAGCMode,
 				CommandBytes = BuildWriteCommand(0x401, "0000 1100", 0) // AGC MODE = OFF
 			});
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
-				Command = WAT910BDCommand.WriteBLCMode,
+				Command = WAT910BDCommand.ResetBLCMode,
 				CommandBytes = BuildWriteCommand(0x41B, "0000 0011", 0) // BLC MODE = OFF
 			});
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
-				Command = WAT910BDCommand.WriteSensUp,
+				Command = WAT910BDCommand.ResetSensUp,
 				CommandBytes = BuildWriteCommand(0x406, "0000 1000", 0) // SENS UP = OFF
 			});
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
-				Command = WAT910BDCommand.WriteDigitOut,
+				Command = WAT910BDCommand.ResetDigitOut,
 				CommandBytes = BuildWriteCommand(0x5E2, "0000 0001", 0) // DIGIT OUT = OFF
 			});
-
+            rv.Add(new WAT910BDCommandWithResponse()
+            {
+                Command = WAT910BDCommand.ResetGamma,
+                CommandBytes = BuildWriteCommand(0x4B1, "0001 1111", 0x14) // GAMMA = 1.00
+            });
 			return rv;
 		}
 
@@ -465,7 +471,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			rv.Add(new WAT910BDCommandWithResponse()
 			{
 				Command = WAT910BDCommand.ReadGamma,
-				CommandBytes = BuildReadCommand(0x481, "0011 1111") // GAMMA
+				CommandBytes = BuildReadCommand(0x4B1, "0001 1111") // GAMMA
 			});
 
 			rv.Add(new WAT910BDCommandWithResponse()
@@ -513,56 +519,62 @@ namespace OccuRec.CameraDrivers.WAT910BD
             return SendCommandAndWaitToExecute(port, command, false, (bt) => { m_AttemptedCommand = commandId; onBytesSent(bt); });
 		}
 
+	    private object s_SyncLock = new object();
+
 		private bool SendCommandAndWaitToExecute(SerialPort port, byte[] command, bool isReadCommand, Action<byte[]> onBytesSent)
 		{
 			m_CanSendCommand = false;
-			try
-			{
-				m_WaitingResult = false;
-				m_WaitingReceivedAck = true;
-				m_IsReadCommand = isReadCommand;
-				m_WaitingData = false;
-				m_CommandSuccessful = false;
-				m_ErrorMessage = null;
-				m_ReadValue = -1;
 
-			    ExpectNewResponse();
+            lock (s_SyncLock)
+            {
+                try
+                {
+                    m_WaitingResult = false;
+                    m_WaitingReceivedAck = true;
+                    m_IsReadCommand = isReadCommand;
+                    m_WaitingData = false;
+                    m_CommandSuccessful = false;
+                    m_ErrorMessage = null;
+                    m_ReadValue = -1;
 
-				port.Write(command, 0, command.Length);
+                    ExpectNewResponse();
 
-			    if (onBytesSent != null)
-                    onBytesSent(command);
+                    port.Write(command, 0, command.Length);
 
-				int ticks = 0;
-				while (ticks < 100 && (m_WaitingReceivedAck || m_WaitingResult || m_WaitingData))
-				{
-					Thread.Sleep(10);
-					ticks++;
-				}
+                    if (onBytesSent != null)
+                        onBytesSent(command);
 
-				if (!m_WaitingReceivedAck && !m_WaitingResult && !m_WaitingData && m_CommandSuccessful)
-				{
-					// We received the command response
-					return true;
-				}
+                    int ticks = 0;
+                    while (ticks < 100 && (m_WaitingReceivedAck || m_WaitingResult || m_WaitingData))
+                    {
+                        Thread.Sleep(10);
+                        ticks++;
+                    }
 
-				if (ticks >= 100 && m_ErrorMessage == null)
-				{
-					// Timeout occured
-					SetCommandError("No response. Check COM port.");
-				}
+                    if (!m_WaitingReceivedAck && !m_WaitingResult && !m_WaitingData && m_CommandSuccessful)
+                    {
+                        // We received the command response
+                        return true;
+                    }
 
-				return false;
-			}
-			catch (Exception ex)
-			{
-				SetCommandError(ex.GetType().ToString() + " : " + ex.Message);
-				return false;
-			}
-			finally
-			{
-				m_CanSendCommand = true;
-			}
+                    if (ticks >= 100 && m_ErrorMessage == null)
+                    {
+                        // Timeout occured
+                        SetCommandError("No response. Check COM port.");
+                    }
+
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    SetCommandError(ex.GetType().ToString() + " : " + ex.Message);
+                    return false;
+                }
+                finally
+                {
+                    m_CanSendCommand = true;
+                }
+            }
 		}
 
 		private void SetCommandError(string errorMessage)
@@ -578,87 +590,101 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 		public void PushReceivedByte(byte bt)
 		{
-			if (m_WaitingReceivedAck)
-			{
-				if (bt == EXECUTE_IN_PROCESS)
-				{
-					m_WaitingResult = true;
-					m_WaitingReceivedAck = false;
-				    m_ReceivedBytes.Add(bt);
-					return;
-				}
-
-				m_CommandSuccessful = false;
-				m_WaitingResult = false;
-				switch (bt)
-				{
-					case EXECUTE_CAM_DISCONNECTED:
-						m_ErrorMessage = "Camera is disconnected.";
+            Trace.WriteLine(string.Format("PushReceivedByte: Byte = {0}, {1} {2} {3} {4} {5}", Convert.ToString(bt, 16), m_WaitingReceivedAck ? "WRA" : "", m_WaitingResult ? "WR" : "", m_WaitingData ? "WD" : "", m_CommandSuccessful ? "SUCC" : "", IsReceivedMessageComplete ? "COMPL" : ""));
+            try
+            {
+                if (m_WaitingReceivedAck)
+                {
+                    if (bt == EXECUTE_IN_PROCESS)
+                    {
+                        m_WaitingResult = true;
+                        m_WaitingReceivedAck = false;
                         m_ReceivedBytes.Add(bt);
-                        IsReceivedMessageComplete = true;
-						return;
+                        return;
+                    }
 
-					case EXECUTE_CAM_TIMEOUT:
-					case EXECUTE_COMMS_FAIL:
-					case EXECUTE_FAIL:
-						m_ErrorMessage = "Error communicating with the Camera.";
+                    m_CommandSuccessful = false;
+                    m_WaitingResult = false;
+                    switch (bt)
+                    {
+                        case EXECUTE_CAM_DISCONNECTED:
+                            m_ErrorMessage = "Camera is disconnected.";
+                            m_ReceivedBytes.Add(bt);
+                            IsReceivedMessageComplete = true;
+                            return;
+
+                        case EXECUTE_CAM_TIMEOUT:
+                        case EXECUTE_COMMS_FAIL:
+                        case EXECUTE_FAIL:
+                            m_ErrorMessage = "Error communicating with the Camera.";
+                            m_ReceivedBytes.Add(bt);
+                            IsReceivedMessageComplete = true;
+                            return;
+                    }
+                }
+                else if (m_WaitingResult)
+                {
+                    if (bt == EXECUTE_SUCCESS)
+                    {
+                        m_WaitingResult = false;
                         m_ReceivedBytes.Add(bt);
-				        IsReceivedMessageComplete = true;
-						return;
-				}
-			}
-			else if (m_WaitingResult)
-			{
-				if (bt == EXECUTE_SUCCESS)
-				{
-					m_WaitingResult = false;
-					m_ReceivedBytes.Add(bt);
 
-					if (m_IsReadCommand)
-					{
-						m_WaitingData = true;
-					}
-					else
-					{
-						m_ErrorMessage = "Success.";
-						m_CommandSuccessful = true;
-						IsReceivedMessageComplete = true;
-						return;						
-					}
-				}
+                        if (m_IsReadCommand)
+                        {
+                            m_WaitingData = true;
+                            return;
+                        }
+                        else
+                        {
+                            m_ErrorMessage = "Success.";
+                            m_CommandSuccessful = true;
+                            IsReceivedMessageComplete = true;
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        m_CommandSuccessful = false;
+                        m_WaitingResult = false;
 
-				m_CommandSuccessful = false;
-				m_WaitingResult = false;
+                        switch (bt)
+                        {
+                            case EXECUTE_CAM_DISCONNECTED:
+                                m_ErrorMessage = "Camera is disconnected.";
+                                m_ReceivedBytes.Add(bt);
+                                IsReceivedMessageComplete = true;
+                                return;
 
-				switch (bt)
-				{
-					case EXECUTE_CAM_DISCONNECTED:
-						m_ErrorMessage = "Camera is disconnected.";
-                        m_ReceivedBytes.Add(bt);
-                        IsReceivedMessageComplete = true;
-						return;
+                            case EXECUTE_CAM_TIMEOUT:
+                            case EXECUTE_COMMS_FAIL:
+                            case EXECUTE_FAIL:
+                                m_ErrorMessage = "Error communicating with the Camera.";
+                                m_ReceivedBytes.Add(bt);
+                                IsReceivedMessageComplete = true;
+                                return;
+                        }
+                    }
+                }
+                else if (m_WaitingData)
+                {
+                    m_ErrorMessage = string.Format("Success. Value = {0}", bt);
+                    m_CommandSuccessful = true;
+                    m_WaitingData = false;
+                    m_ReceivedBytes.Add(bt);
+                    IsReceivedMessageComplete = true;
 
-					case EXECUTE_CAM_TIMEOUT:
-					case EXECUTE_COMMS_FAIL:
-					case EXECUTE_FAIL:
-						m_ErrorMessage = "Error communicating with the Camera.";
-                        m_ReceivedBytes.Add(bt);
-                        IsReceivedMessageComplete = true;
-						return;
-				}
-			}
-			else if (m_WaitingData)
-			{
-				m_ErrorMessage = "Success.";
-				m_WaitingData = false;
-				m_ReceivedBytes.Add(bt);
-				IsReceivedMessageComplete = true;
-				return;
-			}
+                    return;
+                }
 
-			m_ErrorMessage = string.Format("0x{0} was unexpected.", Convert.ToString(bt, 16));
-            m_ReceivedBytes.Add(bt);
-            IsReceivedMessageComplete = true;
+                m_ErrorMessage = string.Format("0x{0} was unexpected.", Convert.ToString(bt, 16));
+                m_ReceivedBytes.Add(bt);
+                IsReceivedMessageComplete = true;
+            }
+            finally
+            {
+                Trace.WriteLine(string.Format("PushReceivedByte: Exiting ... {0} {1} {2} {3} {4} ", m_WaitingReceivedAck ? "WRA" : "", m_WaitingResult ? "WR" : "", m_WaitingData ? "WD" : "", m_CommandSuccessful ? "SUCC" : "", IsReceivedMessageComplete ? "COMPL" : ""));
+            }
+
 		}
 
 		private byte[] BuildWriteCommand(int address, string mask, byte value)
@@ -708,7 +734,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		{
 			// 0x01 = 6dB
 
-			if (gainByte >= 0x01 && gainByte <= 3F)
+			if (gainByte >= 0x01 && gainByte <= 0x3F)
 				return string.Format("{0} dB", gainByte - 1 + MIN_GAIN);
 			else
 				return "N/A";
@@ -717,7 +743,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		public void SetGamma(SerialPort port, int newGamma, Action<byte[]> onBytesSent)
         {
 			byte gammaVal = GammaIndexToByte(newGamma);
-			byte[] cmd = BuildWriteCommand(0x481, "0001 1111", gammaVal);
+			byte[] cmd = BuildWriteCommand(0x4B1, "0001 1111", gammaVal);
             if (SendWriteCommandAndWaitToExecute(port, cmd, "SetGamma", onBytesSent))
 				GammaIndex = newGamma;
         }
@@ -812,6 +838,22 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		}
 
 		public int GammaIndex { get; private set; }
+
+        internal void SetGainIndex(int newVal)
+        {
+            Gain = newVal;
+        }
+
+        internal void SetExposureIndex(int newVal)
+        {
+            ExposureIndex = newVal;
+        }
+
+        internal void SetGammaIndex(int newVal)
+        {
+            GammaIndex = newVal;
+        }
+
 
 		public string Gamma
 		{

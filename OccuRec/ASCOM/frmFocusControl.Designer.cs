@@ -244,7 +244,7 @@
 			this.Name = "frmFocusControl";
 			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-			this.Text = "Focuser Control";
+            this.Text = "Focuser Control";
 			this.TopMost = true;
 			this.Shown += new System.EventHandler(this.frmFocusControl_Shown);
 			this.pnlFocuserControls.ResumeLayout(false);

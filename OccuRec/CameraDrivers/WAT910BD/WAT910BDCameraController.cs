@@ -45,10 +45,14 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 				if (value && !m_Driver.IsConnected)
 				{
-					if (IsConfigured)
-						m_Driver.Connect(Configuration.GetProperty(PROP_COM_PORT));
-					else
-						throw new InvalidOperationException("The driver hasn't been configured.");
+				    if (IsConfigured)
+				    {
+				        m_Driver.Connect(Configuration.GetProperty(PROP_COM_PORT));
+                        if (m_Driver.IsConnected)
+                            m_Driver.InitialiseCamera();
+				    }
+				    else
+				        throw new InvalidOperationException("The driver hasn't been configured.");
 				}
 				else if (!value && m_Driver.IsConnected)
 				{
@@ -70,7 +74,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		void m_Driver_OnSerialComms(SerialCommsEventArgs e)
 		{
 			if (e.Sent)
-				Trace.WriteLine(string.Format("WAT-910BD SENT: {0}", FormatBytesHex(e.Data)));
+                Trace.WriteLine(string.Format("WAT-910BD SENT: {0} ({1})", FormatBytesHex(e.Data), e.Message));
 			else
 				Trace.WriteLine(string.Format("WAT-910BD RCVD: {0} {1}", FormatBytesHex(e.Data), e.Message));
 		}

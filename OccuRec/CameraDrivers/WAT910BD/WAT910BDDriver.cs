@@ -112,6 +112,8 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			rv.ExposureSuccess = cmd.Response != null && cmd.Response.Length == 3;
 			byte shuterByte = rv.ExposureSuccess ? cmd.Response[2] : (byte)0;
 
+            Trace.WriteLine(string.Format("gainByte = {0} gammaByte = {1} shuterByte = {2}", gainByte, gammaByte, shuterByte));
+
 			rv.GainIndex = m_StateMachine.GainByteToIndex(gainByte);
 			rv.GammaIndex = m_StateMachine.GammaByteToIndex(gammaByte);
 			rv.ExposureIndex = m_StateMachine.ExposureByteToIndex(shuterByte);
@@ -119,6 +121,10 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			rv.Gain = rv.GainSuccess ? m_StateMachine.GainByteToString(gainByte) : string.Empty;
 			rv.Gamma = rv.GammaSuccess ? m_StateMachine.GammaByteToString(gammaByte) : string.Empty;
 			rv.Exposure = rv.ExposureSuccess ? m_StateMachine.ExposureByteToString(shuterByte) : string.Empty;
+
+            m_StateMachine.SetGainIndex(rv.GainIndex);
+            m_StateMachine.SetGammaIndex(rv.GammaIndex);
+            m_StateMachine.SetExposureIndex(rv.ExposureIndex);
 
 			return rv;
 		}
@@ -194,32 +200,32 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
         public void GainUp()
         {
-			DoCameraOperation(() => m_StateMachine.SetGain(m_SerialPort, m_StateMachine.Gain + 1, (command) => RaiseOnCommsData(false, command)));
+            DoCameraOperation(() => m_StateMachine.SetGain(m_SerialPort, m_StateMachine.Gain + 1, (command) => RaiseOnCommsData(false, command, "Gain Up")));
         }
 
         public void GainDown()
         {
-			DoCameraOperation(() => m_StateMachine.SetGain(m_SerialPort, m_StateMachine.Gain - 1, (command) => RaiseOnCommsData(false, command)));
+            DoCameraOperation(() => m_StateMachine.SetGain(m_SerialPort, m_StateMachine.Gain - 1, (command) => RaiseOnCommsData(false, command, "Gain Down")));
         }
 
 		public void ExposureDown()
 		{
-			DoCameraOperation(() => m_StateMachine.SetExposure(m_SerialPort, m_StateMachine.ExposureIndex - 1, (command) => RaiseOnCommsData(false, command)));
+            DoCameraOperation(() => m_StateMachine.SetExposure(m_SerialPort, m_StateMachine.ExposureIndex - 1, (command) => RaiseOnCommsData(false, command, "Exposure Down")));
 		}
 
 		public void ExposureUp()
 		{
-			DoCameraOperation(() => m_StateMachine.SetExposure(m_SerialPort, m_StateMachine.ExposureIndex - 1, (command) => RaiseOnCommsData(false, command)));
+            DoCameraOperation(() => m_StateMachine.SetExposure(m_SerialPort, m_StateMachine.ExposureIndex + 1, (command) => RaiseOnCommsData(false, command, "Exposure Up")));
 		}
 
 		public void GammaDown()
 		{
-			DoCameraOperation(() => m_StateMachine.SetGamma(m_SerialPort, m_StateMachine.GammaIndex - 1, (command) => RaiseOnCommsData(false, command)));
+            DoCameraOperation(() => m_StateMachine.SetGamma(m_SerialPort, m_StateMachine.GammaIndex - 1, (command) => RaiseOnCommsData(false, command, "Gamma Down")));
 		}
 
 		public void GammaUp()
 		{
-			DoCameraOperation(() => m_StateMachine.SetGamma(m_SerialPort, m_StateMachine.GammaIndex - 1, (command) => RaiseOnCommsData(false, command)));
+            DoCameraOperation(() => m_StateMachine.SetGamma(m_SerialPort, m_StateMachine.GammaIndex + 1, (command) => RaiseOnCommsData(false, command, "Gamma Up")));
 		}
 
 		private void DoCameraOperation(Action operation)
@@ -239,12 +245,12 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
         private bool SendWriteCommand(byte[] command, string commandId)
         {
-            return m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, command, commandId, (cmd) => RaiseOnCommsData(false, cmd));
+            return m_StateMachine.SendWriteCommandAndWaitToExecute(m_SerialPort, command, commandId, (cmd) => RaiseOnCommsData(false, cmd, commandId));
         }
 
         private bool SendReadCommand(byte[] command, string commandId)
         {
-            return m_StateMachine.SendReadCommandAndWaitToExecute(m_SerialPort, command, commandId, (cmd) => RaiseOnCommsData(false, cmd));
+            return m_StateMachine.SendReadCommandAndWaitToExecute(m_SerialPort, command, commandId, (cmd) => RaiseOnCommsData(false, cmd, commandId));
         }
 
 	    public string Gain
@@ -319,7 +325,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 				});
 		}
 
-        private void RaiseOnCommsData(bool received, byte[] data)
+        private void RaiseOnCommsData(bool received, byte[] data, string sentCommand = null)
         {
             EventHelper.RaiseEvent(OnSerialComms, 
                 new SerialCommsEventArgs()
@@ -327,7 +333,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 					Data = data,
 					Received = received,
 					Sent = !received,
-					Message = m_StateMachine.GetLastCameraErrorMessage()
+                    Message = received ? m_StateMachine.GetLastCameraErrorMessage() : sentCommand
                 });
         }
 

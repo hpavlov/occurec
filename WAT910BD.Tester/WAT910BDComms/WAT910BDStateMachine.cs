@@ -348,8 +348,8 @@ namespace WAT910BD.Tester.WAT910BDComms
 		{
 			var rv = new List<byte[]>();
 
-			BuildReadCommand(0x481, "0011 1111"); // GAMMA
-			BuildReadCommand(0x402, "0011 1111"); // SHUTTER
+			BuildReadCommand(0x4B1, "0001 1111"); // GAMMA
+			BuildReadCommand(0x402, "0001 1111"); // SHUTTER
 			BuildReadCommand(0x417, "0011 1111"); // GAIN
 
 			return rv;
@@ -565,7 +565,7 @@ namespace WAT910BD.Tester.WAT910BDComms
         {
 			int gammaindex = Math.Min(MAX_GAMMA, Math.Max(MIN_GAMMA, newGamma));
 			byte gammaVal = (byte)SUPPORTED_GAMMAS[gammaindex];
-			byte[] cmd = BuildWriteCommand(0x481, "0011 1111", gammaVal);
+			byte[] cmd = BuildWriteCommand(0x4B1, "0001 1111", gammaVal);
 			if (SendWriteCommandAndWaitToExecute(port, cmd, onBytesSent))
 				GammaIndex = newGamma;
         }
