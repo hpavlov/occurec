@@ -1649,9 +1649,11 @@ namespace OccuRec
                     break;
             }
 
-			tsbTelControl.Enabled = ObservatoryController.IsASCOMPlatformInstalled;
-			tsbFocControl.Enabled = ObservatoryController.IsASCOMPlatformInstalled;
-			tsbCamControl.Enabled = m_ObservatoryController.HasVideoCamera || ObservatoryController.IsASCOMPlatformVideoAvailable;  
+			tsbTelControl.Visible = ObservatoryController.IsASCOMPlatformInstalled;
+			tsbFocControl.Visible = ObservatoryController.IsASCOMPlatformInstalled;
+			tsbCamControl.Visible = m_ObservatoryController.HasVideoCamera || ObservatoryController.IsASCOMPlatformVideoAvailable;
+
+	        UpdateASCOMConnectivityState();
         }
 
         public void TelescopeConnectionChanged(ASCOMConnectionState state)
@@ -1824,6 +1826,11 @@ namespace OccuRec
 				}
 			}
 
+			if (s_FormCameraControl != null && s_FormCameraControl.Visible)
+			{
+				s_FormCameraControl.Left = this.Right;
+				s_FormCameraControl.Top = this.Top;
+			}
 		}
 
 	    private static frmFocusControl s_FormFocuserControl = null;
@@ -1857,6 +1864,12 @@ namespace OccuRec
                     s_FormFocuserControl.Show(this);
                 }
 		    }
+
+			if (s_FormFocuserControl != null && s_FormFocuserControl.Visible)
+			{
+				s_FormFocuserControl.Left = this.Right;
+				s_FormFocuserControl.Top = this.Top;
+			}
 		}
 
         private static frmTelescopeControl s_FormTelescopeControl = null;
@@ -1890,6 +1903,12 @@ namespace OccuRec
                     s_FormTelescopeControl.Show(this);
                 }
             }
+
+			if (s_FormTelescopeControl != null && s_FormTelescopeControl.Visible)
+			{
+				s_FormTelescopeControl.Left = this.Right;
+				s_FormTelescopeControl.Top = this.Top;
+			}
         }
 
         private void tsbAddGuidingStar_Click(object sender, EventArgs e)

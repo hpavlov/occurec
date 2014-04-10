@@ -59,8 +59,12 @@ namespace OccuRec.ASCOM
 					}
 
 					m_ObservatoryController = value;
-					m_ObservatoryController.TelescopeStateUpdated += TelescopeStateUpdated;
-					m_ObservatoryController.TelescopeConnectionChanged += FocuserConnectionChanged;
+
+					if (m_ObservatoryController != null)
+					{
+						m_ObservatoryController.TelescopeStateUpdated += TelescopeStateUpdated;
+						m_ObservatoryController.TelescopeConnectionChanged += FocuserConnectionChanged;						
+					}
 				}
 
 				Text = m_ObservatoryController != null ? string.Format("Telescope Control - {0}", m_ObservatoryController.ConnectedTelescopeDriverName()) : "Telescope Control";

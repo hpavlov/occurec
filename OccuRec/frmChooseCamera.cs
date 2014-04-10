@@ -133,15 +133,15 @@ namespace OccuRec
 			if (Settings.Default.EasyCAPOCR)
 			{
 				var selectedFormat = (VideoFormatHelper.SupportedVideoFormat) cbxVideoFormats.SelectedItem;
-				if (!OcrConfigEntry.Default.IsCompatible(selectedFormat))
+				if (!OcrConfigEntry.EasyCAP.IsCompatible(selectedFormat))
 				{
 					MessageBox.Show(
-						string.Format("'{0}' is not compatible with the current video mode '{1}'.", OcrConfigEntry.Default.ToString(), selectedFormat.ToString()),
+						string.Format("'{0}' is not compatible with the current video mode '{1}'.", OcrConfigEntry.EasyCAP.ToString(), selectedFormat.ToString()),
 						"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				}
 				else
 				{
-					Settings.Default.SelectedOcrConfiguration = OcrConfigEntry.Default.Name;
+					Settings.Default.SelectedOcrConfiguration = OcrConfigEntry.EasyCAP.Name;
 					Settings.Default.PreserveVTIEnabled = true;
 					Settings.Default.AavOcrEnabled = true;
 				}
@@ -251,8 +251,27 @@ namespace OccuRec
 	                bool ntscSupported;
 					VideoFormatHelper.LoadSupportedVideoFormats(deviceName, cbxVideoFormats, out palSupported, out ntscSupported);
 
-	                rbPAL.ForeColor = palSupported ? Color.Green : Color.OrangeRed;
-					rbNTSC.ForeColor = palSupported ? Color.Green : Color.OrangeRed;
+					if (palSupported)
+					{
+						rbPAL.ForeColor = Color.Green;
+						toolTipControl.SetToolTip(rbPAL, null);
+					}
+					else
+					{
+						rbPAL.ForeColor = Color.OrangeRed;
+						toolTipControl.SetToolTip(rbPAL, string.Format("{0} doesn't report to support standard PAL (720x576 @25 fps). This video mode may still work though.", deviceName));
+					}
+	                
+					if (ntscSupported)
+					{
+						rbNTSC.ForeColor = Color.Green;
+						toolTipControl.SetToolTip(rbNTSC, null);
+					}
+					else
+					{
+						rbNTSC.ForeColor = Color.OrangeRed;
+						toolTipControl.SetToolTip(rbNTSC, string.Format("{0} doesn't report to support standard NTSC (720x480 @29.97 fps). This video mode may still work though.", deviceName));
+					}					
                 }
                 finally
                 {
@@ -289,9 +308,11 @@ namespace OccuRec
 			if (cbxCameraDriver.Items.Count == 0)
 				cbxCameraDriver.Items.Add("No Video Drivers Available");
 
-			// TODO: Once we have more than one driver for the same camera we will need to store the user's choice in Settings.Default.CameraControlDriver
-			
-			cbxCameraDriver.SelectedIndex = -1;
+			IOccuRecCameraController selectedController = availableDrivers.SingleOrDefault(x => x.DriverName == Settings.Default.CameraControlDriver);
+			if (selectedController != null)
+				cbxCameraDriver.SelectedIndex = cbxCameraDriver.Items.IndexOf(selectedController);
+			else
+				cbxCameraDriver.SelectedIndex = -1;
 		}
 
 		private void cbxCameraDriver_SelectedIndexChanged(object sender, EventArgs e)
