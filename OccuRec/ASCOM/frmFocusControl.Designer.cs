@@ -198,6 +198,7 @@
 			// 
 			// btnFocusTarget
 			// 
+			this.btnFocusTarget.Enabled = false;
 			this.btnFocusTarget.Location = new System.Drawing.Point(16, 25);
 			this.btnFocusTarget.Name = "btnFocusTarget";
 			this.btnFocusTarget.Size = new System.Drawing.Size(114, 23);
@@ -205,6 +206,7 @@
 			this.btnFocusTarget.Tag = "";
 			this.btnFocusTarget.Text = "Refocus Target";
 			this.btnFocusTarget.UseVisualStyleBackColor = true;
+			this.btnFocusTarget.Click += new System.EventHandler(this.btnFocusTarget_Click);
 			// 
 			// menuStrip1
 			// 
@@ -221,13 +223,13 @@
 			this.connectionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.miDisconnect});
 			this.connectionToolStripMenuItem.Name = "connectionToolStripMenuItem";
-			this.connectionToolStripMenuItem.Size = new System.Drawing.Size(73, 20);
+			this.connectionToolStripMenuItem.Size = new System.Drawing.Size(81, 20);
 			this.connectionToolStripMenuItem.Text = "&Connection";
 			// 
 			// miDisconnect
 			// 
 			this.miDisconnect.Name = "miDisconnect";
-			this.miDisconnect.Size = new System.Drawing.Size(126, 22);
+			this.miDisconnect.Size = new System.Drawing.Size(133, 22);
 			this.miDisconnect.Text = "&Disconnect";
 			this.miDisconnect.Click += new System.EventHandler(this.miDisconnect_Click);
 			// 
@@ -244,7 +246,7 @@
 			this.Name = "frmFocusControl";
 			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Focuser Control";
+			this.Text = "Focuser Control";
 			this.TopMost = true;
 			this.Shown += new System.EventHandler(this.frmFocusControl_Shown);
 			this.pnlFocuserControls.ResumeLayout(false);

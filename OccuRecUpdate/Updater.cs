@@ -122,11 +122,16 @@ namespace OccuRecUpdate
             return UpdateFile(fileNode, null, progress);
         }
 
+		public string GetLocalFileName(Schema.File fileNode)
+		{
+			return Path.GetFullPath(occuRecPath + "//" + (string.IsNullOrEmpty(fileNode.LocalPath) ? Path.GetFileName(fileNode.Path) : fileNode.LocalPath));
+		}
+
         public string UpdateFile(Schema.File fileNode, string localFileNameExplicit, IProgressUpdate progress)
         {
             string localFile =
                 localFileNameExplicit == null
-				? Path.GetFullPath(occuRecPath + "//" + (string.IsNullOrEmpty(fileNode.LocalPath) ? Path.GetFileName(fileNode.Path) : fileNode.LocalPath))
+				? GetLocalFileName(fileNode)
                 : localFileNameExplicit;
 
             return UpdateFile(fileNode.Path, localFile, fileNode.Archived, progress);

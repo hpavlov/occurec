@@ -34,15 +34,11 @@
 			this.label6 = new System.Windows.Forms.Label();
 			this.tbxOutputLocation = new System.Windows.Forms.TextBox();
 			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-			this.gbxCameraConnectionAction = new System.Windows.Forms.GroupBox();
-			this.rbConnectUsingASCOM = new System.Windows.Forms.RadioButton();
-			this.rbConnectUsingAVI = new System.Windows.Forms.RadioButton();
 			this.gbxFSWarnings = new System.Windows.Forms.GroupBox();
 			this.cbxWarnFAT16 = new System.Windows.Forms.CheckBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.cbxWarnFreeSpace = new System.Windows.Forms.CheckBox();
 			this.nudWarnGBFreeLeft = new System.Windows.Forms.NumericUpDown();
-			this.gbxCameraConnectionAction.SuspendLayout();
 			this.gbxFSWarnings.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudWarnGBFreeLeft)).BeginInit();
 			this.SuspendLayout();
@@ -94,40 +90,6 @@
 			this.tbxOutputLocation.Name = "tbxOutputLocation";
 			this.tbxOutputLocation.Size = new System.Drawing.Size(322, 20);
 			this.tbxOutputLocation.TabIndex = 19;
-			// 
-			// gbxCameraConnectionAction
-			// 
-			this.gbxCameraConnectionAction.Controls.Add(this.rbConnectUsingASCOM);
-			this.gbxCameraConnectionAction.Controls.Add(this.rbConnectUsingAVI);
-			this.gbxCameraConnectionAction.Location = new System.Drawing.Point(6, 178);
-			this.gbxCameraConnectionAction.Name = "gbxCameraConnectionAction";
-			this.gbxCameraConnectionAction.Size = new System.Drawing.Size(358, 81);
-			this.gbxCameraConnectionAction.TabIndex = 26;
-			this.gbxCameraConnectionAction.TabStop = false;
-			this.gbxCameraConnectionAction.Text = "Default Camera Connect Action";
-			// 
-			// rbConnectUsingASCOM
-			// 
-			this.rbConnectUsingASCOM.AutoSize = true;
-			this.rbConnectUsingASCOM.Enabled = false;
-			this.rbConnectUsingASCOM.Location = new System.Drawing.Point(16, 49);
-			this.rbConnectUsingASCOM.Name = "rbConnectUsingASCOM";
-			this.rbConnectUsingASCOM.Size = new System.Drawing.Size(207, 17);
-			this.rbConnectUsingASCOM.TabIndex = 27;
-			this.rbConnectUsingASCOM.Text = "Connect using an ASCOM video driver";
-			this.rbConnectUsingASCOM.UseVisualStyleBackColor = true;
-			// 
-			// rbConnectUsingAVI
-			// 
-			this.rbConnectUsingAVI.AutoSize = true;
-			this.rbConnectUsingAVI.Checked = true;
-			this.rbConnectUsingAVI.Location = new System.Drawing.Point(16, 26);
-			this.rbConnectUsingAVI.Name = "rbConnectUsingAVI";
-			this.rbConnectUsingAVI.Size = new System.Drawing.Size(196, 17);
-			this.rbConnectUsingAVI.TabIndex = 0;
-			this.rbConnectUsingAVI.TabStop = true;
-			this.rbConnectUsingAVI.Text = "Connect using the native AAV driver";
-			this.rbConnectUsingAVI.UseVisualStyleBackColor = true;
 			// 
 			// gbxFSWarnings
 			// 
@@ -194,15 +156,12 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.Controls.Add(this.cbxWarnForFileSystemIssues);
 			this.Controls.Add(this.gbxFSWarnings);
-			this.Controls.Add(this.gbxCameraConnectionAction);
 			this.Controls.Add(this.cbxTimeInUT);
 			this.Controls.Add(this.btnBrowseOutputFolder);
 			this.Controls.Add(this.label6);
 			this.Controls.Add(this.tbxOutputLocation);
 			this.Name = "ucGeneral";
 			this.Size = new System.Drawing.Size(424, 298);
-			this.gbxCameraConnectionAction.ResumeLayout(false);
-			this.gbxCameraConnectionAction.PerformLayout();
 			this.gbxFSWarnings.ResumeLayout(false);
 			this.gbxFSWarnings.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudWarnGBFreeLeft)).EndInit();
@@ -219,9 +178,6 @@
 		private System.Windows.Forms.Label label6;
 		private System.Windows.Forms.TextBox tbxOutputLocation;
 		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
-		private System.Windows.Forms.GroupBox gbxCameraConnectionAction;
-		private System.Windows.Forms.RadioButton rbConnectUsingASCOM;
-		private System.Windows.Forms.RadioButton rbConnectUsingAVI;
 		private System.Windows.Forms.GroupBox gbxFSWarnings;
 		private System.Windows.Forms.CheckBox cbxWarnFAT16;
 		private System.Windows.Forms.Label label1;

@@ -154,14 +154,14 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 
 			if (bmp != null)
 			{
-                // object pixels = cameraImageHelper.GetImageArray(bmp, SimulatedSensorType, Settings.Default.MonochromePixelsType, Settings.Default.FlipHorizontally, Settings.Default.FlipVertically);
+				//object pixels = cameraImageHelper.GetImageArray(bmp, SimulatedSensorType, LumaConversionMode.R, Settings.Default.HorizontalFlip, Settings.Default.VerticalFlip);
 
                 cameraFrame = new VideoCameraFrame()
                 {
                     FrameNumber = status.IntegratedFrameNo,
                     UniqueFrameNumber = status.UniqueFrameNo,
                     ImageStatus = status,
-                    Pixels = null,
+					Pixels = null, //pixels,
                     PreviewBitmap = bmp,
                     ImageLayout = VideoFrameLayout.Monochrome
                 };

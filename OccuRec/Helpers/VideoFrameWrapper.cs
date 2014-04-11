@@ -103,5 +103,10 @@ namespace OccuRec.Helpers
         {
             get { return videoFrame.ImageArray; }
         }
+
+		public Bitmap PreviewBitmap
+		{
+			get { return videoFrame.PreviewBitmap; }
+		}
     }
 }

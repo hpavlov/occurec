@@ -110,11 +110,11 @@
 			// cbxLiveOCR
 			// 
 			this.cbxLiveOCR.AutoSize = true;
-			this.cbxLiveOCR.Location = new System.Drawing.Point(13, 46);
+			this.cbxLiveOCR.Location = new System.Drawing.Point(12, 177);
 			this.cbxLiveOCR.Name = "cbxLiveOCR";
-			this.cbxLiveOCR.Size = new System.Drawing.Size(96, 17);
+			this.cbxLiveOCR.Size = new System.Drawing.Size(118, 17);
 			this.cbxLiveOCR.TabIndex = 29;
-			this.cbxLiveOCR.Text = "EasyCAP OCR";
+			this.cbxLiveOCR.Text = "PAL VTI-OSD OCR";
 			this.cbxLiveOCR.UseVisualStyleBackColor = true;
 			// 
 			// nudNTPDebugValue2
@@ -157,7 +157,7 @@
 			// cbDebugIntegration
 			// 
 			this.cbDebugIntegration.AutoSize = true;
-			this.cbDebugIntegration.Location = new System.Drawing.Point(13, 140);
+			this.cbDebugIntegration.Location = new System.Drawing.Point(12, 112);
 			this.cbDebugIntegration.Name = "cbDebugIntegration";
 			this.cbDebugIntegration.Size = new System.Drawing.Size(161, 17);
 			this.cbDebugIntegration.TabIndex = 24;
@@ -167,7 +167,7 @@
 			// cbxStatusSectionOnly
 			// 
 			this.cbxStatusSectionOnly.AutoSize = true;
-			this.cbxStatusSectionOnly.Location = new System.Drawing.Point(13, 172);
+			this.cbxStatusSectionOnly.Location = new System.Drawing.Point(12, 144);
 			this.cbxStatusSectionOnly.Name = "cbxStatusSectionOnly";
 			this.cbxStatusSectionOnly.Size = new System.Drawing.Size(179, 17);
 			this.cbxStatusSectionOnly.TabIndex = 26;
@@ -178,7 +178,7 @@
 			// cbxUserPreserveOSDLines
 			// 
 			this.cbxUserPreserveOSDLines.AutoSize = true;
-			this.cbxUserPreserveOSDLines.Location = new System.Drawing.Point(13, 17);
+			this.cbxUserPreserveOSDLines.Location = new System.Drawing.Point(12, 17);
 			this.cbxUserPreserveOSDLines.Name = "cbxUserPreserveOSDLines";
 			this.cbxUserPreserveOSDLines.Size = new System.Drawing.Size(147, 17);
 			this.cbxUserPreserveOSDLines.TabIndex = 33;
@@ -191,7 +191,7 @@
 			this.pnlNTPDebug.Controls.Add(this.nudNTPDebugValue2);
 			this.pnlNTPDebug.Controls.Add(this.nudNTPDebugValue1);
 			this.pnlNTPDebug.Enabled = false;
-			this.pnlNTPDebug.Location = new System.Drawing.Point(195, 168);
+			this.pnlNTPDebug.Location = new System.Drawing.Point(194, 140);
 			this.pnlNTPDebug.Name = "pnlNTPDebug";
 			this.pnlNTPDebug.Size = new System.Drawing.Size(141, 27);
 			this.pnlNTPDebug.TabIndex = 34;
@@ -199,7 +199,7 @@
 			// cbxGraphDebugMode
 			// 
 			this.cbxGraphDebugMode.AutoSize = true;
-			this.cbxGraphDebugMode.Location = new System.Drawing.Point(13, 75);
+			this.cbxGraphDebugMode.Location = new System.Drawing.Point(12, 47);
 			this.cbxGraphDebugMode.Name = "cbxGraphDebugMode";
 			this.cbxGraphDebugMode.Size = new System.Drawing.Size(148, 17);
 			this.cbxGraphDebugMode.TabIndex = 37;
@@ -210,7 +210,7 @@
 			// 
 			this.cbxImageLayoutMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cbxImageLayoutMode.FormattingEnabled = true;
-			this.cbxImageLayoutMode.Location = new System.Drawing.Point(165, 104);
+			this.cbxImageLayoutMode.Location = new System.Drawing.Point(164, 76);
 			this.cbxImageLayoutMode.Name = "cbxImageLayoutMode";
 			this.cbxImageLayoutMode.Size = new System.Drawing.Size(170, 21);
 			this.cbxImageLayoutMode.TabIndex = 36;
@@ -219,7 +219,7 @@
 			// cbxCustomAdvImageLayout
 			// 
 			this.cbxCustomAdvImageLayout.AutoSize = true;
-			this.cbxCustomAdvImageLayout.Location = new System.Drawing.Point(13, 108);
+			this.cbxCustomAdvImageLayout.Location = new System.Drawing.Point(12, 80);
 			this.cbxCustomAdvImageLayout.Name = "cbxCustomAdvImageLayout";
 			this.cbxCustomAdvImageLayout.Size = new System.Drawing.Size(146, 17);
 			this.cbxCustomAdvImageLayout.TabIndex = 38;

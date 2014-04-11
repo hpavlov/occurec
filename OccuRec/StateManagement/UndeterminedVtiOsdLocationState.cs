@@ -52,10 +52,18 @@ namespace OccuRec.StateManagement
 
 		public override void ProcessFrame(CameraStateManager stateManager, Helpers.VideoFrameWrapper frame)
 		{
-			if (frame.ImageArray is int[,])
-			{
-				int[,] pixels = (int[,]) frame.ImageArray;
+			// TODO: This processing needs to happen async
 
+			int[,] pixels = null;
+			if (frame.ImageArray is int[,])
+				pixels = (int[,]) frame.ImageArray;
+			else if (frame.PreviewBitmap != null)
+			{
+				pixels = (int[,])NativeHelpers.GetMonochromePixelsFromBitmap(frame.PreviewBitmap, LumaConversionMode.R, 0);
+			}
+
+			if (pixels != null)
+			{
 				int imageWidth = pixels.GetLength(1);
 				int imageHeight = pixels.GetLength(0);
 				 
@@ -91,6 +99,18 @@ namespace OccuRec.StateManagement
 				else
 				{
 					m_AttemptedFrames++;
+				}
+
+				if (VtiOsdAutomaticDetectionFailed)
+				{
+					if (!Settings.Default.PreserveVTIUserSpecifiedValues)
+					{
+						stateManager.VideoObject.OnError(0, "Please configure the VTI-OSD position.");
+					}
+					else
+					{
+						stateManager.VideoObject.OnError(0, "Please confirm the VTI-OSD position.");
+					}					
 				}
 			}
 		}

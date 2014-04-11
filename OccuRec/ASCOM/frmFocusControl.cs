@@ -204,5 +204,10 @@ namespace OccuRec.ASCOM
 			m_ObservatoryController.DisconnectFocuser();
 			Close();
 		}
+
+		private void btnFocusTarget_Click(object sender, EventArgs e)
+		{
+
+		}
 	}
 }

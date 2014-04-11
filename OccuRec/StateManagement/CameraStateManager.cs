@@ -29,7 +29,9 @@ namespace OccuRec.StateManagement
 	    private bool isIntegratingCamera;
 		private bool isRecordingOcrTestFile;
 
-        public void ProcessFrame(VideoFrameWrapper frame)
+		internal VideoWrapper VideoObject { get; private set; }
+
+	    public void ProcessFrame(VideoFrameWrapper frame)
         {
             if (currentState != null)
                 currentState.ProcessFrame(this, frame);
@@ -52,10 +54,12 @@ namespace OccuRec.StateManagement
 			isUsingManualIntegration = frame.ManualIntegrationRateHint > 0;
         }
 
-        public void CameraConnected(IVideo driverInstance, OverlayManager overlayManager, int maxOcrErrorsPerRun, bool isIntegrating)
+        internal void CameraConnected(IVideo driverInstance, VideoWrapper videoObject, OverlayManager overlayManager, int maxOcrErrorsPerRun, bool isIntegrating)
         {
             this.driverInstance = driverInstance;
             this.overlayManager = overlayManager;
+	        this.VideoObject = videoObject;
+
 	        isIntegratingCamera = isIntegrating;
 
             ocrErrors = 0;

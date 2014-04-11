@@ -229,7 +229,7 @@ namespace OccuRec
 							MessageBoxIcon.Warning);
 				}
 
-				m_StateManager.CameraConnected(driverInstance, m_OverlayManager, Settings.Default.OcrMaxErrorsPerCameraTestRun, OccuRecContext.Current.IsAAV);
+				m_StateManager.CameraConnected(driverInstance, videoObject, m_OverlayManager, Settings.Default.OcrMaxErrorsPerCameraTestRun, OccuRecContext.Current.IsAAV);
 				UpdateScheduleDisplay();
 			}
 			finally
@@ -791,7 +791,9 @@ namespace OccuRec
 					}
 
 					if (btnConfirmUserVtiOsd.Enabled ^ Settings.Default.PreserveVTIUserSpecifiedValues)
+					{
 						btnConfirmUserVtiOsd.Enabled = Settings.Default.PreserveVTIUserSpecifiedValues;
+					}
 				}
 				else
 				{
@@ -1975,6 +1977,26 @@ namespace OccuRec
 			OccuRecContext.Current.ShowAssumedVtiOsdPositionUntil = DateTime.Now.AddSeconds(5);
 
 			m_StateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
+		}
+
+		private void frmMain_Move(object sender, EventArgs e)
+		{
+			Form[] satelliteForms = new Form[] { s_FormCameraControl, s_FormFocuserControl, s_FormTelescopeControl };
+
+			foreach (Form frm in satelliteForms)
+			{
+				if (frm != null &&
+					frm.Visible)
+				{
+					frm.Top = this.Top;
+					frm.Left = this.Right;
+				}				
+			}
+		}
+
+		private void miASCOMConnect_Click(object sender, EventArgs e)
+		{
+			MessageBox.Show("NOTE: This menu item is not ready yet.");
 		}
     }
 }

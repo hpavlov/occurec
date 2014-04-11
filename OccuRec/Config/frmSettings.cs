@@ -74,6 +74,7 @@ namespace OccuRec.Config
 
 #if !DEBUG
             tvSettings.Nodes.RemoveByKey("ndDebug");
+			tvSettings.Nodes.RemoveByKey("ndPlateSolve");
 #else
 			m_PropertyPages.Add(5, new ucDebug());
 #endif
