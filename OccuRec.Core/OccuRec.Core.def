@@ -9,7 +9,9 @@ EXPORTS
 	GetMonochromePixelsFromBitmap
 	GetColourPixelsFromBitmap
 	GetRGGBBayerPixelsFromBitmap
-
+	GetMonochromePixelsFromBitmapEx
+	GetColourPixelsFromBitmapEx
+	LargeChunkDenoise
 
 	SetupCamera
 	SetupGrabberInfo

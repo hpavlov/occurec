@@ -32,6 +32,12 @@ namespace OccuRec.Helpers
 		StatusSectionOnly = 5
     }
 
+	public enum DenoiseMode
+	{
+		Field,
+		Frame
+	}
+
     [StructLayout(LayoutKind.Sequential)]
     public struct SYSTEMTIME
     {
@@ -249,22 +255,27 @@ namespace OccuRec.Helpers
         private const string OCCUREC_CORE_DLL_NAME = "OccuRec.Core.dll";
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		//HRESULT GetBitmapPixels(long width, long height, long bpp, long flipMode, long* pixels, BYTE* bitmapPixels)
         private static extern int GetBitmapPixels(
 			int width, 
 			int height, 
 			int bpp,
+			int flipMode, 
 			[In, MarshalAs(UnmanagedType.LPArray)] int[,] pixels,
 			[In, Out] byte[] bitmapBytes);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		//HRESULT GetColourBitmapPixels(long width, long height, long bpp, long flipMode, long* pixels, BYTE* bitmapPixels)
 		private static extern int GetColourBitmapPixels(
 			int width,
 			int height,
 			int bpp,
+			int flipMode, 
 			[In, MarshalAs(UnmanagedType.LPArray)] int[,,] pixels,
 			[In, Out] byte[] bitmapBytes);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		//HRESULT GetMonochromePixelsFromBitmap(long width, long height, long bpp, long flipMode, HBITMAP* bitmap, long* pixels, int mode)
 		private static extern int GetMonochromePixelsFromBitmap(
 			int width,
 			int height,
@@ -275,6 +286,7 @@ namespace OccuRec.Helpers
 			short mode);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		//HRESULT GetColourPixelsFromBitmap(long width, long height, long bpp, long flipMode, HBITMAP* bitmap, long* pixels)
 		private static extern int GetColourPixelsFromBitmap(
 			int width,
 			int height,
@@ -283,7 +295,34 @@ namespace OccuRec.Helpers
 			[In] IntPtr hBitmap,
 			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,,] bitmapBytes);
 
-        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		//HRESULT GetMonochromePixelsFromBitmapEx(long width, long height, long bpp, long flipMode, HBITMAP* bitmap, long* pixels, BYTE* bitmapPixels, int mode)
+		private static extern int GetMonochromePixelsFromBitmapEx(
+			int width,
+			int height,
+			int bpp,
+			int flipMode,
+			[In] IntPtr hBitmap,
+			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[,] bitmapBytes,
+			[In, Out, MarshalAs(UnmanagedType.LPArray)] byte[] bitmapPixels,
+			short mode);
+
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		//HRESULT GetColourPixelsFromBitmapEx(long width, long height, long bpp, long flipMode, HBITMAP* bitmap, long* pixels, BYTE* bitmapPixels)
+		private static extern int GetColourPixelsFromBitmapEx(
+			int width,
+			int height,
+			int bpp,
+			int flipMode,
+			[In] IntPtr hBitmap,
+			[In, Out, MarshalAs(UnmanagedType.LPArray)] int[, ,] bitmapBytes,
+			[In, Out, MarshalAs(UnmanagedType.LPArray)] byte[] bitmapPixels);
+
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		//HRESULT LargeChunkDenoise(unsigned long* pixels, long width, long height, unsigned long onColour, unsigned long offColour);
+		private static extern int LargeChunkDenoise([In, Out] uint[] pixels, int width, int height, uint onColour, uint offColour);
+
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupCamera(
             int width, 
             int height, 
@@ -481,7 +520,7 @@ namespace OccuRec.Helpers
 
 			byte[] rawBitmapBytes = new byte[(width * height * 3) + 40 + 14 + 1];
 
-            GetBitmapPixels(width, height, (int)8, pixels, rawBitmapBytes);
+            GetBitmapPixels(width, height, (int)8, 0, pixels, rawBitmapBytes);
 
 			using (MemoryStream memStr = new MemoryStream(rawBitmapBytes))
 			{
@@ -510,7 +549,7 @@ namespace OccuRec.Helpers
 
 			byte[] rawBitmapBytes = new byte[(width * height * 3) + 40 + 14 + 1];
 
-			GetColourBitmapPixels(width, height, (int)8, pixels, rawBitmapBytes);
+			GetColourBitmapPixels(width, height, (int)8, 0, pixels, rawBitmapBytes);
 
 			using (MemoryStream memStr = new MemoryStream(rawBitmapBytes))
 			{
@@ -829,6 +868,11 @@ namespace OccuRec.Helpers
 		public static void SetManualIntegrationRateHint(int hintRate)
 		{
 			SetManualIntegrationHint(hintRate);
+		}
+
+		public static void LargeChunkDenoise(uint[] pixels, int width, int height, DenoiseMode mode)
+		{
+			LargeChunkDenoise(pixels, width, height, 0, 255);
 		}
 	}
 }

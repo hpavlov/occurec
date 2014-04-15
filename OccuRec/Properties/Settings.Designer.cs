@@ -1222,5 +1222,17 @@ namespace OccuRec.Properties {
                 this["PreserveVtiOsdLastRawAuto"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool VtiOsdSaveReport {
+            get {
+                return ((bool)(this["VtiOsdSaveReport"]));
+            }
+            set {
+                this["VtiOsdSaveReport"] = value;
+            }
+        }
     }
 }

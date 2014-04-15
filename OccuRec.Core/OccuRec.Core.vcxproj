@@ -147,6 +147,7 @@
     <None Include="OccuRec.Core.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LargeChunkDenoiser.h" />
     <ClInclude Include="OccuRec.Core.h" />
     <ClInclude Include="OccuRec.IntegrationChecker.h" />
     <ClInclude Include="OccuRec.Math.h" />
@@ -176,6 +177,7 @@
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LargeChunkDenoiser.cpp" />
     <ClCompile Include="OccuRec.Core.cpp" />
     <ClCompile Include="OccuRec.IntegrationChecker.cpp" />
     <ClCompile Include="OccuRec.Math.cpp" />

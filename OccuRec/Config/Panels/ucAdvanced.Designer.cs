@@ -42,6 +42,7 @@
 			this.cbxGraphDebugMode = new System.Windows.Forms.CheckBox();
 			this.cbxImageLayoutMode = new System.Windows.Forms.ComboBox();
 			this.cbxCustomAdvImageLayout = new System.Windows.Forms.CheckBox();
+			this.cbxSaveVtiOsdReport = new System.Windows.Forms.CheckBox();
 			this.pnlPreserveOSDArea.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
@@ -110,7 +111,7 @@
 			// cbxLiveOCR
 			// 
 			this.cbxLiveOCR.AutoSize = true;
-			this.cbxLiveOCR.Location = new System.Drawing.Point(12, 177);
+			this.cbxLiveOCR.Location = new System.Drawing.Point(12, 206);
 			this.cbxLiveOCR.Name = "cbxLiveOCR";
 			this.cbxLiveOCR.Size = new System.Drawing.Size(118, 17);
 			this.cbxLiveOCR.TabIndex = 29;
@@ -157,7 +158,7 @@
 			// cbDebugIntegration
 			// 
 			this.cbDebugIntegration.AutoSize = true;
-			this.cbDebugIntegration.Location = new System.Drawing.Point(12, 112);
+			this.cbDebugIntegration.Location = new System.Drawing.Point(12, 141);
 			this.cbDebugIntegration.Name = "cbDebugIntegration";
 			this.cbDebugIntegration.Size = new System.Drawing.Size(161, 17);
 			this.cbDebugIntegration.TabIndex = 24;
@@ -167,7 +168,7 @@
 			// cbxStatusSectionOnly
 			// 
 			this.cbxStatusSectionOnly.AutoSize = true;
-			this.cbxStatusSectionOnly.Location = new System.Drawing.Point(12, 144);
+			this.cbxStatusSectionOnly.Location = new System.Drawing.Point(12, 173);
 			this.cbxStatusSectionOnly.Name = "cbxStatusSectionOnly";
 			this.cbxStatusSectionOnly.Size = new System.Drawing.Size(179, 17);
 			this.cbxStatusSectionOnly.TabIndex = 26;
@@ -191,7 +192,7 @@
 			this.pnlNTPDebug.Controls.Add(this.nudNTPDebugValue2);
 			this.pnlNTPDebug.Controls.Add(this.nudNTPDebugValue1);
 			this.pnlNTPDebug.Enabled = false;
-			this.pnlNTPDebug.Location = new System.Drawing.Point(194, 140);
+			this.pnlNTPDebug.Location = new System.Drawing.Point(194, 169);
 			this.pnlNTPDebug.Name = "pnlNTPDebug";
 			this.pnlNTPDebug.Size = new System.Drawing.Size(141, 27);
 			this.pnlNTPDebug.TabIndex = 34;
@@ -199,7 +200,7 @@
 			// cbxGraphDebugMode
 			// 
 			this.cbxGraphDebugMode.AutoSize = true;
-			this.cbxGraphDebugMode.Location = new System.Drawing.Point(12, 47);
+			this.cbxGraphDebugMode.Location = new System.Drawing.Point(12, 76);
 			this.cbxGraphDebugMode.Name = "cbxGraphDebugMode";
 			this.cbxGraphDebugMode.Size = new System.Drawing.Size(148, 17);
 			this.cbxGraphDebugMode.TabIndex = 37;
@@ -210,7 +211,7 @@
 			// 
 			this.cbxImageLayoutMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cbxImageLayoutMode.FormattingEnabled = true;
-			this.cbxImageLayoutMode.Location = new System.Drawing.Point(164, 76);
+			this.cbxImageLayoutMode.Location = new System.Drawing.Point(164, 105);
 			this.cbxImageLayoutMode.Name = "cbxImageLayoutMode";
 			this.cbxImageLayoutMode.Size = new System.Drawing.Size(170, 21);
 			this.cbxImageLayoutMode.TabIndex = 36;
@@ -219,7 +220,7 @@
 			// cbxCustomAdvImageLayout
 			// 
 			this.cbxCustomAdvImageLayout.AutoSize = true;
-			this.cbxCustomAdvImageLayout.Location = new System.Drawing.Point(12, 80);
+			this.cbxCustomAdvImageLayout.Location = new System.Drawing.Point(12, 109);
 			this.cbxCustomAdvImageLayout.Name = "cbxCustomAdvImageLayout";
 			this.cbxCustomAdvImageLayout.Size = new System.Drawing.Size(146, 17);
 			this.cbxCustomAdvImageLayout.TabIndex = 38;
@@ -227,10 +228,21 @@
 			this.cbxCustomAdvImageLayout.UseVisualStyleBackColor = true;
 			this.cbxCustomAdvImageLayout.CheckedChanged += new System.EventHandler(this.cbxCustomAdvImageLayout_CheckedChanged);
 			// 
+			// cbxSaveVtiOsdReport
+			// 
+			this.cbxSaveVtiOsdReport.AutoSize = true;
+			this.cbxSaveVtiOsdReport.Location = new System.Drawing.Point(12, 45);
+			this.cbxSaveVtiOsdReport.Name = "cbxSaveVtiOsdReport";
+			this.cbxSaveVtiOsdReport.Size = new System.Drawing.Size(277, 17);
+			this.cbxSaveVtiOsdReport.TabIndex = 39;
+			this.cbxSaveVtiOsdReport.Text = "Save Report on Unsuccessful VTI-OSD Identification";
+			this.cbxSaveVtiOsdReport.UseVisualStyleBackColor = true;
+			// 
 			// ucAdvanced
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.cbxSaveVtiOsdReport);
 			this.Controls.Add(this.cbxCustomAdvImageLayout);
 			this.Controls.Add(this.cbxGraphDebugMode);
 			this.Controls.Add(this.cbxImageLayoutMode);
@@ -241,7 +253,7 @@
 			this.Controls.Add(this.cbDebugIntegration);
 			this.Controls.Add(this.cbxStatusSectionOnly);
 			this.Name = "ucAdvanced";
-			this.Size = new System.Drawing.Size(363, 220);
+			this.Size = new System.Drawing.Size(363, 252);
 			this.pnlPreserveOSDArea.ResumeLayout(false);
 			this.pnlPreserveOSDArea.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).EndInit();
@@ -270,5 +282,6 @@
 		private System.Windows.Forms.CheckBox cbxGraphDebugMode;
 		private System.Windows.Forms.ComboBox cbxImageLayoutMode;
 		private System.Windows.Forms.CheckBox cbxCustomAdvImageLayout;
+		private System.Windows.Forms.CheckBox cbxSaveVtiOsdReport;
 	}
 }

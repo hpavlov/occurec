@@ -31,6 +31,7 @@ namespace OccuRec.Config.Panels
 			nudPreserveVTIBottomRow.SetNUDValue(Settings.Default.PreserveVTILastRow);
 
 			cbxGraphDebugMode.Checked = Settings.Default.VideoGraphDebugMode;
+			cbxSaveVtiOsdReport.Checked = Settings.Default.VtiOsdSaveReport;
 
 			cbxImageLayoutMode.Items.Clear();
 			cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedRaw);
@@ -54,6 +55,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.PreserveVTIUserSpecifiedValues = cbxUserPreserveOSDLines.Checked;
 			Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
 			Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;
+			Settings.Default.VtiOsdSaveReport = cbxSaveVtiOsdReport.Checked;
 
 			Settings.Default.VideoGraphDebugMode = cbxGraphDebugMode.Checked;
 			Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;

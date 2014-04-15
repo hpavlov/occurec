@@ -34,7 +34,12 @@ namespace OccuRec.StateManagement
         private bool m_ConfirmMessageSent = false;
 
 		private int m_AttemptedFrames = 0;
+		private int m_IdenfitiedFrames = 0;
+		private int m_IdenfitiedFromLine = 0;
+		private int m_IdenfitiedtoLine = 0;
 	    private CameraStateManager m_StateManager;
+
+		private bool m_ReportSaved = false;
 
 		public bool VtiOsdAutomaticDetectionFailed
 		{
@@ -46,10 +51,15 @@ namespace OccuRec.StateManagement
             base.InitialiseState(stateManager);
 
 			m_AttemptedFrames = 0;
-            m_StateManager = stateManager;
+			m_IdenfitiedFrames = 0;
+			m_IdenfitiedFromLine = 0;
+			m_IdenfitiedtoLine = 0;
+			m_StateManager = stateManager;
 
             m_ConfigureMessageSent = false;
             m_ConfirmMessageSent = false;
+
+	        m_ReportSaved = false;
 
 			Settings.Default.PreserveVtiOsdFirstRawAuto = 0;
 			Settings.Default.PreserveVtiOsdLastRawAuto = 0;
@@ -104,8 +114,7 @@ namespace OccuRec.StateManagement
 
                 
                 if (LocateTimestampPosition(data, imageWidth, imageHeight))
-                {
-                    Trace.WriteLine(string.Format("OSD Located at {0}-{1} (Width: {2}, Height: {3})", m_FromLine, m_ToLine, imageWidth, imageHeight));
+                {                    
 #if DEBUG
 					if (Settings.Default.SimulateFailedVtiOsdDetection)
 					{
@@ -113,15 +122,37 @@ namespace OccuRec.StateManagement
 						return;
 					}
 #endif
-                    Settings.Default.PreserveVtiOsdFirstRawAuto = m_FromLine;
-                    Settings.Default.PreserveVtiOsdLastRawAuto = m_ToLine;
 
-                    NativeHelpers.SetupTimestampPreservation(true, Settings.Default.PreserveVtiOsdFirstRawAuto, (Settings.Default.PreserveVtiOsdLastRawAuto - Settings.Default.PreserveVtiOsdFirstRawAuto) / 2);
+					if (m_IdenfitiedFrames == 0)
+					{
+						m_IdenfitiedFromLine = m_FromLine;
+						m_IdenfitiedtoLine = m_ToLine;
 
-                    // Keep showing the AssumedVtiOsd lines for another 5 sec for user's visual confirmation that they are correct
-                    OccuRecContext.Current.ShowAssumedVtiOsdPositionUntil = DateTime.Now.AddSeconds(5);
+						m_IdenfitiedFrames++;
+					}
+					else if (
+						m_IdenfitiedFromLine == m_FromLine &&
+						m_IdenfitiedtoLine == m_ToLine)
+					{
+						m_IdenfitiedFrames++;
 
-                    stateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
+						if (m_IdenfitiedFrames >= 3)
+						{
+							Settings.Default.PreserveVtiOsdFirstRawAuto = m_FromLine;
+							Settings.Default.PreserveVtiOsdLastRawAuto = m_ToLine;
+
+							NativeHelpers.SetupTimestampPreservation(true, Settings.Default.PreserveVtiOsdFirstRawAuto, (Settings.Default.PreserveVtiOsdLastRawAuto - Settings.Default.PreserveVtiOsdFirstRawAuto) / 2);
+
+							// Keep showing the AssumedVtiOsd lines for another 5 sec for user's visual confirmation that they are correct
+							OccuRecContext.Current.ShowAssumedVtiOsdPositionUntil = DateTime.Now.AddSeconds(5);
+
+							stateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);							
+						}
+					}
+					else
+					{
+						m_IdenfitiedFrames = 0;
+					}					
                 }
                 else
                 {
@@ -148,14 +179,25 @@ namespace OccuRec.StateManagement
             }
         }
 
-		private void LocateTopAndBottomLineOfTimestamp(uint[] preProcessedPixels, int imageWidth, int fromHeight, int toHeight, out int bestTopPosition, out int bestBottomPosition)
+		private void LocateTopAndBottomLineOfTimestamp(uint[] preProcessedPixels, int imageWidth, int fromHeight, int toHeight, bool printReport, out int bestTopPosition, out int bestBottomPosition)
 		{
 			int bestTopScope = -1;
 			bestBottomPosition = -1;
 			bestTopPosition = -1;
 			int bestBottomScope = -1;
 
+			int idx = 0;
+			int[] allScoresY = null;
+			int[] allTopScores = null;
+			int[] allBottomScores = null;
 
+			if (printReport)
+			{
+				allScoresY = new int[toHeight - fromHeight + 2];
+				allTopScores = new int[toHeight - fromHeight + 2];
+				allBottomScores = new int[toHeight - fromHeight + 2];								
+			}
+			
 			for (int y = fromHeight + 1; y < toHeight - 1; y++)
 			{
 				int topScore = 0;
@@ -174,6 +216,14 @@ namespace OccuRec.StateManagement
 					}
 				}
 
+				if (printReport)
+				{
+					allScoresY[idx] = y;
+					allTopScores[idx] = topScore;
+					allBottomScores[idx] = bottomScore;
+					idx++;					
+				}
+
 				if (topScore > bestTopScope)
 				{
 					bestTopScope = topScore;
@@ -185,6 +235,20 @@ namespace OccuRec.StateManagement
 					bestBottomScope = bottomScore;
 					bestBottomPosition = y;
 				}
+			}
+
+			if (printReport)
+			{
+				int[] allScoresY2 = new List<int>(allScoresY).ToArray();
+				Array.Sort(allTopScores, allScoresY);
+				Array.Sort(allBottomScores, allScoresY2);
+
+				for (int i = 0; i < 3; i++)
+				{
+					int printIdx = allScoresY.Length - i - 1;
+					Trace.WriteLine(string.Format("Top {0} *from* location is {1} with score {2}", i + 1, allScoresY[printIdx], allTopScores[printIdx]));
+					Trace.WriteLine(string.Format("Top {0} *to* location is {1} with score {2}", i + 1, allScoresY2[printIdx], allBottomScores[printIdx]));
+				}							
 			}
 		}
 
@@ -224,6 +288,8 @@ namespace OccuRec.StateManagement
 				preProcessedPixels[i] = denoised[i] < 127 ? (uint)0 : (uint)255;
 			}
 
+			//NativeHelpers.LargeChunkDenoise(preProcessedPixels, frameWidth, frameHeight, DenoiseMode.Frame);
+
 			int bestBottomPosition = -1;
 			int bestTopPosition = -1;
 			LocateTopAndBottomLineOfTimestamp(
@@ -231,6 +297,7 @@ namespace OccuRec.StateManagement
 				frameWidth,
 				frameHeight / 2 + 1,
 				frameHeight,
+				Settings.Default.VtiOsdSaveReport,
 				out bestTopPosition,
 				out bestBottomPosition);
 
@@ -272,6 +339,31 @@ namespace OccuRec.StateManagement
 
 			PrepareOsdVideoFields(data, frameWidth);
 
+			if (VtiOsdAutomaticDetectionFailed && Settings.Default.VtiOsdSaveReport && !m_ReportSaved)
+			{
+				Bitmap oddBmp = ConstructBitmapFromBitmapPixels(m_OddFieldPixelsPreProcessed, m_FieldAreaWidth, m_FieldAreaHeight);
+				Bitmap eventBmp = ConstructBitmapFromBitmapPixels(m_EvenFieldPixelsPreProcessed, m_FieldAreaWidth, m_FieldAreaHeight);
+				Bitmap frameBmp = ConstructBitmapFromBitmapPixels(preProcessedPixels, frameWidth, frameHeight);
+				
+
+				try
+				{
+					frameBmp.Save(@"FailedVtiOsdId-Frame.bmp");
+					oddBmp.Save(@"FailedVtiOsdId-OddFieldArea.bmp");
+					eventBmp.Save(@"FailedVtiOsdId-EvenFieldArea.bmp");
+				}
+				catch (Exception ex)
+				{
+					Trace.WriteLine(ex.GetFullStackTrace());
+				}
+
+				oddBmp.Dispose();
+				eventBmp.Dispose();
+				frameBmp.Dispose();
+
+				m_ReportSaved = true;
+			}
+
 			for (int deltaIdx = 0; deltaIdx < DELTAS.Length; deltaIdx++)
 			{
 				m_FromLine = fromLineBase + DELTAS[deltaIdx];
@@ -284,12 +376,12 @@ namespace OccuRec.StateManagement
 
 				LocateTopAndBottomLineOfTimestamp(
 					m_OddFieldPixelsPreProcessed,
-					m_FieldAreaWidth, 1, m_FieldAreaHeight - 1,
+					m_FieldAreaWidth, 1, m_FieldAreaHeight - 1, false,
 					out bestTopPositionOdd, out bestBottomPositionOdd);
 
 				LocateTopAndBottomLineOfTimestamp(
 					m_EvenFieldPixelsPreProcessed,
-					m_FieldAreaWidth, 1, m_FieldAreaHeight - 1,
+					m_FieldAreaWidth, 1, m_FieldAreaHeight - 1, false,
 					out bestTopPositionEven, out bestBottomPositionEven);
 
 				if (bestBottomPositionOdd == bestBottomPositionEven &&
@@ -360,6 +452,8 @@ namespace OccuRec.StateManagement
 			}
 
 			Array.Copy(dataOut, dataDebugNoLChD, dataOut.Length);
+
+			NativeHelpers.LargeChunkDenoise(dataOut, width, height, DenoiseMode.Field);
 		}
 
 		public static Bitmap ConstructBitmapFromBitmapPixels(uint[] pixels, int width, int height)
