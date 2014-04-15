@@ -99,9 +99,12 @@ namespace OccuRec.Helpers
             get { return videoFrame.ImageInfo; }
         }
 
+        private object imageArray = null;
+
         public object ImageArray
         {
-            get { return videoFrame.ImageArray; }
+            get { return imageArray ?? videoFrame.ImageArray; }
+            set { imageArray = value; }
         }
 
 		public Bitmap PreviewBitmap

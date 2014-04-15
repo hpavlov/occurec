@@ -27,7 +27,7 @@ namespace OccuRec.StateManagement
 		private IntegrationCalibrationState()
         { }
 
-        public override void InitialiseState()
+        public override void InitialiseState(CameraStateManager stateManager)
         {
             status = CalibrationStatus.CollectingData;
             calibrationSuccessful = false;

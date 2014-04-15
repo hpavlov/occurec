@@ -16,10 +16,14 @@ namespace OccuRec.Helpers
     public class OverlayManager
     {
         private Queue<string> errorMessagesQueue = new Queue<string>();
+        private Queue<string> infoMessagesQueue = new Queue<string>();
         private string currentOcrStamp = null;
 
-        private string currMessageToDisplay = null;
-        private DateTime displayMessageUntil = DateTime.MinValue;
+        private string currErrorMessageToDisplay = null;
+        private DateTime displayErrorMessageUntil = DateTime.MinValue;
+
+        private string currInfoMessageToDisplay = null;
+        private DateTime displayInfoMessageUntil = DateTime.MinValue;
 
         private static Font overlayMessagesFont = new Font(FontFamily.GenericMonospace, 10);
 
@@ -65,14 +69,20 @@ namespace OccuRec.Helpers
             errorMessagesQueue.Enqueue(errorMessage);
         }
 
+        public void OnInfo(string infoMessage)
+        {
+            infoMessagesQueue.Enqueue(infoMessage);
+        }
+
         public void Finalise()
         {
             lock (syncRoot)
             {
                 errorMessagesQueue.Clear();
+                infoMessagesQueue.Clear();
 
-                displayMessageUntil = DateTime.MinValue;
-                currMessageToDisplay = null;
+                displayErrorMessageUntil = DateTime.MinValue;
+                currErrorMessageToDisplay = null;
             }
 
 			if (overlayState != null)
@@ -89,6 +99,7 @@ namespace OccuRec.Helpers
 				overlayState.ProcessFrame(g);
 
             ProcessErrorMessages(g);
+            ProcessInfoMessages(g);
 
 			if (Settings.Default.OcrSimulatorTestMode && !Settings.Default.OcrSimulatorNativeCode)
 			{
@@ -180,20 +191,28 @@ namespace OccuRec.Helpers
 
         private void PrintCurrentErrorMessage(Graphics g)
         {
-            SizeF msgMeasurement = g.MeasureString(currMessageToDisplay, overlayMessagesFont);
+            SizeF msgMeasurement = g.MeasureString(currErrorMessageToDisplay, overlayMessagesFont);
 
             g.FillRectangle(Brushes.DarkSlateGray, imageWidth - msgMeasurement.Width - 9, 3, msgMeasurement.Width + 6, msgMeasurement.Height + 6);
-            g.DrawString(currMessageToDisplay, overlayMessagesFont, Brushes.OrangeRed, imageWidth - msgMeasurement.Width - 6, 6);
+            g.DrawString(currErrorMessageToDisplay, overlayMessagesFont, Brushes.OrangeRed, imageWidth - msgMeasurement.Width - 6, 6);
+        }
+
+        private void PrintCurrentInfoMessage(Graphics g)
+        {
+            SizeF msgMeasurement = g.MeasureString(currInfoMessageToDisplay, overlayMessagesFont);
+
+            g.FillRectangle(Brushes.DarkSlateGray, imageWidth - msgMeasurement.Width - 9, msgMeasurement.Height + 9, msgMeasurement.Width + 6, msgMeasurement.Height + 6);
+            g.DrawString(currInfoMessageToDisplay, overlayMessagesFont, Brushes.Lime, imageWidth - msgMeasurement.Width - 6, msgMeasurement.Height + 12);
         }
 
         private void ProcessErrorMessages(Graphics g)
         {
-            if (displayMessageUntil != DateTime.MinValue && currMessageToDisplay != null)
+            if (displayErrorMessageUntil != DateTime.MinValue && currErrorMessageToDisplay != null)
             {
-                if (DateTime.Now.Ticks > displayMessageUntil.Ticks)
+                if (DateTime.Now.Ticks > displayErrorMessageUntil.Ticks)
                 {
-                    displayMessageUntil = DateTime.MinValue;
-                    currMessageToDisplay = null;
+                    displayErrorMessageUntil = DateTime.MinValue;
+                    currErrorMessageToDisplay = null;
                 }
                 else
                     PrintCurrentErrorMessage(g);
@@ -204,13 +223,46 @@ namespace OccuRec.Helpers
                 {
                     if (errorMessagesQueue.Count > 0)
                     {
-                        currMessageToDisplay = errorMessagesQueue.Dequeue();
-                        displayMessageUntil = DateTime.Now.AddSeconds(10);
+                        currErrorMessageToDisplay = errorMessagesQueue.Dequeue();
+                        displayErrorMessageUntil = DateTime.Now.AddSeconds(10);
                         PrintCurrentErrorMessage(g);
                     }
+                    else if (infoMessagesQueue.Count > 0)
+                    {
+                        currInfoMessageToDisplay = infoMessagesQueue.Dequeue();
+                        displayInfoMessageUntil = DateTime.Now.AddSeconds(10);
+                        PrintCurrentInfoMessage(g);
+                    }
+                    
                 }
             }
         }
+
+        private void ProcessInfoMessages(Graphics g)
+        {
+            if (displayInfoMessageUntil != DateTime.MinValue && currInfoMessageToDisplay != null)
+            {
+                if (DateTime.Now.Ticks > displayInfoMessageUntil.Ticks)
+                {
+                    displayInfoMessageUntil = DateTime.MinValue;
+                    currInfoMessageToDisplay = null;
+                }
+                else
+                    PrintCurrentInfoMessage(g);
+            }
+            else
+            {
+                lock (syncRoot)
+                {
+                    if (infoMessagesQueue.Count > 0)
+                    {
+                        currInfoMessageToDisplay = infoMessagesQueue.Dequeue();
+                        displayInfoMessageUntil = DateTime.Now.AddSeconds(10);
+                        PrintCurrentInfoMessage(g);
+                    }
+                }
+            }
+        }        
 
 		public void MouseMove(MouseEventArgs e)
 		{

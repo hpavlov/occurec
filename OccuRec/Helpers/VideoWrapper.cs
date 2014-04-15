@@ -32,6 +32,7 @@ namespace OccuRec.Helpers
 		}
 
         public delegate void OnErrorDelegate(int errorCode, string errorMessage);
+        public delegate void OnInfoDelegate(string infoMessage);
 
         public void OnError(int errorCode, string errorMessage)
         {
@@ -48,6 +49,24 @@ namespace OccuRec.Helpers
                 }
                 else
                     callbacksDelegate.OnError(errorCode, errorMessage);
+            }
+        }
+
+        public void OnInfo(string infoMessage)
+        {
+            if (callbacksDelegate != null && window != null)
+            {
+                if (window.InvokeRequired)
+                {
+                    try
+                    {
+                        window.Invoke(new OnInfoDelegate(callbacksDelegate.OnInfo), new object[] { infoMessage });
+                    }
+                    catch (ObjectDisposedException)
+                    { }
+                }
+                else
+                    callbacksDelegate.OnInfo(infoMessage);
             }
         }
 

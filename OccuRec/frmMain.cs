@@ -123,6 +123,12 @@ namespace OccuRec
                 initializationErrorMessages.Add(errorMessage);
         }
 
+        public void OnInfo(string infoMessage)
+        {
+            if (m_OverlayManager != null)
+                m_OverlayManager.OnInfo(infoMessage);
+        }
+
         public void OnEvent(int eventId, string eventData)
         {
             if (eventId == 1)

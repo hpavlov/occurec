@@ -108,8 +108,6 @@ namespace OccuRec.Controllers
 
                             if (frameWrapper.UniqueFrameId == -1 || frameWrapper.UniqueFrameId != lastDisplayedVideoFrameNumber)
                             {
-                                stateManager.ProcessFrame(frameWrapper);
-
                                 lastDisplayedVideoFrameNumber = frameWrapper.UniqueFrameId;
 
                                 Bitmap bmp = frame.PreviewBitmap;
@@ -124,6 +122,13 @@ namespace OccuRec.Controllers
 
                                     bmp = cameraImage.GetDisplayBitmap();
                                 }
+
+                                //if (frame.ImageArray == null)
+                                //{
+                                //    frameWrapper.ImageArray = (int[,])ImageUtils.GetPixelArray(bmp.Width, bmp.Height, bmp);
+                                //}
+
+                                stateManager.ProcessFrame(frameWrapper);
 
 								analysisManager.ProcessFrame(frameWrapper, bmp);
 

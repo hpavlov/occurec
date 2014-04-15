@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using OccuRec.Context;
 using OccuRec.Helpers;
 using OccuRec.Properties;
@@ -14,9 +16,6 @@ namespace OccuRec.StateManagement
 	public class UndeterminedVtiOsdLocationState : CameraState
 	{
         public static UndeterminedVtiOsdLocationState Instance = new UndeterminedVtiOsdLocationState();
-
-		private UndeterminedVtiOsdLocationState()
-        { }
 
 		private int m_FromLine;
 		private int m_ToLine;
@@ -29,19 +28,28 @@ namespace OccuRec.StateManagement
 		private int m_FieldAreaHeight;
 		private int m_FieldAreaWidth;
 		private bool m_IotaVtiTvSafeMode;
+	    private volatile Bitmap m_BitmapFrame = null;
+	    private object m_SyncLock = new object();
+	    private bool m_ConfigureMessageSent = false;
+        private bool m_ConfirmMessageSent = false;
 
 		private int m_AttemptedFrames = 0;
+	    private CameraStateManager m_StateManager;
 
 		public bool VtiOsdAutomaticDetectionFailed
 		{
-			get { return m_AttemptedFrames > 25; }
+			get { return m_AttemptedFrames > 10; }
 		}
 
-		public override void InitialiseState()
+        public override void InitialiseState(CameraStateManager stateManager)
 		{
-			base.InitialiseState();
+            base.InitialiseState(stateManager);
 
 			m_AttemptedFrames = 0;
+            m_StateManager = stateManager;
+
+            m_ConfigureMessageSent = false;
+            m_ConfirmMessageSent = false;
 
 			Settings.Default.PreserveVtiOsdFirstRawAuto = 0;
 			Settings.Default.PreserveVtiOsdLastRawAuto = 0;
@@ -52,33 +60,52 @@ namespace OccuRec.StateManagement
 
 		public override void ProcessFrame(CameraStateManager stateManager, Helpers.VideoFrameWrapper frame)
 		{
-			// TODO: This processing needs to happen async
-
-			int[,] pixels = null;
-			if (frame.ImageArray is int[,])
-				pixels = (int[,]) frame.ImageArray;
-			else if (frame.PreviewBitmap != null)
+            if (frame.ImageArray is int[,] && frame.PreviewBitmap != null)
+                ProcessFrame(stateManager, (int[,])frame.ImageArray, frame.PreviewBitmap.Width, frame.PreviewBitmap.Height);
+            else if (frame.PreviewBitmap != null)
 			{
-				pixels = (int[,])NativeHelpers.GetMonochromePixelsFromBitmap(frame.PreviewBitmap, LumaConversionMode.R, 0);
+                var pixels = (int[,])ImageUtils.GetPixelArray(frame.PreviewBitmap.Width, frame.PreviewBitmap.Height, frame.PreviewBitmap);
+                ProcessFrame(stateManager, pixels, frame.PreviewBitmap.Width, frame.PreviewBitmap.Height);
 			}
+		}
 
-			if (pixels != null)
-			{
-				int imageWidth = pixels.GetLength(1);
-				int imageHeight = pixels.GetLength(0);
-				 
-				uint[] data = new uint[imageWidth * imageHeight];
+        private void ProcessFrame(CameraStateManager stateManager, int[,] pixels, int width, int height)
+        {
+            if (pixels != null)
+            {
+                int imageWidth = pixels.GetLength(1);
+                int imageHeight = pixels.GetLength(0);
 
-				for (int y = 0; y < imageHeight; y++)
-				{
-					for (int x = 0; x < imageWidth; x++)
-					{
-						data[x + y * imageWidth] = (uint)pixels[y, x];
-					}					 
-				}
+                uint[] data = new uint[imageWidth * imageHeight];
 
-				if (LocateTimestampPosition(data, imageWidth, imageHeight))
-				{
+                if (imageWidth == width && imageHeight == height)
+                {
+                    for (int y = 0; y < imageHeight; y++)
+                    {
+                        for (int x = 0; x < imageWidth; x++)
+                        {
+                            data[x + y*imageWidth] = (uint) pixels[y, x];
+                        }
+                    }
+                }
+                else if (imageWidth == height && imageHeight == width)
+                {
+                    imageWidth = width;
+                    imageHeight = height;
+
+                    for (int y = 0; y < imageHeight; y++)
+                    {
+                        for (int x = 0; x < imageWidth; x++)
+                        {
+                            data[x + y * imageWidth] = (uint)pixels[x, y];
+                        }
+                    }
+                }
+
+                
+                if (LocateTimestampPosition(data, imageWidth, imageHeight))
+                {
+                    Trace.WriteLine(string.Format("OSD Located at {0}-{1} (Width: {2}, Height: {3})", m_FromLine, m_ToLine, imageWidth, imageHeight));
 #if DEBUG
 					if (Settings.Default.SimulateFailedVtiOsdDetection)
 					{
@@ -86,34 +113,40 @@ namespace OccuRec.StateManagement
 						return;
 					}
 #endif
-					Settings.Default.PreserveVtiOsdFirstRawAuto = m_FromLine;
-					Settings.Default.PreserveVtiOsdLastRawAuto = m_ToLine;
+                    Settings.Default.PreserveVtiOsdFirstRawAuto = m_FromLine;
+                    Settings.Default.PreserveVtiOsdLastRawAuto = m_ToLine;
 
-					NativeHelpers.SetupTimestampPreservation(true, Settings.Default.PreserveVtiOsdFirstRawAuto, Settings.Default.PreserveVtiOsdLastRawAuto - Settings.Default.PreserveVtiOsdFirstRawAuto);
+                    NativeHelpers.SetupTimestampPreservation(true, Settings.Default.PreserveVtiOsdFirstRawAuto, (Settings.Default.PreserveVtiOsdLastRawAuto - Settings.Default.PreserveVtiOsdFirstRawAuto) / 2);
 
-					// Keep showing the AssumedVtiOsd lines for another 5 sec for user's visual confirmation that they are correct
-					OccuRecContext.Current.ShowAssumedVtiOsdPositionUntil = DateTime.Now.AddSeconds(5);
+                    // Keep showing the AssumedVtiOsd lines for another 5 sec for user's visual confirmation that they are correct
+                    OccuRecContext.Current.ShowAssumedVtiOsdPositionUntil = DateTime.Now.AddSeconds(5);
 
-					stateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
-				}
-				else
-				{
-					m_AttemptedFrames++;
-				}
+                    stateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
+                }
+                else
+                {
+                    m_AttemptedFrames++;
+                }
 
-				if (VtiOsdAutomaticDetectionFailed)
-				{
-					if (!Settings.Default.PreserveVTIUserSpecifiedValues)
-					{
-						stateManager.VideoObject.OnError(0, "Please configure the VTI-OSD position.");
-					}
-					else
-					{
-						stateManager.VideoObject.OnError(0, "Please confirm the VTI-OSD position.");
-					}					
-				}
-			}
-		}
+                if (VtiOsdAutomaticDetectionFailed)
+                {
+                    if (!Settings.Default.PreserveVTIUserSpecifiedValues)
+                    {
+                        if (!m_ConfigureMessageSent)
+                            stateManager.VideoObject.OnInfo("Please configure the VTI-OSD position.");
+
+                        m_ConfigureMessageSent = true;
+                    }
+                    else
+                    {
+                        if (!m_ConfirmMessageSent)
+                            stateManager.VideoObject.OnInfo("Please confirm the VTI-OSD position.");
+
+                        m_ConfirmMessageSent = true;
+                    }
+                }
+            }
+        }
 
 		private void LocateTopAndBottomLineOfTimestamp(uint[] preProcessedPixels, int imageWidth, int fromHeight, int toHeight, out int bestTopPosition, out int bestBottomPosition)
 		{
@@ -201,7 +234,7 @@ namespace OccuRec.StateManagement
 				out bestTopPosition,
 				out bestBottomPosition);
 
-			if (bestBottomPosition - bestTopPosition < 10 || bestBottomPosition - bestTopPosition > 60)
+            if (bestBottomPosition - bestTopPosition < 10 || bestBottomPosition - bestTopPosition > 60 || bestTopPosition < 0 || bestBottomPosition > frameHeight)
 			{
 				//InitiazliationError = "Cannot locate the OSD timestamp on the frame.";
 				return false;

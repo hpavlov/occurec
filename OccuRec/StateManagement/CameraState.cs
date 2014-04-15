@@ -20,7 +20,7 @@ namespace OccuRec.StateManagement
 
         private long numberConsequtiveSameIntegrationIntegratedFrames;
 
-        public virtual void InitialiseState()
+        public virtual void InitialiseState(CameraStateManager stateManager)
         {
             ResetIntegrationStats();
         }

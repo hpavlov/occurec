@@ -80,6 +80,7 @@ namespace OccuRec.Drivers
     {
         void OnError(int errorCode, string errorMessage);
         void OnEvent(int eventId, string eventData);
+        void OnInfo(string infoMessage);
     }
 
 	public interface IVideo

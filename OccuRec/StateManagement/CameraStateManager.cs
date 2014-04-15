@@ -90,7 +90,7 @@ namespace OccuRec.StateManagement
             currentState = newState;
 
             if (currentState != null)
-                currentState.InitialiseState();
+                currentState.InitialiseState(this);
         }
 
         public void CameraDisconnected()

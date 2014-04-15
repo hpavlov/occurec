@@ -15,7 +15,7 @@ namespace OccuRec.StateManagement
         private LockedIntegrationCameraState()
         { }
 
-        public override void InitialiseState()
+        public override void InitialiseState(CameraStateManager stateManager)
         {
 			lockedIntegrationRate = lastIntegratedFrameIntegration;
 	        numberOfDroppedFrames = 0;
