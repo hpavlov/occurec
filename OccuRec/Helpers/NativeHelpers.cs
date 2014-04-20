@@ -469,7 +469,7 @@ namespace OccuRec.Helpers
 
 		public static object GetMonochromePixelsFromBitmap(Bitmap bitmap, LumaConversionMode conversionMode, short flipMode)
 		{
-			int[,] bitmapBytes = new int[bitmap.Width, bitmap.Height];
+            int[,] bitmapBytes = new int[bitmap.Height, bitmap.Width];
 
 			IntPtr hBitmap = bitmap.GetHbitmap();
 			try
