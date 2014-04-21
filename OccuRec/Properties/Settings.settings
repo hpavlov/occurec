@@ -305,5 +305,14 @@
     <Setting Name="VtiOsdSaveReport" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="UseInvertedDisplayMode" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="UseHueIntensityDisplayMode" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="DisplayIntensifyMode" Type="OccuRec.Controllers.DisplayIntensifyMode" Scope="User">
+      <Value Profile="(Default)">Off</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

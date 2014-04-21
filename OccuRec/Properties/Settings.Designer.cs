@@ -1234,5 +1234,41 @@ namespace OccuRec.Properties {
                 this["VtiOsdSaveReport"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseInvertedDisplayMode {
+            get {
+                return ((bool)(this["UseInvertedDisplayMode"]));
+            }
+            set {
+                this["UseInvertedDisplayMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseHueIntensityDisplayMode {
+            get {
+                return ((bool)(this["UseHueIntensityDisplayMode"]));
+            }
+            set {
+                this["UseHueIntensityDisplayMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Off")]
+        public global::OccuRec.Controllers.DisplayIntensifyMode DisplayIntensifyMode {
+            get {
+                return ((global::OccuRec.Controllers.DisplayIntensifyMode)(this["DisplayIntensifyMode"]));
+            }
+            set {
+                this["DisplayIntensifyMode"] = value;
+            }
+        }
     }
 }

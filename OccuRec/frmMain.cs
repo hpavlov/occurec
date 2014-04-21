@@ -220,6 +220,7 @@ namespace OccuRec
 					ResizeVideoFrameTo(imageWidth, imageHeight);
 					tssIntegrationRate.Visible = Settings.Default.IsIntegrating && OccuRecContext.Current.IsAAV;
 					pnlAAV.Visible = OccuRecContext.Current.IsAAV;
+					tsbtnDisplayMode.Visible = true;
 
 					m_OverlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager, m_StateManager);
 					m_VideoFrameInteractionController.OnNewVideoSource(videoObject);
@@ -269,6 +270,8 @@ namespace OccuRec
 
 			UpdateCameraState(false);
 		    tssIntegrationRate.Visible = false;
+			tsbtnDisplayMode.Visible = false;
+
 		    m_StateManager.CameraDisconnected();
 
             if (m_OverlayManager != null)
@@ -2003,6 +2006,35 @@ namespace OccuRec
 		private void miASCOMConnect_Click(object sender, EventArgs e)
 		{
 			MessageBox.Show("NOTE: This menu item is not ready yet.");
+		}
+
+		private void DisplayIntensifyModeClicked(object sender, EventArgs e)
+		{
+			var currItem = sender as ToolStripMenuItem;
+			if (currItem != null && !currItem.Checked)
+			{
+				tsmiOff.Checked = false;
+				tsmiLo.Checked = false;
+				tsmiHigh.Checked = false;
+
+				currItem.Checked = true;
+
+				DisplayIntensifyMode newMode = tsmiOff.Checked
+												   ? DisplayIntensifyMode.Off
+												   : (tsmiHigh.Checked ? DisplayIntensifyMode.Hi : DisplayIntensifyMode.Lo);
+
+				m_VideoRenderingController.SetDisplayIntensifyMode(newMode);				
+			}
+		}
+
+		private void tsmiHueIntensity_Click(object sender, EventArgs e)
+		{
+			m_VideoRenderingController.SetDisplayHueMode(tsmiHueIntensity.Checked);
+		}
+
+		private void tsmiInverted_Click(object sender, EventArgs e)
+		{
+			m_VideoRenderingController.SetDisplayInvertMode(tsmiInverted.Checked);
 		}
     }
 }

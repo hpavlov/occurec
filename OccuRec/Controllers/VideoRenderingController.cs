@@ -16,6 +16,14 @@ using OccuRec.Utilities;
 
 namespace OccuRec.Controllers
 {
+	public enum DisplayIntensifyMode
+	{
+		Off,
+		Lo,
+		Hi
+	}
+
+	
     public class VideoRenderingController : IDisposable
     {
         private frmMain m_MainForm;
@@ -35,6 +43,10 @@ namespace OccuRec.Controllers
         private CameraStateManager stateManager;
 	    private FrameAnalysisManager analysisManager;
 
+		private bool m_DisplayHueIntensityMode;
+		private bool m_DisplayInvertedMode;
+		private DisplayIntensifyMode m_DisplayIntensifyMode;
+
 		public VideoRenderingController(frmMain mainForm, CameraStateManager stateManager, FrameAnalysisManager analysisManager)
         {
             m_MainForm = mainForm;
@@ -43,6 +55,16 @@ namespace OccuRec.Controllers
 
             running = true;
             previewOn = true;
+
+			m_DisplayIntensifyMode = Settings.Default.DisplayIntensifyMode;
+			m_DisplayInvertedMode = Settings.Default.UseInvertedDisplayMode;
+			m_DisplayHueIntensityMode = Settings.Default.UseHueIntensityDisplayMode;
+
+			m_MainForm.tsmiHueIntensity.Checked = m_DisplayHueIntensityMode;
+			m_MainForm.tsmiInverted.Checked = m_DisplayInvertedMode;
+			m_MainForm.tsmiOff.Checked = m_DisplayIntensifyMode == DisplayIntensifyMode.Off;
+			m_MainForm.tsmiLo.Checked = m_DisplayIntensifyMode == DisplayIntensifyMode.Lo;
+			m_MainForm.tsmiHigh.Checked = m_DisplayIntensifyMode == DisplayIntensifyMode.Hi;
 
             cameraImage = new CameraImage();
 
@@ -122,15 +144,17 @@ namespace OccuRec.Controllers
 
                                     bmp = cameraImage.GetDisplayBitmap();
                                 }
-
-                                //if (frame.ImageArray == null)
-                                //{
-                                //    frameWrapper.ImageArray = (int[,])ImageUtils.GetPixelArray(bmp.Width, bmp.Height, bmp);
-                                //}
+								
+                                if (frame.ImageArray == null)
+                                {
+								    frameWrapper.ImageArray = cameraImage.GetImageArray(bmp, SensorType.Monochrome, LumaConversionMode.R, Settings.Default.HorizontalFlip, Settings.Default.VerticalFlip);
+                                }
 
                                 stateManager.ProcessFrame(frameWrapper);
 
 								analysisManager.ProcessFrame(frameWrapper, bmp);
+
+								ApplyDisplayModeAdjustments(ref bmp);
 
                                 try
                                 {
@@ -188,10 +212,49 @@ namespace OccuRec.Controllers
                     m_VideoFrameCopyRequested = false;
                     m_GetNextVideoFrameSignal.Set();
                 }
-            }
+            }	        
 
             m_MainForm.PaintVideoFrame(frame, bmp);
         }
+
+		public void ApplyDisplayModeAdjustments(ref Bitmap displayBitmap)
+		{
+			if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off || m_DisplayInvertedMode || m_DisplayHueIntensityMode)
+			{
+				displayBitmap = Image.FromHbitmap(displayBitmap.GetHbitmap());
+
+				// For display purposes only we apply display gamma and/or invert when requested by the user
+
+				if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off)
+					BitmapFilter.ApplyGamma(displayBitmap, m_DisplayIntensifyMode == DisplayIntensifyMode.Hi, m_DisplayInvertedMode, m_DisplayHueIntensityMode);
+				else if (m_DisplayInvertedMode || m_DisplayHueIntensityMode)
+					BitmapFilter.ProcessInvertAndHueIntensity(displayBitmap, m_DisplayInvertedMode, m_DisplayHueIntensityMode);
+			}
+		}
+
+		public void SetDisplayIntensifyMode(DisplayIntensifyMode newMode)
+		{
+			m_DisplayIntensifyMode = newMode;
+
+			Settings.Default.DisplayIntensifyMode = newMode;
+			Settings.Default.Save();
+		}
+
+		public void SetDisplayInvertMode(bool inverted)
+		{
+			m_DisplayInvertedMode = inverted;
+
+			Settings.Default.UseInvertedDisplayMode = inverted;
+			Settings.Default.Save();
+		}
+
+		public void SetDisplayHueMode(bool hueSelected)
+		{
+			m_DisplayHueIntensityMode = hueSelected;
+
+			Settings.Default.UseHueIntensityDisplayMode = hueSelected;
+			Settings.Default.Save();
+		}
 
         public void Dispose()
         {

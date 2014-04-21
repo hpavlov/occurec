@@ -29,6 +29,13 @@
 			this.tssOcrErr = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssNTP = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssVTIOSD = new System.Windows.Forms.ToolStripStatusLabel();
+			this.tsbtnDisplayMode = new System.Windows.Forms.ToolStripSplitButton();
+			this.tsmiInverted = new System.Windows.Forms.ToolStripMenuItem();
+			this.tsmiHueIntensity = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+			this.tsmiHigh = new System.Windows.Forms.ToolStripMenuItem();
+			this.tsmiLo = new System.Windows.Forms.ToolStripMenuItem();
+			this.tsmiOff = new System.Windows.Forms.ToolStripMenuItem();
 			this.tssRecordingFile = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssFreeDiskSpace = new System.Windows.Forms.ToolStripStatusLabel();
 			this.pnlNewVersionAvailable = new System.Windows.Forms.ToolStripStatusLabel();
@@ -132,6 +139,7 @@
             this.tssOcrErr,
             this.tssNTP,
             this.tssVTIOSD,
+            this.tsbtnDisplayMode,
             this.tssRecordingFile,
             this.tssFreeDiskSpace,
             this.pnlNewVersionAvailable});
@@ -260,6 +268,66 @@
 			this.tssVTIOSD.Size = new System.Drawing.Size(60, 19);
 			this.tssVTIOSD.Text = "VTI-OSD";
 			this.tssVTIOSD.Visible = false;
+			// 
+			// tsbtnDisplayMode
+			// 
+			this.tsbtnDisplayMode.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.tsbtnDisplayMode.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiInverted,
+            this.tsmiHueIntensity,
+            this.toolStripSeparator7,
+            this.tsmiHigh,
+            this.tsmiLo,
+            this.tsmiOff});
+			this.tsbtnDisplayMode.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.tsbtnDisplayMode.Name = "tsbtnDisplayMode";
+			this.tsbtnDisplayMode.Size = new System.Drawing.Size(95, 22);
+			this.tsbtnDisplayMode.Text = "Display Mode";
+			this.tsbtnDisplayMode.Visible = false;
+			// 
+			// tsmiInverted
+			// 
+			this.tsmiInverted.CheckOnClick = true;
+			this.tsmiInverted.Name = "tsmiInverted";
+			this.tsmiInverted.Size = new System.Drawing.Size(152, 22);
+			this.tsmiInverted.Text = "Inverted";
+			this.tsmiInverted.Click += new System.EventHandler(this.tsmiInverted_Click);
+			// 
+			// tsmiHueIntensity
+			// 
+			this.tsmiHueIntensity.CheckOnClick = true;
+			this.tsmiHueIntensity.Name = "tsmiHueIntensity";
+			this.tsmiHueIntensity.Size = new System.Drawing.Size(152, 22);
+			this.tsmiHueIntensity.Text = "Hue Intensity";
+			this.tsmiHueIntensity.Click += new System.EventHandler(this.tsmiHueIntensity_Click);
+			// 
+			// toolStripSeparator7
+			// 
+			this.toolStripSeparator7.Name = "toolStripSeparator7";
+			this.toolStripSeparator7.Size = new System.Drawing.Size(149, 6);
+			// 
+			// tsmiHigh
+			// 
+			this.tsmiHigh.Name = "tsmiHigh";
+			this.tsmiHigh.Size = new System.Drawing.Size(152, 22);
+			this.tsmiHigh.Text = "Gamma: High";
+			this.tsmiHigh.Click += new System.EventHandler(this.DisplayIntensifyModeClicked);
+			// 
+			// tsmiLo
+			// 
+			this.tsmiLo.Name = "tsmiLo";
+			this.tsmiLo.Size = new System.Drawing.Size(152, 22);
+			this.tsmiLo.Text = "Gamma: Lo";
+			this.tsmiLo.Click += new System.EventHandler(this.DisplayIntensifyModeClicked);
+			// 
+			// tsmiOff
+			// 
+			this.tsmiOff.Checked = true;
+			this.tsmiOff.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.tsmiOff.Name = "tsmiOff";
+			this.tsmiOff.Size = new System.Drawing.Size(152, 22);
+			this.tsmiOff.Text = "Gamma: Off";
+			this.tsmiOff.Click += new System.EventHandler(this.DisplayIntensifyModeClicked);
 			// 
 			// tssRecordingFile
 			// 
@@ -1074,6 +1142,13 @@
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Button btnUpdateVtiOsd;
 		private System.Windows.Forms.Button btnConfirmUserVtiOsd;
+		protected internal System.Windows.Forms.ToolStripSplitButton tsbtnDisplayMode;
+		protected internal System.Windows.Forms.ToolStripMenuItem tsmiInverted;
+		protected internal System.Windows.Forms.ToolStripMenuItem tsmiHueIntensity;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
+		protected internal System.Windows.Forms.ToolStripMenuItem tsmiHigh;
+		protected internal System.Windows.Forms.ToolStripMenuItem tsmiLo;
+		protected internal System.Windows.Forms.ToolStripMenuItem tsmiOff;
 	}
 }
 
