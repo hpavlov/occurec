@@ -600,6 +600,17 @@ namespace OccuRec.Helpers
 			}
 		}
 
+		public VideoCameraFrameRate? FrameRate
+		{
+			get
+			{
+				if (video != null)
+					return video.FrameRate;
+
+				return null;
+			}
+		}
+
 		public string CameraBitDepth
 		{
 			get

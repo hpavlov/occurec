@@ -36,6 +36,8 @@
 			this.button1 = new System.Windows.Forms.Button();
 			this.button2 = new System.Windows.Forms.Button();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.cbxAutoPulseGuiding = new System.Windows.Forms.CheckBox();
+			this.cbxAutoFocusing = new System.Windows.Forms.CheckBox();
 			this.tcEntryType = new System.Windows.Forms.TabControl();
 			this.tabMidTimeWings = new System.Windows.Forms.TabPage();
 			this.label6 = new System.Windows.Forms.Label();
@@ -45,7 +47,7 @@
 			this.label7 = new System.Windows.Forms.Label();
 			this.label8 = new System.Windows.Forms.Label();
 			this.nudMidHours = new System.Windows.Forms.NumericUpDown();
-			this.label9 = new System.Windows.Forms.Label();
+			this.lblUT2 = new System.Windows.Forms.Label();
 			this.nudMidSecs = new System.Windows.Forms.NumericUpDown();
 			this.label10 = new System.Windows.Forms.Label();
 			this.tabStartDuration = new System.Windows.Forms.TabPage();
@@ -56,8 +58,6 @@
 			this.nudSchHours = new System.Windows.Forms.NumericUpDown();
 			this.lblUT = new System.Windows.Forms.Label();
 			this.nudSchSeconds = new System.Windows.Forms.NumericUpDown();
-			this.cbxAutoFocusing = new System.Windows.Forms.CheckBox();
-			this.cbxAutoPulseGuiding = new System.Windows.Forms.CheckBox();
 			this.groupBox1.SuspendLayout();
 			this.tcEntryType.SuspendLayout();
 			this.tabMidTimeWings.SuspendLayout();
@@ -123,7 +123,7 @@
 			// 
 			// button1
 			// 
-			this.button1.Location = new System.Drawing.Point(162, 224);
+			this.button1.Location = new System.Drawing.Point(171, 245);
 			this.button1.Name = "button1";
 			this.button1.Size = new System.Drawing.Size(75, 23);
 			this.button1.TabIndex = 7;
@@ -134,7 +134,7 @@
 			// button2
 			// 
 			this.button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.button2.Location = new System.Drawing.Point(246, 224);
+			this.button2.Location = new System.Drawing.Point(255, 245);
 			this.button2.Name = "button2";
 			this.button2.Size = new System.Drawing.Size(75, 23);
 			this.button2.TabIndex = 8;
@@ -150,16 +150,36 @@
 			this.groupBox1.Controls.Add(this.label1);
 			this.groupBox1.Location = new System.Drawing.Point(12, 12);
 			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(309, 206);
+			this.groupBox1.Size = new System.Drawing.Size(318, 215);
 			this.groupBox1.TabIndex = 9;
 			this.groupBox1.TabStop = false;
+			// 
+			// cbxAutoPulseGuiding
+			// 
+			this.cbxAutoPulseGuiding.AutoSize = true;
+			this.cbxAutoPulseGuiding.Location = new System.Drawing.Point(26, 184);
+			this.cbxAutoPulseGuiding.Name = "cbxAutoPulseGuiding";
+			this.cbxAutoPulseGuiding.Size = new System.Drawing.Size(116, 17);
+			this.cbxAutoPulseGuiding.TabIndex = 11;
+			this.cbxAutoPulseGuiding.Text = "Auto Pulse Guiding";
+			this.cbxAutoPulseGuiding.UseVisualStyleBackColor = true;
+			// 
+			// cbxAutoFocusing
+			// 
+			this.cbxAutoFocusing.AutoSize = true;
+			this.cbxAutoFocusing.Location = new System.Drawing.Point(181, 185);
+			this.cbxAutoFocusing.Name = "cbxAutoFocusing";
+			this.cbxAutoFocusing.Size = new System.Drawing.Size(94, 17);
+			this.cbxAutoFocusing.TabIndex = 10;
+			this.cbxAutoFocusing.Text = "Auto Focusing";
+			this.cbxAutoFocusing.UseVisualStyleBackColor = true;
 			// 
 			// tcEntryType
 			// 
 			this.tcEntryType.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
 			this.tcEntryType.Controls.Add(this.tabMidTimeWings);
 			this.tcEntryType.Controls.Add(this.tabStartDuration);
-			this.tcEntryType.Location = new System.Drawing.Point(20, 48);
+			this.tcEntryType.Location = new System.Drawing.Point(20, 54);
 			this.tcEntryType.Name = "tcEntryType";
 			this.tcEntryType.SelectedIndex = 0;
 			this.tcEntryType.Size = new System.Drawing.Size(265, 122);
@@ -174,7 +194,7 @@
 			this.tabMidTimeWings.Controls.Add(this.label7);
 			this.tabMidTimeWings.Controls.Add(this.label8);
 			this.tabMidTimeWings.Controls.Add(this.nudMidHours);
-			this.tabMidTimeWings.Controls.Add(this.label9);
+			this.tabMidTimeWings.Controls.Add(this.lblUT2);
 			this.tabMidTimeWings.Controls.Add(this.nudMidSecs);
 			this.tabMidTimeWings.Controls.Add(this.label10);
 			this.tabMidTimeWings.Location = new System.Drawing.Point(4, 25);
@@ -275,15 +295,15 @@
             0,
             0});
 			// 
-			// label9
+			// lblUT2
 			// 
-			this.label9.AutoSize = true;
-			this.label9.Location = new System.Drawing.Point(197, 25);
-			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(22, 13);
-			this.label9.TabIndex = 18;
-			this.label9.Text = "UT";
-			this.label9.Visible = false;
+			this.lblUT2.AutoSize = true;
+			this.lblUT2.Location = new System.Drawing.Point(197, 25);
+			this.lblUT2.Name = "lblUT2";
+			this.lblUT2.Size = new System.Drawing.Size(22, 13);
+			this.lblUT2.TabIndex = 18;
+			this.lblUT2.Text = "UT";
+			this.lblUT2.Visible = false;
 			// 
 			// nudMidSecs
 			// 
@@ -430,31 +450,11 @@
             0,
             0});
 			// 
-			// cbxAutoFocusing
-			// 
-			this.cbxAutoFocusing.AutoSize = true;
-			this.cbxAutoFocusing.Location = new System.Drawing.Point(181, 173);
-			this.cbxAutoFocusing.Name = "cbxAutoFocusing";
-			this.cbxAutoFocusing.Size = new System.Drawing.Size(94, 17);
-			this.cbxAutoFocusing.TabIndex = 10;
-			this.cbxAutoFocusing.Text = "Auto Focusing";
-			this.cbxAutoFocusing.UseVisualStyleBackColor = true;
-			// 
-			// cbxAutoPulseGuiding
-			// 
-			this.cbxAutoPulseGuiding.AutoSize = true;
-			this.cbxAutoPulseGuiding.Location = new System.Drawing.Point(46, 173);
-			this.cbxAutoPulseGuiding.Name = "cbxAutoPulseGuiding";
-			this.cbxAutoPulseGuiding.Size = new System.Drawing.Size(116, 17);
-			this.cbxAutoPulseGuiding.TabIndex = 11;
-			this.cbxAutoPulseGuiding.Text = "Auto Pulse Guiding";
-			this.cbxAutoPulseGuiding.UseVisualStyleBackColor = true;
-			// 
 			// frmAddScheduleEntry
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(333, 256);
+			this.ClientSize = new System.Drawing.Size(342, 280);
 			this.Controls.Add(this.groupBox1);
 			this.Controls.Add(this.button2);
 			this.Controls.Add(this.button1);
@@ -509,7 +509,7 @@
 		private System.Windows.Forms.Label label7;
 		private System.Windows.Forms.Label label8;
 		private System.Windows.Forms.NumericUpDown nudMidHours;
-		private System.Windows.Forms.Label label9;
+		private System.Windows.Forms.Label lblUT2;
 		private System.Windows.Forms.NumericUpDown nudMidSecs;
 		private System.Windows.Forms.Label label10;
 		private System.Windows.Forms.CheckBox cbxAutoPulseGuiding;

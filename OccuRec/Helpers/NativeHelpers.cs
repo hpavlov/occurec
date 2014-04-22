@@ -372,6 +372,9 @@ namespace OccuRec.Helpers
 		private static extern int SetManualIntegrationHint(int hintRate);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+		private static extern int SetNoIntegrationStackRate(int stackRate);
+
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int ControlIntegrationCalibration(int cameraIntegration);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
@@ -873,6 +876,20 @@ namespace OccuRec.Helpers
 		public static void LargeChunkDenoise(uint[] pixels, int width, int height, DenoiseMode mode)
 		{
 			LargeChunkDenoise(pixels, width, height, 0, 255);
+		}
+
+		private static int s_StackingRate = 0;
+
+		public static void SetStackRate(int stackRate)
+		{
+			s_StackingRate = stackRate;
+
+			SetNoIntegrationStackRate(s_StackingRate);
+		}
+
+		public static int GetStackingRate()
+		{
+			return s_StackingRate;
 		}
 	}
 }

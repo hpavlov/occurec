@@ -223,10 +223,7 @@ namespace OccuRec.Drivers.DirectShowSimulator
 
         public VideoCameraFrameRate FrameRate
         {
-            get
-            {
-                return VideoCameraFrameRate.Variable;
-            }
+            get { return player.GetFrameRate(); }
         }
 
         public System.Collections.ArrayList SupportedIntegrationRates

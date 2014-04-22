@@ -216,8 +216,10 @@ namespace OccuRec
 		}
 	}
 
-	bool IntegrationChecker::IsNewIntegrationPeriod_Manual(__int64 idxFrameNumber, long manualRate, float diffSignature)
+	bool IntegrationChecker::IsNewIntegrationPeriod_Manual(__int64 idxFrameNumber, long manualRate, long stackRate, float diffSignature)
 	{
+		// TODO: When manualRate == 1 and stackRate > 0, then use stackRate to force stacking
+
 		if (currentManualRate != manualRate)
 		{
 			processedManualRateSignatures = 0;

@@ -80,6 +80,7 @@ bool USES_DIFF_GAMMA;
 unsigned char GAMMA[256];
 
 long MANUAL_INTEGRATION_RATE = 0;
+long NO_INTEGRATION_STACK_RATE = 0;
 bool INTEGRATION_LOCKED;
 
 #define INTEGRATION_CALIBRATION_CYCLES 10
@@ -280,6 +281,13 @@ HRESULT SetManualIntegrationHint(long manualRate)
 	return S_OK;
 }
 
+HRESULT SetNoIntegrationStackRate(long stackRate)
+{
+	NO_INTEGRATION_STACK_RATE = stackRate;
+
+	return S_OK;
+}
+
 bool IsNewIntegrationPeriod(float diffSignature)
 {
 	if (!IS_INTEGRATING_CAMERA)
@@ -295,7 +303,7 @@ bool IsNewIntegrationPeriod(float diffSignature)
 	{
 		SyncLock::LockIntDet();
 		bool isNewIntegrationPeriod = MANUAL_INTEGRATION_RATE > 0
-			? integrationChecker->IsNewIntegrationPeriod_Manual(idxFrameNumber, MANUAL_INTEGRATION_RATE, diffSignature)
+			? integrationChecker->IsNewIntegrationPeriod_Manual(idxFrameNumber, MANUAL_INTEGRATION_RATE, NO_INTEGRATION_STACK_RATE, diffSignature)
 			: integrationChecker->IsNewIntegrationPeriod_Automatic(idxFrameNumber, diffSignature);
 
 		SyncLock::UnlockIntDet();

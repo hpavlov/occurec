@@ -177,6 +177,12 @@
     <Compile Include="frmConfigureVtiOsdLines.Designer.cs">
       <DependentUpon>frmConfigureVtiOsdLines.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmOneStacking.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmOneStacking.Designer.cs">
+      <DependentUpon>frmOneStacking.cs</DependentUpon>
+    </Compile>
     <Compile Include="ObservatoryAutomation\ObservatoryManager.cs" />
     <Compile Include="FrameAnalysis\FrameAnalysisManager.cs" />
     <Compile Include="FrameAnalysis\PlateSolveManager.cs" />
@@ -403,6 +409,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Config\frmSettings.resx">
       <DependentUpon>frmSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmOneStacking.resx">
+      <DependentUpon>frmOneStacking.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmUnexpectedError.resx">
       <DependentUpon>frmUnexpectedError.cs</DependentUpon>

@@ -31,6 +31,7 @@ namespace OccuRec.Scheduling
 
             cbxOperations.SelectedIndex = 0;
             lblUT.Visible = Settings.Default.DisplayTimeInUT;
+			lblUT2.Visible = Settings.Default.DisplayTimeInUT;
 
 			cbxAutoFocusing.Enabled = m_ObservatoryController.IsConnectedToFocuser();
 			cbxAutoPulseGuiding.Enabled = m_ObservatoryController.IsConnectedToTelescope() && m_AnalysisManager.IsPulseGuidingCalibrated();

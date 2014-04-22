@@ -29,6 +29,7 @@ EXPORTS
 
 	LockIntegration
 	SetManualIntegrationHint
+	SetNoIntegrationStackRate
 	ControlIntegrationCalibration
 	GetIntegrationCalibrationDataConfig
 	GetIntegrationCalibrationData

@@ -828,7 +828,7 @@ namespace OccuRec
 				}
 				else if (pbarIntDetPercentDone.Visible) pbarIntDetPercentDone.Visible = false;
 
-
+				pnlOneStacking.Visible = m_StateManager.IsIntegrationLocked && m_ManualIntegration == 1;
 
 				if (frame != null && frame.PerformedAction.HasValue && frame.PerformedAction.Value > 0)
 				{
@@ -914,10 +914,16 @@ namespace OccuRec
 
         private void btnLockIntegration_Click(object sender, EventArgs e)
         {
-            if (m_StateManager.IsIntegrationLocked)
-                m_StateManager.UnlockIntegration();
-            else if (m_StateManager.CanLockIntegrationNow)
-                m_StateManager.LockIntegration();
+	        if (m_StateManager.IsIntegrationLocked)
+	        {
+		        if (m_StateManager.UnlockIntegration())
+		        {
+					lblOneStack.Text = "No Stacking";
+					NativeHelpers.SetStackRate(0);			        
+		        }
+	        }
+	        else if (m_StateManager.CanLockIntegrationNow)
+		        m_StateManager.LockIntegration();
         }
 
 
@@ -1558,11 +1564,14 @@ namespace OccuRec
 			}
 		}
 
+	    private int m_ManualIntegration = -1;
+
 		private void btnManualIntegration_Click(object sender, EventArgs e)
 		{
 			if (m_StateManager.IsUsingManualIntegration)
 			{
 				NativeHelpers.SetManualIntegrationRateHint(0);
+				m_ManualIntegration = -1;
 			}
 			else
 			{
@@ -1571,6 +1580,7 @@ namespace OccuRec
 				{
 					int manualIntegrationRate = (int)frm.nudIntegrationRate.Value;
 					NativeHelpers.SetManualIntegrationRateHint(manualIntegrationRate);
+					m_ManualIntegration = manualIntegrationRate;
 				}
 			}
 		}
@@ -2035,6 +2045,32 @@ namespace OccuRec
 		private void tsmiInverted_Click(object sender, EventArgs e)
 		{
 			m_VideoRenderingController.SetDisplayInvertMode(tsmiInverted.Checked);
+		}
+
+		private void btnOneStack_Click(object sender, EventArgs e)
+		{
+			var frm = new frmOneStacking();
+			frm.FrameRate = videoObject.FrameRate;
+			frm.SetCurrentStackingRate(NativeHelpers.GetStackingRate());
+			DialogResult result = frm.ShowDialog(this);
+			if (result == DialogResult.OK)
+			{
+				if (frm.StackRate == 0)
+				{
+					lblOneStack.Text = "No Stacking";
+					NativeHelpers.SetStackRate(0);
+				}
+				else
+				{
+					lblOneStack.Text = string.Format("Stack of {0}", frm.StackRate);
+					NativeHelpers.SetStackRate(frm.StackRate);
+				}
+			}
+			else if (result == DialogResult.Ignore)
+			{
+				lblOneStack.Text = "No Stacking";
+				NativeHelpers.SetStackRate(0);				
+			}
 		}
     }
 }

@@ -190,9 +190,9 @@ namespace OccuRec.Drivers.AAVTimer
 		{
 			get
 			{
-				if (Math.Abs(camera.FrameRate - 29.97) < 0.5)
+				if (Math.Abs(camera.FrameRate - 29.97) < 0.01)
 					return VideoCameraFrameRate.NTSC;
-				else if (Math.Abs(camera.FrameRate - 25) < 0.5)
+				else if (Math.Abs(camera.FrameRate - 25) < 0.01)
 					return VideoCameraFrameRate.PAL;
 				else
 					return VideoCameraFrameRate.Variable;

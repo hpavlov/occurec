@@ -107,6 +107,9 @@
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+			this.btnOneStack = new System.Windows.Forms.Button();
+			this.lblOneStack = new System.Windows.Forms.Label();
+			this.pnlOneStacking = new System.Windows.Forms.Panel();
 			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
@@ -122,6 +125,7 @@
 			this.pnlAAV.SuspendLayout();
 			this.toolStrip1.SuspendLayout();
 			this.pnlControlArea.SuspendLayout();
+			this.pnlOneStacking.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// statusStrip
@@ -289,7 +293,7 @@
 			// 
 			this.tsmiInverted.CheckOnClick = true;
 			this.tsmiInverted.Name = "tsmiInverted";
-			this.tsmiInverted.Size = new System.Drawing.Size(152, 22);
+			this.tsmiInverted.Size = new System.Drawing.Size(148, 22);
 			this.tsmiInverted.Text = "Inverted";
 			this.tsmiInverted.Click += new System.EventHandler(this.tsmiInverted_Click);
 			// 
@@ -297,26 +301,26 @@
 			// 
 			this.tsmiHueIntensity.CheckOnClick = true;
 			this.tsmiHueIntensity.Name = "tsmiHueIntensity";
-			this.tsmiHueIntensity.Size = new System.Drawing.Size(152, 22);
+			this.tsmiHueIntensity.Size = new System.Drawing.Size(148, 22);
 			this.tsmiHueIntensity.Text = "Hue Intensity";
 			this.tsmiHueIntensity.Click += new System.EventHandler(this.tsmiHueIntensity_Click);
 			// 
 			// toolStripSeparator7
 			// 
 			this.toolStripSeparator7.Name = "toolStripSeparator7";
-			this.toolStripSeparator7.Size = new System.Drawing.Size(149, 6);
+			this.toolStripSeparator7.Size = new System.Drawing.Size(145, 6);
 			// 
 			// tsmiHigh
 			// 
 			this.tsmiHigh.Name = "tsmiHigh";
-			this.tsmiHigh.Size = new System.Drawing.Size(152, 22);
+			this.tsmiHigh.Size = new System.Drawing.Size(148, 22);
 			this.tsmiHigh.Text = "Gamma: High";
 			this.tsmiHigh.Click += new System.EventHandler(this.DisplayIntensifyModeClicked);
 			// 
 			// tsmiLo
 			// 
 			this.tsmiLo.Name = "tsmiLo";
-			this.tsmiLo.Size = new System.Drawing.Size(152, 22);
+			this.tsmiLo.Size = new System.Drawing.Size(148, 22);
 			this.tsmiLo.Text = "Gamma: Lo";
 			this.tsmiLo.Click += new System.EventHandler(this.DisplayIntensifyModeClicked);
 			// 
@@ -325,7 +329,7 @@
 			this.tsmiOff.Checked = true;
 			this.tsmiOff.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.tsmiOff.Name = "tsmiOff";
-			this.tsmiOff.Size = new System.Drawing.Size(152, 22);
+			this.tsmiOff.Size = new System.Drawing.Size(148, 22);
 			this.tsmiOff.Text = "Gamma: Off";
 			this.tsmiOff.Click += new System.EventHandler(this.DisplayIntensifyModeClicked);
 			// 
@@ -557,8 +561,8 @@
 			this.pnlVideoControls.Controls.Add(this.btnStopRecording);
 			this.pnlVideoControls.Controls.Add(this.label5);
 			this.pnlVideoControls.Controls.Add(this.btnRecord);
-			this.pnlVideoControls.Controls.Add(this.pnlVtiOsd);
 			this.pnlVideoControls.Controls.Add(this.pnlAAV);
+			this.pnlVideoControls.Controls.Add(this.pnlVtiOsd);
 			this.pnlVideoControls.Dock = System.Windows.Forms.DockStyle.Right;
 			this.pnlVideoControls.Enabled = false;
 			this.pnlVideoControls.Location = new System.Drawing.Point(720, 0);
@@ -792,6 +796,7 @@
 			this.pnlAAV.Controls.Add(this.btnCalibrateIntegration);
 			this.pnlAAV.Controls.Add(this.label3);
 			this.pnlAAV.Controls.Add(this.btnLockIntegration);
+			this.pnlAAV.Controls.Add(this.pnlOneStacking);
 			this.pnlAAV.Location = new System.Drawing.Point(4, 88);
 			this.pnlAAV.Name = "pnlAAV";
 			this.pnlAAV.Size = new System.Drawing.Size(189, 86);
@@ -1011,6 +1016,35 @@
 			this.openFileDialog.DefaultExt = "avi";
 			this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
 			// 
+			// btnOneStack
+			// 
+			this.btnOneStack.Location = new System.Drawing.Point(88, 6);
+			this.btnOneStack.Name = "btnOneStack";
+			this.btnOneStack.Size = new System.Drawing.Size(80, 23);
+			this.btnOneStack.TabIndex = 27;
+			this.btnOneStack.Text = "x1 Stacking";
+			this.btnOneStack.UseVisualStyleBackColor = true;
+			this.btnOneStack.Click += new System.EventHandler(this.btnOneStack_Click);
+			// 
+			// lblOneStack
+			// 
+			this.lblOneStack.AutoSize = true;
+			this.lblOneStack.Location = new System.Drawing.Point(8, 12);
+			this.lblOneStack.Name = "lblOneStack";
+			this.lblOneStack.Size = new System.Drawing.Size(66, 13);
+			this.lblOneStack.TabIndex = 28;
+			this.lblOneStack.Text = "No Stacking";
+			// 
+			// pnlOneStacking
+			// 
+			this.pnlOneStacking.Controls.Add(this.lblOneStack);
+			this.pnlOneStacking.Controls.Add(this.btnOneStack);
+			this.pnlOneStacking.Location = new System.Drawing.Point(8, 45);
+			this.pnlOneStacking.Name = "pnlOneStacking";
+			this.pnlOneStacking.Size = new System.Drawing.Size(174, 31);
+			this.pnlOneStacking.TabIndex = 18;
+			this.pnlOneStacking.Visible = false;
+			// 
 			// frmMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1052,6 +1086,8 @@
 			this.toolStrip1.ResumeLayout(false);
 			this.toolStrip1.PerformLayout();
 			this.pnlControlArea.ResumeLayout(false);
+			this.pnlOneStacking.ResumeLayout(false);
+			this.pnlOneStacking.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -1149,6 +1185,9 @@
 		protected internal System.Windows.Forms.ToolStripMenuItem tsmiHigh;
 		protected internal System.Windows.Forms.ToolStripMenuItem tsmiLo;
 		protected internal System.Windows.Forms.ToolStripMenuItem tsmiOff;
+		private System.Windows.Forms.Label lblOneStack;
+		private System.Windows.Forms.Button btnOneStack;
+		private System.Windows.Forms.Panel pnlOneStacking;
 	}
 }
 

@@ -109,6 +109,7 @@ HRESULT StopRecording(long* pixels);
 HRESULT StartOcrTesting(LPCTSTR szFileName);
 HRESULT LockIntegration(bool lock);
 HRESULT SetManualIntegrationHint(long manualRate);
+HRESULT SetNoIntegrationStackRate(long stackRate);
 HRESULT ControlIntegrationCalibration(long operation);
 HRESULT GetIntegrationCalibrationDataConfig(long* gammasLength, long* signaturesPerCycle);
 HRESULT GetIntegrationCalibrationData(float* rawSignatures, float* gammas);

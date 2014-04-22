@@ -56,6 +56,6 @@ namespace OccuRec
 
 			void ControlIntegrationDetectionTuning(bool enabled);
 			bool IsNewIntegrationPeriod_Automatic(__int64 idxFrameNumber, float diffSignature);
-			bool IsNewIntegrationPeriod_Manual(__int64 idxFrameNumber, long manualRate, float diffSignature);
+			bool IsNewIntegrationPeriod_Manual(__int64 idxFrameNumber, long manualRate, long stackRate, float diffSignature);
 	};
 };

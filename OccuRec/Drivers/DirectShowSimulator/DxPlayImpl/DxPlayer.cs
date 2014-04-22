@@ -206,6 +206,17 @@ namespace OccuRec.Drivers.DirectShowSimulator.DxPlayImpl
 			} while (true);
 		}
 
+
+		public VideoCameraFrameRate GetFrameRate()
+		{
+			if (Math.Abs(m_FrameRate - 25.00) < 0.01)
+				return VideoCameraFrameRate.PAL;
+			else if (Math.Abs(m_FrameRate - 29.97) < 0.01)
+				return VideoCameraFrameRate.NTSC;
+
+			return VideoCameraFrameRate.Variable;
+		}
+
 		// Return the currently playing file name
 		public string FileName
 		{
