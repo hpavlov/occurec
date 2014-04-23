@@ -908,8 +908,12 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 		if (!INTEGRATION_LOCKED)
 			lockedIntegrationFrames = detectedIntegrationRate;
-		else
+		else if (lockedIntegrationFrames > 1)
 			droppedFramesSinceIntegrationIsLocked += abs(lockedIntegrationFrames - detectedIntegrationRate);
+		else
+		{
+			// No dropped frames when the locked integration is x1
+		}
 	}
 
 	if (numberOfIntegratedFrames == 0)
@@ -1002,7 +1006,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 					*ptrFramePixels = averageValue;
 			}
 
-			if (detectedIntegrationRate > 1 && OCR_PRESERVE_VTI)
+			if ((detectedIntegrationRate > 1 || NO_INTEGRATION_STACK_RATE > 0)  && OCR_PRESERVE_VTI)
 			{
 				// Only preserve timestamps from different frames IF the integration is bigger than 1 frame
 				if (pixY >= OCR_FRAME_TOP_ODD && pixY < OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT)
@@ -1210,7 +1214,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		latestImageStatus.StartExposureTicks = idxFirstFrameTimestamp;
 		latestImageStatus.EndExposureFrameNo = idxLastFrameNumber;
 		latestImageStatus.EndExposureTicks = idxLastFrameTimestamp;
-		latestImageStatus.DetectedIntegrationRate = detectedIntegrationRate;
+		latestImageStatus.DetectedIntegrationRate = lockedIntegrationFrames == 1 ? 1 : detectedIntegrationRate;
 		latestImageStatus.DropedFramesSinceIntegrationLock = droppedFramesSinceIntegrationIsLocked;
 		latestImageStatus.OcrWorking = (NULL != ocrManager && ocrManager->IsReceivingTimeStamps()) ? 1 : 0;
 		latestImageStatus.OcrErrorsSinceLastReset = ocrErrorsSiceLastReset;

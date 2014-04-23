@@ -218,8 +218,6 @@ namespace OccuRec
 
 	bool IntegrationChecker::IsNewIntegrationPeriod_Manual(__int64 idxFrameNumber, long manualRate, long stackRate, float diffSignature)
 	{
-		// TODO: When manualRate == 1 and stackRate > 0, then use stackRate to force stacking
-
 		if (currentManualRate != manualRate)
 		{
 			processedManualRateSignatures = 0;
@@ -240,8 +238,13 @@ namespace OccuRec
 		}
 
 		if (currentManualRate == 1)
-			// NOTE: Manual rate of 1 is easy! Don't do anything just always report every frame as new
-			return true;
+		{
+			if (stackRate > 0)
+				return idxFrameNumber % stackRate == 0;
+			else
+				// NOTE: Manual rate of 1 (without stacking) is easy! Don't do anything just always report every frame as new
+				return true;
+		}
 
 		long currSignaturesHistoryIndex = (long)((processedManualRateSignatures % (long long)(MANUAL_INT_TOTAL_HISTORY_LOOPS * currentManualRate)) & 0xFFFF);
 		manualSignaturesHistory[currSignaturesHistoryIndex] = diffSignature;
