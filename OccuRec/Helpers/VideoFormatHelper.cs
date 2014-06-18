@@ -19,6 +19,14 @@ namespace OccuRec.Helpers
             public SupportedVideoFormat()
             { }
 
+			public SupportedVideoFormat(SupportedVideoFormat cloneFrom)
+			{
+				Width = cloneFrom.Width;
+				Height = cloneFrom.Height;
+				FrameRate = cloneFrom.FrameRate;
+				BitCount = cloneFrom.BitCount;
+			}
+
 			private static Regex REGEX_FORMATTER = new Regex("^(\\d+) x (\\d+) @([\\d\\.]+) fps \\((\\d+) bpp\\)$");
 
 			public static SupportedVideoFormat PAL = new SupportedVideoFormat("720 x 576 @25 fps (24 bpp)");
@@ -205,7 +213,18 @@ namespace OccuRec.Helpers
                                 FrameRate = 10000000.0 / v2.AvgTimePerFrame
                             };
 
-                            callback(entry);
+							if (Math.Abs(entry.FrameRate - 0) < 0.01 || double.IsNaN(entry.FrameRate) || double.IsInfinity(entry.FrameRate))
+							{
+								// Some drivers don't report a frame rate or report incorrect frame rate. In this caasea dd both PAL and NTSC frame rates
+								entry.FrameRate = 25.0;
+								callback(entry);
+
+								var entry2 = new SupportedVideoFormat(entry);
+								entry2.FrameRate = 29.97;
+								callback(entry2);
+							}
+							else
+								callback(entry);
 
                             Trace.WriteLine(entry.AsSerialized());
                         }

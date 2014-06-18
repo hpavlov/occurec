@@ -154,7 +154,14 @@ namespace OccuRec.Controllers
 
 								analysisManager.ProcessFrame(frameWrapper, bmp);
 
-								ApplyDisplayModeAdjustments(ref bmp);
+								if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off || m_DisplayInvertedMode || m_DisplayHueIntensityMode)
+								{
+									// For display purposes only we apply display gamma and/or invert when requested by the user
+									if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off)
+										BitmapFilter.ApplyGamma(bmp, m_DisplayIntensifyMode == DisplayIntensifyMode.Hi, m_DisplayInvertedMode, m_DisplayHueIntensityMode);
+									else if (m_DisplayInvertedMode || m_DisplayHueIntensityMode)
+										BitmapFilter.ProcessInvertAndHueIntensity(bmp, m_DisplayInvertedMode, m_DisplayHueIntensityMode);
+								}
 
                                 try
                                 {
@@ -216,21 +223,6 @@ namespace OccuRec.Controllers
 
             m_MainForm.PaintVideoFrame(frame, bmp);
         }
-
-		public void ApplyDisplayModeAdjustments(ref Bitmap displayBitmap)
-		{
-			if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off || m_DisplayInvertedMode || m_DisplayHueIntensityMode)
-			{
-				displayBitmap = Image.FromHbitmap(displayBitmap.GetHbitmap());
-
-				// For display purposes only we apply display gamma and/or invert when requested by the user
-
-				if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off)
-					BitmapFilter.ApplyGamma(displayBitmap, m_DisplayIntensifyMode == DisplayIntensifyMode.Hi, m_DisplayInvertedMode, m_DisplayHueIntensityMode);
-				else if (m_DisplayInvertedMode || m_DisplayHueIntensityMode)
-					BitmapFilter.ProcessInvertAndHueIntensity(displayBitmap, m_DisplayInvertedMode, m_DisplayHueIntensityMode);
-			}
-		}
 
 		public void SetDisplayIntensifyMode(DisplayIntensifyMode newMode)
 		{

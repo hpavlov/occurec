@@ -22,11 +22,7 @@ namespace OccuRec.Helpers
 		    this.window = window;
 		    callbacksDelegate = (IVideoCallbacks)window;
 
-			SupportsTargetTracking =
-				video is OccuRec.Drivers.AAVTimer.Video ||
-				video is OccuRec.Drivers.AAVSimulator.Video ||
-				video is OccuRec.Drivers.AVISimulator.Video ||
-				video is OccuRec.Drivers.DirectShowSimulator.Video;
+			SupportsTargetTracking = true;
 
             video.SetCallbacks(this);
 		}

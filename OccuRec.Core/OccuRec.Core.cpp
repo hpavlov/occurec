@@ -1920,8 +1920,11 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 		VIDEO_FRAME_IN_WINDOWS_TICKS = (__int64)(10000000.0 / videoFrameRate);
 	}
 
-	sprintf(&buffer[0], "%d", HARDWARE_TIMING_CORRECTION);
-	AavAddFileTag("CAPHNTP-TIMING-CORRECTION", &buffer[0]);
+	if (USE_NTP_TIMESTAMP)
+	{
+		sprintf(&buffer[0], "%d", HARDWARE_TIMING_CORRECTION);
+		AavAddFileTag("CAPHNTP-TIMING-CORRECTION", &buffer[0]);
+	}
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT, AAV_16 ? 16 : 8);
 	AavAddOrUpdateImageSectionTag("IMAGE-BYTE-ORDER", "LITTLE-ENDIAN");
