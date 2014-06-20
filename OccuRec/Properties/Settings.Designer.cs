@@ -1270,5 +1270,18 @@ namespace OccuRec.Properties {
                 this["DisplayIntensifyMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("QuickLZ")]
+		public global::OccuRec.Helpers.AavCompression AavCompression
+		{
+            get {
+				return ((global::OccuRec.Helpers.AavCompression)(this["AavCompression"]));
+            }
+            set {
+                this["AavCompression"] = value;
+            }
+        }
     }
 }

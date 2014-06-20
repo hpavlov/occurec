@@ -72,7 +72,7 @@ namespace OccuRec.Drivers.AAVSimulator.AAVPlayerImpl
                        "N/A",
                        frameRate);
 
-                NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
+                NativeHelpers.SetupAav(Settings.Default.AavImageLayout, Settings.Default.AavCompression);
 
                 if (Settings.Default.SimulatorRunOCR)
                 {

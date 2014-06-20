@@ -104,6 +104,15 @@
     <ClInclude Include="LargeChunkDenoiser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProbabilityCoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RangeCoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Compressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -179,6 +188,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="LargeChunkDenoiser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProbabilityCoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RangeCoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Compressor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

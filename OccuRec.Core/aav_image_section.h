@@ -19,7 +19,7 @@ class AavImageSection {
 	private:
 		map<string, string> m_ImageTags;
 		map<unsigned char, AavImageLayout*> m_ImageLayouts;
-		unsigned char m_BitPix;
+		unsigned char m_BitPix;		
 		
 	private:
 		unsigned int ComputePixelsCRC32(unsigned char* pixels);

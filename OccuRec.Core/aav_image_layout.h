@@ -8,6 +8,8 @@
 #include <map>
 #include <string>
 
+#include "Compressor.h"
+
 using namespace std;
 using std::string;
 
@@ -30,7 +32,8 @@ namespace AavLib
 		unsigned int m_MaxSignsBytesCount;
 		unsigned int m_MaxPixelArrayLengthWithoutSigns;
 		char* m_CompressedPixels;
-		qlz_state_compress* m_StateCompress;		
+		qlz_state_compress* m_StateCompress;
+		Compressor* m_Lagarith16Compressor;
 		
 	public:
 		unsigned char LayoutId;

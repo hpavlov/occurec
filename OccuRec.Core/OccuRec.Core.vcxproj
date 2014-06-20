@@ -147,6 +147,7 @@
     <None Include="OccuRec.Core.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Compressor.h" />
     <ClInclude Include="LargeChunkDenoiser.h" />
     <ClInclude Include="OccuRec.Core.h" />
     <ClInclude Include="OccuRec.IntegrationChecker.h" />
@@ -163,8 +164,10 @@
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="IntegratedFrame.h" />
     <ClInclude Include="IotaVtiOcr.h" />
+    <ClInclude Include="ProbabilityCoder.h" />
     <ClInclude Include="psf_fit.h" />
     <ClInclude Include="quicklz.h" />
+    <ClInclude Include="RangeCoder.h" />
     <ClInclude Include="RawFrame.h" />
     <ClInclude Include="raw_frame_buffer.h" />
     <ClInclude Include="recording_buffer.h" />
@@ -177,6 +180,7 @@
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Compressor.cpp" />
     <ClCompile Include="LargeChunkDenoiser.cpp" />
     <ClCompile Include="OccuRec.Core.cpp" />
     <ClCompile Include="OccuRec.IntegrationChecker.cpp" />
@@ -206,8 +210,10 @@
     </ClCompile>
     <ClCompile Include="IntegratedFrame.cpp" />
     <ClCompile Include="IotaVtiOcr.cpp" />
+    <ClCompile Include="ProbabilityCoder.cpp" />
     <ClCompile Include="psf_fit.cpp" />
     <ClCompile Include="quicklz.cpp" />
+    <ClCompile Include="RangeCoder.cpp" />
     <ClCompile Include="RawFrame.cpp" />
     <ClCompile Include="safe_matrix.cpp" />
     <ClCompile Include="simplified_tracking.cpp" />

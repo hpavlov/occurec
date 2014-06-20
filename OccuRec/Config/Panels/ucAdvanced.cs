@@ -39,10 +39,18 @@ namespace OccuRec.Config.Panels
 			cbxImageLayoutMode.Items.Add(AavImageLayout.CompressedDiffCodeWithSigns);
 			cbxImageLayoutMode.Items.Add(AavImageLayout.UncompressedRaw);
 
+			cbxAdvCompression.Items.Clear();
+			cbxAdvCompression.Items.Add(AavCompression.QuickLZ);
+			cbxAdvCompression.Items.Add(AavCompression.Lagarith16);
+
 			cbxImageLayoutMode.SelectedIndex = cbxImageLayoutMode.Items.IndexOf(Settings.Default.AavImageLayout);
+			cbxAdvCompression.SelectedIndex = cbxAdvCompression.Items.IndexOf(Settings.Default.AavCompression);
 
 			cbxCustomAdvImageLayout.Checked = Settings.Default.AavImageLayout != AavImageLayout.CompressedRaw;
 			cbxImageLayoutMode.Visible = Settings.Default.AavImageLayout != AavImageLayout.CompressedRaw;
+
+			cbxCustomAdvCompression.Checked = Settings.Default.AavCompression != AavCompression.QuickLZ;
+			cbxAdvCompression.Visible = Settings.Default.AavCompression != AavCompression.QuickLZ;
 		}
 
 		public override void SaveSettings()
@@ -59,6 +67,7 @@ namespace OccuRec.Config.Panels
 
 			Settings.Default.VideoGraphDebugMode = cbxGraphDebugMode.Checked;
 			Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
+			Settings.Default.AavCompression = (AavCompression)cbxAdvCompression.SelectedItem;
 		}
 
 		private void cbxUserPreserveOSDLines_CheckedChanged(object sender, EventArgs e)
@@ -74,6 +83,11 @@ namespace OccuRec.Config.Panels
 		private void cbxCustomAdvImageLayout_CheckedChanged(object sender, EventArgs e)
 		{
 			cbxImageLayoutMode.Visible = cbxCustomAdvImageLayout.Checked;
+		}
+
+		private void cbxCustomAdvCompression_CheckedChanged(object sender, EventArgs e)
+		{
+			cbxAdvCompression.Visible = cbxCustomAdvCompression.Checked;
 		}
 
 		//private void LoadVTIConfig(int width, int height)

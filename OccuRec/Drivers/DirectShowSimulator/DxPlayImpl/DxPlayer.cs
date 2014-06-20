@@ -112,7 +112,7 @@ namespace OccuRec.Drivers.DirectShowSimulator.DxPlayImpl
 					"N/A",
 					frameRate);
 
-				NativeHelpers.SetupAav(Settings.Default.AavImageLayout);
+				NativeHelpers.SetupAav(Settings.Default.AavImageLayout, Settings.Default.AavCompression);
 
 				// Get the event handle the graph will use to signal
 				// when events occur

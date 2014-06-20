@@ -50,6 +50,7 @@ namespace OccuRec.Video.AstroDigitalVideo
 		public static string COMPR_UNCOMPRESSED = "UNCOMPRESSED";
 		public static string COMPR_DIFF_CORR_HUFFMAN = "HUFFMAN";
 		public static string COMPR_DIFF_CORR_QUICKLZ = "QUICKLZ";
+		public static string COMPR_LAGARITH16 = "LAGARITH16";
 	}
 
 	public static class AdvRedundancyCheck

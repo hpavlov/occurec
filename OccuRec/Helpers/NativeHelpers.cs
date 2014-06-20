@@ -32,6 +32,12 @@ namespace OccuRec.Helpers
 		StatusSectionOnly = 5
     }
 
+	public enum AavCompression
+	{
+		QuickLZ,
+		Lagarith16
+	}
+
 	public enum DenoiseMode
 	{
 		Field,
@@ -339,7 +345,7 @@ namespace OccuRec.Helpers
 		private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int SetupAav(int imageLayout, int bpp, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion, int recordNtpTimestamp, int recordSecondaryTimestamp);
+		private static extern int SetupAav(int imageLayout, int compression, int bpp, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion, int recordNtpTimestamp, int recordSecondaryTimestamp);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupNtpDebugParams(int debugParam1, float debugParam2);
@@ -640,10 +646,11 @@ namespace OccuRec.Helpers
 
 		private static AssemblyFileVersionAttribute ASSEMBLY_FILE_VERSION = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];
 
-        public static void SetupAav(AavImageLayout imageLayout)
+        public static void SetupAav(AavImageLayout imageLayout, AavCompression compression)
         {
             SetupAav(
                 (int)imageLayout,
+				(int)compression,
 				Settings.Default.Use16BitAAV ? 16 : 8,
                 Settings.Default.UsesBufferedFrameProcessing ? 1 : 0,
                 Settings.Default.IntegrationDetectionTuning ? 1 : 0,

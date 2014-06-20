@@ -98,7 +98,7 @@ HRESULT SetupOcrZoneMatrix(long* matrix);
 HRESULT SetupOcrChar(char character, long fixedPosition);
 HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue);
 HRESULT DisableOcrProcessing();
-HRESULT SetupAav(long useImageLayout, long bpp, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp);
+HRESULT SetupAav(long useImageLayout, long compressionAlgorithm, long bpp, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp);
 HRESULT SetupNtpDebugParams(long debugValue1, float debugValue2);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* ImageStatus);

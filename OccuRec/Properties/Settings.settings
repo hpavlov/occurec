@@ -314,5 +314,8 @@
     <Setting Name="DisplayIntensifyMode" Type="OccuRec.Controllers.DisplayIntensifyMode" Scope="User">
       <Value Profile="(Default)">Off</Value>
     </Setting>
+    <Setting Name="AavCompression" Type="System.String" Scope="User">
+      <Value Profile="(Default)">QuickLZ</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

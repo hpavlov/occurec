@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #include "aav_profiling.h"
+//#include "Compressor.h"
 
 namespace AavLib
 {
@@ -73,11 +74,15 @@ AavImageLayout::AavImageLayout(unsigned int width, unsigned int height, unsigned
 	m_CompressedPixels = (char*)malloc(m_MaxPixelArrayLengthWithoutSigns + m_MaxSignsBytesCount + 401);
 	
 	m_StateCompress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
+	m_Lagarith16Compressor = new Compressor(Width, Height);
 }
 
 AavImageLayout::~AavImageLayout()
 {
 	ResetBuffers();	
+
+	delete m_Lagarith16Compressor;
+	m_Lagarith16Compressor = NULL;
 }
 
 void AavImageLayout::ResetBuffers()
@@ -312,6 +317,12 @@ unsigned char* AavImageLayout::GetDataBytes16(unsigned short* currFramePixels, e
 		
 			return (unsigned char*)(m_CompressedPixels);
 		}
+		else if (0 == strcmp(Compression, "LAGARITH16"))
+		{
+			*bytesCount = m_Lagarith16Compressor->CompressData((unsigned short*)bytesToCompress, m_CompressedPixels);
+
+			return (unsigned char*)(m_CompressedPixels);
+		}
 		else if (0 == strcmp(Compression, "UNCOMPRESSED"))
 		{
 			return bytesToCompress;
@@ -349,6 +360,12 @@ unsigned char* AavImageLayout::GetDataBytes(unsigned char* currFramePixels, enum
 #endif
 		*bytesCount = len2;
 		
+		return (unsigned char*)(m_CompressedPixels);
+	}
+	else if (0 == strcmp(Compression, "LAGARITH16"))
+	{
+		*bytesCount = m_Lagarith16Compressor->CompressData((unsigned short*)bytesToCompress, m_CompressedPixels);
+
 		return (unsigned char*)(m_CompressedPixels);
 	}
 	else if (0 == strcmp(Compression, "UNCOMPRESSED"))

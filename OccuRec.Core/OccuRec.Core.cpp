@@ -36,6 +36,7 @@ long IMAGE_STRIDE;
 long IMAGE_TOTAL_PIXELS;
 long MONOCHROME_CONVERSION_MODE;
 long USE_IMAGE_LAYOUT = 4;
+long USE_COMPRESSION_ALGORITHM = 0;
 bool USE_BUFFERED_FRAME_PROCESSING = true;
 bool INTEGRATION_DETECTION_TUNING = false;
 bool USE_NTP_TIMESTAMP = false;
@@ -315,10 +316,11 @@ bool IsNewIntegrationPeriod(float diffSignature)
 }
 
 
-HRESULT SetupAav(long useImageLayout, long bpp, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp)
+HRESULT SetupAav(long useImageLayout, long compressionAlgorithm, long bpp, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp)
 {
 	OCR_IS_SETUP = false;
 	USE_IMAGE_LAYOUT = useImageLayout;
+	USE_COMPRESSION_ALGORITHM = compressionAlgorithm;
 	USE_BUFFERED_FRAME_PROCESSING = usesBufferedMode == 1;
 	INTEGRATION_DETECTION_TUNING = integrationDetectionTuning == 1;
 	USE_NTP_TIMESTAMP = recordNtpTimestamp == 1;
@@ -1930,9 +1932,10 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	AavAddOrUpdateImageSectionTag("IMAGE-BYTE-ORDER", "LITTLE-ENDIAN");
 	
 	AavDefineImageLayout(1, AAV_16 ? 16 : 8, "FULL-IMAGE-RAW", "UNCOMPRESSED", 0, NULL);
-	AavDefineImageLayout(2, AAV_16 ? 16 : 8, "FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", "QUICKLZ", 32, "PREV-FRAME");
-	AavDefineImageLayout(3, AAV_16 ? 16 : 8, "FULL-IMAGE-DIFFERENTIAL-CODING", "QUICKLZ", 32, "PREV-FRAME");
-	AavDefineImageLayout(4, AAV_16 ? 16 : 8, "FULL-IMAGE-RAW", "QUICKLZ", 0, NULL);
+	
+	AavDefineImageLayout(2, AAV_16 ? 16 : 8, "FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", USE_COMPRESSION_ALGORITHM == 1 ? "LAGARITH16" : "QUICKLZ", 32, "PREV-FRAME");
+	AavDefineImageLayout(3, AAV_16 ? 16 : 8, "FULL-IMAGE-DIFFERENTIAL-CODING", USE_COMPRESSION_ALGORITHM == 1 ? "LAGARITH16" : "QUICKLZ", 32, "PREV-FRAME");
+	AavDefineImageLayout(4, AAV_16 ? 16 : 8, "FULL-IMAGE-RAW", USE_COMPRESSION_ALGORITHM == 1 ? "LAGARITH16" : "QUICKLZ", 0, NULL);
 
 	if (RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
 	{
