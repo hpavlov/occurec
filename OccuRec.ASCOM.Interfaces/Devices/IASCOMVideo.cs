@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -27,5 +30,30 @@ namespace OccuRec.ASCOM.Interfaces.Devices
 	public interface IASCOMVideo : IASCOMDevice
 	{
 		VideoState GetCurrentState();
+	    void Configure();
+
+        int Width { get; }
+        int Height { get; }
+        int BitDepth { get; }
+
+        ArrayList SupportedActions { get; }
+        int CameraState { get; }
+        bool CanConfigureImage { get; }
+        string VideoFileFormat { get; }
+        string VideoCodec { get; }
+        string Name { get; }
+        string VideoCaptureDeviceName { get; }
+        IASCOMVideoFrame LastVideoFrame { get; }
 	}
+
+    public interface IASCOMVideoFrame : IDisposable
+    {
+        object ImageArray { get; }
+        object ImageArrayVariant { get; }
+        byte[] PreviewBitmap { get; }
+        long FrameNumber { get; }
+        double ExposureDuration { get; }
+        string ExposureStartTime { get; }
+        string ImageInfo { get; }
+    }
 }

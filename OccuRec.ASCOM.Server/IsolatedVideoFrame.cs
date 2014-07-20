@@ -1,0 +1,95 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Runtime.Remoting;
+using System.Text;
+using ASCOM.DeviceInterface;
+using OccuRec.ASCOM.Interfaces.Devices;
+using OccuRec.Utilities;
+
+namespace OccuRec.ASCOM.Server
+{
+    [Serializable]
+    public class IsolatedVideoFrame : MarshalByRefObject, IASCOMVideoFrame, IDisposable
+    {
+        private IVideoFrame m_VideoFrame;
+
+        public IsolatedVideoFrame(IVideoFrame videoFrame)
+        {
+            m_VideoFrame = videoFrame;
+        }
+
+        public object ImageArray
+        {
+            get { return m_VideoFrame.ImageArray; }
+        }
+
+        public object ImageArrayVariant
+        {
+            get { return m_VideoFrame.ImageArray; }
+        }
+
+        public byte[] PreviewBitmap
+        {
+            get { return m_VideoFrame.PreviewBitmap; }
+        }
+
+        public long FrameNumber
+        {
+            get { return m_VideoFrame.FrameNumber; }
+        }
+
+        public double ExposureDuration
+        {
+            get { return m_VideoFrame.ExposureDuration; }
+        }
+
+        public string ExposureStartTime
+        {
+            get { return m_VideoFrame.ExposureStartTime; }
+        }
+
+        public string ImageInfo
+        {
+            get
+            {
+                ArrayList metaData = m_VideoFrame.ImageMetadata;
+                if (metaData == null)
+                    return null;
+                else
+                {
+                    var output = new StringBuilder();
+                    foreach (object item in metaData)
+                    {
+                        if (item is KeyValuePair<string, object>)
+                        {
+                            string key = ((KeyValuePair<string, object>)item).Key;
+                            object value = ((KeyValuePair<string, object>)item).Value;
+                            output.AppendFormat("{0}={1}&", key, Convert.ToString(value));
+                        }
+                    }
+
+                    return output.ToString();
+                }
+            }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            Trace.WriteLine("OccuRec: ASCOMServer::VideoFrame::Dispose()");
+
+            m_VideoFrame = null;
+
+            RemotingServices.Disconnect(this);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+    }
+}

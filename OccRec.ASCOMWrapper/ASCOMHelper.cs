@@ -31,6 +31,11 @@ namespace OccuRec.ASCOM.Wrapper
 			return m_IsolatedHelper.ChooseTelescope();
 		}
 
+        public string ChooseVideo()
+        {
+            return m_IsolatedHelper.ChooseVideo();
+        }
+
 		public IASCOMFocuser CreateFocuser(string progId)
 		{
 			return m_IsolatedHelper.CreateFocuser(progId);
@@ -59,6 +64,11 @@ namespace OccuRec.ASCOM.Wrapper
         public void ConfigureTelescope(string progId)
         {
             m_IsolatedHelper.ConfigureTelescope(progId);
+        }
+
+        public void ConfigureVideo(string progId)
+        {
+            m_IsolatedHelper.ConfigureVideo(progId);
         }
 	}
 }

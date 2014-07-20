@@ -115,7 +115,7 @@ namespace OccuRec.ASCOM
 	{
 		private ITelescope m_ConnectedTelescope = null;
 		private IFocuser m_ConnectedFocuser = null;
-		private IVideo m_ConnectedVideo = null;
+		private IVideoWrapper m_ConnectedVideo = null;
 
 		private IOccuRecCameraController m_CameraDriver = null;
 

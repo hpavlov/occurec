@@ -10,8 +10,10 @@ namespace OccuRec.ASCOM.Interfaces
 	{
 		string ChooseTelescope();
 		string ChooseFocuser();
+	    string ChooseVideo();
 	    void ConfigureFocuser(string progId);
         void ConfigureTelescope(string progId);
+        void ConfigureVideo(string progId);
 		IASCOMFocuser CreateFocuser(string progId);
         IASCOMTelescope CreateTelescope(string progId);
 		IASCOMVideo CreateVideo(string progId);

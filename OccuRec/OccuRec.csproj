@@ -166,6 +166,8 @@
     <Compile Include="Controllers\VideoRenderingController.cs" />
     <Compile Include="Drivers\AAVSimulator\AAVPlayerImpl\AAVPlayer.cs" />
     <Compile Include="Drivers\AAVTimer\VideoFrame.cs" />
+    <Compile Include="Drivers\ASCOMVideo\Video.cs" />
+    <Compile Include="Drivers\ASCOMVideo\VideoFrame.cs" />
     <Compile Include="Drivers\AVISimulator\AVIPlayerImpl\AVIPlayer.cs" />
     <Compile Include="Drivers\AVISimulator\Video.cs" />
     <Compile Include="Drivers\BasicVideoFrame.cs" />

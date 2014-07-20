@@ -2015,7 +2015,13 @@ namespace OccuRec
 
 		private void miASCOMConnect_Click(object sender, EventArgs e)
 		{
-			MessageBox.Show("NOTE: This menu item is not ready yet.");
+            string progId = ASCOMClient.Instance.ChooseVideo();
+
+            if (!string.IsNullOrEmpty(progId))
+            {
+               var driverInstance = new Drivers.ASCOMVideo.Video(progId);
+               ConnectToDriver(driverInstance);
+            }	
 		}
 
 		private void DisplayIntensifyModeClicked(object sender, EventArgs e)

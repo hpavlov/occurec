@@ -6,7 +6,7 @@ using OccuRec.ASCOM.Interfaces.Devices;
 
 namespace OccuRec.ASCOM.Wrapper.Interfaces
 {
-	public interface IVideo : IASCOMVideo
+	public interface IVideoWrapper : IASCOMVideo
 	{
 		
 	}

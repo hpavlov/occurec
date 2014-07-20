@@ -77,6 +77,14 @@ namespace OccuRec.ASCOM.Wrapper
 			return m_ASCOMHelper.ChooseTelescope();
 		}
 
+        public string ChooseVideo()
+        {
+            if (TraceSwitchASCOMClient.TraceVerbose)
+                Trace.WriteLine("OccuRec: ASCOMClient::ChooseVideo()");
+
+            return m_ASCOMHelper.ChooseVideo();
+        }
+
         public void ConfigureFocuser(string progId)
         {
             if (TraceSwitchASCOMClient.TraceVerbose)
@@ -115,7 +123,7 @@ namespace OccuRec.ASCOM.Wrapper
             return new Telescope(isolatedTelescope, slowestRate, slowRate, fastRate);
 		}
 
-		public IVideo CreateVideo(string progId)
+		public IVideoWrapper CreateVideo(string progId)
 		{
             if (TraceSwitchASCOMClient.TraceVerbose)
 				Trace.WriteLine(string.Format("OccuRec: ASCOMClient::CreateVideo('{0}')", progId));
@@ -165,7 +173,7 @@ namespace OccuRec.ASCOM.Wrapper
             ReleaseDevice(focuser);
         }
 
-		public void DisconnectVideo(IVideo video)
+		public void DisconnectVideo(IVideoWrapper video)
 		{
 			try
 			{

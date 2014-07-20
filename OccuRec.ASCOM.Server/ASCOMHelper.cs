@@ -18,6 +18,7 @@ namespace OccuRec.ASCOM.Server
 	{
 		private static string TELESCOPE_DEVICE_TYPE = "Telescope";
 		private static string FOCUSER_DEVICE_TYPE = "Focuser";
+        private static string VIDEO_DEVICE_TYPE = "Video";
 
 		private List<IsolatedDevice> m_ReferencedObjects = new List<IsolatedDevice>(); 
 
@@ -38,6 +39,15 @@ namespace OccuRec.ASCOM.Server
 
 			return progId;
 		}
+
+        public string ChooseVideo()
+        {
+            var chooser = new ASCOMUtilities.Chooser();
+            chooser.DeviceType = VIDEO_DEVICE_TYPE;
+            string progId = chooser.Choose(null);
+
+            return progId;
+        }
 
 		public IASCOMFocuser CreateFocuser(string progId)
 		{
@@ -73,6 +83,14 @@ namespace OccuRec.ASCOM.Server
             using (var telescope = new IsolatedTelescope(progId))
             {
                 telescope.Configure();
+            }
+        }
+
+        public void ConfigureVideo(string progId)
+        {
+            using (var video = new IsolatedVideo(progId))
+            {
+                video.Configure();
             }
         }
 
