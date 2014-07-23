@@ -132,7 +132,29 @@ namespace OccuRec.ASCOM.Server
 		public ArrayList SupportedIntegrationRates
 		{
 			[DebuggerStepThrough]
-			get { return GetValueAndTranslateExceptions(() => m_Video.SupportedIntegrationRates); }
+			get
+			{
+				try
+				{
+					return m_Video.SupportedIntegrationRates;
+				}
+				catch (PropertyNotImplementedException pex)
+				{
+					throw new OccuRec.Utilities.Exceptions.PropertyNotImplementedException(pex.Message);
+				}
+				catch (MethodNotImplementedException mex)
+				{
+					throw new OccuRec.Utilities.Exceptions.MethodNotImplementedException(mex.Message);
+				}
+				catch (NotConnectedException cex)
+				{
+					throw new OccuRec.Utilities.Exceptions.NotConnectedException();
+				}
+				catch (DriverException dex)
+				{
+					throw new OccuRec.Utilities.Exceptions.DriverException(dex.Message, dex);
+				}
+			}
 		}
 
 		public int IntegrationRate
@@ -200,20 +222,86 @@ namespace OccuRec.ASCOM.Server
 
 		public short GainMax
 		{
-			[DebuggerStepThrough]
-			get { return GetValueAndTranslateExceptions(() => m_Video.GainMax); }
+			[DebuggerStepThrough] 
+			get
+			{
+				try
+				{
+					return m_Video.GainMax;
+				}
+				catch (PropertyNotImplementedException pex)
+				{
+					throw new OccuRec.Utilities.Exceptions.PropertyNotImplementedException(pex.Message);
+				}
+				catch (MethodNotImplementedException mex)
+				{
+					throw new OccuRec.Utilities.Exceptions.MethodNotImplementedException(mex.Message);
+				}
+				catch (NotConnectedException cex)
+				{
+					throw new OccuRec.Utilities.Exceptions.NotConnectedException();
+				}
+				catch (DriverException dex)
+				{
+					throw new OccuRec.Utilities.Exceptions.DriverException(dex.Message, dex);
+				}
+			}
 		}
 
 		public short GainMin
 		{
-			[DebuggerStepThrough]
-			get { return GetValueAndTranslateExceptions(() => m_Video.GainMin); }
+			[DebuggerStepThrough] 
+			get
+			{
+				try
+				{
+					return m_Video.GainMin;
+				}
+				catch (PropertyNotImplementedException pex)
+				{
+					throw new OccuRec.Utilities.Exceptions.PropertyNotImplementedException(pex.Message);
+				}
+				catch (MethodNotImplementedException mex)
+				{
+					throw new OccuRec.Utilities.Exceptions.MethodNotImplementedException(mex.Message);
+				}
+				catch (NotConnectedException cex)
+				{
+					throw new OccuRec.Utilities.Exceptions.NotConnectedException();
+				}
+				catch (DriverException dex)
+				{
+					throw new OccuRec.Utilities.Exceptions.DriverException(dex.Message, dex);
+				}
+			}
 		}
 
 		public short Gain
 		{
-			[DebuggerStepThrough]
-			get { return GetValueAndTranslateExceptions(() => m_Video.Gain); }
+			[DebuggerStepThrough] 
+			get
+			{
+				try
+				{
+					return m_Video.Gain;
+				}
+				catch (PropertyNotImplementedException pex)
+				{
+					throw new OccuRec.Utilities.Exceptions.PropertyNotImplementedException(pex.Message);
+				}
+				catch (MethodNotImplementedException mex)
+				{
+					throw new OccuRec.Utilities.Exceptions.MethodNotImplementedException(mex.Message);
+				}
+				catch (NotConnectedException cex)
+				{
+					throw new OccuRec.Utilities.Exceptions.NotConnectedException();
+				}
+				catch (DriverException dex)
+				{
+					throw new OccuRec.Utilities.Exceptions.DriverException(dex.Message, dex);
+				}
+			}
 
 			[DebuggerStepThrough]
 			set { CallAndTranslateExceptions(() => m_Video.Gain = value); }
@@ -221,23 +309,90 @@ namespace OccuRec.ASCOM.Server
 
 		public ArrayList Gains
 		{
-			[DebuggerStepThrough]
-			get { return GetValueAndTranslateExceptions(() => m_Video.Gains); }
+			[DebuggerStepThrough] 
+			get
+			{
+				try
+				{
+					return m_Video.Gains;
+				}
+				catch (PropertyNotImplementedException pex)
+				{
+					throw new OccuRec.Utilities.Exceptions.PropertyNotImplementedException(pex.Message);
+				}
+				catch (MethodNotImplementedException mex)
+				{
+					throw new OccuRec.Utilities.Exceptions.MethodNotImplementedException(mex.Message);
+				}
+				catch (NotConnectedException cex)
+				{
+					throw new OccuRec.Utilities.Exceptions.NotConnectedException();
+				}
+				catch (DriverException dex)
+				{
+					throw new OccuRec.Utilities.Exceptions.DriverException(dex.Message, dex);
+				}
+			}
 		}
 
 		public short Gamma
 		{
 			[DebuggerStepThrough]
-			get { return GetValueAndTranslateExceptions(() => m_Video.Gamma); }
+			get
+			{
+				try
+				{
+					return m_Video.Gamma;
+				}
+				catch (PropertyNotImplementedException pex)
+				{
+					throw new OccuRec.Utilities.Exceptions.PropertyNotImplementedException(pex.Message);
+				}
+				catch (MethodNotImplementedException mex)
+				{
+					throw new OccuRec.Utilities.Exceptions.MethodNotImplementedException(mex.Message);
+				}
+				catch (NotConnectedException cex)
+				{
+					throw new OccuRec.Utilities.Exceptions.NotConnectedException();
+				}
+				catch (DriverException dex)
+				{
+					throw new OccuRec.Utilities.Exceptions.DriverException(dex.Message, dex);
+				}
+			}
 
 			[DebuggerStepThrough]
 			set { CallAndTranslateExceptions(() => m_Video.Gamma = value); }
 		}
 
+		
 		public ArrayList Gammas
 		{
 			[DebuggerStepThrough]
-			get { return GetValueAndTranslateExceptions(() => m_Video.Gammas); }
+			get
+			{
+				try
+				{
+					return m_Video.Gammas;
+				}
+				catch (PropertyNotImplementedException pex)
+				{
+					throw new OccuRec.Utilities.Exceptions.PropertyNotImplementedException(pex.Message);
+				}
+				catch (MethodNotImplementedException mex)
+				{
+					throw new OccuRec.Utilities.Exceptions.MethodNotImplementedException(mex.Message);
+				}
+				catch (NotConnectedException cex)
+				{
+					throw new OccuRec.Utilities.Exceptions.NotConnectedException();
+				}
+				catch (DriverException dex)
+				{
+					throw new OccuRec.Utilities.Exceptions.DriverException(dex.Message, dex);
+				}
+			}
 		}
 
 		[DebuggerStepThrough]

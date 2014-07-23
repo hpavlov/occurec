@@ -39,6 +39,7 @@ namespace OccuRec.ASCOM.Wrapper
 		internal readonly List<DeviceClient> DeviceClients = new List<DeviceClient>();
 
 		private ASCOMHelper m_ASCOMHelper;
+		private ASCOMHelper m_NearASCOMHelper;
 
 		internal RemotingClientSponsor RemotingClientSponsor = new RemotingClientSponsor();
 
@@ -51,6 +52,9 @@ namespace OccuRec.ASCOM.Wrapper
 
 			m_ASCOMHelper = new ASCOMHelper(this, useIsolationMode);
 			DeviceClients.Add(m_ASCOMHelper);
+
+			m_NearASCOMHelper = new ASCOMHelper(this, false);
+			DeviceClients.Add(m_NearASCOMHelper);
 		}
 
 
@@ -82,7 +86,7 @@ namespace OccuRec.ASCOM.Wrapper
             if (TraceSwitchASCOMClient.TraceVerbose)
                 Trace.WriteLine("OccuRec: ASCOMClient::ChooseVideo()");
 
-            return m_ASCOMHelper.ChooseVideo();
+			return m_NearASCOMHelper.ChooseVideo();
         }
 
         public void ConfigureFocuser(string progId)
@@ -128,7 +132,7 @@ namespace OccuRec.ASCOM.Wrapper
             if (TraceSwitchASCOMClient.TraceVerbose)
 				Trace.WriteLine(string.Format("OccuRec: ASCOMClient::CreateVideo('{0}')", progId));
 
-            IASCOMVideo isolatedVideo = m_ASCOMHelper.CreateVideo(progId);
+			IASCOMVideo isolatedVideo = m_NearASCOMHelper.CreateVideo(progId);
 			RegisterLifetimeService(isolatedVideo as MarshalByRefObject);
 
 			return new Video(isolatedVideo);

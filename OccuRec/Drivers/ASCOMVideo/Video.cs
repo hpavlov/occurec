@@ -261,11 +261,13 @@ namespace OccuRec.Drivers.ASCOMVideo
 
         public short GainMax
         {
+			[DebuggerStepThrough]
 			get { return m_ASCOMVideo.GainMax; }
         }
 
         public short GainMin
         {
+			[DebuggerStepThrough]
 			get { return m_ASCOMVideo.GainMin; }
         }
 
@@ -277,6 +279,7 @@ namespace OccuRec.Drivers.ASCOMVideo
 
         public ArrayList Gains
         {
+			[DebuggerStepThrough]
 			get { return m_ASCOMVideo.Gains; }
         }
 
@@ -288,6 +291,7 @@ namespace OccuRec.Drivers.ASCOMVideo
 
         public ArrayList Gammas
         {
+			[DebuggerStepThrough]
 			get { return m_ASCOMVideo.Gammas; }
         }
 
