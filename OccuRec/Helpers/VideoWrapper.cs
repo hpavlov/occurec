@@ -189,6 +189,11 @@ namespace OccuRec.Helpers
 			}
 		}
 
+		public bool IsASCOMVideo
+		{
+			get { return video is Drivers.ASCOMVideo.Video; }
+		}
+
 		public void ConfigureImage()
 		{
 			if (video != null)
@@ -337,6 +342,11 @@ namespace OccuRec.Helpers
 
 				return supporstFreeStyleGain.Value;
 			}
+		}
+
+		public bool SupporstGain
+		{
+			get { return SupporstDiscreteGain || SupporstFreeStyleGain; }
 		}
 
 		private bool? supporstDiscreteGain = null;

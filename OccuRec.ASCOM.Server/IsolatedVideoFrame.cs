@@ -17,6 +17,7 @@ namespace OccuRec.ASCOM.Server
     public class IsolatedVideoFrame : MarshalByRefObject, IASCOMVideoFrame, IDisposable
     {
         private IVideoFrame m_VideoFrame;
+	    private bool m_HasMetadata = true;
 
         public IsolatedVideoFrame(IVideoFrame videoFrame)
         {
@@ -57,24 +58,36 @@ namespace OccuRec.ASCOM.Server
         {
             get
             {
-                ArrayList metaData = m_VideoFrame.ImageMetadata;
-                if (metaData == null)
-                    return null;
-                else
-                {
-                    var output = new StringBuilder();
-                    foreach (object item in metaData)
-                    {
-                        if (item is KeyValuePair<string, object>)
-                        {
-                            string key = ((KeyValuePair<string, object>)item).Key;
-                            object value = ((KeyValuePair<string, object>)item).Value;
-                            output.AppendFormat("{0}={1}&", key, Convert.ToString(value));
-                        }
-                    }
+				if (m_HasMetadata)
+				{
+					try
+					{
+						ArrayList metaData = m_VideoFrame.ImageMetadata;
+						if (metaData == null)
+							return null;
+						else
+						{
+							var output = new StringBuilder();
+							foreach (object item in metaData)
+							{
+								if (item is KeyValuePair<string, object>)
+								{
+									string key = ((KeyValuePair<string, object>) item).Key;
+									object value = ((KeyValuePair<string, object>) item).Value;
+									output.AppendFormat("{0}={1}&", key, Convert.ToString(value));
+								}
+							}
 
-                    return output.ToString();
-                }
+							return output.ToString();
+						}
+					}
+					catch (Exception ex)
+					{
+						m_HasMetadata = false;
+					}
+				}
+
+				return string.Empty;
             }
         }
 

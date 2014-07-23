@@ -43,7 +43,7 @@ namespace OccuRec.Drivers.ASCOMVideo
 
         public short InterfaceVersion
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.InterfaceVersion; }
         }
 
         public string Name
@@ -66,9 +66,9 @@ namespace OccuRec.Drivers.ASCOMVideo
             m_CallbacksObject = callbacksObject;
         }
 
-        public string Action(string ActionName, string ActionParameters)
+        public string Action(string actionName, string actionParameters)
         {
-            throw new NotImplementedException();
+	        return m_ASCOMVideo.Action(actionName, actionParameters);
         }
 
         public ArrayList SupportedActions
@@ -78,39 +78,38 @@ namespace OccuRec.Drivers.ASCOMVideo
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+			if (m_ASCOMVideo != null)
+			{
+				m_ASCOMVideo.Connected = false;
+				ASCOMClient.Instance.ReleaseDevice(m_ASCOMVideo);
+				m_ASCOMVideo = null;
+			}
         }
 
         public double ExposureMax
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.ExposureMax; }
         }
 
         public double ExposureMin
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.ExposureMin; }
         }
 
         public VideoCameraFrameRate FrameRate
         {
-            get { throw new NotImplementedException(); }
+			get { return (VideoCameraFrameRate)m_ASCOMVideo.FrameRate; }
         }
 
-        public System.Collections.ArrayList SupportedIntegrationRates
+        public ArrayList SupportedIntegrationRates
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.SupportedIntegrationRates; }
         }
 
         public int IntegrationRate
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+			get { return m_ASCOMVideo.IntegrationRate; }
+			set { m_ASCOMVideo.IntegrationRate = value; }
         }
 
         private VideoFrame m_LastVideoFrame = null;
@@ -168,22 +167,22 @@ namespace OccuRec.Drivers.ASCOMVideo
 
         public string SensorName
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.SensorName; }
         }
 
         public SensorType SensorType
         {
-            get { throw new NotImplementedException(); }
+			get { return (SensorType)m_ASCOMVideo.SensorType; }
         }
 
         public int CameraXSize
         {
-            get { throw new NotImplementedException(); }
+			get { throw new NotImplementedException(); }
         }
 
         public int CameraYSize
         {
-            get { throw new NotImplementedException(); }
+			get { throw new NotImplementedException(); }
         }
 
         public int Width
@@ -198,12 +197,12 @@ namespace OccuRec.Drivers.ASCOMVideo
 
         public double PixelSizeX
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.PixelSizeX; }
         }
 
         public double PixelSizeY
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.PixelSizeY; }
         }
 
         public int BitDepth
@@ -223,17 +222,17 @@ namespace OccuRec.Drivers.ASCOMVideo
 
         public int VideoFramesBufferSize
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.VideoFramesBufferSize; }
         }
 
-        public string StartRecordingVideoFile(string PreferredFileName)
+        public string StartRecordingVideoFile(string preferredFileName)
         {
-            throw new NotImplementedException();
+			return m_ASCOMVideo.StartRecordingVideoFile(preferredFileName);
         }
 
         public void StopRecordingVideoFile()
         {
-            throw new NotImplementedException();
+	        m_ASCOMVideo.StopRecordingVideoFile();
         }
 
         public VideoCameraState CameraState
@@ -243,46 +242,34 @@ namespace OccuRec.Drivers.ASCOMVideo
 
         public short GainMax
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.GainMax; }
         }
 
         public short GainMin
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.GainMin; }
         }
 
         public short Gain
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+			get { return m_ASCOMVideo.Gain; }
+            set { m_ASCOMVideo.Gain = value; }
         }
 
-        public System.Collections.ArrayList Gains
+        public ArrayList Gains
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.Gains; }
         }
 
         public int Gamma
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+			get { return m_ASCOMVideo.Gamma; }
+			set { m_ASCOMVideo.Gamma = (short)value; }
         }
 
-        public System.Collections.ArrayList Gammas
+        public ArrayList Gammas
         {
-            get { throw new NotImplementedException(); }
+			get { return m_ASCOMVideo.Gammas; }
         }
 
         public bool CanConfigureImage
@@ -292,7 +279,7 @@ namespace OccuRec.Drivers.ASCOMVideo
 
         public void ConfigureImage()
         {
-            throw new NotImplementedException();
+	        m_ASCOMVideo.ConfigureImage();
         }
     }
 }

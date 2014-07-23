@@ -222,6 +222,8 @@ namespace OccuRec
 					pnlAAV.Visible = OccuRecContext.Current.IsAAV;
 					tsbtnDisplayMode.Visible = true;
 
+					if (videoObject.SupporstFreeStyleGain) videoObject.SetFreeRangeGainIntervals(10);
+
 					m_OverlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager, m_StateManager);
 					m_VideoFrameInteractionController.OnNewVideoSource(videoObject);
 
@@ -257,7 +259,7 @@ namespace OccuRec
 			picVideoFrame.Height = videoObject.Height;
 
 			UpdateCameraState(true);
-			
+			ucVideoControl.Initialize(videoObject);
 		}
 
 		private void DisconnectFromCamera()
@@ -319,6 +321,7 @@ namespace OccuRec
             btnStopRecording.Enabled = CanStopRecordingNow(connected);
 			btnImageSettings.Enabled = connected && videoObject != null && videoObject.CanConfigureImage;
 
+			ucVideoControl.Visible = connected && videoObject != null && videoObject.IsASCOMVideo;
 		    
 			if (videoObject != null)
 			{

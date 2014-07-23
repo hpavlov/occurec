@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using ASCOM;
 using ASCOM.DeviceInterface;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.Utilities;
@@ -95,7 +96,127 @@ namespace OccuRec.ASCOM.Server
 
         public IASCOMVideoFrame LastVideoFrame
         {
-            get { return new IsolatedVideoFrame(m_Video.LastVideoFrame); }
+			[DebuggerStepThrough]
+            get
+            {
+				try
+				{
+					return new IsolatedVideoFrame(m_Video.LastVideoFrame);
+				}
+				catch (NotConnectedException)
+				{
+					return null;
+				}
+            }
         }
+
+		public short InterfaceVersion
+		{
+			get { return m_Video.InterfaceVersion; }
+		}
+
+
+		public double ExposureMax
+		{
+			get { return m_Video.ExposureMax; }
+		}
+
+		public double ExposureMin
+		{
+			get { return m_Video.ExposureMin; }
+		}
+
+		public int FrameRate
+		{
+			get { return (int)m_Video.FrameRate; }
+		}
+
+		public ArrayList SupportedIntegrationRates
+		{
+			get { return m_Video.SupportedIntegrationRates; }
+		}
+
+		public int IntegrationRate
+		{
+			get { return m_Video.IntegrationRate; }
+			set { m_Video.IntegrationRate = value; }
+		}
+
+		public string Action(string actionName, string actionParameters)
+		{
+			return m_Video.Action(actionName, actionParameters);
+		}
+
+		public string StartRecordingVideoFile(string preferredFileName)
+		{
+			return m_Video.StartRecordingVideoFile(preferredFileName);
+		}
+
+		public void StopRecordingVideoFile()
+		{
+			m_Video.StopRecordingVideoFile();
+		}
+
+		public void ConfigureImage()
+		{
+			m_Video.ConfigureDeviceProperties();
+		}
+
+		public string SensorName
+		{
+			get { return m_Video.SensorName; }
+		}
+
+		public int SensorType
+		{
+			get { return (int)m_Video.SensorType; }
+		}
+
+		public double PixelSizeX
+		{
+			get { return m_Video.PixelSizeX; }
+		}
+
+		public double PixelSizeY
+		{
+			get { return m_Video.PixelSizeY; }
+		}
+
+		public int VideoFramesBufferSize
+		{
+			get { return m_Video.VideoFramesBufferSize; }
+		}
+
+		public short GainMax
+		{
+			get { return m_Video.GainMax; }
+		}
+
+		public short GainMin
+		{
+			get { return m_Video.GainMin; }
+		}
+
+		public short Gain
+		{
+			get { return m_Video.Gain; }
+			set { m_Video.Gain = value; }
+		}
+
+		public ArrayList Gains
+		{
+			get { return m_Video.Gains; }
+		}
+
+		public short Gamma
+		{
+			get { return m_Video.Gamma; }
+			set { m_Video.Gamma = value; }
+		}
+
+		public ArrayList Gammas
+		{
+			get { return m_Video.Gammas; }
+		}
     }
 }

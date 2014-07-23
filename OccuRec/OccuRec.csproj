@@ -164,6 +164,12 @@
     <Compile Include="Context\OccuRecContext.cs" />
     <Compile Include="Controllers\VideoFrameInteractionController.cs" />
     <Compile Include="Controllers\VideoRenderingController.cs" />
+    <Compile Include="Controls\ucCameraControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ucCameraControl.Designer.cs">
+      <DependentUpon>ucCameraControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="Drivers\AAVSimulator\AAVPlayerImpl\AAVPlayer.cs" />
     <Compile Include="Drivers\AAVTimer\VideoFrame.cs" />
     <Compile Include="Drivers\ASCOMVideo\Video.cs" />
@@ -390,6 +396,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucTraking.resx">
       <DependentUpon>ucTraking.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ucCameraControl.resx">
+      <DependentUpon>ucCameraControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmChooseCamera.resx">
       <DependentUpon>frmChooseCamera.cs</DependentUpon>
