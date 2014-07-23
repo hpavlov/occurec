@@ -242,6 +242,7 @@
     <Compile Include="ObservatoryAutomation\StateMachine\IdleState.cs" />
     <Compile Include="ObservatoryAutomation\StateMachine\PulseGuiding\PgcInitialState.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="StateManagement\ExternallyManagedCameraState.cs" />
     <Compile Include="StateManagement\UndeterminedVtiOsdLocationState.cs" />
     <Compile Include="Tracking\AllGreys.cs" />
     <Compile Include="Tracking\ImagePixel.cs" />

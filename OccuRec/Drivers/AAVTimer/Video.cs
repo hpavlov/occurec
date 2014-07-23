@@ -15,6 +15,7 @@ using OccuRec.Drivers;
 using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
 using OccuRec.Helpers;
 using OccuRec.Utilities;
+using OccuRec.Utilities.Exceptions;
 
 namespace OccuRec.Drivers.AAVTimer
 {

@@ -32,191 +32,262 @@ namespace OccuRec.ASCOM.Server
 			return state;
 		}
 
+		[DebuggerStepThrough]
         public void Configure()
         {
-            try
-            {
-                m_Video.SetupDialog();
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex.GetFullStackTrace());
-            }
-        }
+			CallAndTranslateExceptions(() => m_Video.SetupDialog());
+		}
 
         public int Width
         {
-            get { return m_Video.Width; }
+			[DebuggerStepThrough]
+            get { return GetValueAndTranslateExceptions(() => m_Video.Width); }
         }
 
         public int Height
         {
-            get { return m_Video.Height; }
+			[DebuggerStepThrough]
+            get { return GetValueAndTranslateExceptions(() => m_Video.Height); }
         }
 
         public int BitDepth
         {
-            get { return m_Video.BitDepth; }
+			[DebuggerStepThrough]
+            get { return GetValueAndTranslateExceptions(() => m_Video.BitDepth); }
         }
 
 	    public bool CanConfigureImage
 	    {
-            get { return m_Video.CanConfigureDeviceProperties; }
+			[DebuggerStepThrough]
+            get { return GetValueAndTranslateExceptions(() => m_Video.CanConfigureDeviceProperties); }
 	    }
 
 	    public ArrayList SupportedActions
 	    {
-            get { return m_Video.SupportedActions; }
+			[DebuggerStepThrough]
+            get { return GetValueAndTranslateExceptions(() => m_Video.SupportedActions); }
 	    }
 
 	    public int CameraState
 	    {
-            get { return (int)m_Video.CameraState; }
+			[DebuggerStepThrough]
+            get { return GetValueAndTranslateExceptions(() => (int)m_Video.CameraState); }
 	    }
 
         public string VideoFileFormat
         {
-            get { return m_Video.VideoFileFormat; }
+			[DebuggerStepThrough]
+            get { return GetValueAndTranslateExceptions(() => m_Video.VideoFileFormat); }
         }
 
         public string VideoCodec
         {
-            get { return m_Video.VideoCodec; }
+			[DebuggerStepThrough]
+            get { return GetValueAndTranslateExceptions(() => m_Video.VideoCodec); }
         }
 
         public string Name
-        {
-            get { return m_Video.Name; }
+		{
+			[DebuggerStepThrough]
+            get { return GetValueAndTranslateExceptions(() => m_Video.Name); }
         }
 
         public string VideoCaptureDeviceName
         {
-            get { return m_Video.VideoCaptureDeviceName; }
+			[DebuggerStepThrough]
+            get { return GetValueAndTranslateExceptions(() => m_Video.VideoCaptureDeviceName); }
         }
 
         public IASCOMVideoFrame LastVideoFrame
         {
 			[DebuggerStepThrough]
-            get
-            {
-				try
-				{
-					return new IsolatedVideoFrame(m_Video.LastVideoFrame);
-				}
-				catch (NotConnectedException)
-				{
-					return null;
-				}
-            }
+            get { return GetValueAndTranslateExceptions(() => new IsolatedVideoFrame(m_Video.LastVideoFrame)); }
         }
 
 		public short InterfaceVersion
 		{
-			get { return m_Video.InterfaceVersion; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.InterfaceVersion); }
 		}
 
 
 		public double ExposureMax
 		{
-			get { return m_Video.ExposureMax; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.ExposureMax); }
 		}
 
 		public double ExposureMin
 		{
-			get { return m_Video.ExposureMin; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.ExposureMin); }
 		}
 
 		public int FrameRate
 		{
-			get { return (int)m_Video.FrameRate; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => (int)m_Video.FrameRate); }
 		}
 
 		public ArrayList SupportedIntegrationRates
 		{
-			get { return m_Video.SupportedIntegrationRates; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.SupportedIntegrationRates); }
 		}
 
 		public int IntegrationRate
 		{
-			get { return m_Video.IntegrationRate; }
-			set { m_Video.IntegrationRate = value; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.IntegrationRate); }
+
+			[DebuggerStepThrough]
+			set { CallAndTranslateExceptions(() => m_Video.IntegrationRate = value); }
 		}
 
+		[DebuggerStepThrough]
 		public string Action(string actionName, string actionParameters)
 		{
-			return m_Video.Action(actionName, actionParameters);
+			return GetValueAndTranslateExceptions(() => m_Video.Action(actionName, actionParameters));
 		}
 
+		[DebuggerStepThrough]
 		public string StartRecordingVideoFile(string preferredFileName)
 		{
-			return m_Video.StartRecordingVideoFile(preferredFileName);
+			return GetValueAndTranslateExceptions(() => m_Video.StartRecordingVideoFile(preferredFileName));
 		}
 
+		[DebuggerStepThrough]
 		public void StopRecordingVideoFile()
 		{
-			m_Video.StopRecordingVideoFile();
+			CallAndTranslateExceptions(() => m_Video.StopRecordingVideoFile());
 		}
 
+		[DebuggerStepThrough]
 		public void ConfigureImage()
 		{
-			m_Video.ConfigureDeviceProperties();
+			CallAndTranslateExceptions(() => m_Video.ConfigureDeviceProperties());
 		}
 
 		public string SensorName
 		{
-			get { return m_Video.SensorName; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.SensorName); }
 		}
 
 		public int SensorType
 		{
-			get { return (int)m_Video.SensorType; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => (int)m_Video.SensorType); }
 		}
 
 		public double PixelSizeX
 		{
-			get { return m_Video.PixelSizeX; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.PixelSizeX); }
 		}
 
 		public double PixelSizeY
 		{
-			get { return m_Video.PixelSizeY; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.PixelSizeY); }
 		}
 
 		public int VideoFramesBufferSize
 		{
-			get { return m_Video.VideoFramesBufferSize; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.VideoFramesBufferSize); }
 		}
 
 		public short GainMax
 		{
-			get { return m_Video.GainMax; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.GainMax); }
 		}
 
 		public short GainMin
 		{
-			get { return m_Video.GainMin; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.GainMin); }
 		}
 
 		public short Gain
 		{
-			get { return m_Video.Gain; }
-			set { m_Video.Gain = value; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.Gain); }
+
+			[DebuggerStepThrough]
+			set { CallAndTranslateExceptions(() => m_Video.Gain = value); }
 		}
 
 		public ArrayList Gains
 		{
-			get { return m_Video.Gains; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.Gains); }
 		}
 
 		public short Gamma
 		{
-			get { return m_Video.Gamma; }
-			set { m_Video.Gamma = value; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.Gamma); }
+
+			[DebuggerStepThrough]
+			set { CallAndTranslateExceptions(() => m_Video.Gamma = value); }
 		}
 
 		public ArrayList Gammas
 		{
-			get { return m_Video.Gammas; }
+			[DebuggerStepThrough]
+			get { return GetValueAndTranslateExceptions(() => m_Video.Gammas); }
+		}
+
+		[DebuggerStepThrough]
+		private T GetValueAndTranslateExceptions<T>(Func<T> getter)
+		{
+			try
+			{
+				return getter();
+			}
+			catch (PropertyNotImplementedException pex)
+			{
+				throw new OccuRec.Utilities.Exceptions.PropertyNotImplementedException(pex.Message);
+			}
+			catch (MethodNotImplementedException mex)
+			{
+				throw new OccuRec.Utilities.Exceptions.MethodNotImplementedException(mex.Message);
+			}
+			catch (NotConnectedException cex)
+			{
+				throw new OccuRec.Utilities.Exceptions.NotConnectedException();
+			}
+			catch (DriverException dex)
+			{
+				throw new OccuRec.Utilities.Exceptions.DriverException(dex.Message, dex);
+			}
+		}
+
+		[DebuggerStepThrough]
+		private void CallAndTranslateExceptions(Action action)
+		{
+			try
+			{
+				action();
+			}
+			catch (PropertyNotImplementedException pex)
+			{
+				throw new OccuRec.Utilities.Exceptions.PropertyNotImplementedException(pex.Message);
+			}
+			catch (MethodNotImplementedException mex)
+			{
+				throw new OccuRec.Utilities.Exceptions.MethodNotImplementedException(mex.Message);
+			}
+			catch (NotConnectedException cex)
+			{
+				throw new OccuRec.Utilities.Exceptions.NotConnectedException();
+			}
+			catch (DriverException dex)
+			{
+				throw new OccuRec.Utilities.Exceptions.DriverException(dex.Message, dex);
+			}
 		}
     }
 }

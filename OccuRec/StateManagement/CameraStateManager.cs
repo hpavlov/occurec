@@ -73,6 +73,8 @@ namespace OccuRec.StateManagement
 
             if (isIntegrating)
 				ChangeState(UndeterminedVtiOsdLocationState.Instance);
+			else if (driverInstance is Drivers.ASCOMVideo.Video)
+				ChangeState(ExternallyManagedCameraState.Instance);
             else
                 ChangeState(NoIntegrationSupportedCameraState.Instance);
         }
@@ -195,7 +197,7 @@ namespace OccuRec.StateManagement
 
         public bool IsIntegrationLocked
         {
-            get { return currentState is LockedIntegrationCameraState; }
+			get { return currentState is LockedIntegrationCameraState; }
         }
 
         public bool CanLockIntegrationNow
@@ -243,7 +245,8 @@ namespace OccuRec.StateManagement
             {
                 return
                     currentState is LockedIntegrationCameraState ||
-                    currentState is NoIntegrationSupportedCameraState;
+                    currentState is NoIntegrationSupportedCameraState ||
+					currentState is ExternallyManagedCameraState;
             }
         }
 

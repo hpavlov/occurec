@@ -15,6 +15,8 @@ using OccuRec.Drivers;
 using OccuRec.Drivers.AAVSimulator.AAVPlayerImpl;
 using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
 using OccuRec.Helpers;
+using OccuRec.Utilities;
+using OccuRec.Utilities.Exceptions;
 
 namespace OccuRec.Drivers.AAVSimulator
 {

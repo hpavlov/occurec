@@ -8,6 +8,8 @@ using System.Text;
 using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
 using OccuRec.Helpers;
 using OccuRec.Tracking;
+using OccuRec.Utilities;
+using OccuRec.Utilities.Exceptions;
 
 namespace OccuRec.Drivers.AAVTimer
 {

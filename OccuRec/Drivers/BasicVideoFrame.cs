@@ -7,6 +7,8 @@ using System.Text;
 using OccuRec.Helpers;
 using OccuRec.Properties;
 using OccuRec.Tracking;
+using OccuRec.Utilities;
+using OccuRec.Utilities.Exceptions;
 
 namespace OccuRec.Drivers
 {

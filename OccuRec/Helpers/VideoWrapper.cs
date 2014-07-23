@@ -6,6 +6,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.Drivers;
+using OccuRec.Utilities;
+using OccuRec.Utilities.Exceptions;
 
 namespace OccuRec.Helpers
 {

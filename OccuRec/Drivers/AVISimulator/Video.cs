@@ -11,6 +11,8 @@ using System.Text;
 using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
 using OccuRec.Drivers.AVISimulator.AVIPlayerImpl;
 using OccuRec.Helpers;
+using OccuRec.Utilities;
+using OccuRec.Utilities.Exceptions;
 
 namespace OccuRec.Drivers.AVISimulator
 {
@@ -44,7 +46,7 @@ namespace OccuRec.Drivers.AVISimulator
                     else
                     {
                         player.Stop();
-                        cameraState = VideoCameraState.videoCameraIdle;
+						cameraState = VideoCameraState.videoCameraRunning;
                     }
                 }
             }
@@ -389,7 +391,7 @@ namespace OccuRec.Drivers.AVISimulator
             }
         }
 
-        private VideoCameraState cameraState = VideoCameraState.videoCameraIdle;
+		private VideoCameraState cameraState = VideoCameraState.videoCameraRunning;
 
         public string StartRecordingVideoFile(string PreferredFileName)
         {

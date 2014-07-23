@@ -25,7 +25,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 
 		private ICameraImage cameraImageHelper = new CameraImage();
 
-		private VideoCameraState cameraState = VideoCameraState.videoCameraIdle;
+		private VideoCameraState cameraState = VideoCameraState.videoCameraRunning;
 
 	    private IVideoCallbacks callbacksObject;
         internal IVideoCallbacks CallbacksObject
@@ -93,7 +93,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 
 				dsCapture.Start();
 
-				cameraState = dsCapture.IsRunning ? VideoCameraState.videoCameraRunning : VideoCameraState.videoCameraIdle;
+				cameraState = VideoCameraState.videoCameraRunning;
 			}
 		}
 
@@ -103,7 +103,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 
 			dsCapture.CloseResources();
 
-			cameraState = VideoCameraState.videoCameraIdle;
+			cameraState = VideoCameraState.videoCameraRunning;
 		}
 
 		public void ReloadSettings()

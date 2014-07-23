@@ -47,7 +47,7 @@ namespace OccuRec.ASCOM.Server
             {
                 rv.StepSize = m_Focuser.StepSize;
             }
-            catch (PropertyNotImplementedException)
+			catch (PropertyNotImplementedException)
             {
                 rv.StepSize = double.NaN;
             }
@@ -62,7 +62,7 @@ namespace OccuRec.ASCOM.Server
                 else
                     rv.Position = 0;
             }
-            catch (PropertyNotImplementedException)
+			catch (PropertyNotImplementedException)
             {
                 rv.Position = 0;
             }
@@ -109,7 +109,7 @@ namespace OccuRec.ASCOM.Server
 
                 return m_Focuser.TempComp == tempComp;
             }
-            catch (PropertyNotImplementedException)
+			catch (PropertyNotImplementedException)
             { }
 
             return false;

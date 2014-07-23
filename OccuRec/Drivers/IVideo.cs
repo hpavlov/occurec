@@ -39,24 +39,19 @@ namespace OccuRec.Drivers
 	public enum VideoCameraState
 	{
 		/// <summary>
-		/// Camera status idle. The video camera is expecting commands.
-		/// </summary>
-		videoCameraIdle = 0,
-
-		/// <summary>
 		/// Camera status running. The video camera is producing images and video frames are available for viewing or recording.
 		/// </summary>
-		videoCameraRunning = 1,
+		videoCameraRunning = 0,
 
 		/// <summary>
 		/// Camera status recording. The video driver is recording video to the file system. Video frames are available for viewing.
 		/// </summary>
-		videoCameraRecording = 2,
+		videoCameraRecording = 1,
 
 		/// <summary>
 		/// Camera status error. The video camera is in a state of an error and cannot continue its operation. Usually a restart will be required to resolve the error condition.
 		/// </summary>
-		videoCameraError = 3
+		videoCameraError = 2
 	}
 
 	public interface IVideoFrame

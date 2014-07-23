@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using OccuRec.ASCOM.Wrapper;
 using OccuRec.ASCOM.Wrapper.Interfaces;
+using OccuRec.Utilities;
+using OccuRec.Utilities.Exceptions;
 
 namespace OccuRec.Drivers.ASCOMVideo
 {

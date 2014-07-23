@@ -543,10 +543,6 @@ namespace OccuRec
         {
             switch (videoObject.State)
             {
-                case VideoCameraState.videoCameraIdle:
-                    tssCameraState.Text = "Idle";
-                    break;
-
                 case VideoCameraState.videoCameraRunning:
 					tssCameraState.Text = "Running";
                     break;
@@ -776,7 +772,7 @@ namespace OccuRec
                     btnStopRecording.Enabled = false;
                 }
 
-				if (videoObject.State == VideoCameraState.videoCameraRunning)
+				if (videoObject.State == VideoCameraState.videoCameraRunning && OccuRecContext.Current.IsAAV)
 				{
 					if (m_StateManager.VtiOsdPositionUnknown)
 					{

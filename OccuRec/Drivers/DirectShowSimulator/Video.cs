@@ -11,6 +11,8 @@ using System.Text;
 using OccuRec.Drivers.AAVTimer.VideoCaptureImpl;
 using OccuRec.Drivers.DirectShowSimulator.DxPlayImpl;
 using OccuRec.Helpers;
+using OccuRec.Utilities;
+using OccuRec.Utilities.Exceptions;
 
 namespace OccuRec.Drivers.DirectShowSimulator
 {
@@ -52,7 +54,7 @@ namespace OccuRec.Drivers.DirectShowSimulator
                     else
                     {
                         player.Stop();
-                        cameraState = VideoCameraState.videoCameraIdle;
+						cameraState = VideoCameraState.videoCameraRunning;
                     }
                 }
             }
@@ -394,7 +396,7 @@ namespace OccuRec.Drivers.DirectShowSimulator
             }
         }
 
-        private VideoCameraState cameraState = VideoCameraState.videoCameraIdle;
+		private VideoCameraState cameraState = VideoCameraState.videoCameraRunning;
 
         public string StartRecordingVideoFile(string PreferredFileName)
         {
