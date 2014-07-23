@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using OccuRec.ASCOM.Wrapper;
@@ -133,7 +134,23 @@ namespace OccuRec.Drivers.ASCOMVideo
                         }
                     }
 
-                    m_LastVideoFrame = new VideoFrame(m_ASCOMVideo.LastVideoFrame);
+					try
+					{
+						m_LastVideoFrame = new VideoFrame(m_ASCOMVideo.LastVideoFrame);
+					}
+					catch (NotConnectedException)
+					{
+						m_LastVideoFrame = null;
+					}
+					catch (InvalidOperationException)
+					{
+						m_LastVideoFrame = null;
+					}
+					catch (Exception ex)
+					{
+						Trace.WriteLine(ex);
+						m_LastVideoFrame = null;
+					}
                 }
 
                 return m_LastVideoFrame;
