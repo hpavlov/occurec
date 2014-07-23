@@ -1,0 +1,12 @@
+#ifndef GLOBAL_DEFINES
+#define GLOBAL_DEFINES
+
+//#define SIMULATOR_TEST_IMAGE
+ 
+//#define CAMERA_SIMULATOR
+//#define HTCC_SIMULATOR
+
+//#define HTCC_DETAILED_LOG
+//#define CAMERA_DETAILED_LOG
+
+#endif
