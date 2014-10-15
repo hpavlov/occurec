@@ -938,18 +938,6 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool LicenseAgreementAccepted {
-            get {
-                return ((bool)(this["LicenseAgreementAccepted"]));
-            }
-            set {
-                this["LicenseAgreementAccepted"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool NTPTimeStampsInAAVEnabled {
             get {
                 return ((bool)(this["NTPTimeStampsInAAVEnabled"]));
@@ -1281,6 +1269,18 @@ namespace OccuRec.Properties {
             }
             set {
                 this["AavCompression"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool MPLv2LicenseAgreementAccepted {
+            get {
+                return ((bool)(this["MPLv2LicenseAgreementAccepted"]));
+            }
+            set {
+                this["MPLv2LicenseAgreementAccepted"] = value;
             }
         }
     }

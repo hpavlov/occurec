@@ -80,7 +80,7 @@
 			this.MinimizeBox = false;
 			this.Name = "frmLicenseAgreement";
 			this.ShowInTaskbar = false;
-			this.Text = "OccuRec License Agreement - MIT License";
+			this.Text = "OccuRec License Agreement - MPLv2 License";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

@@ -5,22 +5,9 @@
 General & Bugfixes:
 
 - Save the default video modes per capture device
-- During the integration detection check if the fields are combined incorrectly. Implement an automatic fix for this issue if present
+- During the integration detection check if the fields are combined incorrectly (two video fields from different integration periods are combined in the same frame). 
+  Implement an automatic fix for this issue if present
 - Can the issue with misplaced fields once event 20 min 50 sec be solved by 'recombining' the fields on the fly when the issue is detected?
-
-- Hide ASCOM related settings and controls if ASOM is not installed
-- Use 3 different NTP servers to establish a more accurate timeframe (compensating for async download/upload speeds)
-- Run the NTP time sync in a high priority thread. See what BeeperSync does and do the same.
-- Show a +/- error for the time drift (based on the accuract of the latest NTP time reference) when tracing out the message: 
-	"OccuRec: Current time drift for 50.7 min is 145.8 ms (2.88 ms/min)"
-  Also add this error into the check that determines if a time update needs to be made (not sure how to accurately do this)
-
-
-OCR Implemntation:
-
-V) Successfully run a live test for 24 hours without any errors
-- Test the parsing of "N" and apply fixes to the defintion is required
-- Implement OCR for NTSC
 
 Observatory Control:
 
@@ -82,3 +69,10 @@ V) Complete the unmanaged OCR verification based on expected frame/integration p
 V) The integrated FrameId should increase gradually (by 1) when a new integrated frame is detected
 V) Display remaining space left on disk (in status bar) when less than 2 Gb are available. Also show a warning message at start up
 V) Warn on start up if the target folder file system doesn't allow files bigger than 2/4 GB (i.e. is FAT or FAT32 with small file support)
+V) Hide ASCOM related settings and controls if ASOM is not installed
+V) Use 3 different NTP servers to establish a more accurate timeframe (compensating for async download/upload speeds)
+V) Run the NTP time sync in a high priority thread. See what BeeperSync does and do the same.
+V) Show a +/- error for the time drift (based on the accuract of the latest NTP time reference) when tracing out the message: 
+	"OccuRec: Current time drift for 50.7 min is 145.8 ms (2.88 ms/min)"
+V)  Also add this error into the check that determines if a time update needs to be made (not sure how to accurately do this)
+V) Successfully run a live test for 24 hours without any errors

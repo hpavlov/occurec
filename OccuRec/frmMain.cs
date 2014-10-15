@@ -1,4 +1,8 @@
-﻿using System;
+﻿/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -1960,13 +1964,13 @@ namespace OccuRec
 
 		private void frmMain_Shown(object sender, EventArgs e)
 		{
-			if (!Settings.Default.LicenseAgreementAccepted)
+			if (!Settings.Default.MPLv2LicenseAgreementAccepted)
 			{
 				var frm = new frmLicenseAgreement();
 				frm.StartPosition = FormStartPosition.CenterParent;
 				if (frm.ShowDialog(this) == DialogResult.OK)
 				{
-					Settings.Default.LicenseAgreementAccepted = true;
+					Settings.Default.MPLv2LicenseAgreementAccepted = true;
 					Settings.Default.Save();
 				}
 				else

@@ -230,9 +230,6 @@
     <Setting Name="VideoDriversCommSettings" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="LicenseAgreementAccepted" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="NTPTimeStampsInAAVEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
@@ -316,6 +313,9 @@
     </Setting>
     <Setting Name="AavCompression" Type="System.String" Scope="User">
       <Value Profile="(Default)">QuickLZ</Value>
+    </Setting>
+    <Setting Name="MPLv2LicenseAgreementAccepted" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>
