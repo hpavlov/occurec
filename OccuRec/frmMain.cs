@@ -1527,7 +1527,7 @@ namespace OccuRec
 
 		private void miYahooGroup_Click(object sender, EventArgs e)
 		{
-			Process.Start("http://tech.groups.yahoo.com/group/OccuRec");
+            Process.Start("https://groups.yahoo.com/neo/groups/OccuRec/info");
 		}
 
 		private void miOpenFile_Click(object sender, EventArgs e)
