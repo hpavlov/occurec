@@ -268,7 +268,7 @@ namespace OccuRec.ASCOM
 					{
 						m_CameraDriver.OSDSet();
 
-						VideoState state = m_CameraDriver.GetCurrentState();
+                        VideoState state = m_CameraDriver.GetCurrentState(CameraStateQuery.All);
 						OnVideoState(state);
 					}
 				}
@@ -293,7 +293,7 @@ namespace OccuRec.ASCOM
 				{
 					if (m_CameraDriver != null && m_CameraDriver.Connected)
 					{
-						VideoState state = m_CameraDriver.GetCurrentState();
+                        VideoState state = m_CameraDriver.GetCurrentState(CameraStateQuery.All);
 						OnVideoState(state);
 					}
 				}
@@ -319,7 +319,7 @@ namespace OccuRec.ASCOM
 					if (m_CameraDriver != null && m_CameraDriver.Connected)
 					{
 						m_CameraDriver.GammaDown();
-						VideoState state = m_CameraDriver.GetCurrentState();
+                        VideoState state = m_CameraDriver.GetCurrentState(CameraStateQuery.Gamma);
 						OnVideoState(state);
 					}
 				}
@@ -345,7 +345,7 @@ namespace OccuRec.ASCOM
 					if (m_CameraDriver != null && m_CameraDriver.Connected)
 					{
 						m_CameraDriver.GammaUp();
-						VideoState state = m_CameraDriver.GetCurrentState();
+                        VideoState state = m_CameraDriver.GetCurrentState(CameraStateQuery.Gamma);
 						OnVideoState(state);
 					}
 				}
@@ -371,7 +371,7 @@ namespace OccuRec.ASCOM
 					if (m_CameraDriver != null && m_CameraDriver.Connected)
 					{
 						m_CameraDriver.GainDown();
-						VideoState state = m_CameraDriver.GetCurrentState();
+                        VideoState state = m_CameraDriver.GetCurrentState(CameraStateQuery.Gain);
 						OnVideoState(state);
 					}
 				}
@@ -397,7 +397,7 @@ namespace OccuRec.ASCOM
 					if (m_CameraDriver != null && m_CameraDriver.Connected)
 					{
 						m_CameraDriver.GainUp();
-						VideoState state = m_CameraDriver.GetCurrentState();
+                        VideoState state = m_CameraDriver.GetCurrentState(CameraStateQuery.Gain);
 						OnVideoState(state);
 					}
 				}
@@ -423,7 +423,7 @@ namespace OccuRec.ASCOM
 					if (m_CameraDriver != null && m_CameraDriver.Connected)
 					{
 						m_CameraDriver.ExposureDown();
-						VideoState state = m_CameraDriver.GetCurrentState();
+                        VideoState state = m_CameraDriver.GetCurrentState(CameraStateQuery.Shutter);
 						OnVideoState(state);
 					}
 				}
@@ -449,7 +449,7 @@ namespace OccuRec.ASCOM
 					if (m_CameraDriver != null && m_CameraDriver.Connected)
 					{
 						m_CameraDriver.ExposureUp();
-						VideoState state = m_CameraDriver.GetCurrentState();
+                        VideoState state = m_CameraDriver.GetCurrentState(CameraStateQuery.Shutter);
 						OnVideoState(state);
 					}
 				}
@@ -1206,7 +1206,7 @@ namespace OccuRec.ASCOM
 							OnVideoConnected();
 						}
 
-						VideoState state = m_CameraDriver.GetCurrentState();
+                        VideoState state = m_CameraDriver.GetCurrentState(CameraStateQuery.All);
 						OnVideoState(state);
 
 						return state;

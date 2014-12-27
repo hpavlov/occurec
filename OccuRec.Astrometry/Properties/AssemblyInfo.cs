@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("OccuRec.Astrometry")]
-[assembly: AssemblyCopyright("Copyright © Hristo Pavlov 2014")]
+[assembly: AssemblyCopyright("Copyright © Hristo Pavlov 2014-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

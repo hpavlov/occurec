@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("OccuRec")]
-[assembly: AssemblyCopyright("Copyright © Hristo Pavlov 2013-2014")]
+[assembly: AssemblyCopyright("Copyright © Hristo Pavlov 2013-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -36,5 +36,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.5.0.222")]
-[assembly: AssemblyFileVersion("2.5.0.222")]
+[assembly: AssemblyVersion("2.5.0.224")]
+[assembly: AssemblyFileVersion("2.5.0.224")]

@@ -607,7 +607,56 @@ namespace OccuRec.Utilities
 			}
 		}
 
-		public static void ApplyGamma(Bitmap bitmap, bool hiGamma, bool invertAfterGamma, bool hueIntensity)
+        public static Bitmap CloneBitmap(Bitmap bitmap)
+        {
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+
+            Bitmap clone = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+
+            CopyBitmap(bitmap, clone);
+
+            return clone;
+        }
+
+        public static void CopyBitmap(Bitmap bitmapSrc, Bitmap bitmapDest)
+        {
+            int width = bitmapSrc.Width;
+            int height = bitmapSrc.Height;
+
+            BitmapData bmData = bitmapSrc.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            BitmapData destData = bitmapDest.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+
+            int stride = bmData.Stride;
+
+            unsafe
+            {
+                byte* p = (byte*)(void*)bmData.Scan0;
+                byte* pDest = (byte*)(void*)destData.Scan0;
+
+                int nOffset = stride - bmData.Width * 3;
+
+                for (int y = 0; y < bmData.Height; ++y)
+                {
+                    for (int x = 0; x < bmData.Width; ++x)
+                    {
+                        pDest[0] = p[0];
+                        pDest[1] = p[1];
+                        pDest[2] = p[2];
+
+                        p += 3;
+                        pDest += 3;
+                    }
+                    p += nOffset;
+                    pDest += nOffset;
+                }
+            }
+
+            bitmapDest.UnlockBits(destData);
+            bitmapSrc.UnlockBits(bmData);
+        }
+
+	    public static void ApplyGamma(Bitmap bitmap, bool hiGamma, bool invertAfterGamma, bool hueIntensity)
 		{
 			int width = bitmap.Width;
 			int height = bitmap.Height;

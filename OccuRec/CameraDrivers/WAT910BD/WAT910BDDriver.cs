@@ -43,6 +43,15 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		public string Exposure;
 	}
 
+    [Flags]
+    public enum CameraStateQuery
+    {
+        Shutter = 1,
+        Gain = 2,
+        Gamma = 4,
+        All = Shutter | Gain | Gamma
+    }
+
 	public class WAT910BDDriver : IDisposable
 	{
 		private object m_SyncRoot = new object();
@@ -96,40 +105,104 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			SendCameraCommandSeries(MultipleCommandSeries.ReadCameraSettings, true);
 		}
 
-		public WAT910BDCameraState ReadCurrentCameraState()
+		public WAT910BDCameraState ReadCurrentCameraState(CameraStateQuery query)
 		{
 			var rv = new WAT910BDCameraState();
 
-			List<WAT910BDCommandWithResponse> executedCommands = SendCameraCommandSeries(MultipleCommandSeries.ReadCameraState, true);
+		    List<WAT910BDCommandWithResponse> executedCommands = new List<WAT910BDCommandWithResponse>();
 
-			WAT910BDCommandWithResponse cmd;
+            WAT910BDCommandWithResponse cmd;
 
-			cmd = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadGamma);
-			rv.GammaSuccess = cmd.Response != null && cmd.Response.Length == 3;
-			byte gammaByte = rv.GammaSuccess ? cmd.Response[2] : (byte)0;
+            if (query == CameraStateQuery.All)
+                executedCommands = SendCameraCommandSeries(MultipleCommandSeries.ReadCameraState, true);
+            else if ((query & CameraStateQuery.Gamma) == CameraStateQuery.Gamma)
+            {
+                cmd = new WAT910BDCommandWithResponse()
+                {
+                    Command = WAT910BDCommand.ReadGamma,
+                    CommandBytes = m_StateMachine.BuildReadCommand(WAT910BDCommand.ReadGamma)
+                };
+                if (SendReadCommand(cmd.CommandBytes, cmd.Command.ToString()))
+                {
+                    cmd.Response = m_StateMachine.LastReceivedMessage();
+                    executedCommands.Add(cmd);
+                }
+            }
+            else if ((query & CameraStateQuery.Gain) == CameraStateQuery.Gain)
+            {
+                cmd = new WAT910BDCommandWithResponse()
+                {
+                    Command = WAT910BDCommand.ReadGain,
+                    CommandBytes = m_StateMachine.BuildReadCommand(WAT910BDCommand.ReadGain)
+                };
+                if (SendReadCommand(cmd.CommandBytes, cmd.Command.ToString()))
+                {
+                    cmd.Response = m_StateMachine.LastReceivedMessage();
+                    executedCommands.Add(cmd);
+                }
+            }
+            else if ((query & CameraStateQuery.Shutter) == CameraStateQuery.Shutter)
+            {
+                cmd = new WAT910BDCommandWithResponse()
+                {
+                    Command = WAT910BDCommand.ReadShutter,
+                    CommandBytes = m_StateMachine.BuildReadCommand(WAT910BDCommand.ReadShutter)
+                };
+                if (SendReadCommand(cmd.CommandBytes, cmd.Command.ToString()))
+                {
+                    cmd.Response = m_StateMachine.LastReceivedMessage();
+                    executedCommands.Add(cmd);
+                }
+            }
 
-			cmd = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadGain);
-			rv.GainSuccess = cmd.Response != null && cmd.Response.Length == 3;
-			byte gainByte = rv.GainSuccess ? cmd.Response[2] : (byte)0;
+            byte gammaByte = 0;
+		    byte gainByte = 0;
+		    byte shuterByte = 0;
 
-			cmd = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadShutter);
-			rv.ExposureSuccess = cmd.Response != null && cmd.Response.Length == 3;
-			byte shuterByte = rv.ExposureSuccess ? cmd.Response[2] : (byte)0;
+            if ((query & CameraStateQuery.Gamma) == CameraStateQuery.Gamma)
+            {
+                cmd = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadGamma);
+                if (cmd != null && cmd.Response != null)
+                {
+                    rv.GammaSuccess = cmd.Response != null && cmd.Response.Length == 3;
+                    gammaByte = rv.GammaSuccess ? cmd.Response[2] : (byte)0;
 
+                    rv.GammaIndex = m_StateMachine.GammaByteToIndex(gammaByte);
+                    rv.Gamma = rv.GammaSuccess ? m_StateMachine.GammaByteToString(gammaByte) : string.Empty;
+                    m_StateMachine.SetGammaIndex(rv.GammaIndex);
+                }
+            }
+            if ((query & CameraStateQuery.Gain) == CameraStateQuery.Gain)
+		    {
+		        cmd = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadGain);
+                if (cmd != null && cmd.Response != null)
+                {
+                    rv.GainSuccess = cmd.Response != null && cmd.Response.Length == 3;
+                    gainByte = rv.GainSuccess ? cmd.Response[2] : (byte)0;
+
+                    rv.GainIndex = m_StateMachine.GainByteToIndex(gainByte);
+                    rv.Gain = rv.GainSuccess ? m_StateMachine.GainByteToString(gainByte) : string.Empty;
+                    m_StateMachine.SetGainIndex(rv.GainIndex);                    
+                }
+		    }
+            if ((query & CameraStateQuery.Shutter) == CameraStateQuery.Shutter)
+		    {
+		        cmd = executedCommands.SingleOrDefault(x => x.Command == WAT910BDCommand.ReadShutter);
+                if (cmd != null && cmd.Response != null)
+                {
+                    rv.ExposureSuccess = cmd.Response != null && cmd.Response.Length == 3;
+                    shuterByte = rv.ExposureSuccess ? cmd.Response[2] : (byte)0;
+
+                    rv.ExposureIndex = m_StateMachine.ExposureByteToIndex(shuterByte);
+                    rv.Exposure = rv.ExposureSuccess ? m_StateMachine.ExposureByteToString(shuterByte) : string.Empty;
+                    m_StateMachine.SetExposureIndex(rv.ExposureIndex);
+                }
+		    }
+
+#if DEBUG
             Trace.WriteLine(string.Format("gainByte = {0} gammaByte = {1} shuterByte = {2}", gainByte, gammaByte, shuterByte));
-
-			rv.GainIndex = m_StateMachine.GainByteToIndex(gainByte);
-			rv.GammaIndex = m_StateMachine.GammaByteToIndex(gammaByte);
-			rv.ExposureIndex = m_StateMachine.ExposureByteToIndex(shuterByte);
-
-			rv.Gain = rv.GainSuccess ? m_StateMachine.GainByteToString(gainByte) : string.Empty;
-			rv.Gamma = rv.GammaSuccess ? m_StateMachine.GammaByteToString(gammaByte) : string.Empty;
-			rv.Exposure = rv.ExposureSuccess ? m_StateMachine.ExposureByteToString(shuterByte) : string.Empty;
-
-            m_StateMachine.SetGainIndex(rv.GainIndex);
-            m_StateMachine.SetGammaIndex(rv.GammaIndex);
-            m_StateMachine.SetExposureIndex(rv.ExposureIndex);
-
+#endif
+			
 			return rv;
 		}
 
@@ -350,22 +423,22 @@ namespace OccuRec.CameraDrivers.WAT910BD
 				{
 					try
 					{
-						int bt = m_SerialPort.ReadByte();
-						m_StateMachine.PushReceivedByte((byte)bt);
+                        int bt = m_SerialPort.ReadByte();
+					    m_StateMachine.PushReceivedByte((byte) bt);
 
-                        if (m_StateMachine.IsReceivedMessageComplete)
-                        {
-                            RaiseOnCommsData(true, m_StateMachine.LastReceivedMessage());
-                        }
+					    if (m_StateMachine.IsReceivedMessageComplete)
+					    {
+					        RaiseOnCommsData(true, m_StateMachine.LastReceivedMessage());
+					    }
 					}
 					catch (TimeoutException)
 					{
-						break;
+					    break;
 					}
 					catch (Exception ex)
 					{
-						// TODO: Raise on error?
-						Trace.WriteLine(ex);
+					    // TODO: Raise on error?
+					    Trace.WriteLine(ex);
 					}
 				}
 			}

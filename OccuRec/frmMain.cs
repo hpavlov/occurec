@@ -1299,11 +1299,13 @@ namespace OccuRec
 					xmlDoc.LoadXml(updateXml);
 
 					int latestVersion = UpdateManager.CurrentlyInstalledOccuRecVersion();
+                    Trace.WriteLine("Current OccuRec Version: " + latestVersion.ToString(), "Update");
 					XmlNode latestVersionNode = null;
 
 					foreach (XmlNode updateNode in xmlDoc.SelectNodes("/OccuRec/Update"))
 					{
 						int Version = int.Parse(updateNode.Attributes["Version"].Value);
+                        Trace.WriteLine("Server OccuRec Version: " + Version.ToString(), "Update");
 						if (latestVersion < Version)
 						{
 							Trace.WriteLine("Update location: " + updateUri.ToString());
@@ -1747,7 +1749,9 @@ namespace OccuRec
             m_LastTelescopeState = state;
             UpdateConnectedDevicesState();
 
+#if DEBUG
             Trace.WriteLine(state.AsSerialized().OuterXml);
+#endif
         }
 
         public void FocuserStateUpdated(FocuserState state)
@@ -1755,7 +1759,9 @@ namespace OccuRec
             m_LastFocuserState = state;
             UpdateConnectedDevicesState();
 
+#if DEBUG
             Trace.WriteLine(state.AsSerialized().OuterXml);
+#endif
         }
 
 		void VideoStateUpdated(VideoState state)
@@ -1763,7 +1769,9 @@ namespace OccuRec
 			m_LastVideoCameraState = state;
 		    UpdateConnectedDevicesState();
 
+#if DEBUG
 			Trace.WriteLine(state.AsSerialized().OuterXml);
+#endif
 		}
 
 		void VideoError(string obj)
@@ -1792,9 +1800,9 @@ namespace OccuRec
             {
                 string cameraState = string.Format("{0} ({1}, {2})", m_LastVideoCameraState.Exposure, m_LastVideoCameraState.Gain, m_LastVideoCameraState.Gamma);
                 if (string.IsNullOrWhiteSpace(stateStr))
-                    stateStr = cameraState;
+                    stateStr += cameraState;
                 else
-                    stateStr = " | " + cameraState;
+                    stateStr += " | " + cameraState;
             }
 
             tslTelFocStatus.Text = stateStr;

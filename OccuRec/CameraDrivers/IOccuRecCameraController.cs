@@ -20,7 +20,7 @@ namespace OccuRec.CameraDrivers
 		bool Connected { get; set; }
 		string DriverName { get; }
 		string Description { get; }
-		VideoState GetCurrentState();
+        VideoState GetCurrentState(CameraStateQuery query);
 		bool RequiresConfiguration { get; }
 		bool IsConfigured { get; }
 		bool ConfigureConnectionSettings(IWin32Window parent);

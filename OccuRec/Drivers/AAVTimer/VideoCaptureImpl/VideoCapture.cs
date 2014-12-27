@@ -240,7 +240,12 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 
         public bool UnlockIntegration()
         {
-            return NativeHelpers.UnlockIntegration();
+            bool rv = NativeHelpers.UnlockIntegration();
+
+            NativeHelpers.SetManualIntegrationRateHint(0);
+            NativeHelpers.SetStackRate(1);
+
+            return rv;
         }
 
         public void ConnectToCrossbarSource(int inputPinIndex)

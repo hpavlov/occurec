@@ -220,6 +220,9 @@ namespace OccuRec.CameraDrivers.WAT910BD
 		internal static int MIN_GAIN = 6;
 		internal static int MAX_GAIN = 41;
 
+        private const int COM_WAIT_TIME_MS = 1;
+        private const int COM_TIMEOUT_TIME_MS = 1000;
+
 		private static byte[] SUPPORTED_EXPOSURES = new byte[]
 		{
 			SHUTTER_SPEED_256,
@@ -493,7 +496,22 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			return rv;
 		}
 
-		public string GetLastCameraErrorMessage()
+        public byte[] BuildReadCommand(WAT910BDCommand command)
+	    {
+            switch (command)
+            {
+                case WAT910BDCommand.ReadGamma:
+                    return BuildReadCommand(0x4B1, "0001 1111"); // GAMMA
+                case WAT910BDCommand.ReadGain:
+                    return BuildReadCommand(0x417, "0011 1111"); // GAIN
+                case WAT910BDCommand.ReadShutter:
+                    return BuildReadCommand(0x402, "0001 1111"); // SHUTTER
+                default:
+                    throw new NotImplementedException();
+            }
+	    }
+
+	    public string GetLastCameraErrorMessage()
 		{
 			return m_ErrorMessage;
 		}
@@ -549,9 +567,10 @@ namespace OccuRec.CameraDrivers.WAT910BD
                         onBytesSent(command);
 
                     int ticks = 0;
-                    while (ticks < 100 && (m_WaitingReceivedAck || m_WaitingResult || m_WaitingData))
+                    int timeoutTicks = COM_TIMEOUT_TIME_MS / COM_WAIT_TIME_MS;
+                    while (ticks < timeoutTicks && (m_WaitingReceivedAck || m_WaitingResult || m_WaitingData))
                     {
-                        Thread.Sleep(10);
+                        Thread.Sleep(COM_WAIT_TIME_MS);
                         ticks++;
                     }
 
@@ -561,7 +580,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
                         return true;
                     }
 
-                    if (ticks >= 100 && m_ErrorMessage == null)
+                    if (ticks >= timeoutTicks && m_ErrorMessage == null)
                     {
                         // Timeout occured
                         SetCommandError("No response. Check COM port.");
@@ -594,7 +613,9 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 		public void PushReceivedByte(byte bt)
 		{
+#if DEBUG
             Trace.WriteLine(string.Format("PushReceivedByte: Byte = {0}, {1} {2} {3} {4} {5}", Convert.ToString(bt, 16), m_WaitingReceivedAck ? "WRA" : "", m_WaitingResult ? "WR" : "", m_WaitingData ? "WD" : "", m_CommandSuccessful ? "SUCC" : "", IsReceivedMessageComplete ? "COMPL" : ""));
+#endif
             try
             {
                 if (m_WaitingReceivedAck)
@@ -686,7 +707,9 @@ namespace OccuRec.CameraDrivers.WAT910BD
             }
             finally
             {
+#if DEBUG
                 Trace.WriteLine(string.Format("PushReceivedByte: Exiting ... {0} {1} {2} {3} {4} ", m_WaitingReceivedAck ? "WRA" : "", m_WaitingResult ? "WR" : "", m_WaitingData ? "WD" : "", m_CommandSuccessful ? "SUCC" : "", IsReceivedMessageComplete ? "COMPL" : ""));
+#endif
             }
 
 		}

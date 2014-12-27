@@ -32,7 +32,9 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 		private WAT910BDDriver m_Driver { get; set; }
 
-		public bool Connected
+	    private WAT910BDCameraState m_CurrentState = null;
+
+	    public bool Connected
 		{
 			get
 			{
@@ -105,7 +107,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 			get { return DRIVER_NAME; }
 		}
 
-		public VideoState GetCurrentState()
+        public VideoState GetCurrentState(CameraStateQuery query)
 		{
 			var rv = new VideoState();
 
@@ -118,15 +120,39 @@ namespace OccuRec.CameraDrivers.WAT910BD
 				rv.MinExposureIndex = m_Driver.MinExposureIndex;
 				rv.MaxExposureIndex = m_Driver.MaxExposureIndex;
 
-				WAT910BDCameraState camState = m_Driver.ReadCurrentCameraState();
+                if (m_CurrentState == null)
+                {
+                    m_CurrentState = new WAT910BDCameraState();
+                    query = CameraStateQuery.All;
+                }
 
-				rv.GainIndex = camState.GainIndex;
-				rv.GammaIndex = camState.GammaIndex;
-				rv.ExposureIndex = camState.ExposureIndex;
+                WAT910BDCameraState camState = m_Driver.ReadCurrentCameraState(query);
+			    if ((query & CameraStateQuery.Gamma) == CameraStateQuery.Gamma)
+			    {
+                    m_CurrentState.GammaIndex = camState.GammaIndex;
+                    m_CurrentState.Gamma = camState.Gamma;
+                    m_CurrentState.GammaSuccess = camState.GammaSuccess;
+			    }
+                if ((query & CameraStateQuery.Gain) == CameraStateQuery.Gain)
+                {
+                    m_CurrentState.GainIndex = camState.GainIndex;
+                    m_CurrentState.Gain = camState.Gain;
+                    m_CurrentState.GainSuccess = camState.GainSuccess;
+                }
+                if ((query & CameraStateQuery.Shutter) == CameraStateQuery.Shutter)
+                {
+                    m_CurrentState.ExposureIndex = camState.ExposureIndex;
+                    m_CurrentState.Exposure = camState.Exposure;
+                    m_CurrentState.ExposureSuccess = camState.ExposureSuccess;
+                }
 
-				rv.Gain = camState.Gain;
-				rv.Gamma = camState.Gamma;
-				rv.Exposure = camState.Exposure;
+			    rv.GainIndex = m_CurrentState.GainIndex;
+                rv.GammaIndex = m_CurrentState.GammaIndex;
+                rv.ExposureIndex = m_CurrentState.ExposureIndex;
+
+                rv.Gain = m_CurrentState.Gain;
+                rv.Gamma = m_CurrentState.Gamma;
+                rv.Exposure = m_CurrentState.Exposure;
 			}
 
 			return rv;
