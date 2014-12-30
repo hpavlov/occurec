@@ -552,7 +552,18 @@ namespace OccuRec
                     break;
 
                 case VideoCameraState.videoCameraRecording:
-                    tssCameraState.Text = "Recording";
+		            try
+		            {
+			            TimeSpan rec = videoObject.RecordingFor;
+						if (rec.TotalMinutes < 1)
+							tssCameraState.Text = "Recording";
+						else
+							tssCameraState.Text = string.Format("Recording for {0} min", (int)rec.TotalMinutes);
+		            }
+		            catch
+		            {
+						tssCameraState.Text = "Recording";
+		            }
                     break;
 
                 case VideoCameraState.videoCameraError:
@@ -895,6 +906,15 @@ namespace OccuRec
 			    bool wasLocked = m_StateManager.IsIntegrationLocked;
 
 				videoObject.StopRecording();
+
+				// If the next scheduled operation was to stop the recoring, but the recording was stopped manually
+				// then remove the scheduled stopping too.
+				ScheduleEntry entry = Scheduler.GetNextEntry();
+				if (entry != null && entry.Action == ScheduledAction.StopRecording)
+				{
+					Scheduler.RemoveOperation(entry.OperaionId);
+					UpdateScheduleDisplay();
+				}
 
 				UpdateState(null);
 

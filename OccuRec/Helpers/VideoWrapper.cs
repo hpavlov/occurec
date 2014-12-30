@@ -1000,11 +1000,31 @@ namespace OccuRec.Helpers
 			}
 		}
 
+		private DateTime? m_StartedRecordingAtUT = null;
+
+		internal TimeSpan RecordingFor
+		{
+			get
+			{
+				return m_StartedRecordingAtUT != null
+					       ? new TimeSpan(DateTime.UtcNow.Ticks - m_StartedRecordingAtUT.Value.Ticks)
+					       : TimeSpan.Zero;
+			}
+		}
+
 		internal string StartRecording(string fileName)
 		{
 			if (video != null)
 			{
-				return ShieldedCall(() => video.StartRecordingVideoFile(fileName), null);
+				return ShieldedCall(() =>
+					{
+						string rv = video.StartRecordingVideoFile(fileName);
+
+						m_StartedRecordingAtUT = DateTime.UtcNow;
+
+						return rv;
+					}, 
+					null);
 			}
 
 			return null;
@@ -1018,6 +1038,8 @@ namespace OccuRec.Helpers
 					() =>
 						{
 							video.StopRecordingVideoFile();
+
+							m_StartedRecordingAtUT = null;
 							return null;
 						}, 
 					null);

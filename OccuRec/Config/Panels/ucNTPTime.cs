@@ -187,9 +187,9 @@ namespace OccuRec.Config.Panels
 			if (m_CheckingLatency)
 			{
 				m_CheckingLatency = false;
-				btnTestNTP.Text = "Test Latency";
+				btnTestNTP.Text = "Test Servers";
 				indicatorTimer.Enabled = false;
-				lblTestingIndicator.Visible = false; 				
+				lblTestingIndicator.Visible = false;
 			}
 		}
 
