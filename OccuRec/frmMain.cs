@@ -73,6 +73,7 @@ namespace OccuRec
 			m_ObservatoryController.VideoConnectionChanged += VideoConnectionChanged;
 		    m_ObservatoryController.TelescopeStateUpdated += TelescopeStateUpdated;
 		    m_ObservatoryController.FocuserStateUpdated += FocuserStateUpdated;
+            m_ObservatoryController.FocuserPositionUpdated += FocuserPositionUpdated;
 			m_ObservatoryController.VideoStateUpdated += VideoStateUpdated;
 			m_ObservatoryController.VideoError += VideoError;
 
@@ -1782,6 +1783,11 @@ namespace OccuRec
 #if DEBUG
             Trace.WriteLine(state.AsSerialized().OuterXml);
 #endif
+        }
+
+        public void FocuserPositionUpdated(FocuserPosition position)
+        {
+
         }
 
 		void VideoStateUpdated(VideoState state)

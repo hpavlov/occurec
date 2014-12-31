@@ -47,12 +47,66 @@ namespace OccuRec.ASCOM.Server
             }
         }
 
-        public TelescopeState GetCurrentState()
+        public TelescopeGuideRate GetGuideRate()
         {
-            var rv = new TelescopeState();
+            var rv = new TelescopeGuideRate();
+            var sw = new Stopwatch();
 
             try
             {
+                sw.Start();
+
+                rv.GuideRateRightAscension = m_Telescope.GuideRateRightAscension;
+                rv.GuideRateDeclination = m_Telescope.GuideRateDeclination;
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.GetFullStackTrace());
+            }
+            finally
+            {
+                sw.Stop();
+                Trace.WriteLine(string.Format("Telescope.GetGuideRate() took {0} ms", (int)sw.ElapsedMilliseconds));
+            }
+
+            return rv;            
+        }
+
+        public TelescopeEquatorialPosition GetEquatorialPosition()
+        {
+            var rv = new TelescopeEquatorialPosition();
+            var sw = new Stopwatch();
+
+            try
+            {
+                sw.Start();
+
+                rv.RightAscension = m_Telescope.RightAscension;
+                rv.Declination = m_Telescope.Declination;
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.GetFullStackTrace());
+            }
+            finally
+            {
+                sw.Stop();
+                Trace.WriteLine(string.Format("Telescope.GetEquatorialPosition() took {0} ms", (int)sw.ElapsedMilliseconds));
+            }
+
+            return rv;            
+        }
+
+
+        public TelescopeState GetCurrentState()
+        {
+            var rv = new TelescopeState();
+            var sw = new Stopwatch();
+
+            try
+            {
+                sw.Start();
+
                 rv.AtHome = m_Telescope.AtHome;
                 rv.AtPark = m_Telescope.AtPark;
 
@@ -88,6 +142,11 @@ namespace OccuRec.ASCOM.Server
             {
                 Trace.WriteLine(ex.GetFullStackTrace());
             }
+            finally
+            {
+                sw.Stop();
+                Trace.WriteLine(string.Format("Telescope.GetCurrentState() took {0} ms", (int)sw.ElapsedMilliseconds));
+            }
 
             return rv;
         }
@@ -103,6 +162,7 @@ namespace OccuRec.ASCOM.Server
         private TelescopeCapabilities GetTelescopeCapabilitiesInternal()
         {
             var rv = new TelescopeCapabilities();
+            var sw = new Stopwatch();
 
             try
             {
@@ -122,6 +182,11 @@ namespace OccuRec.ASCOM.Server
             catch (Exception ex)
             {
                 Trace.WriteLine(ex.GetFullStackTrace());
+            }
+            finally
+            {
+                sw.Stop();
+                Trace.WriteLine(string.Format("Telescope.GetTelescopeCapabilitiesInternal() took {0} ms", (int)sw.ElapsedMilliseconds));
             }
 
             return rv;

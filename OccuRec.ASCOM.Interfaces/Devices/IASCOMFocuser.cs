@@ -9,6 +9,13 @@ using System.Text;
 
 namespace OccuRec.ASCOM.Interfaces.Devices
 {
+    [Serializable]
+    public class FocuserPosition
+    {
+        public bool Absolute;
+        public int Position;    
+    }
+
 	[Serializable]
 	public class FocuserState
 	{
@@ -34,6 +41,7 @@ namespace OccuRec.ASCOM.Interfaces.Devices
     public interface IASCOMFocuser : IASCOMDevice
     {
 	    FocuserState GetCurrentState();
+        FocuserPosition GetCurrentPosition();
 	    void Move(int position);
         bool ChangeTempComp(bool tempComp);
     }

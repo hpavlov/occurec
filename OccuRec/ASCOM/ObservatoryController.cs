@@ -66,8 +66,10 @@ namespace OccuRec.ASCOM
         event Action<ASCOMConnectionState> FocuserConnectionChanged;
 		event Action<ASCOMConnectionState> VideoConnectionChanged;
 		event Action<TelescopeState> TelescopeStateUpdated;
+	    event Action<TelescopeEquatorialPosition> TelescopePositionChanged;
 		event Action<TelescopeCapabilities> TelescopeCapabilitiesKnown;
 		event Action<FocuserState> FocuserStateUpdated;
+        event Action<FocuserPosition> FocuserPositionUpdated;
 		event Action<VideoState> VideoStateUpdated;
         event Action<string> VideoError;
 
@@ -90,6 +92,8 @@ namespace OccuRec.ASCOM
 		void TryConnectTelescope(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 		void TryConnectVideoCamera(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 		void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+        void GetTelescopeState(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		
 		void FocuserMoveIn(FocuserStepSize stepSize, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 		void FocuserMoveOut(FocuserStepSize stepSize, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 		void FocuserMove(int step, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
@@ -127,8 +131,10 @@ namespace OccuRec.ASCOM
         public event Action<ASCOMConnectionState> FocuserConnectionChanged;
 		public event Action<ASCOMConnectionState> VideoConnectionChanged;
         public event Action<TelescopeState> TelescopeStateUpdated;
+	    public event Action<TelescopeEquatorialPosition> TelescopePositionChanged;
 		public event Action<TelescopeCapabilities> TelescopeCapabilitiesKnown;
         public event Action<FocuserState> FocuserStateUpdated;
+        public event Action<FocuserPosition> FocuserPositionUpdated;
 		public event Action<VideoState> VideoStateUpdated;
         public event Action<string> VideoError;
 
@@ -530,7 +536,7 @@ namespace OccuRec.ASCOM
 				operationAuthorised = m_TelescopeEngagedClientId == null || m_TelescopeEngagedClientId == clientId;
 			}
 
-			if (operationAuthorised)
+			if (!operationAuthorised)
 				throw new ObservatoryControlException("The telescope has been engaged by another client and cannot be controller right now.");
 		}
 
@@ -543,7 +549,7 @@ namespace OccuRec.ASCOM
 				operationAuthorised = m_FocuserEngagedClientId == null || m_FocuserEngagedClientId == clientId;
 			}
 
-			if (operationAuthorised)
+			if (!operationAuthorised)
 				throw new ObservatoryControlException("The focuser has been engaged by another client and cannot be controller right now.");
 		}
 
@@ -620,7 +626,7 @@ namespace OccuRec.ASCOM
 					}
 
 					if (m_ConnectedTelescope == null && !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdTelescope))
-						m_ConnectedTelescope = ASCOMClient.Instance.CreateTelescope(Settings.Default.ASCOMProgIdTelescope, Settings.Default.TelPulseSlowestRate, Settings.Default.TelPulseSlowRate, Settings.Default.TelPulseFastRate);
+						m_ConnectedTelescope = ASCOMClient.Instance.CreateTelescope(Settings.Default.ASCOMProgIdTelescope, Settings.Default.TelPulseSlowestRate, Settings.Default.TelPulseSlowRate, Settings.Default.TelPulseFasterRate);
 
 					if (m_ConnectedTelescope != null)
 					{
@@ -630,6 +636,8 @@ namespace OccuRec.ASCOM
 							m_ConnectedTelescope.Connected = true;
 							OnTelescopeConnected();
 						}
+                        else
+                            OnTelescopeConnected();
 
 						TelescopeCapabilities capabilities = m_ConnectedTelescope.GetTelescopeCapabilities();
 						OnTelescopeCapabilitiesKnown(capabilities);
@@ -684,6 +692,8 @@ namespace OccuRec.ASCOM
 							m_ConnectedFocuser.Connected = true;
 							OnFocuserConnected();
 						}
+                        else
+                            OnFocuserConnected();
 
 						FocuserState state = m_ConnectedFocuser.GetCurrentState();
 						OnFocuserState(state);
@@ -788,6 +798,36 @@ namespace OccuRec.ASCOM
 			callType, callback, callbackUIControl);
 		}
 
+        public void GetTelescopeState(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
+        {
+            IsolatedAction(() =>
+            {
+                try
+                {
+                    if (m_ConnectedTelescope != null && m_ConnectedTelescope.Connected)
+                    {
+                        AssertTelescopeEngagement(clientId);
+
+                        TelescopeEquatorialPosition position = m_ConnectedTelescope.GetEquatorialPosition();
+
+                        OnTelescopePosition(position);
+
+                        return position;
+                    }
+
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    OnTelescopeErrored();
+                    Trace.WriteLine(ex.GetFullStackTrace());
+
+                    return ex;
+                }
+            },
+            callType, callback, callbackUIControl);
+        }
+
 		public void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
         {
             IsolatedAction((x, y) =>
@@ -799,6 +839,12 @@ namespace OccuRec.ASCOM
 						AssertTelescopeEngagement(clientId);
 
                         m_ConnectedTelescope.PulseGuide(x, y, Settings.Default.TelPulseDuration);
+
+                        TelescopeEquatorialPosition position = m_ConnectedTelescope.GetEquatorialPosition();
+
+                        OnTelescopePosition(position);
+
+                        return position;
                     }
 
                     return null;
@@ -826,18 +872,18 @@ namespace OccuRec.ASCOM
 
                         m_ConnectedFocuser.MoveIn(x);
 
-                        FocuserState state = m_ConnectedFocuser.GetCurrentState();
+                        FocuserPosition position = m_ConnectedFocuser.GetCurrentPosition();
 
-                        OnFocuserState(state);
+                        OnFocuserPosition(position);
 
-                        return state;
+                        return position;
                     }
 
                     return null;
                 }
                 catch (Exception ex)
                 {
-                    OnTelescopeErrored();
+                    OnFocuserErrored();
                     Trace.WriteLine(ex.GetFullStackTrace());
 
                     return ex;
@@ -859,18 +905,18 @@ namespace OccuRec.ASCOM
 
                         m_ConnectedFocuser.MoveOut(x);
 
-                        FocuserState state = m_ConnectedFocuser.GetCurrentState();
+                        FocuserPosition position = m_ConnectedFocuser.GetCurrentPosition();
 
-                        OnFocuserState(state);
+                        OnFocuserPosition(position);
 
-                        return state;
+                        return position;
                     }
 
                     return null;
                 }
                 catch (Exception ex)
                 {
-                    OnTelescopeErrored();
+                    OnFocuserErrored();
                     Trace.WriteLine(ex.GetFullStackTrace());
 
                     return ex;
@@ -891,18 +937,18 @@ namespace OccuRec.ASCOM
 
                         m_ConnectedFocuser.Move(x);
 
-                        FocuserState state = m_ConnectedFocuser.GetCurrentState();
+                        FocuserPosition position = m_ConnectedFocuser.GetCurrentPosition();
 
-                        OnFocuserState(state);
+                        OnFocuserPosition(position);
 
-                        return state;
+                        return position;
                     }
 
                     return null;
                 }
                 catch (Exception ex)
                 {
-                    OnTelescopeErrored();
+                    OnFocuserErrored();
                     Trace.WriteLine(ex.GetFullStackTrace());
 
                     return ex;
@@ -934,7 +980,7 @@ namespace OccuRec.ASCOM
                 }
                 catch (Exception ex)
                 {
-                    OnTelescopeErrored();
+                    OnFocuserErrored();
                     Trace.WriteLine(ex.GetFullStackTrace());
 
                     return ex;
@@ -964,7 +1010,7 @@ namespace OccuRec.ASCOM
                 }
                 catch (Exception ex)
                 {
-                    OnTelescopeErrored();
+                    OnFocuserErrored();
                     Trace.WriteLine(ex.GetFullStackTrace());
 
                     return ex;
@@ -1041,6 +1087,12 @@ namespace OccuRec.ASCOM
 			EventHelper.RaiseEvent(FocuserConnectionChanged, ASCOMConnectionState.Ready);
 		}
 
+        private void OnTelescopePosition(TelescopeEquatorialPosition position)
+		{
+            EventHelper.RaiseEvent(TelescopePositionChanged, position);
+		}
+        
+
 		private void OnTelescopeErrored()
 		{
             EventHelper.RaiseEvent(TelescopeConnectionChanged, ASCOMConnectionState.Errored);
@@ -1070,6 +1122,11 @@ namespace OccuRec.ASCOM
 		{
             EventHelper.RaiseEvent(FocuserStateUpdated, state);
 		}
+
+        private void OnFocuserPosition(FocuserPosition position)
+		{
+            EventHelper.RaiseEvent(FocuserPositionUpdated, position);
+		}        
 
 		private void OnVideoState(VideoState state)
 		{
@@ -1205,6 +1262,8 @@ namespace OccuRec.ASCOM
 							m_CameraDriver.Connected = true;
 							OnVideoConnected();
 						}
+                        else
+                            OnVideoConnected();
 
                         VideoState state = m_CameraDriver.GetCurrentState(CameraStateQuery.All);
 						OnVideoState(state);
@@ -1251,6 +1310,8 @@ namespace OccuRec.ASCOM
 							m_ConnectedVideo.Connected = true;
 							OnVideoConnected();
 						}
+                        else
+                            OnVideoConnected();
 
 						VideoState state = m_ConnectedVideo.GetCurrentState();
 						OnVideoState(state);

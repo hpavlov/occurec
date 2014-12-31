@@ -47,6 +47,7 @@ namespace OccuRec.ASCOM
 			        if (m_ObservatoryController != null)
 			        {
 				        m_ObservatoryController.FocuserStateUpdated -= UpdateFocuserState;
+                        m_ObservatoryController.FocuserPositionUpdated -= UpdateFocuserPosition;
 				        m_ObservatoryController.FocuserConnectionChanged -= FocuserConnectionChanged;
 			        }
 
@@ -55,13 +56,12 @@ namespace OccuRec.ASCOM
 			        if (m_ObservatoryController != null)
 			        {
 				        m_ObservatoryController.FocuserStateUpdated += UpdateFocuserState;
+                        m_ObservatoryController.FocuserPositionUpdated += UpdateFocuserPosition;
 				        m_ObservatoryController.FocuserConnectionChanged += FocuserConnectionChanged;
 			        }
 		        }
 
-				Text = m_ObservatoryController != null 
-					? string.Format("Focuser Control - {0}", m_ObservatoryController.ConnectedFocuserDriverName()) 
-					: "Focuser Control";
+				Text ="Focuser";
 	        }
 	    }
 
@@ -75,8 +75,25 @@ namespace OccuRec.ASCOM
 			UpdateFocuserState(null);
             m_ObservatoryController.GetFocuserState();
 			if (m_ObservatoryController.IsConnectedToFocuser())
-				Text = string.Format("");
+				Text = string.Format("Focuser");
 		}
+
+        private void UpdateFocuserPosition(FocuserPosition position)
+        {
+            if (position != null)
+            {
+                Trace.WriteLine(position.AsXmlString());
+
+                DisableEnableControls(true);
+
+                Text = "Focuser: " + position.Position.ToString();                
+			}
+			else
+			{
+				pnlFocuserControls.Enabled = false;
+				gbxTargetControl.Enabled = false;
+			}
+        }
 
 		private void UpdateFocuserState(FocuserState state)
 		{
@@ -86,7 +103,6 @@ namespace OccuRec.ASCOM
 
 				DisableEnableControls(true);
 
-                ;
 				if (!state.TempCompAvailable)
 				{
                     cbxTempComp.Visible = false;
@@ -114,7 +130,7 @@ namespace OccuRec.ASCOM
                     }
 				}
 
-				Text = "Focus: " + state.Position.ToString(); 
+                Text = "Focuser: " + state.Position.ToString(); 
 
 				pnlFocuserControls.Enabled = true;
 				gbxTargetControl.Enabled = true;

@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using OccuRec.ASCOM.Wrapper.Interfaces;
 using OccuRec.ASCOM.Interfaces.Devices;
 using OccuRec.FrameAnalysis;
+using OccuRec.Utilities;
 
 namespace OccuRec.ASCOM
 {
@@ -59,6 +60,7 @@ namespace OccuRec.ASCOM
 					if (m_ObservatoryController != null)
 					{
 						m_ObservatoryController.TelescopeStateUpdated -= TelescopeStateUpdated;
+					    m_ObservatoryController.TelescopePositionChanged -= TelescopePositionChanged;
 						m_ObservatoryController.TelescopeConnectionChanged -= FocuserConnectionChanged;
 					}
 
@@ -67,11 +69,12 @@ namespace OccuRec.ASCOM
 					if (m_ObservatoryController != null)
 					{
 						m_ObservatoryController.TelescopeStateUpdated += TelescopeStateUpdated;
+                        m_ObservatoryController.TelescopePositionChanged += TelescopePositionChanged;
 						m_ObservatoryController.TelescopeConnectionChanged += FocuserConnectionChanged;						
 					}
 				}
 
-				Text = m_ObservatoryController != null ? string.Format("Telescope Control - {0}", m_ObservatoryController.ConnectedTelescopeDriverName()) : "Telescope Control";
+				Text = m_ObservatoryController != null ? (m_ObservatoryController.ConnectedTelescopeDriverName() ?? "Telescope") : "Telescope";
 		    }
 			get { return m_ObservatoryController; }
 	    }
@@ -86,8 +89,18 @@ namespace OccuRec.ASCOM
 
 		void TelescopeStateUpdated(TelescopeState state)
 		{
-			
+		    TelescopePositionChanged(new TelescopeEquatorialPosition()
+		        {
+		            RightAscension = state.RightAscension,
+		            Declination = state.Declination
+		        });
 		}
+
+        void TelescopePositionChanged(TelescopeEquatorialPosition position)
+        {
+            tssRA.Text = AstroConvert.ToStringValue(position.RightAscension, "HHh MMm SSs");
+            tssDE.Text = AstroConvert.ToStringValue(position.Declination, "+DD° MM' SS\"");
+        }
 
         private void OnPulseCompleted(ObservatoryControllerCallbackArgs args)
         {
@@ -97,89 +110,61 @@ namespace OccuRec.ASCOM
         private void btnPulseNorth_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideNorth, PulseRate.Slowest, CallType.Async, null, OnPulseCompleted);
-        }
 
-        private void btnPulseNorth2_Click(object sender, EventArgs e)
-        {
-            DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideNorth, PulseRate.Slow, CallType.Async, null, OnPulseCompleted);
-        }
+            var rate = PulseRate.Slowest;
+            if (rbSlow.Checked) 
+                rate = PulseRate.Slow;
+            else if (rbFast.Checked)
+                rate = PulseRate.Fast;
 
-        private void btnPulseNorth3_Click(object sender, EventArgs e)
-        {
-            DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideNorth, PulseRate.Fast, CallType.Async, null, OnPulseCompleted);
+            ObservatoryController.TelescopePulseGuide(GuideDirections.guideNorth, rate, CallType.Async, null, OnPulseCompleted);
         }
 
         private void btnPulseSouth_Click(object sender, EventArgs e)
         {
-            DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideSouth, PulseRate.Slowest, CallType.Async, null, OnPulseCompleted);
-        }
+            var rate = PulseRate.Slowest;
+            if (rbSlow.Checked)
+                rate = PulseRate.Slow;
+            else if (rbFast.Checked)
+                rate = PulseRate.Fast;
 
-        private void btnPulseSouth2_Click(object sender, EventArgs e)
-        {
             DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideSouth, PulseRate.Slow, CallType.Async, null, OnPulseCompleted);
-        }
-
-        private void btnPulseSouth3_Click(object sender, EventArgs e)
-        {
-            DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideSouth, PulseRate.Fast, CallType.Async, null, OnPulseCompleted);
+            ObservatoryController.TelescopePulseGuide(GuideDirections.guideSouth, rate, CallType.Async, null, OnPulseCompleted);
         }
 
         private void btnPulseWest_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideEast, PulseRate.Slowest, CallType.Async, null, OnPulseCompleted);
-        }
 
-        private void btnPulseWest2_Click(object sender, EventArgs e)
-        {
-            DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideEast, PulseRate.Slow, CallType.Async, null, OnPulseCompleted);
-        }
+            var rate = PulseRate.Slowest;
+            if (rbSlow.Checked)
+                rate = PulseRate.Slow;
+            else if (rbFast.Checked)
+                rate = PulseRate.Fast;
 
-        private void btnPulseWest3_Click(object sender, EventArgs e)
-        {
-            DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideEast, PulseRate.Fast, CallType.Async, null, OnPulseCompleted);
+            ObservatoryController.TelescopePulseGuide(GuideDirections.guideEast, rate, CallType.Async, null, OnPulseCompleted);
         }
 
         private void btnPulseEast_Click(object sender, EventArgs e)
         {
             DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideWest, PulseRate.Slowest, CallType.Async, null, OnPulseCompleted);
+
+            var rate = PulseRate.Slowest;
+            if (rbSlow.Checked)
+                rate = PulseRate.Slow;
+            else if (rbFast.Checked)
+                rate = PulseRate.Fast;
+
+            ObservatoryController.TelescopePulseGuide(GuideDirections.guideWest, rate, CallType.Async, null, OnPulseCompleted);
         }
 
-        private void btnPulseEast2_Click(object sender, EventArgs e)
-        {
-            DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideWest, PulseRate.Slow, CallType.Async, null, OnPulseCompleted);
-        }
-
-        private void btnPulseEast3_Click(object sender, EventArgs e)
-        {
-            DisableEnableControls(false);
-			ObservatoryController.TelescopePulseGuide(GuideDirections.guideWest, PulseRate.Fast, CallType.Async, null, OnPulseCompleted);
-        }
 
         private void DisableEnableControls(bool enabled)
         {
             btnPulseEast.Enabled = enabled;
-            btnPulseEast2.Enabled = enabled;
-            btnPulseEast3.Enabled = enabled;
             btnPulseWest.Enabled = enabled;
-            btnPulseWest2.Enabled = enabled;
-            btnPulseWest3.Enabled = enabled;
             btnPulseNorth.Enabled = enabled;
-            btnPulseNorth2.Enabled = enabled;
-            btnPulseNorth3.Enabled = enabled;
             btnPulseSouth.Enabled = enabled;
-            btnPulseSouth2.Enabled = enabled;
-            btnPulseSouth3.Enabled = enabled;
         }
 
 		private void miDisconnect_Click(object sender, EventArgs e)
@@ -193,5 +178,10 @@ namespace OccuRec.ASCOM
 			if (!m_AnalisysManager.TriggerPulseGuidingCalibration())
 				MessageBox.Show(this, "Pulse Guiding Calibration cannot be started right now. Plase try again later.", "OccuRec", MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
+
+        private void frmTelescopeControl_Shown(object sender, EventArgs e)
+        {
+            m_ObservatoryController.GetTelescopeState();
+        }
     }
 }

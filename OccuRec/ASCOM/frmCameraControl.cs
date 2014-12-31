@@ -49,7 +49,7 @@ namespace OccuRec.ASCOM
                     m_ObservatoryController.VideoError += m_ObservatoryController_VideoError;
 				}
 
-				Text = m_ObservatoryController != null ? m_ObservatoryController.ConnectedVideoCameraDriverName() : "Camera Control";
+				Text = m_ObservatoryController != null ? m_ObservatoryController.ConnectedVideoCameraDriverName() : "Video Camera";
 			}
 			private get { return m_ObservatoryController; }
 		}

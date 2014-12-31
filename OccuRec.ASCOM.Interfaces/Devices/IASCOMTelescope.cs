@@ -38,6 +38,20 @@ namespace OccuRec.ASCOM.Interfaces.Devices
 	}
 
     [Serializable]
+    public class TelescopeGuideRate
+    {
+        public double GuideRateRightAscension;
+        public double GuideRateDeclination; 
+    }
+
+    [Serializable]
+    public class TelescopeEquatorialPosition
+    {
+        public double RightAscension;
+        public double Declination;
+    }
+
+    [Serializable]
     public class TelescopeState
     {
         public bool AtHome;
@@ -93,6 +107,8 @@ namespace OccuRec.ASCOM.Interfaces.Devices
     public interface IASCOMTelescope : IASCOMDevice
     {
         TelescopeState GetCurrentState();
+        TelescopeGuideRate GetGuideRate();
+        TelescopeEquatorialPosition GetEquatorialPosition();
         TelescopeCapabilities GetTelescopeCapabilities();
         void PulseGuide(GuideDirections direction, int durationMilliseconds);
         void SetGuideRateRightAscension(double newRate);

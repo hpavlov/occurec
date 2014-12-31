@@ -26,7 +26,7 @@ namespace OccuRec.Config.Panels
         public override void LoadSettings()
         {
             nudPulseDuration.SetNUDValue(Settings.Default.TelPulseDuration);
-            nudPulseGuideFast.SetNUDValue(Settings.Default.TelPulseFastRate);
+            nudPulseGuideFast.SetNUDValue(Settings.Default.TelPulseFasterRate);
             nudPulseSlowRate.SetNUDValue(Settings.Default.TelPulseSlowRate);
             nudPulseSlowestRate.SetNUDValue(Settings.Default.TelPulseSlowestRate);
         }
@@ -34,7 +34,7 @@ namespace OccuRec.Config.Panels
         public override void SaveSettings()
         {            
             Settings.Default.TelPulseDuration = (int)nudPulseDuration.Value;
-            Settings.Default.TelPulseFastRate = (float)nudPulseGuideFast.Value;
+            Settings.Default.TelPulseFasterRate = (float)nudPulseGuideFast.Value;
             Settings.Default.TelPulseSlowRate = (float)nudPulseSlowRate.Value;
             Settings.Default.TelPulseSlowestRate = (float)nudPulseSlowestRate.Value;
         }

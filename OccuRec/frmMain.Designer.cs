@@ -61,7 +61,6 @@
             this.picVideoFrame = new System.Windows.Forms.PictureBox();
             this.pnlTargets = new System.Windows.Forms.Panel();
             this.pnlVideoControls = new System.Windows.Forms.Panel();
-            this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.pnlOcrTesting = new System.Windows.Forms.Panel();
             this.btnOcrTesting = new System.Windows.Forms.Button();
             this.pnlCrossbar = new System.Windows.Forms.Panel();
@@ -111,6 +110,7 @@
             this.pnlControlArea = new System.Windows.Forms.Panel();
             this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -571,15 +571,6 @@
             this.pnlVideoControls.Name = "pnlVideoControls";
             this.pnlVideoControls.Size = new System.Drawing.Size(200, 576);
             this.pnlVideoControls.TabIndex = 1;
-            // 
-            // ucVideoControl
-            // 
-            this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ucVideoControl.Location = new System.Drawing.Point(4, 230);
-            this.ucVideoControl.Name = "ucVideoControl";
-            this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
-            this.ucVideoControl.TabIndex = 27;
-            this.ucVideoControl.Visible = false;
             // 
             // pnlOcrTesting
             // 
@@ -1055,6 +1046,15 @@
             // 
             this.openFileDialog.DefaultExt = "avi";
             this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
+            // 
+            // ucVideoControl
+            // 
+            this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.ucVideoControl.Location = new System.Drawing.Point(4, 230);
+            this.ucVideoControl.Name = "ucVideoControl";
+            this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
+            this.ucVideoControl.TabIndex = 27;
+            this.ucVideoControl.Visible = false;
             // 
             // frmMain
             // 

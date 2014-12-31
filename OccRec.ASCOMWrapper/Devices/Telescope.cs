@@ -71,9 +71,9 @@ namespace OccuRec.ASCOM.Wrapper.Devices
             Trace.WriteLine(string.Format("m_PulseSlowestRate:{0}, m_PulseSlowRate:{1}, m_PulseFastRate:{2}", m_PulseSlowestRate, m_PulseSlowRate, m_PulseFastRate));
             Trace.WriteLine(string.Format("m_DefaultGuideRateDeclination:{0}, m_DefaultGuideRateRightAscension:{1}", m_DefaultGuideRateDeclination, m_DefaultGuideRateRightAscension));
 
-            TelescopeState state = GetCurrentState();
+            TelescopeGuideRate guideRate = GetGuideRate();
 
-            double declFactor = state.GuideRateDeclination / m_DefaultGuideRateDeclination;
+            double declFactor = guideRate.GuideRateDeclination / m_DefaultGuideRateDeclination;
             double requestedFactor = 0;
             if (rate == PulseRate.Slowest)
                 requestedFactor = m_PulseSlowestRate;
@@ -98,6 +98,16 @@ namespace OccuRec.ASCOM.Wrapper.Devices
         {
             EnsureRequestedGuideRate(rate);
             PulseGuide(direction, durationMilliseconds);
+        }
+
+        public TelescopeGuideRate GetGuideRate()
+        {
+            return m_IsolatedTelescope.GetGuideRate();
+        }
+
+        public TelescopeEquatorialPosition GetEquatorialPosition()
+        {
+            return m_IsolatedTelescope.GetEquatorialPosition();
         }
 
         public TelescopeState GetCurrentState()

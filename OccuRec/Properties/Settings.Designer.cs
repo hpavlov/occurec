@@ -673,13 +673,13 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public float TelPulseFastRate {
+        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        public float TelPulseFasterRate {
             get {
-                return ((float)(this["TelPulseFastRate"]));
+                return ((float)(this["TelPulseFasterRate"]));
             }
             set {
-                this["TelPulseFastRate"] = value;
+                this["TelPulseFasterRate"] = value;
             }
         }
         
@@ -1281,6 +1281,18 @@ namespace OccuRec.Properties {
             }
             set {
                 this["MPLv2LicenseAgreementAccepted"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public string LicenseAgreementAccepted {
+            get {
+                return ((string)(this["LicenseAgreementAccepted"]));
+            }
+            set {
+                this["LicenseAgreementAccepted"] = value;
             }
         }
     }

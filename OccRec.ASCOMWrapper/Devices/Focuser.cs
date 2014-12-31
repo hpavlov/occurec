@@ -58,6 +58,23 @@ namespace OccuRec.ASCOM.Wrapper.Devices
 		    return state;
 		}
 
+        public FocuserPosition GetCurrentPosition()
+        {
+            if (m_IsAbsolute)
+            {
+                return m_IsolatedFocuser.GetCurrentPosition();
+            }
+            else
+            {
+                // In Relative mode the position value is kept internally
+                return new FocuserPosition()
+                {
+                    Absolute = false,
+                    Position = m_CurrentPosition
+                };
+            }
+        }
+
         private void GetFocuserFeatures(bool force)
         {
             if (force || !m_FeaturesKnown)

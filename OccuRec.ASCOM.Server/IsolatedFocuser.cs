@@ -27,49 +27,89 @@ namespace OccuRec.ASCOM.Server
 			SetIsolatedDevice(m_Focuser, progId);
 		}
 
+        public FocuserPosition GetCurrentPosition()
+        {
+            var rv = new FocuserPosition();
+
+            var sw = new Stopwatch();
+            try
+            {
+                sw.Start();
+
+                rv.Absolute = m_Focuser.Absolute;
+                try
+                {
+                    if (rv.Absolute)
+                        rv.Position = m_Focuser.Position;
+                }
+                catch (PropertyNotImplementedException)
+                {
+                    rv.Position = 0;
+                }
+            }
+            finally
+            {
+                sw.Stop();
+                Trace.WriteLine(string.Format("Focuser.GetCurrentPosition() took {0} ms", (int)sw.ElapsedMilliseconds));
+            }
+
+            return rv;
+        }
+
 		public FocuserState GetCurrentState()
 		{
 			var rv = new FocuserState();
-
-			rv.TempCompAvailable = m_Focuser.TempCompAvailable;
-
+		    var sw = new Stopwatch();
             try
             {
-                rv.Temperature = m_Focuser.Temperature;
-            }
-            catch (PropertyNotImplementedException)
-            {
-                rv.Temperature = double.NaN;
-            }
-			
-			rv.IsMoving = m_Focuser.IsMoving;
-			rv.MaxIncrement = m_Focuser.MaxIncrement;
-			rv.MaxStep = m_Focuser.MaxStep;
-			rv.Absolute = m_Focuser.Absolute;
+                sw.Start();
 
-            try
-            {
-                rv.StepSize = m_Focuser.StepSize;
-            }
-			catch (PropertyNotImplementedException)
-            {
-                rv.StepSize = double.NaN;
-            }
+                rv.TempCompAvailable = m_Focuser.TempCompAvailable;
 
-			
-			rv.TempComp = m_Focuser.TempComp;
+                try
+                {
+                    rv.Temperature = m_Focuser.Temperature;
+                }
+                catch (PropertyNotImplementedException)
+                {
+                    rv.Temperature = double.NaN;
+                }
 
-            try
-            {
-                if (rv.Absolute)
-                    rv.Position = m_Focuser.Position;
-                else
+                rv.IsMoving = m_Focuser.IsMoving;
+                rv.MaxIncrement = m_Focuser.MaxIncrement;
+                rv.MaxStep = m_Focuser.MaxStep;
+                rv.Absolute = m_Focuser.Absolute;
+
+                try
+                {
+                    rv.StepSize = m_Focuser.StepSize;
+                }
+                catch (PropertyNotImplementedException)
+                {
+                    rv.StepSize = double.NaN;
+                }
+
+
+                rv.TempComp = m_Focuser.TempComp;
+
+                try
+                {
+                    if (rv.Absolute)
+                        rv.Position = m_Focuser.Position;
+                    else
+                        rv.Position = 0;
+                }
+                catch (PropertyNotImplementedException)
+                {
                     rv.Position = 0;
+                }
             }
-			catch (PropertyNotImplementedException)
+            finally
             {
-                rv.Position = 0;
+                sw.Stop();
+                Trace.WriteLine(string.Format("Focuser.GetCurrentState() took {0} ms", (int)sw.ElapsedMilliseconds));
             }
+
 
 			return rv;
 		}
@@ -88,14 +128,21 @@ namespace OccuRec.ASCOM.Server
 
 		public void Move(int position)
 		{
+            var sw = new Stopwatch();
             Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Focuser)::Move({1})", ProgId, position));
             try
             {
+                sw.Start();
                 m_Focuser.Move(position);
             }
             catch (Exception ex)
             {
                 Trace.WriteLine(ex.GetFullStackTrace());
+            }
+            finally
+            {
+                sw.Stop();
+                Trace.WriteLine(string.Format("Focuser.Move() took {0} ms", (int)sw.ElapsedMilliseconds));
             }
 
             while (m_Focuser.IsMoving)
