@@ -110,6 +110,8 @@
             this.pnlControlArea = new System.Windows.Forms.Panel();
             this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.miAbout = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
@@ -465,7 +467,9 @@
             this.miHelpIndex,
             this.miYahooGroup,
             this.toolStripMenuItem1,
-            this.miCheckForUpdates});
+            this.miCheckForUpdates,
+            this.toolStripMenuItem2,
+            this.miAbout});
             this.miHelp.Name = "miHelp";
             this.miHelp.Size = new System.Drawing.Size(40, 20);
             this.miHelp.Text = "&Help";
@@ -1047,6 +1051,18 @@
             this.openFileDialog.DefaultExt = "avi";
             this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
             // 
+            // miAbout
+            // 
+            this.miAbout.Name = "miAbout";
+            this.miAbout.Size = new System.Drawing.Size(181, 22);
+            this.miAbout.Text = "&About";
+            this.miAbout.Click += new System.EventHandler(this.miAbout_Click);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(178, 6);
+            // 
             // ucVideoControl
             // 
             this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -1200,6 +1216,8 @@
 		private System.Windows.Forms.Button btnOneStack;
 		private System.Windows.Forms.Panel pnlOneStacking;
 		private Controls.ucCameraControl ucVideoControl;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem miAbout;
 	}
 }
 

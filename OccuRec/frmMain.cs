@@ -81,14 +81,11 @@ namespace OccuRec
             m_VideoRenderingController = new VideoRenderingController(this, m_StateManager, m_AnalysisManager);
             m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
 
-			Version att = Assembly.GetExecutingAssembly().GetName().Version;
-			appVersion = string.Format("{0}.{1}.{2}", att.Major, att.Minor, att.MinorRevision);
+            Version tangraVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            bool isBeta = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(BetaReleaseAttribute), false).Length == 1;
+            appVersion = string.Format("v{0}.{1}{2}", tangraVersion.Major, tangraVersion.Minor, isBeta ? " BETA" : "");
 
-#if BETA
-            appVersion = string.Concat(appVersion, " [BETA]");
-#endif
-
-            Text = string.Format("OccuRec v{0}", appVersion);
+            Text = string.Format("OccuRec {0}", appVersion);
 
             CheckForUpdates(false);
 
@@ -2115,5 +2112,12 @@ namespace OccuRec
 				NativeHelpers.SetStackRate(0);				
 			}
 		}
+
+        private void miAbout_Click(object sender, EventArgs e)
+        {
+            var frm = new frmAbout();
+            frm.StartPosition = FormStartPosition.CenterParent;
+            frm.ShowDialog(this);
+        }
     }
 }

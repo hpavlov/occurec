@@ -171,4 +171,7 @@
   <PropertyGroup>
     <PreBuildEvent>"$(ProjectDir)Lib\ResourceZipper.exe" "$(ProjectDir)SelfUpdate\OccuRecSelfUpdate.exe" "$(ProjectDir)SelfUpdate\OccuRecSelfUpdate.bin"</PreBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(TargetPath)" "$(SolutionDir)$(ConfigurationName)"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

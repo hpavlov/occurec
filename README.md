@@ -1,6 +1,6 @@
 <h4>OccuRec - Occultation Video Recorder</h4>
 
-<h5>Copyright (C) 2013-2014 Hristo Pavlov (hristo_dpavlov@yahoo.com)</h5>
+<h5>Copyright (C) 2013-2015 Hristo Pavlov (hristo_dpavlov@yahoo.com)</h5>
 
 
 <pre>
