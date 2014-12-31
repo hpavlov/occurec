@@ -47,7 +47,7 @@ namespace OccuRec.ASCOM.Wrapper.Devices
 		public string DriverVersion
 		{
 			get { return m_IsolatedDevice.DriverVersion; }
-		}
+		}																   
 
 		public string ProgId
 		{

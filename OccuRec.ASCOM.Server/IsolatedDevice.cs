@@ -55,7 +55,7 @@ namespace OccuRec.ASCOM.Server
 
 		public string Description
 		{
-			get { return m_Device.Description; }
+			get { return m_Device.Name; }
 		}
 
 		public string DriverVersion

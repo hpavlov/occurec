@@ -49,7 +49,7 @@ namespace OccuRec.ASCOM
                     m_ObservatoryController.VideoError += m_ObservatoryController_VideoError;
 				}
 
-				Text = m_ObservatoryController != null ? string.Format("Camera Control - {0}", m_ObservatoryController.ConnectedVideoCameraDriverName()) : "Camera Control";
+				Text = m_ObservatoryController != null ? m_ObservatoryController.ConnectedVideoCameraDriverName() : "Camera Control";
 			}
 			private get { return m_ObservatoryController; }
 		}
@@ -122,9 +122,6 @@ namespace OccuRec.ASCOM
 
 		private void frmCameraControl_Load(object sender, EventArgs e)
 		{
-			if (!ObservatoryController.Supports5ButtonOSD)
-				tcControls.TabPages.Remove(tabOSDControl);
-
 			SetDisabledStateControls();
 			ObservatoryController.GetCameraState();
 		}
@@ -161,14 +158,25 @@ namespace OccuRec.ASCOM
 
         private void SetSize(bool errorMode)
         {
-            if (errorMode)
+	        bool fivebuttonControl = false;
+	        if (ObservatoryController == null || !ObservatoryController.Supports5ButtonOSD)
+		        pnlControls.Height = 109;
+	        else
+	        {
+				pnlControls.Height = 214;
+		        fivebuttonControl = true;
+	        }
+
+	        if (errorMode)
             {
-				Height = 268;
+				Height = 322 - 214 + (fivebuttonControl ? 214 : 109);
+	            pnlControls.Top = 65;
                 tbxErrors.Visible = true;
             }
             else
             {
-                Height = 205;
+				Height = 279 - 214 + (fivebuttonControl ? 214 : 109);
+				pnlControls.Top = 32;
                 tbxErrors.Visible = false;
             }
         }

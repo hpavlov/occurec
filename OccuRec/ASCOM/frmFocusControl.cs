@@ -86,7 +86,7 @@ namespace OccuRec.ASCOM
 
 				DisableEnableControls(true);
 
-                Text = string.Format("Focus Control - {0} ({1})", m_ObservatoryController.ConnectedFocuserDriverName(), state.Absolute ? "Absolte" : "Relative");
+                ;
 				if (!state.TempCompAvailable)
 				{
                     cbxTempComp.Visible = false;
@@ -114,7 +114,7 @@ namespace OccuRec.ASCOM
                     }
 				}
 
-				lblPosition.Text = state.Position.ToString();
+				Text = "Focus: " + state.Position.ToString(); 
 
 				pnlFocuserControls.Enabled = true;
 				gbxTargetControl.Enabled = true;
@@ -147,7 +147,6 @@ namespace OccuRec.ASCOM
             btnOutLarge.Enabled = enabled;
             btnOutLargest.Enabled = enabled;
 			cbxTempComp.Enabled = enabled;
-            btnMove.Enabled = enabled;
             btnFocusTarget.Enabled = enabled;
 		}
 
@@ -159,12 +158,6 @@ namespace OccuRec.ASCOM
             {
                 m_ObservatoryController.FocuserSetTempComp(cbxTempComp.Checked);
             }
-        }
-
-        private void btnMove_Click(object sender, EventArgs e)
-        {
-            DisableEnableControls(false);
-            m_ObservatoryController.FocuserMove((int)nudMove.Value);
         }
 
         private void btnInSmall_Click(object sender, EventArgs e)

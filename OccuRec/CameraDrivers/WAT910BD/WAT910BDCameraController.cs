@@ -99,7 +99,7 @@ namespace OccuRec.CameraDrivers.WAT910BD
 
 		public string Description
 		{
-			get { return DRIVER_NAME; }
+			get { return CAMERA_NAME; }
 		}
 
 		public string DriverName
