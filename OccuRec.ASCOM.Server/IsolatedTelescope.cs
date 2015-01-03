@@ -241,5 +241,18 @@ namespace OccuRec.ASCOM.Server
                 }
             }
         }
+
+        public void SlewTo(double raHours, double deDeg)
+        {
+            Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Telescope)::SlewTo({1}, {2})", ProgId, raHours, deDeg));
+            try
+            {
+                m_Telescope.SlewToCoordinates(raHours, deDeg); 
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.GetFullStackTrace());
+            }            
+        }
 	}
 }

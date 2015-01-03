@@ -20,5 +20,6 @@ namespace OccuRec.ASCOM.Wrapper.Interfaces
     public interface ITelescope : IASCOMTelescope
     {
         void PulseGuide(GuideDirections direction, PulseRate rate, int durationMilliseconds);
+        void SlewTo(double raHours, double deDeg);
     }
 }

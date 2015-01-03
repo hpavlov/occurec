@@ -92,6 +92,7 @@ namespace OccuRec.ASCOM
 		void TryConnectTelescope(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 		void TryConnectVideoCamera(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 		void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+        void TelescopeSlewTo(double raHours, double deDeg, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
         void GetTelescopeState(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 		
 		void FocuserMoveIn(FocuserStepSize stepSize, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
@@ -826,6 +827,38 @@ namespace OccuRec.ASCOM
                 }
             },
             callType, callback, callbackUIControl);
+        }
+
+        public void TelescopeSlewTo(double raHours, double deDeg, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
+        {
+            IsolatedAction((ra, dec) =>
+            {
+                try
+                {
+                    if (m_ConnectedTelescope != null && m_ConnectedTelescope.Connected)
+                    {
+                        AssertTelescopeEngagement(clientId);
+
+                        m_ConnectedTelescope.SlewTo(ra, dec);
+
+                        TelescopeEquatorialPosition position = m_ConnectedTelescope.GetEquatorialPosition();
+
+                        OnTelescopePosition(position);
+
+                        return position;
+                    }
+
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    OnTelescopeErrored();
+                    Trace.WriteLine(ex.GetFullStackTrace());
+
+                    return ex;
+                }
+            },
+            raHours, deDeg, callType, callback, callbackUIControl);
         }
 
 		public void TelescopePulseGuide(GuideDirections direction, PulseRate pulseRate, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)

@@ -94,6 +94,11 @@ namespace OccuRec.ASCOM.Wrapper.Devices
             }
         }
 
+        public void SlewTo(double raHours, double deDeg)
+        {
+            m_IsolatedTelescope.SlewTo(raHours, deDeg);
+        }
+
         public void PulseGuide(GuideDirections direction, PulseRate rate, int durationMilliseconds)
         {
             EnsureRequestedGuideRate(rate);

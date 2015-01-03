@@ -113,5 +113,6 @@ namespace OccuRec.ASCOM.Interfaces.Devices
         void PulseGuide(GuideDirections direction, int durationMilliseconds);
         void SetGuideRateRightAscension(double newRate);
         void SetGuideRateDeclination(double newRate);
+        void SlewTo(double raHours, double deDeg);
     }
 }

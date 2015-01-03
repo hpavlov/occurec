@@ -183,5 +183,14 @@ namespace OccuRec.ASCOM
         {
             m_ObservatoryController.GetTelescopeState();
         }
+
+        private void miSlew_Click(object sender, EventArgs e)
+        {
+            var frm = new frmEnterCoordinates();
+            if (frm.ShowDialog(this) == DialogResult.OK)
+            {
+                m_ObservatoryController.TelescopeSlewTo(frm.RAHours, frm.DEDeg);
+            }
+        }
     }
 }

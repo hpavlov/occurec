@@ -22,6 +22,8 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.connectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.miDisconnect = new System.Windows.Forms.ToolStripMenuItem();
+            this.actionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.miCalibratePulseGuiding = new System.Windows.Forms.ToolStripMenuItem();
             this.rbSlowest = new System.Windows.Forms.RadioButton();
             this.rbFast = new System.Windows.Forms.RadioButton();
             this.rbSlow = new System.Windows.Forms.RadioButton();
@@ -30,8 +32,7 @@
             this.tssRA = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssDE = new System.Windows.Forms.ToolStripStatusLabel();
-            this.actionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.miCalibratePulseGuiding = new System.Windows.Forms.ToolStripMenuItem();
+            this.miSlew = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -99,9 +100,25 @@
             // miDisconnect
             // 
             this.miDisconnect.Name = "miDisconnect";
-            this.miDisconnect.Size = new System.Drawing.Size(152, 22);
+            this.miDisconnect.Size = new System.Drawing.Size(126, 22);
             this.miDisconnect.Text = "&Disconnect";
             this.miDisconnect.Click += new System.EventHandler(this.miDisconnect_Click);
+            // 
+            // actionToolStripMenuItem
+            // 
+            this.actionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.miSlew,
+            this.miCalibratePulseGuiding});
+            this.actionToolStripMenuItem.Name = "actionToolStripMenuItem";
+            this.actionToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
+            this.actionToolStripMenuItem.Text = "&Action";
+            // 
+            // miCalibratePulseGuiding
+            // 
+            this.miCalibratePulseGuiding.Name = "miCalibratePulseGuiding";
+            this.miCalibratePulseGuiding.Size = new System.Drawing.Size(183, 22);
+            this.miCalibratePulseGuiding.Text = "&Calibrate Pulse Guiding";
+            this.miCalibratePulseGuiding.Click += new System.EventHandler(this.miCalibratePulseGuiding_Click);
             // 
             // rbSlowest
             // 
@@ -174,20 +191,12 @@
             this.tssDE.Size = new System.Drawing.Size(56, 17);
             this.tssDE.Text = "+--° --\' --\"";
             // 
-            // actionToolStripMenuItem
+            // miSlew
             // 
-            this.actionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.miCalibratePulseGuiding});
-            this.actionToolStripMenuItem.Name = "actionToolStripMenuItem";
-            this.actionToolStripMenuItem.Size = new System.Drawing.Size(49, 20);
-            this.actionToolStripMenuItem.Text = "&Action";
-            // 
-            // miCalibratePulseGuiding
-            // 
-            this.miCalibratePulseGuiding.Name = "miCalibratePulseGuiding";
-            this.miCalibratePulseGuiding.Size = new System.Drawing.Size(183, 22);
-            this.miCalibratePulseGuiding.Text = "&Calibrate Pulse Guiding";
-            this.miCalibratePulseGuiding.Click += new System.EventHandler(this.miCalibratePulseGuiding_Click);
+            this.miSlew.Name = "miSlew";
+            this.miSlew.Size = new System.Drawing.Size(183, 22);
+            this.miSlew.Text = "&Slew To";
+            this.miSlew.Click += new System.EventHandler(this.miSlew_Click);
             // 
             // frmTelescopeControl
             // 
@@ -239,5 +248,6 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.ToolStripStatusLabel tssDE;
         private System.Windows.Forms.ToolStripMenuItem miCalibratePulseGuiding;
+        private System.Windows.Forms.ToolStripMenuItem miSlew;
     }
 }
