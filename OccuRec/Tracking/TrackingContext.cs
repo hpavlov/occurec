@@ -103,7 +103,7 @@ namespace OccuRec.Tracking
 				{
 					IsFixedAperture = TargetStar.IsFixed,
                     IsFullDisapearance = TargetStar.IsFullDisapearance,
-					TrackingType = TrackingType.OccultedStar,
+					TrackingType = TargetStar.IsFullDisapearance ? TrackingType.OccultedStar : TrackingType.GuidingStar,
 					ApertureStartingX = TargetStar.X,
 					ApertureStartingY = TargetStar.Y,
 					ApertureInPixels = TargetStar.FWHM * Settings.Default.TrackingApertureInFWHM
