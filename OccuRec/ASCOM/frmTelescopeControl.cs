@@ -107,57 +107,72 @@ namespace OccuRec.ASCOM
             DisableEnableControls(true);
         }
 
+		private void ReadPulseRateOrSlewDistance(out PulseRate? rate, out double? distanceArcSec)
+		{
+			distanceArcSec = null;
+			rate = null;
+
+			if (rbSlow.Checked || rbSlowest.Checked || rbFast.Checked)
+			{
+				rate = PulseRate.Slowest;
+				if (rbSlow.Checked)
+					rate = PulseRate.Slow;
+				else if (rbFast.Checked)
+					rate = PulseRate.Fast;
+				return;
+			}
+			else
+			{
+				if (rb1Min.Checked)
+					distanceArcSec = 60;
+				else if (rb5Min.Checked)
+					distanceArcSec = 5 * 60;
+				else if (rb10Min.Checked)
+					distanceArcSec = 10 * 60;
+				else if (rb30Min.Checked)
+					distanceArcSec = 30 * 60;
+				else if (rb60min.Checked)
+					distanceArcSec = 60 * 60;
+			}
+		}
+
+		private void MoveToDirection(GuideDirections direction)
+		{
+			PulseRate? rate;
+			double? distanceArcSec;
+			ReadPulseRateOrSlewDistance(out rate, out distanceArcSec);
+
+			if (rate.HasValue)
+			{
+				DisableEnableControls(false);
+				ObservatoryController.TelescopePulseGuide(direction, rate.Value, CallType.Async, null, OnPulseCompleted);
+			}
+			else if (distanceArcSec.HasValue)
+			{
+				DisableEnableControls(false);
+				ObservatoryController.TelescopeSlewNearBy(distanceArcSec.Value, direction, CallType.Async, null, OnPulseCompleted);
+			}
+		}
+
         private void btnPulseNorth_Click(object sender, EventArgs e)
         {
-            DisableEnableControls(false);
-
-            var rate = PulseRate.Slowest;
-            if (rbSlow.Checked) 
-                rate = PulseRate.Slow;
-            else if (rbFast.Checked)
-                rate = PulseRate.Fast;
-
-            ObservatoryController.TelescopePulseGuide(GuideDirections.guideNorth, rate, CallType.Async, null, OnPulseCompleted);
+	        MoveToDirection(GuideDirections.guideNorth);
         }
 
         private void btnPulseSouth_Click(object sender, EventArgs e)
         {
-            var rate = PulseRate.Slowest;
-            if (rbSlow.Checked)
-                rate = PulseRate.Slow;
-            else if (rbFast.Checked)
-                rate = PulseRate.Fast;
-
-            DisableEnableControls(false);
-            ObservatoryController.TelescopePulseGuide(GuideDirections.guideSouth, rate, CallType.Async, null, OnPulseCompleted);
+			MoveToDirection(GuideDirections.guideSouth);
         }
 
         private void btnPulseWest_Click(object sender, EventArgs e)
         {
-            DisableEnableControls(false);
-
-            var rate = PulseRate.Slowest;
-            if (rbSlow.Checked)
-                rate = PulseRate.Slow;
-            else if (rbFast.Checked)
-                rate = PulseRate.Fast;
-
-            ObservatoryController.TelescopePulseGuide(GuideDirections.guideEast, rate, CallType.Async, null, OnPulseCompleted);
+			MoveToDirection(GuideDirections.guideEast);
         }
 
         private void btnPulseEast_Click(object sender, EventArgs e)
         {
-            DisableEnableControls(false);
-
-            var rate = PulseRate.Slowest;
-            if (rbSlow.Checked)
-                rate = PulseRate.Slow;
-            else if (rbFast.Checked)
-                rate = PulseRate.Fast;
-
-            ObservatoryController.TelescopePulseGuide(GuideDirections.guideWest, rate, CallType.Async, null, OnPulseCompleted);
+			MoveToDirection(GuideDirections.guideWest);
         }
-
 
         private void DisableEnableControls(bool enabled)
         {
@@ -187,10 +202,31 @@ namespace OccuRec.ASCOM
         private void miSlew_Click(object sender, EventArgs e)
         {
             var frm = new frmEnterCoordinates();
+	        frm.IsSyncMode = false;
             if (frm.ShowDialog(this) == DialogResult.OK)
             {
                 m_ObservatoryController.TelescopeSlewTo(frm.RAHours, frm.DEDeg);
             }
         }
+
+		private void rbFast_CheckedChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void miSyncPosition_Click(object sender, EventArgs e)
+		{
+			var frm = new frmEnterCoordinates();
+			frm.IsSyncMode = false;
+			if (frm.ShowDialog(this) == DialogResult.OK)
+			{
+				m_ObservatoryController.TelescopeSyncToCoordinates(frm.RAHours, frm.DEDeg);
+			}
+		}
+
+		private void btnGetPosition_Click(object sender, EventArgs e)
+		{
+			ObservatoryController.GetTelescopeState();
+		}
     }
 }

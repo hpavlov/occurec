@@ -252,7 +252,59 @@ namespace OccuRec.ASCOM.Server
             catch (Exception ex)
             {
                 Trace.WriteLine(ex.GetFullStackTrace());
-            }            
+            }
         }
+
+		public void SyncToCoordinates(double raHours, double deDeg)
+		{
+			Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Telescope)::SyncToCoordinates({1}, {2})", ProgId, raHours, deDeg));
+			try
+			{
+				m_Telescope.SyncToCoordinates(raHours, deDeg);
+			}
+			catch (Exception ex)
+			{
+				Trace.WriteLine(ex.GetFullStackTrace());
+			}
+		}
+
+
+		public void SlewNearBy(double distanceArSecs, GuideDirections direction)
+		{
+			Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Telescope)::SlewNearBy({1}, {2})", ProgId, distanceArSecs, direction));
+			try
+			{
+				double rightAscension = m_Telescope.RightAscension;
+				double declination = m_Telescope.Declination;
+				switch (direction)
+				{
+					case GuideDirections.guideEast:
+						rightAscension -= (distanceArSecs / 54000.0);
+						if (rightAscension < 0) rightAscension += 24;
+						break;
+
+					case GuideDirections.guideWest:
+						rightAscension += (distanceArSecs / 54000.0);
+						if (rightAscension > 24) rightAscension -= 24;
+						break;
+
+					case GuideDirections.guideNorth:
+						declination += (distanceArSecs / 3600.0);
+						if (declination > 90) declination = 90;
+						break;
+
+					case GuideDirections.guideSouth:
+						declination -= (distanceArSecs / 3600.0);
+						if (declination < -90) declination = -90;
+						break;
+				}
+
+				m_Telescope.SlewToCoordinates(rightAscension, declination);
+			}
+			catch (Exception ex)
+			{
+				Trace.WriteLine(ex.GetFullStackTrace());
+			}
+		}
 	}
 }

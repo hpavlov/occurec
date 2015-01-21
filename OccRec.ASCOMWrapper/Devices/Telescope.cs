@@ -141,5 +141,16 @@ namespace OccuRec.ASCOM.Wrapper.Devices
         {
             m_IsolatedTelescope.SetGuideRateDeclination(newRate);
         }
-    }
+
+
+		public void SlewNearBy(double distanceArSecs, GuideDirections direction)
+		{
+			m_IsolatedTelescope.SlewNearBy(distanceArSecs, direction);
+		}
+
+		public void SyncToCoordinates(double raHours, double deDeg)
+		{
+			m_IsolatedTelescope.SyncToCoordinates(raHours, deDeg);
+		}
+	}
 }

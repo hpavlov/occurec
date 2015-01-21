@@ -114,5 +114,7 @@ namespace OccuRec.ASCOM.Interfaces.Devices
         void SetGuideRateRightAscension(double newRate);
         void SetGuideRateDeclination(double newRate);
         void SlewTo(double raHours, double deDeg);
+	    void SlewNearBy(double distanceArSecs, GuideDirections direction);
+		void SyncToCoordinates(double raHours, double deDeg);
     }
 }

@@ -320,5 +320,11 @@
     <Setting Name="LicenseAgreementAccepted" Type="System.String" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="SlewLastRA" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">NaN</Value>
+    </Setting>
+    <Setting Name="SlewLastDE" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">NaN</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
