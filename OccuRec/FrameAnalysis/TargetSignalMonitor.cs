@@ -37,6 +37,10 @@ namespace OccuRec.FrameAnalysis
 
 		private bool m_AutoPulseGuiding = false;
 
+		private List<DateTime> m_PositionTimeStamps = new List<DateTime>();
+		private List<Point> m_Positions = new List<Point>();
+		private Point m_FixedGuidingPosition = Point.Empty;
+
 		internal TargetSignalMonitor(IObservatoryController observatoryController, ObservatoryManager autoFocusingManager)
 		{
 			m_BufferImage = new Bitmap(204, 54, PixelFormat.Format32bppRgb);
@@ -76,6 +80,11 @@ namespace OccuRec.FrameAnalysis
 				{
 					if (m_AutoPulseGuiding)
 					{
+						// m_PositionTimeStamps
+						// TODO: Check the average value and error during the past 5 seconds. Make sure wind doesn't trigger auto guiding corrections
+						//       If the postion in the past 5 sec is consistent and check if it is too far away from the expected position and issue a
+						//       pulse guiding command
+
 						// TODO: Check if a correction needs to be made in the current thread
 						// TODO: Issue any pulse guiding commands on a seaprate thread (or asynchronously)
 
@@ -172,7 +181,22 @@ namespace OccuRec.FrameAnalysis
 
 		public void ChangeAutoPulseGuiding(bool autoPulseGuiding)
 		{
+			if (autoPulseGuiding && 
+				(TrackingContext.Current.GuidingStar == null || !TrackingContext.Current.GuidingStar.IsLocated))
+			{
+				// Cannot start autoguiding when the guding star is not available or is not located
+				return;
+			}
+
 			m_AutoPulseGuiding = autoPulseGuiding;
+
+			m_PositionTimeStamps.Clear();
+			m_Positions.Clear();
+
+			if (autoPulseGuiding)
+				m_FixedGuidingPosition = new Point((int)TrackingContext.Current.GuidingStar.X, (int)TrackingContext.Current.GuidingStar.Y);
+			else
+				m_FixedGuidingPosition = Point.Empty;
 		}
 	}
 }
