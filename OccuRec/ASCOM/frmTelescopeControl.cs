@@ -107,7 +107,7 @@ namespace OccuRec.ASCOM
             DisableEnableControls(true);
         }
 
-		private void ReadPulseRateOrSlewDistance(out PulseRate? rate, out double? distanceArcSec)
+		private void ReadPulseRateOrSlewRate(out PulseRate? rate, out double? distanceArcSec)
 		{
 			distanceArcSec = null;
 			rate = null;
@@ -123,34 +123,35 @@ namespace OccuRec.ASCOM
 			}
 			else
 			{
-				if (rb1Min.Checked)
-					distanceArcSec = 60;
-				else if (rb5Min.Checked)
-					distanceArcSec = 5 * 60;
-				else if (rb10Min.Checked)
-					distanceArcSec = 10 * 60;
-				else if (rb30Min.Checked)
-					distanceArcSec = 30 * 60;
-				else if (rb60min.Checked)
-					distanceArcSec = 60 * 60;
+				if (rb05MinPerSec.Checked)
+					distanceArcSec = 0.5;
+				else if (rb2MinPerSec.Checked)
+					distanceArcSec = 2;
+				else if (rb5MinPerSec.Checked)
+					distanceArcSec = 5;
+				else if (rb10MinPerSec.Checked)
+					distanceArcSec = 10;
+				else if (rb30minPerSec.Checked)
+					distanceArcSec = 30;
 			}
 		}
 
 		private void MoveToDirection(GuideDirections direction)
 		{
 			PulseRate? rate;
-			double? distanceArcSec;
-			ReadPulseRateOrSlewDistance(out rate, out distanceArcSec);
+			double? degreesPerMinute;
+			ReadPulseRateOrSlewRate(out rate, out degreesPerMinute);
 
 			if (rate.HasValue)
 			{
 				DisableEnableControls(false);
 				ObservatoryController.TelescopePulseGuide(direction, rate.Value, CallType.Async, null, OnPulseCompleted);
 			}
-			else if (distanceArcSec.HasValue)
+			else if (degreesPerMinute.HasValue)
 			{
 				DisableEnableControls(false);
-				ObservatoryController.TelescopeSlewNearBy(distanceArcSec.Value, direction, CallType.Async, null, OnPulseCompleted);
+				ObservatoryController.TelescopeSetSlewRate(degreesPerMinute.Value / 60.0); 
+				ObservatoryController.TelescopeStartSlewing(direction, CallType.Async, null, OnPulseCompleted);
 			}
 		}
 

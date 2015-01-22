@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.Remoting;
 using System.Text;
@@ -69,7 +70,7 @@ namespace OccuRec.ASCOM.Server
                 Trace.WriteLine(string.Format("Telescope.GetGuideRate() took {0} ms", (int)sw.ElapsedMilliseconds));
             }
 
-            return rv;            
+            return rv;
         }
 
         public TelescopeEquatorialPosition GetEquatorialPosition()
@@ -306,5 +307,175 @@ namespace OccuRec.ASCOM.Server
 				Trace.WriteLine(ex.GetFullStackTrace());
 			}
 		}
+
+// LX200 Commands
+//R – Slew Rate Commands
+
+//:RG# Set Slew rate to Guiding Rate (slowest)
+// Returns: Nothing
+
+//:RC# Set Slew rate to Centering rate (2 nd slowest)
+// Returns: Nothing
+
+//:RM# Set Slew rate to Find Rate (2 nd Fastest)
+// Returns: Nothing
+
+//:RS# Set Slew rate to max (fastest)
+// Returns: Nothing
+ 
+//:RADD.D# 
+// Set RA/Azimuth Slew rate to DD.D degrees per second [LX200GPS Only]
+// Returns: Nothing
+
+//:REDD.D#
+// Set Dec/Elevation Slew rate to DD.D degrees per second [LX200GPS only]
+// Returns: Nothing
+
+ 
+//:Me#  Move Telescope East at current slew rate
+// Returns: Nothing
+
+//:Mn#  Move Telescope North at current slew rate
+// Returns: Nothing
+
+//:Ms#  Move Telescope South at current slew rate
+// Returns: Nothing
+
+//:Mw#  Move Telescope West at current slew rate
+// Returns: Nothing
+ 
+// Q – Movement Commands
+//:Q# Halt all current slewing
+// Returns:Nothing
+
+//:Qe# Halt eastward Slews
+// Returns:  Nothing
+
+//:Qn# Halt northward Slews
+// Returns:  Nothing
+
+//:Qs# Halt southward Slews
+// Returns:  Nothing
+
+//:Qw# Halt westward Slews
+// Returns:  Nothing 
+
+		private void SlewEast()
+		{
+			SendBlindCommand("Me");
+		}
+
+		private void SlewWest()
+		{
+			SendBlindCommand("Mw");
+		}
+
+		private void SlewNorth()
+		{
+			SendBlindCommand("Mw");
+		}
+
+		private void SlewSouth()
+		{
+			SendBlindCommand("Mw");
+		}
+
+		private void HaltSlew()
+		{
+			SendBlindCommand("Q");
+		}
+
+		private void SetSlewRateToCentering()
+		{
+			SendBlindCommand("RC");
+		}
+
+		private void SetSlewRateInDegrees(double degrees)
+		{
+			degrees = Math.Abs(degrees);
+			if (degrees > 1) degrees = 1; // Max Slew Rate for this driver
+
+			string degString = degrees.ToString("00.0", CultureInfo.InvariantCulture);
+
+			SendBlindCommand("RA" + degString);
+			SendBlindCommand("RE" + degString);
+		}
+
+		private void SendBlindCommand(string command)
+		{
+			try
+			{
+				m_Telescope.CommandBlind(command, false);
+			}
+			catch (Exception ex)
+			{
+				Trace.WriteLine(ex.GetFullStackTrace());
+			}
+		}
+
+		public void StopSlewing()
+		{
+			Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Telescope)::StopSlewing()", ProgId));
+
+			HaltSlew();
+		}
+
+		public void StartSlewing(GuideDirections direction)
+		{
+			Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Telescope)::StartSlewing({1})", ProgId, direction));
+
+			switch (direction)
+			{
+				case GuideDirections.guideEast:
+					SlewEast();
+					break;
+
+				case GuideDirections.guideWest:
+					SlewWest();
+					break;
+
+				case GuideDirections.guideNorth:
+					SlewNorth();
+					break;
+
+				case GuideDirections.guideSouth:
+					SlewSouth();
+					break;
+			}
+			
+		}
+
+		public void StartSlewingWest()
+		{
+			Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Telescope)::StartSlewingWest()", ProgId));
+
+			SlewWest();
+		}
+
+		public void StartSlewingNorth()
+		{
+			Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Telescope)::StartSlewingNorth()", ProgId));
+
+			SlewNorth();
+		}
+
+		public void StartSlewingSouth()
+		{
+			Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Telescope)::StartSlewingSouth()", ProgId));
+
+			SlewSouth();
+		}
+		
+		public void SetSlewRate(double degreesPerSecond)
+		{
+			Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Telescope)::SetSlewRate({1})", ProgId, degreesPerSecond));
+
+			if (double.IsNaN(degreesPerSecond))
+				SetSlewRateToCentering();
+			else
+				SetSlewRateInDegrees(degreesPerSecond);
+		}
+
+
 	}
 }

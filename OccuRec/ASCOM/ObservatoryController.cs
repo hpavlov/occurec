@@ -96,7 +96,10 @@ namespace OccuRec.ASCOM
 		void TelescopeSlewNearBy(double distanceInArcSec, GuideDirections direction, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 		void TelescopeSyncToCoordinates(double raHours, double deDeg, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
         void GetTelescopeState(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
-		
+		void TelescopeSetSlewRate(double degreesPerSecond, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void TelescopeStopSlewing(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+		void TelescopeStartSlewing(GuideDirections direction, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
+
 		void FocuserMoveIn(FocuserStepSize stepSize, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 		void FocuserMoveOut(FocuserStepSize stepSize, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
 		void FocuserMove(int step, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null);
@@ -830,6 +833,102 @@ namespace OccuRec.ASCOM
             },
             callType, callback, callbackUIControl);
         }
+
+		public void TelescopeSetSlewRate(double degreesPerSecond, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction((deg) =>
+			{
+				try
+				{
+					if (m_ConnectedTelescope != null && m_ConnectedTelescope.Connected)
+					{
+						AssertTelescopeEngagement(clientId);
+
+						m_ConnectedTelescope.SetSlewRate(deg);
+
+						TelescopeEquatorialPosition position = m_ConnectedTelescope.GetEquatorialPosition();
+
+						OnTelescopePosition(position);
+
+						return position;
+					}
+
+					return null;
+				}
+				catch (Exception ex)
+				{
+					OnTelescopeErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+			},
+			degreesPerSecond, callType, callback, callbackUIControl);
+		}
+
+		public void TelescopeStopSlewing(CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction(() =>
+			{
+				try
+				{
+					if (m_ConnectedTelescope != null && m_ConnectedTelescope.Connected)
+					{
+						AssertTelescopeEngagement(clientId);
+
+						m_ConnectedTelescope.StopSlewing();
+
+						TelescopeEquatorialPosition position = m_ConnectedTelescope.GetEquatorialPosition();
+
+						OnTelescopePosition(position);
+
+						return position;
+					}
+
+					return null;
+				}
+				catch (Exception ex)
+				{
+					OnTelescopeErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+			},
+			callType, callback, callbackUIControl);
+		}
+
+		public void TelescopeStartSlewing(GuideDirections direction, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
+		{
+			IsolatedAction((dir) =>
+			{
+				try
+				{
+					if (m_ConnectedTelescope != null && m_ConnectedTelescope.Connected)
+					{
+						AssertTelescopeEngagement(clientId);
+
+						m_ConnectedTelescope.StartSlewing(dir);
+
+						TelescopeEquatorialPosition position = m_ConnectedTelescope.GetEquatorialPosition();
+
+						OnTelescopePosition(position);
+
+						return position;
+					}
+
+					return null;
+				}
+				catch (Exception ex)
+				{
+					OnTelescopeErrored();
+					Trace.WriteLine(ex.GetFullStackTrace());
+
+					return ex;
+				}
+			},
+			direction, callType, callback, callbackUIControl);
+		}
 
 		public void TelescopeSlewNearBy(double distanceInArcSec, GuideDirections direction, CallType callType = CallType.Async, Guid? clientId = null, CallbackAction callback = null, Control callbackUIControl = null)
 		{

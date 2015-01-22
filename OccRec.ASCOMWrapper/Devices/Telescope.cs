@@ -152,5 +152,20 @@ namespace OccuRec.ASCOM.Wrapper.Devices
 		{
 			m_IsolatedTelescope.SyncToCoordinates(raHours, deDeg);
 		}
+
+		public void StopSlewing()
+		{
+			m_IsolatedTelescope.StopSlewing();
+		}
+
+		public void StartSlewing(GuideDirections direction)
+		{
+			m_IsolatedTelescope.StartSlewing(direction);
+		}
+
+		public void SetSlewRate(double degreesPerSecond)
+		{
+			m_IsolatedTelescope.SetSlewRate(degreesPerSecond);
+		}
 	}
 }

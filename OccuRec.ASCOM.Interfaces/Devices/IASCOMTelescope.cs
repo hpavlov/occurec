@@ -116,5 +116,8 @@ namespace OccuRec.ASCOM.Interfaces.Devices
         void SlewTo(double raHours, double deDeg);
 	    void SlewNearBy(double distanceArSecs, GuideDirections direction);
 		void SyncToCoordinates(double raHours, double deDeg);
+	    void StopSlewing();
+		void StartSlewing(GuideDirections direction);
+		void SetSlewRate(double degreesPerSecond);
     }
 }

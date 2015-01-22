@@ -34,12 +34,13 @@
 			this.tssRA = new System.Windows.Forms.ToolStripStatusLabel();
 			this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tssDE = new System.Windows.Forms.ToolStripStatusLabel();
-			this.rb1Min = new System.Windows.Forms.RadioButton();
-			this.rb60min = new System.Windows.Forms.RadioButton();
-			this.rb10Min = new System.Windows.Forms.RadioButton();
-			this.rb30Min = new System.Windows.Forms.RadioButton();
-			this.rb5Min = new System.Windows.Forms.RadioButton();
+			this.rb05MinPerSec = new System.Windows.Forms.RadioButton();
+			this.rb30minPerSec = new System.Windows.Forms.RadioButton();
+			this.rb5MinPerSec = new System.Windows.Forms.RadioButton();
+			this.rb10MinPerSec = new System.Windows.Forms.RadioButton();
+			this.rb2MinPerSec = new System.Windows.Forms.RadioButton();
 			this.btnGetPosition = new System.Windows.Forms.Button();
+			this.btnStopSlew = new System.Windows.Forms.Button();
 			this.menuStrip1.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
 			this.SuspendLayout();
@@ -213,59 +214,59 @@
 			this.tssDE.Size = new System.Drawing.Size(64, 17);
 			this.tssDE.Text = "+--° --\' --\"";
 			// 
-			// rb1Min
+			// rb05MinPerSec
 			// 
-			this.rb1Min.AutoSize = true;
-			this.rb1Min.Location = new System.Drawing.Point(156, 33);
-			this.rb1Min.Name = "rb1Min";
-			this.rb1Min.Size = new System.Drawing.Size(33, 17);
-			this.rb1Min.TabIndex = 18;
-			this.rb1Min.Text = "1\'";
-			this.rb1Min.UseVisualStyleBackColor = true;
+			this.rb05MinPerSec.AutoSize = true;
+			this.rb05MinPerSec.Location = new System.Drawing.Point(156, 33);
+			this.rb05MinPerSec.Name = "rb05MinPerSec";
+			this.rb05MinPerSec.Size = new System.Drawing.Size(42, 17);
+			this.rb05MinPerSec.TabIndex = 18;
+			this.rb05MinPerSec.Text = "0.5\'";
+			this.rb05MinPerSec.UseVisualStyleBackColor = true;
 			// 
-			// rb60min
+			// rb30minPerSec
 			// 
-			this.rb60min.AutoSize = true;
-			this.rb60min.Location = new System.Drawing.Point(156, 57);
-			this.rb60min.Name = "rb60min";
-			this.rb60min.Size = new System.Drawing.Size(52, 17);
-			this.rb60min.TabIndex = 22;
-			this.rb60min.Text = "1 deg";
-			this.rb60min.UseVisualStyleBackColor = true;
+			this.rb30minPerSec.AutoSize = true;
+			this.rb30minPerSec.Location = new System.Drawing.Point(156, 57);
+			this.rb30minPerSec.Name = "rb30minPerSec";
+			this.rb30minPerSec.Size = new System.Drawing.Size(39, 17);
+			this.rb30minPerSec.TabIndex = 22;
+			this.rb30minPerSec.Text = "30\'";
+			this.rb30minPerSec.UseVisualStyleBackColor = true;
 			// 
-			// rb10Min
+			// rb5MinPerSec
 			// 
-			this.rb10Min.AutoSize = true;
-			this.rb10Min.Location = new System.Drawing.Point(60, 57);
-			this.rb10Min.Name = "rb10Min";
-			this.rb10Min.Size = new System.Drawing.Size(39, 17);
-			this.rb10Min.TabIndex = 21;
-			this.rb10Min.Text = "10\'";
-			this.rb10Min.UseVisualStyleBackColor = true;
+			this.rb5MinPerSec.AutoSize = true;
+			this.rb5MinPerSec.Location = new System.Drawing.Point(60, 57);
+			this.rb5MinPerSec.Name = "rb5MinPerSec";
+			this.rb5MinPerSec.Size = new System.Drawing.Size(33, 17);
+			this.rb5MinPerSec.TabIndex = 21;
+			this.rb5MinPerSec.Text = "5\'";
+			this.rb5MinPerSec.UseVisualStyleBackColor = true;
 			// 
-			// rb30Min
+			// rb10MinPerSec
 			// 
-			this.rb30Min.AutoSize = true;
-			this.rb30Min.Location = new System.Drawing.Point(111, 57);
-			this.rb30Min.Name = "rb30Min";
-			this.rb30Min.Size = new System.Drawing.Size(39, 17);
-			this.rb30Min.TabIndex = 20;
-			this.rb30Min.Text = "30\'";
-			this.rb30Min.UseVisualStyleBackColor = true;
+			this.rb10MinPerSec.AutoSize = true;
+			this.rb10MinPerSec.Location = new System.Drawing.Point(111, 57);
+			this.rb10MinPerSec.Name = "rb10MinPerSec";
+			this.rb10MinPerSec.Size = new System.Drawing.Size(39, 17);
+			this.rb10MinPerSec.TabIndex = 20;
+			this.rb10MinPerSec.Text = "10\'";
+			this.rb10MinPerSec.UseVisualStyleBackColor = true;
 			// 
-			// rb5Min
+			// rb2MinPerSec
 			// 
-			this.rb5Min.AutoSize = true;
-			this.rb5Min.Location = new System.Drawing.Point(13, 57);
-			this.rb5Min.Name = "rb5Min";
-			this.rb5Min.Size = new System.Drawing.Size(33, 17);
-			this.rb5Min.TabIndex = 19;
-			this.rb5Min.Text = "5\'";
-			this.rb5Min.UseVisualStyleBackColor = true;
+			this.rb2MinPerSec.AutoSize = true;
+			this.rb2MinPerSec.Location = new System.Drawing.Point(13, 57);
+			this.rb2MinPerSec.Name = "rb2MinPerSec";
+			this.rb2MinPerSec.Size = new System.Drawing.Size(33, 17);
+			this.rb2MinPerSec.TabIndex = 19;
+			this.rb2MinPerSec.Text = "2\'";
+			this.rb2MinPerSec.UseVisualStyleBackColor = true;
 			// 
 			// btnGetPosition
 			// 
-			this.btnGetPosition.Location = new System.Drawing.Point(92, 128);
+			this.btnGetPosition.Location = new System.Drawing.Point(13, 175);
 			this.btnGetPosition.Name = "btnGetPosition";
 			this.btnGetPosition.Size = new System.Drawing.Size(25, 23);
 			this.btnGetPosition.TabIndex = 23;
@@ -273,17 +274,27 @@
 			this.btnGetPosition.UseVisualStyleBackColor = true;
 			this.btnGetPosition.Click += new System.EventHandler(this.btnGetPosition_Click);
 			// 
+			// btnStopSlew
+			// 
+			this.btnStopSlew.Location = new System.Drawing.Point(92, 128);
+			this.btnStopSlew.Name = "btnStopSlew";
+			this.btnStopSlew.Size = new System.Drawing.Size(25, 23);
+			this.btnStopSlew.TabIndex = 24;
+			this.btnStopSlew.Text = "S";
+			this.btnStopSlew.UseVisualStyleBackColor = true;
+			// 
 			// frmTelescopeControl
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(221, 232);
+			this.Controls.Add(this.btnStopSlew);
 			this.Controls.Add(this.btnGetPosition);
-			this.Controls.Add(this.rb60min);
-			this.Controls.Add(this.rb10Min);
-			this.Controls.Add(this.rb30Min);
-			this.Controls.Add(this.rb5Min);
-			this.Controls.Add(this.rb1Min);
+			this.Controls.Add(this.rb30minPerSec);
+			this.Controls.Add(this.rb5MinPerSec);
+			this.Controls.Add(this.rb10MinPerSec);
+			this.Controls.Add(this.rb2MinPerSec);
+			this.Controls.Add(this.rb05MinPerSec);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.rbSlow);
 			this.Controls.Add(this.rbFast);
@@ -331,11 +342,12 @@
         private System.Windows.Forms.ToolStripMenuItem miCalibratePulseGuiding;
         private System.Windows.Forms.ToolStripMenuItem miSlew;
 		private System.Windows.Forms.ToolStripMenuItem miSyncPosition;
-		private System.Windows.Forms.RadioButton rb1Min;
-		private System.Windows.Forms.RadioButton rb60min;
-		private System.Windows.Forms.RadioButton rb10Min;
-		private System.Windows.Forms.RadioButton rb30Min;
-		private System.Windows.Forms.RadioButton rb5Min;
+		private System.Windows.Forms.RadioButton rb05MinPerSec;
+		private System.Windows.Forms.RadioButton rb30minPerSec;
+		private System.Windows.Forms.RadioButton rb5MinPerSec;
+		private System.Windows.Forms.RadioButton rb10MinPerSec;
+		private System.Windows.Forms.RadioButton rb2MinPerSec;
 		private System.Windows.Forms.Button btnGetPosition;
+		private System.Windows.Forms.Button btnStopSlew;
     }
 }
