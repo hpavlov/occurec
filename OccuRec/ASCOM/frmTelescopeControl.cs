@@ -150,8 +150,12 @@ namespace OccuRec.ASCOM
 			else if (degreesPerMinute.HasValue)
 			{
 				DisableEnableControls(false);
-				ObservatoryController.TelescopeSetSlewRate(degreesPerMinute.Value / 60.0); 
-				ObservatoryController.TelescopeStartSlewing(direction, CallType.Async, null, OnPulseCompleted);
+                if (degreesPerMinute == 0.5)
+                    ObservatoryController.TelescopeSetSlewRate(double.NaN, callback: (arg) => ObservatoryController.TelescopeStartSlewing(direction, CallType.Async, null, OnPulseCompleted));
+                else if (degreesPerMinute == 2)
+                    ObservatoryController.TelescopeSetSlewRate(0, callback: (arg) => ObservatoryController.TelescopeStartSlewing(direction, CallType.Async, null, OnPulseCompleted)); 
+				else
+                    ObservatoryController.TelescopeSetSlewRate(degreesPerMinute.Value / 60.0, callback: (arg) => ObservatoryController.TelescopeStartSlewing(direction, CallType.Async, null, OnPulseCompleted)); 
 			}
 		}
 
@@ -167,12 +171,12 @@ namespace OccuRec.ASCOM
 
         private void btnPulseWest_Click(object sender, EventArgs e)
         {
-			MoveToDirection(GuideDirections.guideEast);
+            MoveToDirection(GuideDirections.guideEast);
         }
 
         private void btnPulseEast_Click(object sender, EventArgs e)
         {
-			MoveToDirection(GuideDirections.guideWest);
+            MoveToDirection(GuideDirections.guideWest);
         }
 
         private void DisableEnableControls(bool enabled)
@@ -229,5 +233,10 @@ namespace OccuRec.ASCOM
 		{
 			ObservatoryController.GetTelescopeState();
 		}
+
+        private void btnStopSlew_Click(object sender, EventArgs e)
+        {
+            m_ObservatoryController.TelescopeStopSlewing();
+        }
     }
 }

@@ -329,7 +329,7 @@ namespace OccuRec
 			{
 				lblVideoFormat.Text = videoObject.CameraVideoFormat;
 
-                Text = string.Format("OccuRec v{0} - {1}{2}",
+                Text = string.Format("OccuRec {0} - {1}{2}",
                         appVersion,
 						videoObject.DeviceName, 
 						videoObject.VideoCaptureDeviceName != null
@@ -360,7 +360,7 @@ namespace OccuRec
 			{
                 pnlCrossbar.Visible = false;
 				lblVideoFormat.Text = "N/A";
-                Text = string.Format("OccuRec v{0}", appVersion);
+                Text = string.Format("OccuRec {0}", appVersion);
 			}
 		}
 

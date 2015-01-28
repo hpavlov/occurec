@@ -372,12 +372,12 @@ namespace OccuRec.ASCOM.Server
 
 		private void SlewNorth()
 		{
-			SendBlindCommand("Mw");
+			SendBlindCommand("Mn");
 		}
 
 		private void SlewSouth()
 		{
-			SendBlindCommand("Mw");
+			SendBlindCommand("Ms");
 		}
 
 		private void HaltSlew()
@@ -389,6 +389,11 @@ namespace OccuRec.ASCOM.Server
 		{
 			SendBlindCommand("RC");
 		}
+
+        private void SetSlewRateToGuiding()
+		{
+			SendBlindCommand("RG");
+		}        
 
 		private void SetSlewRateInDegrees(double degrees)
 		{
@@ -405,6 +410,7 @@ namespace OccuRec.ASCOM.Server
 		{
 			try
 			{
+                Trace.WriteLine(string.Format("OccuRec: ASCOMServer::(Telescope)::SendBlindCommand({0})", command));
 				m_Telescope.CommandBlind(command, false);
 			}
 			catch (Exception ex)
@@ -471,7 +477,9 @@ namespace OccuRec.ASCOM.Server
 			Trace.WriteLine(string.Format("OccuRec: ASCOMServer::{0}(Telescope)::SetSlewRate({1})", ProgId, degreesPerSecond));
 
 			if (double.IsNaN(degreesPerSecond))
-				SetSlewRateToCentering();
+				SetSlewRateToGuiding();
+            else if (degreesPerSecond < 0.1)
+                SetSlewRateToCentering();
 			else
 				SetSlewRateInDegrees(degreesPerSecond);
 		}
