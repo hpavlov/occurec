@@ -1314,7 +1314,7 @@ namespace OccuRec.ASCOM
 
 	        try
 	        {
-				NativeHelpers.CurrentTargetInfo = string.Format("RA={0} DE={1}", AstroConvert.ToStringValue(position.RightAscension, "HH MM SS"), AstroConvert.ToStringValue(position.Declination, "+DD MM SS.T"));
+                NativeHelpers.CurrentTargetInfo = string.Format("{0} {1}", AstroConvert.ToStringValue(position.RightAscension, "HHh MMm SSs"), AstroConvert.ToStringValue(position.Declination, "+DD° MM' SS.T\""));
 	        }
 	        catch
 	        { }
@@ -1358,7 +1358,7 @@ namespace OccuRec.ASCOM
             EventHelper.RaiseEvent(FocuserPositionUpdated, position);
 		}
 
-		private static Regex REGEX_FLOATING_POINT_VALUE = new Regex("^[0-9\\.]+$");
+		private static Regex REGEX_FLOATING_POINT_VALUE = new Regex("^[^0-9\\.]*(?<Num>[0-9\\.]+)[^0-9\\.]*$");
 
 		private void OnVideoState(VideoState state)
 		{
@@ -1366,17 +1366,38 @@ namespace OccuRec.ASCOM
 
 			try
 			{
-				NativeHelpers.CurrentCameraGain = float.Parse(REGEX_FLOATING_POINT_VALUE.Match(state.Gain).Value.Trim());
+			    float newGain = float.Parse(REGEX_FLOATING_POINT_VALUE.Match(state.Gain).Groups["Num"].Value.Trim());
+                if (Math.Abs(newGain - NativeHelpers.CurrentCameraGain) > 0.01)
+                {
+                    NativeHelpers.CurrentCameraGain = newGain;
+                    Trace.Write(string.Format("NativeHelpers.CurrentCameraGain = {0}", NativeHelpers.CurrentCameraGain));
+                }
 			}
-			catch
-			{ }
+			catch (Exception ex)
+			{
+			    Trace.Write(string.Format("Cannot convert '{0}' into float gain: {1}", state.Gain, ex.GetFullStackTrace()));
+			}
 
 			try
 			{
-				NativeHelpers.CurrentCameraGamma = float.Parse(REGEX_FLOATING_POINT_VALUE.Match(state.Gamma).Value.Trim());
+			    float newGamma = 0;
+
+			    if (state.Gamma == "OFF") newGamma = 1.000f;
+                else if (state.Gamma.StartsWith("LO")) newGamma = 0.45f;
+                else if (state.Gamma.StartsWith("HI")) newGamma = 0.35f;
+                else
+                    newGamma = float.Parse(REGEX_FLOATING_POINT_VALUE.Match(state.Gamma).Groups["Num"].Value.Trim());
+
+                if (Math.Abs(newGamma - NativeHelpers.CurrentCameraGamma) > 0.01)
+                {
+                    NativeHelpers.CurrentCameraGamma = newGamma;
+                    Trace.Write(string.Format("NativeHelpers.CurrentCameraGamma = {0}", NativeHelpers.CurrentCameraGamma));
+                }
 			}
-			catch
-			{ }
+            catch (Exception ex)
+            {
+                Trace.Write(string.Format("Cannot convert '{0}' into float gamma: {1}", state.Gamma, ex.GetFullStackTrace())); 
+            }
 
             EventHelper.RaiseEvent(VideoStateUpdated, state);
 		}
