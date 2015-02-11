@@ -1319,5 +1319,29 @@ namespace OccuRec.Properties {
                 this["SlewLastDE"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AavObserverInfo {
+            get {
+                return ((string)(this["AavObserverInfo"]));
+            }
+            set {
+                this["AavObserverInfo"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AavTelescopeInfo {
+            get {
+                return ((string)(this["AavTelescopeInfo"]));
+            }
+            set {
+                this["AavTelescopeInfo"] = value;
+            }
+        }
     }
 }

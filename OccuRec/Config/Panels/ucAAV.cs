@@ -31,6 +31,8 @@ namespace OccuRec.Config.Panels
 			cbForceIntegrationRateRestrictions.Checked = Settings.Default.ForceIntegrationRatesRestrictions;
 			cbxFrameProcessingMode.SelectedIndex = Settings.Default.UsesBufferedFrameProcessing ? 0 : 1;
 			rbIntegrationBin.Checked = Settings.Default.Use16BitAAV;
+			tbxObserverInfo.Text = Settings.Default.AavObserverInfo;
+			tbxTelescopeInfo.Text = Settings.Default.AavTelescopeInfo;
 		}
 
 		public override void SaveSettings()
@@ -43,6 +45,9 @@ namespace OccuRec.Config.Panels
 
 			Settings.Default.UsesBufferedFrameProcessing = cbxFrameProcessingMode.SelectedIndex == 0;
 			Settings.Default.Use16BitAAV = rbIntegrationBin.Checked;
+
+			Settings.Default.AavObserverInfo = tbxObserverInfo.Text;
+			Settings.Default.AavTelescopeInfo = tbxTelescopeInfo.Text;
 		}
 	}
 }

@@ -73,6 +73,8 @@ namespace OccuRec.ASCOM
 		event Action<VideoState> VideoStateUpdated;
         event Action<string> VideoError;
 
+		TelescopeEquatorialPosition CurrentTelescopePosition();
+		VideoState CurrentVideoState();
 
 		bool IsConnectedToObservatory();
 		bool IsConnectedToTelescope();
@@ -133,6 +135,9 @@ namespace OccuRec.ASCOM
 
 		private IOccuRecCameraController m_CameraDriver = null;
 
+		private TelescopeEquatorialPosition m_CurrentTelescopePosition = null;
+		private VideoState m_CurrentVideoState = null;
+
         public event Action<ASCOMConnectionState> TelescopeConnectionChanged;
         public event Action<ASCOMConnectionState> FocuserConnectionChanged;
 		public event Action<ASCOMConnectionState> VideoConnectionChanged;
@@ -143,6 +148,22 @@ namespace OccuRec.ASCOM
         public event Action<FocuserPosition> FocuserPositionUpdated;
 		public event Action<VideoState> VideoStateUpdated;
         public event Action<string> VideoError;
+
+		public TelescopeEquatorialPosition CurrentTelescopePosition()
+		{
+			if (IsConnectedToTelescope())
+				return m_CurrentTelescopePosition;
+			else
+				return null;
+		}
+
+		public VideoState CurrentVideoState()
+		{
+			if (IsConnectedToVideoCamera())
+				return m_CurrentVideoState;
+			else
+				return null;
+		}
 
 		public void SetExternalCameraDriver(IOccuRecCameraController cameraDriver)
 		{
@@ -1287,7 +1308,16 @@ namespace OccuRec.ASCOM
 		}
 
         private void OnTelescopePosition(TelescopeEquatorialPosition position)
-		{
+        {
+	        m_CurrentTelescopePosition = position;
+
+	        try
+	        {
+				NativeHelpers.CurrentTargetInfo = string.Format("RA={0} DE={1}", AstroConvert.ToStringValue(position.RightAscension, "HH MM SS"), AstroConvert.ToStringValue(position.Declination, "+DD MM SS.T"));
+	        }
+	        catch
+	        { }
+
             EventHelper.RaiseEvent(TelescopePositionChanged, position);
 		}
         
@@ -1329,6 +1359,7 @@ namespace OccuRec.ASCOM
 
 		private void OnVideoState(VideoState state)
 		{
+			m_CurrentVideoState = state;
             EventHelper.RaiseEvent(VideoStateUpdated, state);
 		}
 

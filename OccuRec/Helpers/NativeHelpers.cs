@@ -345,6 +345,9 @@ namespace OccuRec.Helpers
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupGrabberInfo(string grabberName, string videoMode, float videoFrameRate, int hardwareTimingCorrection);
 
+		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SetupObservationInfo(string targetInfo, string telescopeInfo, string observerInfo);
+
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma);
 
@@ -572,8 +575,16 @@ namespace OccuRec.Helpers
 			return displayBitmap;
 		}
 
+		public static string CurrentTargetInfo;
+
         public static void StartRecordingVideoFile(string fileName)
         {
+			string targetInfo = CurrentTargetInfo ?? ""; if (targetInfo.Length > 128) targetInfo = targetInfo.Substring(0, 127);
+			string telescopeInfo = Settings.Default.AavTelescopeInfo ?? ""; if (telescopeInfo.Length > 128) telescopeInfo = telescopeInfo.Substring(0, 127);
+			string observerInfo = Settings.Default.AavObserverInfo ?? ""; if (observerInfo.Length > 128) observerInfo = observerInfo.Substring(0, 127);
+
+			SetupObservationInfo(targetInfo, telescopeInfo, observerInfo);
+
             StartRecording(fileName);
         }
 

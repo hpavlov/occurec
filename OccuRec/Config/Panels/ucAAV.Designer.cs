@@ -43,6 +43,10 @@
 			this.rbIntegrationBin = new System.Windows.Forms.RadioButton();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
+			this.label1 = new System.Windows.Forms.Label();
+			this.tbxTelescopeInfo = new System.Windows.Forms.TextBox();
+			this.label2 = new System.Windows.Forms.Label();
+			this.tbxObserverInfo = new System.Windows.Forms.TextBox();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
@@ -267,15 +271,51 @@
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "Frame Processing";
 			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(8, 264);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(81, 13);
+			this.label1.TabIndex = 35;
+			this.label1.Text = "Telescope Info:";
+			// 
+			// tbxTelescopeInfo
+			// 
+			this.tbxTelescopeInfo.Location = new System.Drawing.Point(98, 261);
+			this.tbxTelescopeInfo.Name = "tbxTelescopeInfo";
+			this.tbxTelescopeInfo.Size = new System.Drawing.Size(207, 20);
+			this.tbxTelescopeInfo.TabIndex = 34;
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(8, 238);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(84, 13);
+			this.label2.TabIndex = 33;
+			this.label2.Text = "Observer Name:";
+			// 
+			// tbxObserverInfo
+			// 
+			this.tbxObserverInfo.Location = new System.Drawing.Point(98, 235);
+			this.tbxObserverInfo.Name = "tbxObserverInfo";
+			this.tbxObserverInfo.Size = new System.Drawing.Size(207, 20);
+			this.tbxObserverInfo.TabIndex = 32;
+			// 
 			// ucAAV
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.label1);
+			this.Controls.Add(this.tbxTelescopeInfo);
+			this.Controls.Add(this.label2);
+			this.Controls.Add(this.tbxObserverInfo);
 			this.Controls.Add(this.groupBox4);
 			this.Controls.Add(this.groupBox3);
 			this.Controls.Add(this.groupBox1);
 			this.Name = "ucAAV";
-			this.Size = new System.Drawing.Size(383, 257);
+			this.Size = new System.Drawing.Size(383, 338);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox1.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).EndInit();
@@ -286,6 +326,7 @@
 			this.groupBox3.PerformLayout();
 			this.groupBox4.ResumeLayout(false);
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
@@ -306,5 +347,9 @@
 		private System.Windows.Forms.RadioButton rbIntegrationBin;
 		private System.Windows.Forms.GroupBox groupBox3;
 		private System.Windows.Forms.GroupBox groupBox4;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.TextBox tbxTelescopeInfo;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.TextBox tbxObserverInfo;
 	}
 }
