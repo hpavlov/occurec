@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using OccuRec.ASCOM.Wrapper;
@@ -1355,11 +1356,28 @@ namespace OccuRec.ASCOM
         private void OnFocuserPosition(FocuserPosition position)
 		{
             EventHelper.RaiseEvent(FocuserPositionUpdated, position);
-		}        
+		}
+
+		private static Regex REGEX_FLOATING_POINT_VALUE = new Regex("^[0-9\\.]+$");
 
 		private void OnVideoState(VideoState state)
 		{
 			m_CurrentVideoState = state;
+
+			try
+			{
+				NativeHelpers.CurrentCameraGain = float.Parse(REGEX_FLOATING_POINT_VALUE.Match(state.Gain).Value.Trim());
+			}
+			catch
+			{ }
+
+			try
+			{
+				NativeHelpers.CurrentCameraGamma = float.Parse(REGEX_FLOATING_POINT_VALUE.Match(state.Gamma).Value.Trim());
+			}
+			catch
+			{ }
+
             EventHelper.RaiseEvent(VideoStateUpdated, state);
 		}
 

@@ -28,7 +28,7 @@ void AavFrameAddStatusTag(unsigned int tagIndex, const char* tagValue);
 void AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue);
 void AavFrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
 void AavFrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue);
-void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
+void AavFrameAddStatusTagReal(unsigned int tagIndex, float tagValue);
 void AavFrameAddStatusTag64(unsigned int tagIndex, long long tagValue);
 void AavEndFrame();
 

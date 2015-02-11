@@ -12,6 +12,8 @@ public:
 	__int64 CurrentNtpTimeAsTicks;
 	double NtpBasedTimeError;
 	__int64 CurrentSecondaryTimeAsTicks;
+	float CameraGain;
+	float CameraGamma;
 
 	RawFrame(int imageWidth, int imageHeight);
 	~RawFrame(void);

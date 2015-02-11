@@ -28,6 +28,8 @@ public:
 	__int64 SecondaryStartTimestamp;
 	__int64 SecondaryEndTimestamp;
 	char OcrErrorMessageStr[255];
+	float Gamma;
+	float Gain;
 
 	IntegratedFrame(long totalPixelsInFrame, bool is16Bit);
 	~IntegratedFrame(void);

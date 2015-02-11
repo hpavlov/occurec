@@ -358,10 +358,10 @@ namespace OccuRec.Helpers
 		private static extern int SetupNtpDebugParams(int debugParam1, float debugParam2);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, long currentSecondaryTimeAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
+		private static extern int ProcessVideoFrame([In] IntPtr ptrBitmapData, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, long currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, long currentSecondaryTimeAsTicks, [In, Out] ref FrameProcessingStatus frameInfo);
+		private static extern int ProcessVideoFrame2([In, MarshalAs(UnmanagedType.LPArray)] int[,] pixel, long currentUtcDayAsTicks, long currentNtpTimeAsTicks, double ntpBasedTimeError, long currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, [In, Out] ref FrameProcessingStatus frameInfo);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int GetCurrentImage([In, Out] byte[] bitmapPixels);
@@ -598,6 +598,9 @@ namespace OccuRec.Helpers
 			StartOcrTesting(fileName);
 		}
 
+		public static float CurrentCameraGain = -1;
+		public static float CurrentCameraGamma = -1;
+
         public static FrameProcessingStatus ProcessVideoFrame2(int[,] pixels)
         {
 			double ntpBasedTimeError;
@@ -612,7 +615,7 @@ namespace OccuRec.Helpers
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
-			ProcessVideoFrame2(pixels, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, ref frameInfo);
+			ProcessVideoFrame2(pixels, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, CurrentCameraGain, CurrentCameraGamma, ref frameInfo);
 
             return frameInfo;
         }
@@ -632,7 +635,7 @@ namespace OccuRec.Helpers
 
             long currentUtcDayAsTicks = DateTime.UtcNow.Date.Ticks;
 
-            ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, ref frameInfo);
+			ProcessVideoFrame(bitmapData, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, CurrentCameraGain, CurrentCameraGamma, ref frameInfo);
 
             return frameInfo;
         }
