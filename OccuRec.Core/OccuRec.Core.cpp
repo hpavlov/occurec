@@ -79,6 +79,7 @@ bool FLIP_VERTICALLY;
 bool FLIP_HORIZONTALLY;
 
 bool IS_INTEGRATING_CAMERA;
+bool FORCE_NEW_FRAME_ON_LOCKED_RATE;
 float SIGNATURE_DIFFERENCE_RATIO;
 float MINIMUM_SIGNATURE_DIFFERENCE;
 bool USES_DIFF_GAMMA;
@@ -298,7 +299,7 @@ HRESULT SetNoIntegrationStackRate(long stackRate)
 	return S_OK;
 }
 
-bool IsNewIntegrationPeriod(float diffSignature)
+bool IsNewIntegrationPeriod(float diffSignature, bool expectedNewPeriod)
 {
 	if (!IS_INTEGRATING_CAMERA)
 		return true;
@@ -312,9 +313,13 @@ bool IsNewIntegrationPeriod(float diffSignature)
 	if (NULL != integrationChecker)
 	{
 		SyncLock::LockIntDet();
+
 		bool isNewIntegrationPeriod = MANUAL_INTEGRATION_RATE > 0
 			? integrationChecker->IsNewIntegrationPeriod_Manual(idxFrameNumber, MANUAL_INTEGRATION_RATE, NO_INTEGRATION_STACK_RATE, diffSignature)
 			: integrationChecker->IsNewIntegrationPeriod_Automatic(idxFrameNumber, diffSignature);
+
+		if (!isNewIntegrationPeriod && expectedNewPeriod && FORCE_NEW_FRAME_ON_LOCKED_RATE)
+			isNewIntegrationPeriod = true;
 
 		SyncLock::UnlockIntDet();
 
@@ -637,7 +642,7 @@ HRESULT SetupCamera(
 	return S_OK;
 }
 
-HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float diffGamma)
+HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float diffGamma, bool forceNewFrameOnLockedRate)
 {
 	SyncLock::LockIntDet();
 
@@ -653,6 +658,8 @@ HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float d
 
 	integrationChecker = new OccuRec::IntegrationChecker(SIGNATURE_DIFFERENCE_RATIO, MINIMUM_SIGNATURE_DIFFERENCE);
 	integrationChecker->ControlIntegrationDetectionTuning(INTEGRATION_DETECTION_TUNING);
+
+	FORCE_NEW_FRAME_ON_LOCKED_RATE = forceNewFrameOnLockedRate;
 
 	SyncLock::UnlockIntDet();
 
@@ -929,7 +936,13 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		if (!INTEGRATION_LOCKED)
 			lockedIntegrationFrames = detectedIntegrationRate;
 		else if (lockedIntegrationFrames > 1)
-			droppedFramesSinceIntegrationIsLocked += abs(lockedIntegrationFrames - detectedIntegrationRate);
+		{
+			if (lockedIntegrationFrames != detectedIntegrationRate)
+			{
+				droppedFramesSinceIntegrationIsLocked += abs(lockedIntegrationFrames - detectedIntegrationRate);
+				DebugViewPrint(L"Detected Dropped Frames= %d (LOCKED %d)", detectedIntegrationRate, lockedIntegrationFrames);
+			}			
+		}
 		else
 		{
 			// No dropped frames when the locked integration is x1
@@ -1411,7 +1424,7 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 c
 
 	idxFrameNumber++;
 
-	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
+	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature, INTEGRATION_LOCKED && numberOfIntegratedFrames == lockedIntegrationFrames);
 
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera
@@ -1497,7 +1510,7 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	idxFrameNumber++;
 
-	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);
+	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature, INTEGRATION_LOCKED && numberOfIntegratedFrames == lockedIntegrationFrames);
 
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera
@@ -1662,7 +1675,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 	idxFrameNumber++;
 	
-	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature);	
+	bool isNewIntegrationPeriod = IsNewIntegrationPeriod(diffSignature, INTEGRATION_LOCKED && numberOfIntegratedFrames == lockedIntegrationFrames);	
 
 	// After the integration has been 'locked' we only output a frame when a new integration period has been detected
 	// When the integration hasn't been 'locked' we output every frame received from the camera

@@ -72,6 +72,7 @@ namespace OccuRec.Drivers.AAVSimulator.AAVPlayerImpl
                        (float)Settings.Default.MinSignatureDiffRatio,
                        (float)Settings.Default.MinSignatureDiff,
                        Settings.Default.GammaDiff,
+                       Settings.Default.ForceNewFrameOnLockedRate,
                        OccuRec.Drivers.AVISimulator.Video.DRIVER_DESCRIPTION,
                        "N/A",
                        frameRate);

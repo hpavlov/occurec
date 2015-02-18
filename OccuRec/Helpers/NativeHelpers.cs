@@ -349,7 +349,7 @@ namespace OccuRec.Helpers
         private static extern int SetupObservationInfo(string targetInfo, string telescopeInfo, string observerInfo);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma);
+        private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma, bool forceNewFrameOnLockedRate);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupAav(int imageLayout, int compression, int bpp, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion, int recordNtpTimestamp, int recordSecondaryTimestamp);
@@ -646,20 +646,20 @@ namespace OccuRec.Helpers
 
         public static void SetupCamera(string cameraModel, int width, int height, 
 			bool flipHorizontally, bool flipVertically,
-			bool isIntegrating, float differenceRatio, float minSignDiff, float gammaDiff,
+			bool isIntegrating, float differenceRatio, float minSignDiff, float gammaDiff, bool forceNewFrameOnLockedRate,
 			string grabberName, string videoMode, double frameRate)
         {
             imageWidth = width;
             imageHeight = height;
 
 			SetupCamera(width, height, cameraModel, 0, flipHorizontally, flipVertically, isIntegrating);
-			SetupIntegrationDetection(differenceRatio, minSignDiff, gammaDiff);
+            SetupIntegrationDetection(differenceRatio, minSignDiff, gammaDiff, forceNewFrameOnLockedRate);
 			SetupGrabberInfo(grabberName, videoMode, (float)frameRate, Settings.Default.NTPTimingHardwareCorrection);
         }
 
-        public static void ReconfigureIntegrationDetection(float differenceRatio, float minSignDiff, float gammaDiff)
+        public static void ReconfigureIntegrationDetection(float differenceRatio, float minSignDiff, float gammaDiff, bool forceNewFrameOnLockedRate)
         {
-			SetupIntegrationDetection(differenceRatio, minSignDiff, gammaDiff);
+            SetupIntegrationDetection(differenceRatio, minSignDiff, gammaDiff, forceNewFrameOnLockedRate);
         }
 
 		private static AssemblyFileVersionAttribute ASSEMBLY_FILE_VERSION = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)[0];

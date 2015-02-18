@@ -33,6 +33,7 @@ namespace OccuRec.Config.Panels
 			rbIntegrationBin.Checked = Settings.Default.Use16BitAAV;
 			tbxObserverInfo.Text = Settings.Default.AavObserverInfo;
 			tbxTelescopeInfo.Text = Settings.Default.AavTelescopeInfo;
+		    cbxForceNewFrameOnLockedRate.Checked = Settings.Default.ForceNewFrameOnLockedRate;
 		}
 
 		public override void SaveSettings()
@@ -48,6 +49,8 @@ namespace OccuRec.Config.Panels
 
 			Settings.Default.AavObserverInfo = tbxObserverInfo.Text;
 			Settings.Default.AavTelescopeInfo = tbxTelescopeInfo.Text;
+
+            Settings.Default.ForceNewFrameOnLockedRate = cbxForceNewFrameOnLockedRate.Checked;
 		}
 	}
 }

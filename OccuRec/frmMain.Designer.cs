@@ -150,9 +150,9 @@
             this.tssRecordingFile,
             this.tssFreeDiskSpace,
             this.pnlNewVersionAvailable});
-            this.statusStrip.Location = new System.Drawing.Point(0, 625);
+            this.statusStrip.Location = new System.Drawing.Point(0, 623);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(920, 22);
+            this.statusStrip.Size = new System.Drawing.Size(920, 24);
             this.statusStrip.TabIndex = 1;
             this.statusStrip.Text = "statusStrip1";
             // 
@@ -170,7 +170,7 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.tssCameraState.Name = "tssCameraState";
-            this.tssCameraState.Size = new System.Drawing.Size(75, 17);
+            this.tssCameraState.Size = new System.Drawing.Size(75, 19);
             this.tssCameraState.Text = "Disconnected";
             // 
             // tssFrameNo
@@ -213,7 +213,7 @@
             this.tssASCOMTelescope.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
             this.tssASCOMTelescope.ForeColor = System.Drawing.Color.Green;
             this.tssASCOMTelescope.Name = "tssASCOMTelescope";
-            this.tssASCOMTelescope.Size = new System.Drawing.Size(30, 17);
+            this.tssASCOMTelescope.Size = new System.Drawing.Size(30, 19);
             this.tssASCOMTelescope.Text = "TEL";
             // 
             // tssASCOMFocuser
@@ -225,7 +225,7 @@
             this.tssASCOMFocuser.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
             this.tssASCOMFocuser.ForeColor = System.Drawing.Color.Green;
             this.tssASCOMFocuser.Name = "tssASCOMFocuser";
-            this.tssASCOMFocuser.Size = new System.Drawing.Size(32, 17);
+            this.tssASCOMFocuser.Size = new System.Drawing.Size(32, 19);
             this.tssASCOMFocuser.Text = "FOC";
             // 
             // tssCameraControl
@@ -237,7 +237,7 @@
             this.tssCameraControl.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
             this.tssCameraControl.ForeColor = System.Drawing.Color.Green;
             this.tssCameraControl.Name = "tssCameraControl";
-            this.tssCameraControl.Size = new System.Drawing.Size(31, 17);
+            this.tssCameraControl.Size = new System.Drawing.Size(31, 19);
             this.tssCameraControl.Text = "VID";
             // 
             // tssOcrErr
@@ -288,7 +288,7 @@
             this.tsmiOff});
             this.tsbtnDisplayMode.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbtnDisplayMode.Name = "tsbtnDisplayMode";
-            this.tsbtnDisplayMode.Size = new System.Drawing.Size(86, 20);
+            this.tsbtnDisplayMode.Size = new System.Drawing.Size(86, 22);
             this.tsbtnDisplayMode.Text = "Display Mode";
             this.tsbtnDisplayMode.Visible = false;
             // 
@@ -343,7 +343,7 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.tssRecordingFile.Name = "tssRecordingFile";
-            this.tssRecordingFile.Size = new System.Drawing.Size(73, 17);
+            this.tssRecordingFile.Size = new System.Drawing.Size(73, 19);
             this.tssRecordingFile.Text = "File (xxx Mb)";
             this.tssRecordingFile.Visible = false;
             // 
@@ -355,7 +355,7 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.tssFreeDiskSpace.ForeColor = System.Drawing.Color.Yellow;
             this.tssFreeDiskSpace.Name = "tssFreeDiskSpace";
-            this.tssFreeDiskSpace.Size = new System.Drawing.Size(69, 17);
+            this.tssFreeDiskSpace.Size = new System.Drawing.Size(69, 19);
             this.tssFreeDiskSpace.Text = "xxx Mb free";
             this.tssFreeDiskSpace.Visible = false;
             // 
@@ -366,7 +366,7 @@
             this.pnlNewVersionAvailable.IsLink = true;
             this.pnlNewVersionAvailable.LinkColor = System.Drawing.Color.Lime;
             this.pnlNewVersionAvailable.Name = "pnlNewVersionAvailable";
-            this.pnlNewVersionAvailable.Size = new System.Drawing.Size(292, 17);
+            this.pnlNewVersionAvailable.Size = new System.Drawing.Size(292, 19);
             this.pnlNewVersionAvailable.Text = "New version of OccuRec is available. Click here to upgrade.";
             this.pnlNewVersionAvailable.Visible = false;
             this.pnlNewVersionAvailable.Click += new System.EventHandler(this.pnlNewVersionAvailable_Click);
@@ -522,7 +522,7 @@
             this.pnlClient.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlClient.Location = new System.Drawing.Point(0, 0);
             this.pnlClient.Name = "pnlClient";
-            this.pnlClient.Size = new System.Drawing.Size(920, 576);
+            this.pnlClient.Size = new System.Drawing.Size(920, 574);
             this.pnlClient.TabIndex = 4;
             // 
             // pnlVideoFrames
@@ -532,7 +532,7 @@
             this.pnlVideoFrames.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlVideoFrames.Location = new System.Drawing.Point(0, 0);
             this.pnlVideoFrames.Name = "pnlVideoFrames";
-            this.pnlVideoFrames.Size = new System.Drawing.Size(720, 576);
+            this.pnlVideoFrames.Size = new System.Drawing.Size(720, 574);
             this.pnlVideoFrames.TabIndex = 2;
             // 
             // pnlVideo
@@ -541,7 +541,7 @@
             this.pnlVideo.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlVideo.Location = new System.Drawing.Point(0, 0);
             this.pnlVideo.Name = "pnlVideo";
-            this.pnlVideo.Size = new System.Drawing.Size(720, 576);
+            this.pnlVideo.Size = new System.Drawing.Size(720, 574);
             this.pnlVideo.TabIndex = 2;
             // 
             // picVideoFrame
@@ -550,7 +550,7 @@
             this.picVideoFrame.Dock = System.Windows.Forms.DockStyle.Fill;
             this.picVideoFrame.Location = new System.Drawing.Point(0, 0);
             this.picVideoFrame.Name = "picVideoFrame";
-            this.picVideoFrame.Size = new System.Drawing.Size(720, 576);
+            this.picVideoFrame.Size = new System.Drawing.Size(720, 574);
             this.picVideoFrame.TabIndex = 0;
             this.picVideoFrame.TabStop = false;
             this.picVideoFrame.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseDown);
@@ -561,7 +561,7 @@
             // pnlTargets
             // 
             this.pnlTargets.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlTargets.Location = new System.Drawing.Point(0, 576);
+            this.pnlTargets.Location = new System.Drawing.Point(0, 574);
             this.pnlTargets.Name = "pnlTargets";
             this.pnlTargets.Size = new System.Drawing.Size(720, 0);
             this.pnlTargets.TabIndex = 1;
@@ -585,13 +585,13 @@
             this.pnlVideoControls.Enabled = false;
             this.pnlVideoControls.Location = new System.Drawing.Point(720, 0);
             this.pnlVideoControls.Name = "pnlVideoControls";
-            this.pnlVideoControls.Size = new System.Drawing.Size(200, 576);
+            this.pnlVideoControls.Size = new System.Drawing.Size(200, 574);
             this.pnlVideoControls.TabIndex = 1;
             // 
             // ucVideoControl
             // 
             this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ucVideoControl.Location = new System.Drawing.Point(4, 230);
+            this.ucVideoControl.Location = new System.Drawing.Point(4, 228);
             this.ucVideoControl.Name = "ucVideoControl";
             this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
             this.ucVideoControl.TabIndex = 27;
@@ -652,7 +652,7 @@
             this.gbxSchedules.Controls.Add(this.btnClearSchedule);
             this.gbxSchedules.Controls.Add(this.btnAddSchedule);
             this.gbxSchedules.Controls.Add(this.lbSchedule);
-            this.gbxSchedules.Location = new System.Drawing.Point(8, 329);
+            this.gbxSchedules.Location = new System.Drawing.Point(8, 327);
             this.gbxSchedules.Name = "gbxSchedules";
             this.gbxSchedules.Size = new System.Drawing.Size(187, 184);
             this.gbxSchedules.TabIndex = 12;
@@ -732,7 +732,7 @@
             // 
             this.lblVideoFormat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblVideoFormat.ForeColor = System.Drawing.Color.Navy;
-            this.lblVideoFormat.Location = new System.Drawing.Point(106, 547);
+            this.lblVideoFormat.Location = new System.Drawing.Point(106, 545);
             this.lblVideoFormat.Name = "lblVideoFormat";
             this.lblVideoFormat.Size = new System.Drawing.Size(77, 14);
             this.lblVideoFormat.TabIndex = 7;
@@ -742,7 +742,7 @@
             // 
             this.btnStopRecording.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnStopRecording.Enabled = false;
-            this.btnStopRecording.Location = new System.Drawing.Point(101, 519);
+            this.btnStopRecording.Location = new System.Drawing.Point(101, 517);
             this.btnStopRecording.Name = "btnStopRecording";
             this.btnStopRecording.Size = new System.Drawing.Size(76, 23);
             this.btnStopRecording.TabIndex = 5;
@@ -754,7 +754,7 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 547);
+            this.label5.Location = new System.Drawing.Point(12, 545);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(91, 13);
             this.label5.TabIndex = 6;
@@ -764,7 +764,7 @@
             // 
             this.btnRecord.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnRecord.Enabled = false;
-            this.btnRecord.Location = new System.Drawing.Point(12, 519);
+            this.btnRecord.Location = new System.Drawing.Point(12, 517);
             this.btnRecord.Name = "btnRecord";
             this.btnRecord.Size = new System.Drawing.Size(76, 23);
             this.btnRecord.TabIndex = 4;
@@ -1057,7 +1057,7 @@
             this.pnlControlArea.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlControlArea.Location = new System.Drawing.Point(0, 49);
             this.pnlControlArea.Name = "pnlControlArea";
-            this.pnlControlArea.Size = new System.Drawing.Size(920, 576);
+            this.pnlControlArea.Size = new System.Drawing.Size(920, 574);
             this.pnlControlArea.TabIndex = 6;
             // 
             // imageListToolbar
