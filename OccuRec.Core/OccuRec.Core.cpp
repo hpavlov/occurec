@@ -88,6 +88,7 @@ unsigned char GAMMA[256];
 long MANUAL_INTEGRATION_RATE = 0;
 long NO_INTEGRATION_STACK_RATE = 0;
 bool INTEGRATION_LOCKED;
+int inconsistentIntegrations = 0;
 
 #define INTEGRATION_CALIBRATION_CYCLES 10
 #define GAMMA_PROBES_COUNT 10
@@ -318,8 +319,21 @@ bool IsNewIntegrationPeriod(float diffSignature, bool expectedNewPeriod)
 			? integrationChecker->IsNewIntegrationPeriod_Manual(idxFrameNumber, MANUAL_INTEGRATION_RATE, NO_INTEGRATION_STACK_RATE, diffSignature)
 			: integrationChecker->IsNewIntegrationPeriod_Automatic(idxFrameNumber, diffSignature);
 
-		if (!isNewIntegrationPeriod && expectedNewPeriod && FORCE_NEW_FRAME_ON_LOCKED_RATE)
-			isNewIntegrationPeriod = true;
+		if (FORCE_NEW_FRAME_ON_LOCKED_RATE && INTEGRATION_LOCKED)
+		{
+			if (!isNewIntegrationPeriod && expectedNewPeriod && inconsistentIntegrations < 3)
+			{
+				isNewIntegrationPeriod = true;
+				inconsistentIntegrations++;
+			}
+			else if (isNewIntegrationPeriod && !expectedNewPeriod && inconsistentIntegrations < 3)
+			{
+				isNewIntegrationPeriod = false;
+				inconsistentIntegrations++;
+			}
+			else if (isNewIntegrationPeriod && expectedNewPeriod)
+				inconsistentIntegrations = 0;
+		}
 
 		SyncLock::UnlockIntDet();
 
@@ -661,6 +675,8 @@ HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float d
 
 	FORCE_NEW_FRAME_ON_LOCKED_RATE = forceNewFrameOnLockedRate;
 
+	lockedIntegrationFrames = 0;
+
 	SyncLock::UnlockIntDet();
 
 #if _DEBUG
@@ -935,7 +951,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 		if (!INTEGRATION_LOCKED)
 			lockedIntegrationFrames = detectedIntegrationRate;
-		else if (lockedIntegrationFrames > 1)
+		else if (INTEGRATION_LOCKED && lockedIntegrationFrames > 1)
 		{
 			if (lockedIntegrationFrames != detectedIntegrationRate)
 			{
