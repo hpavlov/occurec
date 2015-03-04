@@ -70,17 +70,23 @@ namespace OccuRec.StateManagement
 
 			// We want frames to be output one by one while configuring the VTI-OSD location
 			NativeHelpers.UnlockIntegration();
+
+            if (Settings.Default.VTIMustConfirmManually)
+                m_StateManager.VideoObject.OnInfo("Please confirm the VTI-OSD position manually.");
 		}
 
 		public override void ProcessFrame(CameraStateManager stateManager, Helpers.VideoFrameWrapper frame)
 		{
-            if (frame.ImageArray is int[,] && frame.PreviewBitmap != null)
-                ProcessFrame(stateManager, (int[,])frame.ImageArray, frame.PreviewBitmap.Width, frame.PreviewBitmap.Height);
-            else if (frame.PreviewBitmap != null)
-			{
-                var pixels = (int[,])ImageUtils.GetPixelArray(frame.PreviewBitmap.Width, frame.PreviewBitmap.Height, frame.PreviewBitmap);
-                ProcessFrame(stateManager, pixels, frame.PreviewBitmap.Width, frame.PreviewBitmap.Height);
-			}
+            if (!Settings.Default.VTIMustConfirmManually)
+            {
+                if (frame.ImageArray is int[,] && frame.PreviewBitmap != null)
+                    ProcessFrame(stateManager, (int[,])frame.ImageArray, frame.PreviewBitmap.Width, frame.PreviewBitmap.Height);
+                else if (frame.PreviewBitmap != null)
+                {
+                    var pixels = (int[,])ImageUtils.GetPixelArray(frame.PreviewBitmap.Width, frame.PreviewBitmap.Height, frame.PreviewBitmap);
+                    ProcessFrame(stateManager, pixels, frame.PreviewBitmap.Width, frame.PreviewBitmap.Height);
+                }                
+            }
 		}
 
         private void ProcessFrame(CameraStateManager stateManager, int[,] pixels, int width, int height)

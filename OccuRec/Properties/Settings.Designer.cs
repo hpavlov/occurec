@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using OccuRec.Helpers;
+
 namespace OccuRec.Properties {
     
     
@@ -1262,10 +1264,10 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("QuickLZ")]
-		public global::OccuRec.Helpers.AavCompression AavCompression
-		{
+        public AavCompression AavCompression
+        {
             get {
-				return ((global::OccuRec.Helpers.AavCompression)(this["AavCompression"]));
+                return ((AavCompression)(this["AavCompression"]));
             }
             set {
                 this["AavCompression"] = value;
@@ -1353,6 +1355,18 @@ namespace OccuRec.Properties {
             }
             set {
                 this["ForceNewFrameOnLockedRate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool VTIMustConfirmManually {
+            get {
+                return ((bool)(this["VTIMustConfirmManually"]));
+            }
+            set {
+                this["VTIMustConfirmManually"] = value;
             }
         }
     }

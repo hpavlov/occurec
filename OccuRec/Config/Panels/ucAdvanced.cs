@@ -55,6 +55,8 @@ namespace OccuRec.Config.Panels
 
 			cbxCustomAdvCompression.Checked = Settings.Default.AavCompression != AavCompression.QuickLZ;
 			cbxAdvCompression.Visible = Settings.Default.AavCompression != AavCompression.QuickLZ;
+
+            cbxMustConfirmVTI.Checked = Settings.Default.VTIMustConfirmManually;
 		}
 
 		public override void SaveSettings()
@@ -68,6 +70,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
 			Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;
 			Settings.Default.VtiOsdSaveReport = cbxSaveVtiOsdReport.Checked;
+		    Settings.Default.VTIMustConfirmManually = cbxMustConfirmVTI.Checked;
 
 			Settings.Default.VideoGraphDebugMode = cbxGraphDebugMode.Checked;
 			Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
