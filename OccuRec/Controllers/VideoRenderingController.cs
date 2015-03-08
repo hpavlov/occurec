@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -160,6 +162,12 @@ namespace OccuRec.Controllers
 
 								if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off || m_DisplayInvertedMode || m_DisplayHueIntensityMode)
 								{
+                                    using (var memStr = new MemoryStream())
+                                    {
+                                        bmp.Save(memStr, ImageFormat.Bmp);
+                                        memStr.Seek(0, SeekOrigin.Begin);
+                                        bmp = new Bitmap(memStr);
+                                    }
 									// For display purposes only we apply display gamma and/or invert when requested by the user
 									if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off)
 										BitmapFilter.ApplyGamma(bmp, m_DisplayIntensifyMode == DisplayIntensifyMode.Hi, m_DisplayInvertedMode, m_DisplayHueIntensityMode);

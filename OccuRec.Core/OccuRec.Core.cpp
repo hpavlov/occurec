@@ -1960,6 +1960,12 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 		AavAddFileTag("OSD-LAST-LINE", &buffer[0]);
 	}
 
+	if (NO_INTEGRATION_STACK_RATE > 0)
+	{
+		sprintf(&buffer[0], "%d", NO_INTEGRATION_STACK_RATE);
+		AavAddFileTag("FRAME-STACKING-RATE", &buffer[0]);
+	}
+
 	float effectiveIntegrationRate = videoFrameRate / detectedIntegrationRate;
 	sprintf(&buffer[0], "%.5f", effectiveIntegrationRate);
 	AavAddFileTag("EFFECTIVE-FRAME-RATE", &buffer[0]);
