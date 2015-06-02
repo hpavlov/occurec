@@ -1369,5 +1369,53 @@ namespace OccuRec.Properties {
                 this["VTIMustConfirmManually"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DisplayLocationCross {
+            get {
+                return ((bool)(this["DisplayLocationCross"]));
+            }
+            set {
+                this["DisplayLocationCross"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int LocationCrossX {
+            get {
+                return ((int)(this["LocationCrossX"]));
+            }
+            set {
+                this["LocationCrossX"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int LocationCrossY {
+            get {
+                return ((int)(this["LocationCrossY"]));
+            }
+            set {
+                this["LocationCrossY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int LocationCrossTransparency {
+            get {
+                return ((int)(this["LocationCrossTransparency"]));
+            }
+            set {
+                this["LocationCrossTransparency"] = value;
+            }
+        }
     }
 }

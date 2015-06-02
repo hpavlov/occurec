@@ -39,6 +39,8 @@ namespace OccuRec.Helpers
 	    private FrameAnalysisManager analysisManager;
 	    private CameraStateManager stateManager;
 
+        private static Pen m_LocationCrossPen = new Pen(Color.FromArgb(90, 255, 0, 0));
+
         private object syncRoot = new object();
 
 		public OverlayManager(int width, int height, List<string> initializationErrorMessages, FrameAnalysisManager analysisManager, CameraStateManager stateManager)
@@ -189,6 +191,21 @@ namespace OccuRec.Helpers
 				}
 				
 			}
+
+            if (Settings.Default.DisplayLocationCross)
+            {
+                if (m_LocationCrossPen.Color.A != Settings.Default.LocationCrossTransparency)
+                {
+                    if (m_LocationCrossPen != null)
+                        m_LocationCrossPen.Dispose();
+                    m_LocationCrossPen = new Pen(Color.FromArgb(Settings.Default.LocationCrossTransparency, 255, 0, 0));
+                }
+                g.DrawLine(m_LocationCrossPen, 0, Settings.Default.LocationCrossY, Settings.Default.LocationCrossX - 6, Settings.Default.LocationCrossY);
+                g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX, 0, Settings.Default.LocationCrossX, Settings.Default.LocationCrossY - 6);
+                g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX + 6, Settings.Default.LocationCrossY, imageWidth, Settings.Default.LocationCrossY);
+                g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX, Settings.Default.LocationCrossY + 6, Settings.Default.LocationCrossX, imageHeight);
+                g.DrawEllipse(m_LocationCrossPen, Settings.Default.LocationCrossX - 6, Settings.Default.LocationCrossY - 6, 12, 12);
+            }
         }
 
 	    private static Font s_VtiOsdFont = new Font(FontFamily.GenericSansSerif, 7.5f, FontStyle.Regular);

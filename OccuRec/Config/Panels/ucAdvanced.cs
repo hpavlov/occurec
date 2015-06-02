@@ -57,6 +57,11 @@ namespace OccuRec.Config.Panels
 			cbxAdvCompression.Visible = Settings.Default.AavCompression != AavCompression.QuickLZ;
 
             cbxMustConfirmVTI.Checked = Settings.Default.VTIMustConfirmManually;
+
+            cbxLocationCross.Checked = Settings.Default.DisplayLocationCross;
+		    nudCrossX.SetNUDValue(Settings.Default.LocationCrossX);
+            nudCrossY.SetNUDValue(Settings.Default.LocationCrossY);
+            nudCorssTransparency.SetNUDValue(Settings.Default.LocationCrossTransparency);
 		}
 
 		public override void SaveSettings()
@@ -75,6 +80,11 @@ namespace OccuRec.Config.Panels
 			Settings.Default.VideoGraphDebugMode = cbxGraphDebugMode.Checked;
 			Settings.Default.AavImageLayout = (AavImageLayout)cbxImageLayoutMode.SelectedItem;
 			Settings.Default.AavCompression = (AavCompression)cbxAdvCompression.SelectedItem;
+
+            Settings.Default.DisplayLocationCross = cbxLocationCross.Checked;
+            Settings.Default.LocationCrossX = (int)nudCrossX.Value;
+            Settings.Default.LocationCrossY = (int)nudCrossY.Value;
+            Settings.Default.LocationCrossTransparency = (int)nudCorssTransparency.Value;
 		}
 
 		private void cbxUserPreserveOSDLines_CheckedChanged(object sender, EventArgs e)
@@ -96,6 +106,11 @@ namespace OccuRec.Config.Panels
 		{
 			cbxAdvCompression.Visible = cbxCustomAdvCompression.Checked;
 		}
+
+        private void cbxLocationCross_CheckedChanged(object sender, EventArgs e)
+        {
+            pnlLocationCorss.Enabled = true;
+        }
 
 		//private void LoadVTIConfig(int width, int height)
 		//{

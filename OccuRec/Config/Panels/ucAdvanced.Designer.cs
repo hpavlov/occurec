@@ -46,12 +46,21 @@
             this.cbxCustomAdvCompression = new System.Windows.Forms.CheckBox();
             this.cbxAdvCompression = new System.Windows.Forms.ComboBox();
             this.cbxMustConfirmVTI = new System.Windows.Forms.CheckBox();
+            this.pnlLocationCorss = new System.Windows.Forms.Panel();
+            this.nudCrossY = new System.Windows.Forms.NumericUpDown();
+            this.nudCrossX = new System.Windows.Forms.NumericUpDown();
+            this.cbxLocationCross = new System.Windows.Forms.CheckBox();
+            this.nudCorssTransparency = new System.Windows.Forms.NumericUpDown();
             this.pnlPreserveOSDArea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).BeginInit();
             this.pnlNTPDebug.SuspendLayout();
+            this.pnlLocationCorss.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCrossX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlPreserveOSDArea
@@ -275,10 +284,88 @@
             this.cbxMustConfirmVTI.Text = "Manual Confirm";
             this.cbxMustConfirmVTI.UseVisualStyleBackColor = true;
             // 
+            // pnlLocationCorss
+            // 
+            this.pnlLocationCorss.Controls.Add(this.nudCorssTransparency);
+            this.pnlLocationCorss.Controls.Add(this.nudCrossY);
+            this.pnlLocationCorss.Controls.Add(this.nudCrossX);
+            this.pnlLocationCorss.Enabled = false;
+            this.pnlLocationCorss.Location = new System.Drawing.Point(194, 267);
+            this.pnlLocationCorss.Name = "pnlLocationCorss";
+            this.pnlLocationCorss.Size = new System.Drawing.Size(232, 27);
+            this.pnlLocationCorss.TabIndex = 44;
+            // 
+            // nudCrossY
+            // 
+            this.nudCrossY.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudCrossY.Location = new System.Drawing.Point(58, 3);
+            this.nudCrossY.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.nudCrossY.Name = "nudCrossY";
+            this.nudCrossY.Size = new System.Drawing.Size(49, 20);
+            this.nudCrossY.TabIndex = 28;
+            this.nudCrossY.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            // 
+            // nudCrossX
+            // 
+            this.nudCrossX.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudCrossX.Location = new System.Drawing.Point(3, 3);
+            this.nudCrossX.Maximum = new decimal(new int[] {
+            2000,
+            0,
+            0,
+            0});
+            this.nudCrossX.Name = "nudCrossX";
+            this.nudCrossX.Size = new System.Drawing.Size(49, 20);
+            this.nudCrossX.TabIndex = 27;
+            this.nudCrossX.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            // 
+            // cbxLocationCross
+            // 
+            this.cbxLocationCross.AutoSize = true;
+            this.cbxLocationCross.Location = new System.Drawing.Point(12, 271);
+            this.cbxLocationCross.Name = "cbxLocationCross";
+            this.cbxLocationCross.Size = new System.Drawing.Size(133, 17);
+            this.cbxLocationCross.TabIndex = 43;
+            this.cbxLocationCross.Text = "Display Location Cross";
+            this.cbxLocationCross.UseVisualStyleBackColor = true;
+            this.cbxLocationCross.CheckedChanged += new System.EventHandler(this.cbxLocationCross_CheckedChanged);
+            // 
+            // nudCorssTransparency
+            // 
+            this.nudCorssTransparency.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudCorssTransparency.Location = new System.Drawing.Point(141, 3);
+            this.nudCorssTransparency.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.nudCorssTransparency.Name = "nudCorssTransparency";
+            this.nudCorssTransparency.Size = new System.Drawing.Size(49, 20);
+            this.nudCorssTransparency.TabIndex = 29;
+            this.nudCorssTransparency.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            // 
             // ucAdvanced
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.pnlLocationCorss);
+            this.Controls.Add(this.cbxLocationCross);
             this.Controls.Add(this.cbxMustConfirmVTI);
             this.Controls.Add(this.cbxCustomAdvCompression);
             this.Controls.Add(this.cbxAdvCompression);
@@ -293,7 +380,7 @@
             this.Controls.Add(this.cbDebugIntegration);
             this.Controls.Add(this.cbxStatusSectionOnly);
             this.Name = "ucAdvanced";
-            this.Size = new System.Drawing.Size(532, 272);
+            this.Size = new System.Drawing.Size(532, 303);
             this.pnlPreserveOSDArea.ResumeLayout(false);
             this.pnlPreserveOSDArea.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).EndInit();
@@ -301,6 +388,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).EndInit();
             this.pnlNTPDebug.ResumeLayout(false);
+            this.pnlLocationCorss.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCrossX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -326,5 +417,10 @@
 		private System.Windows.Forms.CheckBox cbxCustomAdvCompression;
 		private System.Windows.Forms.ComboBox cbxAdvCompression;
         private System.Windows.Forms.CheckBox cbxMustConfirmVTI;
+        private System.Windows.Forms.Panel pnlLocationCorss;
+        private System.Windows.Forms.NumericUpDown nudCrossY;
+        private System.Windows.Forms.NumericUpDown nudCrossX;
+        private System.Windows.Forms.CheckBox cbxLocationCross;
+        private System.Windows.Forms.NumericUpDown nudCorssTransparency;
 	}
 }

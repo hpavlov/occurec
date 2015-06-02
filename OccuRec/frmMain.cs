@@ -730,9 +730,9 @@ namespace OccuRec
 					}
 				}
 
-				tbsAddTarget.Enabled = TrackingContext.Current.GuidingStar != null && !Scheduler.HasScheduledTasks();
-				tsbClearTargets.Enabled = TrackingContext.Current.GuidingStar != null && !Scheduler.HasScheduledTasks();
-				tsbAddGuidingStar.Enabled = !Scheduler.HasScheduledTasks();
+				tbsAddTarget.Enabled = TrackingContext.Current.GuidingStar != null;
+				tsbClearTargets.Enabled = TrackingContext.Current.GuidingStar != null;
+				tsbAddGuidingStar.Enabled = true;
 #if DEBUG
 				if (!double.IsNaN(renderFps))
 				{
