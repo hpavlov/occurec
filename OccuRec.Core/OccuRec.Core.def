@@ -20,6 +20,7 @@ EXPORTS
 	SetupCamera
 	SetupGrabberInfo
 	SetupObservationInfo
+	SetupTelescopePosition
 	SetupIntegrationDetection
 	SetupIntegrationPreservationArea
 	SetupAav

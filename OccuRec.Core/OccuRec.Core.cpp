@@ -148,6 +148,8 @@ char videoMode[128];
 char targetInfo[128];
 char telescopeInfo[128];
 char observerInfo[128];
+char raObjInfo[128];
+char decObjInfo[128];
 float videoFrameRate = 0;
 int HARDWARE_TIMING_CORRECTION = 0;
 
@@ -564,6 +566,14 @@ HRESULT SetupObservationInfo(LPCTSTR szTargetInfo, LPCTSTR szTelescopeInfo, LPCT
 	strcpy(&targetInfo[0], (char *)szTargetInfo);
 	strcpy(&telescopeInfo[0], (char *)szTelescopeInfo);
 	strcpy(&observerInfo[0], (char *)szObserverInfo);
+
+	return S_OK;
+}
+
+HRESULT SetupTelescopePosition(LPCTSTR szRaObjInfo, LPCTSTR szDecObjInfo)
+{
+	strcpy(&raObjInfo[0], (char *)szRaObjInfo);
+	strcpy(&decObjInfo[0], (char *)szDecObjInfo);
 
 	return S_OK;
 }
@@ -1940,6 +1950,8 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	AavAddFileTag("OBSERVER", observerInfo);
 	AavAddFileTag("TELESCOP", telescopeInfo);
 	AavAddFileTag("OBJECT", targetInfo);
+	AavAddFileTag("RA_OBJ", raObjInfo);
+	AavAddFileTag("DEC_OBJ", decObjInfo);
 
 	if (OCR_IS_SETUP)
 		AavAddFileTag("OCR-ENGINE", "IOTA-VTI OccuRec OCR v1.1");

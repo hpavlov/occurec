@@ -891,8 +891,9 @@ namespace OccuRec
 		{
 			if (videoObject != null)
 			{
-				string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
+                NativeHelpers.CurrentTargetInfo = tbxTargetName.Text;
 
+				string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
 				recordingfileName = videoObject.StartRecording(fileName);
 
 				UpdateState(null);
@@ -1059,7 +1060,9 @@ namespace OccuRec
 								m_StateManager.LockIntegration();
 							}
 
-							string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
+                            NativeHelpers.CurrentTargetInfo = tbxTargetName.Text;
+
+							string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);                           
 							recordingfileName = videoObject.StartRecording(fileName);
 							UpdateState(null);
 						}

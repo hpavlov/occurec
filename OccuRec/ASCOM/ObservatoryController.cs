@@ -1314,7 +1314,7 @@ namespace OccuRec.ASCOM
 
 	        try
 	        {
-                NativeHelpers.CurrentTargetInfo = string.Format("{0} {1}", AstroConvert.ToStringValue(position.RightAscension, "HHh MMm SSs"), AstroConvert.ToStringValue(position.Declination, "+DD° MM' SS.T\""));
+                NativeHelpers.CurrentTelescopePosition = string.Format("{0} {1}", AstroConvert.ToStringValue(position.RightAscension, "HHh MMm SSs"), AstroConvert.ToStringValue(position.Declination, "+DDo MM' SS.T\""));
 	        }
 	        catch
 	        { }
@@ -1340,6 +1340,13 @@ namespace OccuRec.ASCOM
 
 		private void OnTelescopeState(TelescopeState state)
 		{
+            try
+            {
+                NativeHelpers.CurrentTelescopePosition = string.Format("{0} {1}", AstroConvert.ToStringValue(state.RightAscension, "HHh MMm SSs"), AstroConvert.ToStringValue(state.Declination, "+DDo MM' SS.T\""));
+            }
+            catch
+            { }
+
             EventHelper.RaiseEvent(TelescopeStateUpdated, state);
 		}
 

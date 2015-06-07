@@ -348,6 +348,9 @@ namespace OccuRec.Helpers
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupObservationInfo(string targetInfo, string telescopeInfo, string observerInfo);
 
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        private static extern int SetupTelescopePosition(string raObjInfo, string decObjInfo);
+
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma, bool forceNewFrameOnLockedRate);
 
@@ -575,6 +578,7 @@ namespace OccuRec.Helpers
 			return displayBitmap;
 		}
 
+        public static string CurrentTelescopePosition;
 		public static string CurrentTargetInfo;
 
         public static void StartRecordingVideoFile(string fileName)
@@ -585,9 +589,18 @@ namespace OccuRec.Helpers
 
 			SetupObservationInfo(targetInfo, telescopeInfo, observerInfo);
 
+            if (!string.IsNullOrEmpty(CurrentTelescopePosition))
+            {
+                string[] tokens = CurrentTelescopePosition.Split("+-".ToCharArray(), 2);
+                if (tokens.Length == 2)
+                {
+                    SetupTelescopePosition(tokens[0], tokens[1]);
+                }
+            }
+
             StartRecording(fileName);
         }
-
+        
         public static void StopRecordingVideoFile()
         {
             StopRecording();

@@ -115,6 +115,8 @@
             this.miYahooGroup = new System.Windows.Forms.ToolStripMenuItem();
             this.btnNoOCR = new System.Windows.Forms.Button();
             this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
+            this.tbxTargetName = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -542,7 +544,8 @@
             // 
             this.pnlVideoControls.BackColor = System.Drawing.SystemColors.Control;
             this.pnlVideoControls.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pnlVideoControls.Controls.Add(this.ucVideoControl);
+            this.pnlVideoControls.Controls.Add(this.label6);
+            this.pnlVideoControls.Controls.Add(this.tbxTargetName);
             this.pnlVideoControls.Controls.Add(this.pnlOcrTesting);
             this.pnlVideoControls.Controls.Add(this.pnlCrossbar);
             this.pnlVideoControls.Controls.Add(this.gbxSchedules);
@@ -553,6 +556,7 @@
             this.pnlVideoControls.Controls.Add(this.btnRecord);
             this.pnlVideoControls.Controls.Add(this.pnlAAV);
             this.pnlVideoControls.Controls.Add(this.pnlVtiOsd);
+            this.pnlVideoControls.Controls.Add(this.ucVideoControl);
             this.pnlVideoControls.Dock = System.Windows.Forms.DockStyle.Right;
             this.pnlVideoControls.Enabled = false;
             this.pnlVideoControls.Location = new System.Drawing.Point(720, 0);
@@ -1019,6 +1023,7 @@
             this.tsbInsertSpectra.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbInsertSpectra.Name = "tsbInsertSpectra";
             this.tsbInsertSpectra.Size = new System.Drawing.Size(23, 22);
+            this.tsbInsertSpectra.ToolTipText = "Select Zero Order Spectra";
             this.tsbInsertSpectra.Click += new System.EventHandler(this.tsbInsertSpectra_Click);
             // 
             // tsbClearTargets
@@ -1090,11 +1095,27 @@
             // ucVideoControl
             // 
             this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ucVideoControl.Location = new System.Drawing.Point(4, 230);
+            this.ucVideoControl.Location = new System.Drawing.Point(4, 184);
             this.ucVideoControl.Name = "ucVideoControl";
             this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
             this.ucVideoControl.TabIndex = 27;
             this.ucVideoControl.Visible = false;
+            // 
+            // tbxTargetName
+            // 
+            this.tbxTargetName.Location = new System.Drawing.Point(8, 300);
+            this.tbxTargetName.Name = "tbxTargetName";
+            this.tbxTargetName.Size = new System.Drawing.Size(185, 20);
+            this.tbxTargetName.TabIndex = 28;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(8, 282);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(157, 13);
+            this.label6.TabIndex = 29;
+            this.label6.Text = "Target Name/Description (AAV)";
             // 
             // frmMain
             // 
@@ -1244,6 +1265,8 @@
         private System.Windows.Forms.ToolStripSeparator tssToolBorder;
         protected internal System.Windows.Forms.ToolStripButton tsbInsertSpectra;
         private System.Windows.Forms.Button btnNoOCR;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox tbxTargetName;
 	}
 }
 
