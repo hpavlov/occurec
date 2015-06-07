@@ -125,6 +125,8 @@ namespace OccuRec.Drivers.AAVTimer
 				cameraFrame.ImageStatus.IntegratedFrameNo,
 				cameraFrame.ImageStatus.DropedFramesSinceIntegrationLock);
 
+		    rv.MaxSignalValue = (uint)(cameraFrame.ImageStatus.DetectedIntegrationRate*255);
+
 			if (cameraFrame.ImageStatus.PerformedAction > 0)
 			{
 				rv.imageInfo += string.Format(";ACT:{0};ACT%:{1}", cameraFrame.ImageStatus.PerformedAction, cameraFrame.ImageStatus.PerformedActionProgress);
@@ -216,6 +218,9 @@ namespace OccuRec.Drivers.AAVTimer
 			get { return imageInfo; }
 		}
 
-	}
+
+
+        public uint MaxSignalValue { get; private set; }
+    }
 }
 

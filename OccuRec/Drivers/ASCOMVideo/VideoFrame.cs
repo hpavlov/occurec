@@ -67,5 +67,11 @@ namespace OccuRec.Drivers.ASCOMVideo
         {
             m_ASCOMVideoFrame.Dispose();
         }
+
+
+        public uint MaxSignalValue
+        {
+            get { return 255; }
+        }
     }
 }

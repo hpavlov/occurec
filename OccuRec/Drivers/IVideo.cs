@@ -73,6 +73,8 @@ namespace OccuRec.Drivers
 		string ExposureStartTime { get; }
 
 		string ImageInfo { get; }
+
+        uint MaxSignalValue { get; }
 	}
 
     public interface IVideoCallbacks

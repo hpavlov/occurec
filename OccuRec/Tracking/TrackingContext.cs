@@ -74,6 +74,8 @@ namespace OccuRec.Tracking
 
 		public LastTrackedPosition TargetStar;
 
+	    public float SpectraAngleDeg;
+
 		internal TrackedObjectConfig GuidingStarConfig;
 
 		internal TrackedObjectConfig TargetStarConfig;

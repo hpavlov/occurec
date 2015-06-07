@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.Context;
+using OccuRec.Drivers;
 using OccuRec.FrameAnalysis;
 using OccuRec.Properties;
 using OccuRec.StateManagement;
@@ -40,8 +41,17 @@ namespace OccuRec.Helpers
 	    private CameraStateManager stateManager;
 
         private static Pen m_LocationCrossPen = new Pen(Color.FromArgb(90, 255, 0, 0));
+        private static Pen[] m_GreyPens = new Pen[256];
 
         private object syncRoot = new object();
+
+        static OverlayManager()
+        {
+            for (int i = 0; i < 256; i++)
+            {
+                m_GreyPens[i] = new Pen(Color.FromArgb(i, i, i));
+            }            
+        }
 
 		public OverlayManager(int width, int height, List<string> initializationErrorMessages, FrameAnalysisManager analysisManager, CameraStateManager stateManager)
         {
@@ -99,7 +109,7 @@ namespace OccuRec.Helpers
 
 	    private SizeF timestampMeasurement = SizeF.Empty;
 
-        public void ProcessFrame(Graphics g)
+        public void ProcessFrame(Graphics g, VideoFrameWrapper frame)
         {
 			if (overlayState != null)
 				overlayState.ProcessFrame(g);
@@ -168,10 +178,33 @@ namespace OccuRec.Helpers
 							g.DrawEllipse(Pens.Red, TrackingContext.Current.GuidingStar.X - apertureOuter, TrackingContext.Current.GuidingStar.Y - apertureOuter, 2 * apertureOuter, 2 * apertureOuter);
 						}
 					}
+
+                    if (!float.IsNaN(TrackingContext.Current.SpectraAngleDeg))
+                    {
+                        RectangleF originalVideoFrame = new RectangleF(0, 0, imageWidth, imageHeight);
+
+                        var mapper = new RotationMapper(imageWidth, imageHeight, TrackingContext.Current.SpectraAngleDeg);
+                        float halfWidth = (float)TrackingContext.Current.GuidingStar.FWHM;
+
+                        PointF p0 = mapper.GetDestCoords(TrackingContext.Current.GuidingStar.X, TrackingContext.Current.GuidingStar.Y);
+                        for (float i = p0.X - mapper.MaxDestDiagonal; i < p0.X + mapper.MaxDestDiagonal; i++)
+                        {
+                            PointF p1 = mapper.GetSourceCoords(i, p0.Y - halfWidth);
+                            PointF p2 = mapper.GetSourceCoords(i + 1, p0.Y - halfWidth);
+                            if (originalVideoFrame.Contains(p1) && originalVideoFrame.Contains(p2)) g.DrawLine(Pens.Red, p1, p2);
+
+                            PointF p3 = mapper.GetSourceCoords(i, p0.Y + halfWidth);
+                            PointF p4 = mapper.GetSourceCoords(i + 1, p0.Y + halfWidth);
+                            if (originalVideoFrame.Contains(p3) && originalVideoFrame.Contains(p4)) g.DrawLine(Pens.Red, p3, p4);
+                        }
+
+                        PlotStarSpectra(g, frame);
+                    }
 				}
 
 				analysisManager.DisplayData(g, imageWidth, imageHeight);
 			}
+
 
 			if (stateManager.VtiOsdPositionUnknown || OccuRecContext.Current.ShowAssumedVtiOsdPosition)
 			{
@@ -205,6 +238,28 @@ namespace OccuRec.Helpers
                 g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX + 6, Settings.Default.LocationCrossY, imageWidth, Settings.Default.LocationCrossY);
                 g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX, Settings.Default.LocationCrossY + 6, Settings.Default.LocationCrossX, imageHeight);
                 g.DrawEllipse(m_LocationCrossPen, Settings.Default.LocationCrossX - 6, Settings.Default.LocationCrossY - 6, 12, 12);
+            }
+        }
+
+        private void PlotStarSpectra(Graphics g, VideoFrameWrapper frame)
+        {
+            var astroImg = new AstroImage((int[,])frame.ImageArray, imageWidth, imageHeight, (uint)(frame.IntegrationRate.HasValue ? frame.IntegrationRate.Value * 255 : 255));
+            var reader = new SpectraReader(astroImg, TrackingContext.Current.SpectraAngleDeg);
+            Spectra spectra = reader.ReadSpectra(TrackingContext.Current.GuidingStar.X, TrackingContext.Current.GuidingStar.Y, (int)TrackingContext.Current.GuidingStar.FWHM);
+
+            //float xCoeff = imageWidth * 1.0f / TrackingContext.Current.Spectra.Points.Count;
+            float colorCoeff = 256.0f / spectra.MaxPixelValue;
+
+            List<SpectraPoint> points = new List<SpectraPoint>(spectra.Points);
+            int firstPixelNo = points[0].PixelNo;
+
+            g.FillRectangle(Brushes.Black, 0, imageHeight - 50, imageWidth, imageHeight);
+
+            foreach (SpectraPoint point in points)
+            {
+                byte clr = (byte)(Math.Round(point.RawValue * colorCoeff));
+                float x = point.PixelNo - firstPixelNo;
+                g.DrawLine(m_GreyPens[clr], x, imageHeight - 50, x, imageHeight);
             }
         }
 

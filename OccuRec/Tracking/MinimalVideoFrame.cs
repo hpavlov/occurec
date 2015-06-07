@@ -21,6 +21,7 @@ namespace OccuRec.Tracking
 			ExposureDuration = double.NaN;
 			ExposureStartTime = null;
 			ImageInfo = source.ImageInfo;
+            MaxSignalValue = (uint)(source.IntegrationRate.HasValue ? 255 * source.IntegrationRate.Value : 255);
 
             if (source.ImageArray is int[,])
             {
@@ -90,7 +91,9 @@ namespace OccuRec.Tracking
 
 		public long FrameNumber { get; private set; }
 
-		public double ExposureDuration { get; private set; }
+        public uint MaxSignalValue { get; private set; }
+
+	    public double ExposureDuration { get; private set; }
 
 		public string ExposureStartTime { get; private set; }
 

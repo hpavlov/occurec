@@ -18,13 +18,37 @@ namespace OccuRec.Helpers
 		private int m_Width;
 		private int m_Height;
 
-		public AstroImage(IVideoFrame videoFrame, int width, int height)
-		{
-            m_Pixels = (int[,]) videoFrame.ImageArray;
+	    public int Width
+	    {
+            get { return m_Width; }
+	    }
 
-			m_Width = width;
-			m_Height = height;
+        public int Height
+        {
+            get { return m_Height; }
+        }
+
+	    public int GetPixel(int x, int y)
+	    {
+	        return m_Pixels[y, x];
+	    }
+
+        public uint MaxSignalValue { get; private set; }
+
+
+	    public AstroImage(IVideoFrame videoFrame, int width, int height, uint maxSignalValue = 255)
+            : this((int[,])videoFrame.ImageArray, width, height, maxSignalValue)
+		{
 		}
+
+        public AstroImage(int[,] imageArray, int width, int height, uint maxSignalValue = 255)
+        {
+            m_Pixels = imageArray;
+
+            m_Width = width;
+            m_Height = height;
+            MaxSignalValue = maxSignalValue;
+        }
 
 		public uint[,] GetMeasurableAreaPixels(int xCenter, int yCenter)
 		{

@@ -24,7 +24,8 @@ namespace OccuRec.Controllers
         {
             None,
             SelectingGuidingStar,
-            SelectingtTargetStar
+            SelectingTargetStar,
+            SelectingStarSpectra
         }
 
         private frmMain m_MainForm;
@@ -77,10 +78,15 @@ namespace OccuRec.Controllers
 		                m_MainForm.Invoke(new Action(() => ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None)));
 
                 }
-                else if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingtTargetStar)
+                else if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingTargetStar)
                 {
                     if (SelectingTargetStar(typedState.Item1, typedState.Item2, typedState.Item3))
 						m_MainForm.Invoke(new Action(() => ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None)));
+                }
+                else if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingStarSpectra)
+                {
+                    if (SelectingStarSpectra(typedState.Item1, typedState.Item2, typedState.Item3))
+                        m_MainForm.Invoke(new Action(() => ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None)));
                 }
             }
             catch (Exception ex)
@@ -111,6 +117,7 @@ namespace OccuRec.Controllers
 					};
 
 					TrackingContext.Current.ReConfigureNativeTracking(m_VideoRenderingController.Width, m_VideoRenderingController.Height);
+				    TrackingContext.Current.SpectraAngleDeg = float.NaN;
 
 					return true;
 				}
@@ -154,25 +161,182 @@ namespace OccuRec.Controllers
 			return false;
         }
 
+        private bool SelectingStarSpectra(Point location, bool shiftHeld, bool controlHeld)
+        {
+            IVideoFrame currentVideoFrame = m_VideoRenderingController.GetCurrentFrame();
+            if (currentVideoFrame != null)
+            {
+                var astroImg = new AstroImage(currentVideoFrame, m_VideoRenderingController.Width, m_VideoRenderingController.Height, currentVideoFrame.MaxSignalValue);
+                uint[,] areaPixels = astroImg.GetMeasurableAreaPixels(location.X, location.Y);
+
+                PSFFit psfFit = new PSFFit(location.X, location.Y);
+                psfFit.Fit(areaPixels);
+
+                if (psfFit.IsSolved && psfFit.Certainty > Settings.Default.TrackingMinGuidingCertainty)
+                {
+                    float angle = LocateSpectraAngle(psfFit, astroImg);
+
+                    if (!float.IsNaN(angle))
+                    {
+                        TrackingContext.Current.GuidingStar = new LastTrackedPosition(m_Bpp)
+                        {
+                            FWHM = (float)psfFit.FWHM,
+                            X = (float)psfFit.XCenter,
+                            Y = (float)psfFit.YCenter,
+                            IsFixed = false
+                        };
+
+                        TrackingContext.Current.ReConfigureNativeTracking(m_VideoRenderingController.Width, m_VideoRenderingController.Height);
+                        TrackingContext.Current.SpectraAngleDeg = angle;
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        internal float LocateSpectraAngle(PSFFit selectedStar, AstroImage image)
+        {
+            float x0 = (float)selectedStar.XCenter;
+            float y0 = (float)selectedStar.YCenter;
+            uint brigthness20 = (uint)(selectedStar.Brightness / 5);
+            uint bgFromPsf = (uint)(selectedStar.I0);
+
+            int minDistance = (int)(10 * selectedStar.FWHM);
+            int clearDist = (int)(2 * selectedStar.FWHM);
+
+            float width = image.Width;
+            float height = image.Height;
+
+            uint[] angles = new uint[360];
+            uint[] sums = new uint[360];
+            uint[] pixAbove50Perc = new uint[360];
+
+            int diagonnalPixels = (int)Math.Ceiling(Math.Sqrt(image.Width * image.Width + image.Height * image.Height));
+            for (int i = 0; i < 360; i++)
+            {
+                var mapper = new RotationMapper(image.Width, image.Height, i);
+                PointF p1 = mapper.GetDestCoords(x0, y0);
+                float x1 = p1.X;
+                float y1 = p1.Y;
+
+                uint rowSum = 0;
+                uint pixAbove50 = 0;
+                uint pixAbove50Max = 0;
+                bool prevPixAbove50 = false;
+
+                for (int d = minDistance; d < diagonnalPixels; d++)
+                {
+                    PointF p = mapper.GetSourceCoords(x1 + d, y1);
+
+                    if (p.X >= 0 && p.X < width && p.Y >= 0 && p.Y < height)
+                    {
+                        uint value = (uint)image.GetPixel((int)p.X, (int)p.Y);
+                        rowSum += value;
+                        PointF pu = mapper.GetSourceCoords(x1 + d, y1 + clearDist);
+                        PointF pd = mapper.GetSourceCoords(x1 + d, y1 - clearDist);
+                        if (pu.X >= 0 && pu.X < width && pu.Y >= 0 && pu.Y < height &&
+                            pd.X >= 0 && pd.X < width && pd.Y >= 0 && pd.Y < height)
+                        {
+                            uint value_u = (uint)image.GetPixel((int)pu.X, (int)pu.Y);
+                            uint value_d = (uint)image.GetPixel((int)pd.X, (int)pd.Y);
+                            if ((value - bgFromPsf) > brigthness20 && value > value_u && value > value_d)
+                            {
+                                if (prevPixAbove50) pixAbove50++;
+                                prevPixAbove50 = true;
+                            }
+                            else
+                            {
+                                prevPixAbove50 = false;
+                                if (pixAbove50Max < pixAbove50) pixAbove50Max = pixAbove50;
+                                pixAbove50 = 0;
+                            }
+                        }
+                        else
+                        {
+                            prevPixAbove50 = false;
+                            if (pixAbove50Max < pixAbove50) pixAbove50Max = pixAbove50;
+                            pixAbove50 = 0;
+                        }
+                    }
+                }
+
+                angles[i] = (uint)i;
+                sums[i] = rowSum;
+                pixAbove50Perc[i] = pixAbove50Max;
+            }
+
+            Array.Sort(pixAbove50Perc, angles);
+
+            uint roughAngle = angles[359];
+
+            if (pixAbove50Perc[358] * 2 > pixAbove50Perc[359])
+                return float.NaN;
+
+            uint bestSum = 0;
+            float bestAngle = 0f;
+
+            for (float a = roughAngle - 1; a < roughAngle + 1; a += 0.02f)
+            {
+                var mapper = new RotationMapper(image.Width, image.Height, a);
+                PointF p1 = mapper.GetDestCoords(x0, y0);
+                float x1 = p1.X;
+                float y1 = p1.Y;
+
+                uint rowSum = 0;
+
+                for (int d = minDistance; d < diagonnalPixels; d++)
+                {
+                    PointF p = mapper.GetSourceCoords(x1 + d, y1);
+
+                    if (p.X >= 0 && p.X < width && p.Y >= 0 && p.Y < height)
+                    {
+                        uint pixVal = (uint)image.GetPixel((int)p.X, (int)p.Y);
+                        rowSum += pixVal;
+                    }
+                }
+
+                if (rowSum > bestSum)
+                {
+                    bestSum = rowSum;
+                    bestAngle = a;
+                }
+            }
+
+            return bestAngle;
+        }
+
         private void ChangeVideoFrameInteractiveState(VideoFrameInteractiveState newState)
         {
             if (newState == VideoFrameInteractiveState.None)
             {
                 m_MainForm.picVideoFrame.Cursor = Cursors.Default;
                 m_MainForm.tbsAddTarget.Checked = false;
+                m_MainForm.tsbInsertSpectra.Checked = false;
                 m_MainForm.tsbAddGuidingStar.Checked = false;
             }
-            else if (newState == VideoFrameInteractiveState.SelectingtTargetStar)
+            else if (newState == VideoFrameInteractiveState.SelectingTargetStar)
             {
                 m_MainForm.picVideoFrame.Cursor = Cursors.Cross;
                 m_MainForm.tbsAddTarget.Checked = true;
+                m_MainForm.tsbInsertSpectra.Checked = false;
                 m_MainForm.tsbAddGuidingStar.Checked = false;
             }
             else if (newState == VideoFrameInteractiveState.SelectingGuidingStar)
             {
                 m_MainForm.picVideoFrame.Cursor = Cursors.Cross;
                 m_MainForm.tbsAddTarget.Checked = false;
+                m_MainForm.tsbInsertSpectra.Checked = false;
                 m_MainForm.tsbAddGuidingStar.Checked = true;
+            }
+            else if (newState == VideoFrameInteractiveState.SelectingStarSpectra)
+            {
+                m_MainForm.picVideoFrame.Cursor = Cursors.Cross;
+                m_MainForm.tbsAddTarget.Checked = false;
+                m_MainForm.tsbAddGuidingStar.Checked = false;
+                m_MainForm.tsbInsertSpectra.Checked = true;
             }
 
 
@@ -189,10 +353,18 @@ namespace OccuRec.Controllers
 
         public void ToggleSelectTargetStar()
         {
-            if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingtTargetStar)
+            if (m_VideoFrameInteractiveState == VideoFrameInteractiveState.SelectingTargetStar)
                 ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
             else
-                ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.SelectingtTargetStar);
+                ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.SelectingTargetStar);
+        }
+
+        public void ToggleInsertStarSpectra()
+        {
+           if (m_VideoFrameInteractiveState ==  VideoFrameInteractiveState.SelectingStarSpectra)
+               ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
+           else
+               ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.SelectingStarSpectra);
         }
 
 		public void RemoveTrackedObjects()

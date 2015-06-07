@@ -436,7 +436,7 @@ namespace OccuRec
 							g.DrawImage(bmp, 0, 0);
 
 						if (m_OverlayManager != null)
-							m_OverlayManager.ProcessFrame(g);
+                            m_OverlayManager.ProcessFrame(g, frame);
 
 						g.Save();
 					}					
@@ -468,7 +468,7 @@ namespace OccuRec
 					g.DrawImage(bmp, 0, 0);
 
 					if (m_OverlayManager != null)
-						m_OverlayManager.ProcessFrame(g);
+                        m_OverlayManager.ProcessFrame(g, frame);
 
 					g.Save();
 				}				
@@ -670,8 +670,9 @@ namespace OccuRec
 
 				tbsAddTarget.Visible = false;
 				tsbAddGuidingStar.Visible = false;
+                tsbInsertSpectra.Visible = false;
 				tsbClearTargets.Visible = false;
-				tsSeparator2.Visible = false;
+				tssToolBorder.Visible = false;
 
 				//tsbCamControl.Enabled = false;
 			}
@@ -680,11 +681,13 @@ namespace OccuRec
 				tbsAddTarget.Visible = videoObject.SupportsTargetTracking;
 				tsbClearTargets.Visible = videoObject.SupportsTargetTracking;
 				tsbAddGuidingStar.Visible = videoObject.SupportsTargetTracking;
-				tsSeparator2.Visible = videoObject.SupportsTargetTracking;
+				tsbInsertSpectra.Visible = videoObject.SupportsTargetTracking;
+				tssToolBorder.Visible = videoObject.SupportsTargetTracking;
 			    
-				tbsAddTarget.Enabled = false;				
+				tbsAddTarget.Enabled = false;
 				tsbClearTargets.Enabled = false;
 				tsbAddGuidingStar.Enabled = true;
+                tsbInsertSpectra.Enabled = true;
 				
 				TrackingContext.Current.Reset();
 				TrackingContext.Current.ReConfigureNativeTracking(videoObject.Width, videoObject.Height);
@@ -733,6 +736,7 @@ namespace OccuRec
 				tbsAddTarget.Enabled = TrackingContext.Current.GuidingStar != null;
 				tsbClearTargets.Enabled = TrackingContext.Current.GuidingStar != null;
 				tsbAddGuidingStar.Enabled = true;
+			    tsbInsertSpectra.Enabled = true;
 #if DEBUG
 				if (!double.IsNaN(renderFps))
 				{
@@ -1981,6 +1985,11 @@ namespace OccuRec
 			m_VideoFrameInteractionController.RemoveTrackedObjects();
 		}
 
+        private void tsbInsertSpectra_Click(object sender, EventArgs e)
+        {
+            m_VideoFrameInteractionController.ToggleInsertStarSpectra();
+        }
+
 		private void UpdateNTPConnectivityState()
 		{
 			UpdateNTPStatus();
@@ -2118,6 +2127,13 @@ namespace OccuRec
             var frm = new frmAbout();
             frm.StartPosition = FormStartPosition.CenterParent;
             frm.ShowDialog(this);
+        }
+
+        private void btnNoOCR_Click(object sender, EventArgs e)
+        {
+            NativeHelpers.SetupTimestampPreservation(true,  imageHeight - 2, 2);
+
+            m_StateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
         }
     }
 }

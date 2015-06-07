@@ -111,6 +111,8 @@ namespace OccuRec.Drivers
 					status.IntegratedFrameNo,
 					status.DropedFramesSinceIntegrationLock);
 
+                rv.MaxSignalValue = (uint)(status.DetectedIntegrationRate * 255);
+
                 if (status.PerformedAction > 0)
                 {
                     rv.imageInfo += string.Format(";ACT:{0};ACT%:{1}", status.PerformedAction, status.PerformedActionProgress);
@@ -207,5 +209,6 @@ namespace OccuRec.Drivers
             get { return imageInfo; }
         }
 
+        public uint MaxSignalValue { get; private set; }
     }
 }
