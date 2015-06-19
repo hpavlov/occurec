@@ -13,6 +13,7 @@ namespace OccuRec.Helpers
         public float RawValue;
         public float RawBackground;
         public float SmoothedValue;
+        public bool HasSaturatedPixels;
     }
 
     public class Spectra
@@ -85,7 +86,12 @@ namespace OccuRec.Helpers
                     int yy = (int)Math.Round(p.Y);
 
                     if (m_SourceVideoFrame.Contains(xx, yy))
-                        point.RawValue += m_Image.GetPixel(xx, yy);
+                    {
+                        int pixelVal = m_Image.GetPixel(xx, yy);
+                        point.RawValue += pixelVal;
+                        if (pixelVal >= m_Image.MaxSignalValue && !point.HasSaturatedPixels)
+                            point.HasSaturatedPixels = true;
+                    }
                 }
 
                 rv.Points.Add(point);

@@ -29,6 +29,7 @@
 		private void InitializeComponent()
 		{
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.cbxForceNewFrameOnLockedRate = new System.Windows.Forms.CheckBox();
             this.cbForceIntegrationRateRestrictions = new System.Windows.Forms.CheckBox();
             this.label15 = new System.Windows.Forms.Label();
             this.nudCalibrIntegrRate = new System.Windows.Forms.NumericUpDown();
@@ -47,7 +48,10 @@
             this.tbxTelescopeInfo = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.tbxObserverInfo = new System.Windows.Forms.TextBox();
-            this.cbxForceNewFrameOnLockedRate = new System.Windows.Forms.CheckBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.nudLongitude = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
+            this.nudLatitude = new System.Windows.Forms.NumericUpDown();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudCalibrIntegrRate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudGammaDiff)).BeginInit();
@@ -55,6 +59,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudMinSignDiff)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudLongitude)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudLatitude)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -76,6 +82,17 @@
             this.groupBox1.TabIndex = 25;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Integration Detection";
+            // 
+            // cbxForceNewFrameOnLockedRate
+            // 
+            this.cbxForceNewFrameOnLockedRate.AutoSize = true;
+            this.cbxForceNewFrameOnLockedRate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.cbxForceNewFrameOnLockedRate.Location = new System.Drawing.Point(15, 145);
+            this.cbxForceNewFrameOnLockedRate.Name = "cbxForceNewFrameOnLockedRate";
+            this.cbxForceNewFrameOnLockedRate.Size = new System.Drawing.Size(264, 17);
+            this.cbxForceNewFrameOnLockedRate.TabIndex = 17;
+            this.cbxForceNewFrameOnLockedRate.Text = "Force New Frame On Locked Auto-Detected Rate";
+            this.cbxForceNewFrameOnLockedRate.UseVisualStyleBackColor = true;
             // 
             // cbForceIntegrationRateRestrictions
             // 
@@ -305,21 +322,70 @@
             this.tbxObserverInfo.Size = new System.Drawing.Size(207, 20);
             this.tbxObserverInfo.TabIndex = 32;
             // 
-            // cbxForceNewFrameOnLockedRate
+            // label5
             // 
-            this.cbxForceNewFrameOnLockedRate.AutoSize = true;
-            this.cbxForceNewFrameOnLockedRate.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.cbxForceNewFrameOnLockedRate.Location = new System.Drawing.Point(15, 145);
-            this.cbxForceNewFrameOnLockedRate.Name = "cbxForceNewFrameOnLockedRate";
-            this.cbxForceNewFrameOnLockedRate.Size = new System.Drawing.Size(264, 17);
-            this.cbxForceNewFrameOnLockedRate.TabIndex = 17;
-            this.cbxForceNewFrameOnLockedRate.Text = "Force New Frame On Locked Auto-Detected Rate";
-            this.cbxForceNewFrameOnLockedRate.UseVisualStyleBackColor = true;
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(12, 308);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(101, 13);
+            this.label5.TabIndex = 36;
+            this.label5.Text = "Location Longitude:";
+            // 
+            // nudLongitude
+            // 
+            this.nudLongitude.DecimalPlaces = 4;
+            this.nudLongitude.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudLongitude.Location = new System.Drawing.Point(118, 305);
+            this.nudLongitude.Maximum = new decimal(new int[] {
+            180,
+            0,
+            0,
+            0});
+            this.nudLongitude.Minimum = new decimal(new int[] {
+            180,
+            0,
+            0,
+            -2147483648});
+            this.nudLongitude.Name = "nudLongitude";
+            this.nudLongitude.Size = new System.Drawing.Size(75, 20);
+            this.nudLongitude.TabIndex = 37;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(196, 308);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(48, 13);
+            this.label6.TabIndex = 38;
+            this.label6.Text = "Latitude:";
+            // 
+            // nudLatitude
+            // 
+            this.nudLatitude.DecimalPlaces = 4;
+            this.nudLatitude.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudLatitude.Location = new System.Drawing.Point(249, 305);
+            this.nudLatitude.Maximum = new decimal(new int[] {
+            180,
+            0,
+            0,
+            0});
+            this.nudLatitude.Minimum = new decimal(new int[] {
+            180,
+            0,
+            0,
+            -2147483648});
+            this.nudLatitude.Name = "nudLatitude";
+            this.nudLatitude.Size = new System.Drawing.Size(75, 20);
+            this.nudLatitude.TabIndex = 39;
             // 
             // ucAAV
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.nudLatitude);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.nudLongitude);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tbxTelescopeInfo);
             this.Controls.Add(this.label2);
@@ -338,6 +404,8 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.groupBox4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.nudLongitude)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudLatitude)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -365,5 +433,9 @@
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.TextBox tbxObserverInfo;
         private System.Windows.Forms.CheckBox cbxForceNewFrameOnLockedRate;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.NumericUpDown nudLongitude;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.NumericUpDown nudLatitude;
 	}
 }

@@ -33,6 +33,8 @@ namespace OccuRec.Config.Panels
 			rbIntegrationBin.Checked = Settings.Default.Use16BitAAV;
 			tbxObserverInfo.Text = Settings.Default.AavObserverInfo;
 			tbxTelescopeInfo.Text = Settings.Default.AavTelescopeInfo;
+            nudLongitude.SetNUDValue(Settings.Default.AavObsLongitude);
+            nudLatitude.SetNUDValue(Settings.Default.AavObsLatitude);
 		    cbxForceNewFrameOnLockedRate.Checked = Settings.Default.ForceNewFrameOnLockedRate;
 		}
 
@@ -49,6 +51,8 @@ namespace OccuRec.Config.Panels
 
 			Settings.Default.AavObserverInfo = tbxObserverInfo.Text;
 			Settings.Default.AavTelescopeInfo = tbxTelescopeInfo.Text;
+		    Settings.Default.AavObsLongitude = (float)nudLongitude.Value;
+            Settings.Default.AavObsLatitude = (float)nudLatitude.Value;
 
             Settings.Default.ForceNewFrameOnLockedRate = cbxForceNewFrameOnLockedRate.Checked;
 		}

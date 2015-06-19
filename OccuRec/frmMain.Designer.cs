@@ -51,6 +51,8 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.miSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.miHelp = new System.Windows.Forms.ToolStripMenuItem();
+            this.miHelpIndex = new System.Windows.Forms.ToolStripMenuItem();
+            this.miYahooGroup = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.miCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
@@ -58,8 +60,11 @@
             this.pnlClient = new System.Windows.Forms.Panel();
             this.pnlVideoFrames = new System.Windows.Forms.Panel();
             this.pnlVideo = new System.Windows.Forms.Panel();
+            this.picVideoFrame = new System.Windows.Forms.PictureBox();
             this.pnlTargets = new System.Windows.Forms.Panel();
             this.pnlVideoControls = new System.Windows.Forms.Panel();
+            this.label6 = new System.Windows.Forms.Label();
+            this.tbxTargetName = new System.Windows.Forms.TextBox();
             this.pnlOcrTesting = new System.Windows.Forms.Panel();
             this.btnOcrTesting = new System.Windows.Forms.Button();
             this.pnlCrossbar = new System.Windows.Forms.Panel();
@@ -87,41 +92,37 @@
             this.lblOneStack = new System.Windows.Forms.Label();
             this.btnOneStack = new System.Windows.Forms.Button();
             this.pnlVtiOsd = new System.Windows.Forms.Panel();
+            this.btnNoOCR = new System.Windows.Forms.Button();
             this.btnUpdateVtiOsd = new System.Windows.Forms.Button();
             this.btnConfirmUserVtiOsd = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
+            this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.timerScheduler = new System.Windows.Forms.Timer(this.components);
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tssToolBorder = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.tslTelFocStatus = new System.Windows.Forms.ToolStripLabel();
-            this.pnlControlArea = new System.Windows.Forms.Panel();
-            this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
-            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.picVideoFrame = new System.Windows.Forms.PictureBox();
             this.tsbConnectDisconnect = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbCrosshair = new System.Windows.Forms.ToolStripButton();
             this.tsbAddGuidingStar = new System.Windows.Forms.ToolStripButton();
             this.tbsAddTarget = new System.Windows.Forms.ToolStripButton();
             this.tsbInsertSpectra = new System.Windows.Forms.ToolStripButton();
             this.tsbClearTargets = new System.Windows.Forms.ToolStripLabel();
+            this.tssToolBorder = new System.Windows.Forms.ToolStripSeparator();
             this.tsbTelControl = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbFocControl = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator6 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbCamControl = new System.Windows.Forms.ToolStripButton();
-            this.miHelpIndex = new System.Windows.Forms.ToolStripMenuItem();
-            this.miYahooGroup = new System.Windows.Forms.ToolStripMenuItem();
-            this.btnNoOCR = new System.Windows.Forms.Button();
-            this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
-            this.tbxTargetName = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.tslTelFocStatus = new System.Windows.Forms.ToolStripLabel();
+            this.pnlControlArea = new System.Windows.Forms.Panel();
+            this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
             this.pnlVideoFrames.SuspendLayout();
             this.pnlVideo.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picVideoFrame)).BeginInit();
             this.pnlVideoControls.SuspendLayout();
             this.pnlOcrTesting.SuspendLayout();
             this.pnlCrossbar.SuspendLayout();
@@ -132,7 +133,6 @@
             this.pnlVtiOsd.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.pnlControlArea.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picVideoFrame)).BeginInit();
             this.SuspendLayout();
             // 
             // statusStrip
@@ -478,6 +478,22 @@
             this.miHelp.Size = new System.Drawing.Size(40, 20);
             this.miHelp.Text = "&Help";
             // 
+            // miHelpIndex
+            // 
+            this.miHelpIndex.Image = ((System.Drawing.Image)(resources.GetObject("miHelpIndex.Image")));
+            this.miHelpIndex.Name = "miHelpIndex";
+            this.miHelpIndex.Size = new System.Drawing.Size(181, 22);
+            this.miHelpIndex.Text = "&Index";
+            this.miHelpIndex.Click += new System.EventHandler(this.miHelpIndex_Click);
+            // 
+            // miYahooGroup
+            // 
+            this.miYahooGroup.Image = ((System.Drawing.Image)(resources.GetObject("miYahooGroup.Image")));
+            this.miYahooGroup.Name = "miYahooGroup";
+            this.miYahooGroup.Size = new System.Drawing.Size(181, 22);
+            this.miYahooGroup.Text = "OccuRec Yahoo Group";
+            this.miYahooGroup.Click += new System.EventHandler(this.miYahooGroup_Click);
+            // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
@@ -532,6 +548,20 @@
             this.pnlVideo.Size = new System.Drawing.Size(720, 576);
             this.pnlVideo.TabIndex = 2;
             // 
+            // picVideoFrame
+            // 
+            this.picVideoFrame.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picVideoFrame.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.picVideoFrame.Location = new System.Drawing.Point(0, 0);
+            this.picVideoFrame.Name = "picVideoFrame";
+            this.picVideoFrame.Size = new System.Drawing.Size(720, 576);
+            this.picVideoFrame.TabIndex = 0;
+            this.picVideoFrame.TabStop = false;
+            this.picVideoFrame.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseDown);
+            this.picVideoFrame.MouseLeave += new System.EventHandler(this.pictureBox_MouseLeave);
+            this.picVideoFrame.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseMove);
+            this.picVideoFrame.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseUp);
+            // 
             // pnlTargets
             // 
             this.pnlTargets.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -563,6 +593,22 @@
             this.pnlVideoControls.Name = "pnlVideoControls";
             this.pnlVideoControls.Size = new System.Drawing.Size(200, 576);
             this.pnlVideoControls.TabIndex = 1;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(8, 282);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(157, 13);
+            this.label6.TabIndex = 29;
+            this.label6.Text = "Target Name/Description (AAV)";
+            // 
+            // tbxTargetName
+            // 
+            this.tbxTargetName.Location = new System.Drawing.Point(8, 300);
+            this.tbxTargetName.Name = "tbxTargetName";
+            this.tbxTargetName.Size = new System.Drawing.Size(185, 20);
+            this.tbxTargetName.TabIndex = 28;
             // 
             // pnlOcrTesting
             // 
@@ -849,6 +895,17 @@
             this.pnlVtiOsd.TabIndex = 26;
             this.pnlVtiOsd.Visible = false;
             // 
+            // btnNoOCR
+            // 
+            this.btnNoOCR.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnNoOCR.Location = new System.Drawing.Point(125, 3);
+            this.btnNoOCR.Name = "btnNoOCR";
+            this.btnNoOCR.Size = new System.Drawing.Size(51, 21);
+            this.btnNoOCR.TabIndex = 20;
+            this.btnNoOCR.Text = "NO OCR";
+            this.btnNoOCR.UseVisualStyleBackColor = true;
+            this.btnNoOCR.Click += new System.EventHandler(this.btnNoOCR_Click);
+            // 
             // btnUpdateVtiOsd
             // 
             this.btnUpdateVtiOsd.Location = new System.Drawing.Point(96, 26);
@@ -877,6 +934,15 @@
             this.label4.Size = new System.Drawing.Size(90, 13);
             this.label4.TabIndex = 15;
             this.label4.Text = "VTI-OSD Position";
+            // 
+            // ucVideoControl
+            // 
+            this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.ucVideoControl.Location = new System.Drawing.Point(4, 184);
+            this.ucVideoControl.Name = "ucVideoControl";
+            this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
+            this.ucVideoControl.TabIndex = 27;
+            this.ucVideoControl.Visible = false;
             // 
             // timerScheduler
             // 
@@ -908,73 +974,6 @@
             this.toolStrip1.TabIndex = 5;
             this.toolStrip1.Text = "toolStrip1";
             // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // tssToolBorder
-            // 
-            this.tssToolBorder.Name = "tssToolBorder";
-            this.tssToolBorder.Size = new System.Drawing.Size(6, 25);
-            // 
-            // toolStripSeparator5
-            // 
-            this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
-            // 
-            // toolStripSeparator6
-            // 
-            this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(6, 25);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-            // 
-            // tslTelFocStatus
-            // 
-            this.tslTelFocStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.tslTelFocStatus.ForeColor = System.Drawing.Color.Green;
-            this.tslTelFocStatus.Name = "tslTelFocStatus";
-            this.tslTelFocStatus.Size = new System.Drawing.Size(0, 22);
-            // 
-            // pnlControlArea
-            // 
-            this.pnlControlArea.Controls.Add(this.pnlClient);
-            this.pnlControlArea.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlControlArea.Location = new System.Drawing.Point(0, 49);
-            this.pnlControlArea.Name = "pnlControlArea";
-            this.pnlControlArea.Size = new System.Drawing.Size(920, 576);
-            this.pnlControlArea.TabIndex = 6;
-            // 
-            // imageListToolbar
-            // 
-            this.imageListToolbar.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListToolbar.ImageStream")));
-            this.imageListToolbar.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageListToolbar.Images.SetKeyName(0, "Camera-Transparent-32x32.png");
-            this.imageListToolbar.Images.SetKeyName(1, "Camera-Transparent-32x32-Disc.png");
-            // 
-            // openFileDialog
-            // 
-            this.openFileDialog.DefaultExt = "avi";
-            this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
-            // 
-            // picVideoFrame
-            // 
-            this.picVideoFrame.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picVideoFrame.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.picVideoFrame.Location = new System.Drawing.Point(0, 0);
-            this.picVideoFrame.Name = "picVideoFrame";
-            this.picVideoFrame.Size = new System.Drawing.Size(720, 576);
-            this.picVideoFrame.TabIndex = 0;
-            this.picVideoFrame.TabStop = false;
-            this.picVideoFrame.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseDown);
-            this.picVideoFrame.MouseLeave += new System.EventHandler(this.pictureBox_MouseLeave);
-            this.picVideoFrame.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseMove);
-            this.picVideoFrame.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox_MouseUp);
-            // 
             // tsbConnectDisconnect
             // 
             this.tsbConnectDisconnect.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -984,6 +983,11 @@
             this.tsbConnectDisconnect.Size = new System.Drawing.Size(23, 22);
             this.tsbConnectDisconnect.Text = "toolStripButton1";
             this.tsbConnectDisconnect.Click += new System.EventHandler(this.tsbConnectDisconnect_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
             // tsbCrosshair
             // 
@@ -1035,6 +1039,11 @@
             this.tsbClearTargets.ToolTipText = "Remove Tracked Objects";
             this.tsbClearTargets.Click += new System.EventHandler(this.tsbClearTargets_Click);
             // 
+            // tssToolBorder
+            // 
+            this.tssToolBorder.Name = "tssToolBorder";
+            this.tssToolBorder.Size = new System.Drawing.Size(6, 25);
+            // 
             // tsbTelControl
             // 
             this.tsbTelControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -1044,6 +1053,11 @@
             this.tsbTelControl.Size = new System.Drawing.Size(97, 22);
             this.tsbTelControl.Text = "Control Telescope";
             this.tsbTelControl.Click += new System.EventHandler(this.tsbTelControl_Click);
+            // 
+            // toolStripSeparator5
+            // 
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
             // 
             // tsbFocControl
             // 
@@ -1055,6 +1069,11 @@
             this.tsbFocControl.Text = "Control Focuser";
             this.tsbFocControl.Click += new System.EventHandler(this.tsbFocControl_Click);
             // 
+            // toolStripSeparator6
+            // 
+            this.toolStripSeparator6.Name = "toolStripSeparator6";
+            this.toolStripSeparator6.Size = new System.Drawing.Size(6, 25);
+            // 
             // tsbCamControl
             // 
             this.tsbCamControl.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -1065,57 +1084,38 @@
             this.tsbCamControl.Text = "Control Camera";
             this.tsbCamControl.Click += new System.EventHandler(this.tsbCamControl_Click);
             // 
-            // miHelpIndex
+            // toolStripSeparator4
             // 
-            this.miHelpIndex.Image = ((System.Drawing.Image)(resources.GetObject("miHelpIndex.Image")));
-            this.miHelpIndex.Name = "miHelpIndex";
-            this.miHelpIndex.Size = new System.Drawing.Size(181, 22);
-            this.miHelpIndex.Text = "&Index";
-            this.miHelpIndex.Click += new System.EventHandler(this.miHelpIndex_Click);
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
             // 
-            // miYahooGroup
+            // tslTelFocStatus
             // 
-            this.miYahooGroup.Image = ((System.Drawing.Image)(resources.GetObject("miYahooGroup.Image")));
-            this.miYahooGroup.Name = "miYahooGroup";
-            this.miYahooGroup.Size = new System.Drawing.Size(181, 22);
-            this.miYahooGroup.Text = "OccuRec Yahoo Group";
-            this.miYahooGroup.Click += new System.EventHandler(this.miYahooGroup_Click);
+            this.tslTelFocStatus.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.tslTelFocStatus.ForeColor = System.Drawing.Color.Green;
+            this.tslTelFocStatus.Name = "tslTelFocStatus";
+            this.tslTelFocStatus.Size = new System.Drawing.Size(0, 22);
             // 
-            // btnNoOCR
+            // pnlControlArea
             // 
-            this.btnNoOCR.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnNoOCR.Location = new System.Drawing.Point(125, 3);
-            this.btnNoOCR.Name = "btnNoOCR";
-            this.btnNoOCR.Size = new System.Drawing.Size(51, 21);
-            this.btnNoOCR.TabIndex = 20;
-            this.btnNoOCR.Text = "NO OCR";
-            this.btnNoOCR.UseVisualStyleBackColor = true;
-            this.btnNoOCR.Click += new System.EventHandler(this.btnNoOCR_Click);
+            this.pnlControlArea.Controls.Add(this.pnlClient);
+            this.pnlControlArea.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlControlArea.Location = new System.Drawing.Point(0, 49);
+            this.pnlControlArea.Name = "pnlControlArea";
+            this.pnlControlArea.Size = new System.Drawing.Size(920, 576);
+            this.pnlControlArea.TabIndex = 6;
             // 
-            // ucVideoControl
+            // imageListToolbar
             // 
-            this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ucVideoControl.Location = new System.Drawing.Point(4, 184);
-            this.ucVideoControl.Name = "ucVideoControl";
-            this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
-            this.ucVideoControl.TabIndex = 27;
-            this.ucVideoControl.Visible = false;
+            this.imageListToolbar.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListToolbar.ImageStream")));
+            this.imageListToolbar.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageListToolbar.Images.SetKeyName(0, "Camera-Transparent-32x32.png");
+            this.imageListToolbar.Images.SetKeyName(1, "Camera-Transparent-32x32-Disc.png");
             // 
-            // tbxTargetName
+            // openFileDialog
             // 
-            this.tbxTargetName.Location = new System.Drawing.Point(8, 300);
-            this.tbxTargetName.Name = "tbxTargetName";
-            this.tbxTargetName.Size = new System.Drawing.Size(185, 20);
-            this.tbxTargetName.TabIndex = 28;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(8, 282);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(157, 13);
-            this.label6.TabIndex = 29;
-            this.label6.Text = "Target Name/Description (AAV)";
+            this.openFileDialog.DefaultExt = "avi";
+            this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
             // 
             // frmMain
             // 
@@ -1142,6 +1142,7 @@
             this.pnlClient.ResumeLayout(false);
             this.pnlVideoFrames.ResumeLayout(false);
             this.pnlVideo.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.picVideoFrame)).EndInit();
             this.pnlVideoControls.ResumeLayout(false);
             this.pnlVideoControls.PerformLayout();
             this.pnlOcrTesting.ResumeLayout(false);
@@ -1159,7 +1160,6 @@
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.pnlControlArea.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.picVideoFrame)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

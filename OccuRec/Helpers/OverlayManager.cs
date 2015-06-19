@@ -257,9 +257,18 @@ namespace OccuRec.Helpers
 
             foreach (SpectraPoint point in points)
             {
-                byte clr = (byte)(Math.Round(point.RawValue * colorCoeff));
                 float x = point.PixelNo - firstPixelNo;
-                g.DrawLine(m_GreyPens[clr], x, imageHeight - 50, x, imageHeight);
+                Pen pen;
+                if (point.HasSaturatedPixels)
+                {
+                    pen = Pens.Red;
+                }
+                else
+                {
+                    byte clr = (byte)(Math.Round(point.RawValue * colorCoeff));
+                    pen = m_GreyPens[clr];
+                }
+                g.DrawLine(pen, x, imageHeight - 50, x, imageHeight);                    
             }
         }
 

@@ -201,7 +201,9 @@ namespace OccuRec.Controllers
         {
             float x0 = (float)selectedStar.XCenter;
             float y0 = (float)selectedStar.YCenter;
-            uint brigthness20 = (uint)(selectedStar.Brightness / 5);
+            uint brigthness10 = (uint)(0.1 * selectedStar.Brightness);
+            uint brigthness20 = (uint)(0.2 * selectedStar.Brightness);
+            uint brigthness40 = (uint)(0.4 * selectedStar.Brightness);
             uint bgFromPsf = (uint)(selectedStar.I0);
 
             int minDistance = (int)(10 * selectedStar.FWHM);
@@ -212,10 +214,17 @@ namespace OccuRec.Controllers
 
             uint[] angles = new uint[360];
             uint[] sums = new uint[360];
-            uint[] pixAbove50Perc = new uint[360];
+            uint[] pixAbove10Perc = new uint[360];
+            uint[] pixAbove20Perc = new uint[360];
+            uint[] pixAbove40Perc = new uint[360];
 
             int diagonnalPixels = (int)Math.Ceiling(Math.Sqrt(image.Width * image.Width + image.Height * image.Height));
-            for (int i = 0; i < 360; i++)
+
+            int iFrom = 0;
+            int iTo = 360;
+
+            bool peakFound = false;
+            for (int i = iFrom; i < iTo; i++)
             {
                 var mapper = new RotationMapper(image.Width, image.Height, i);
                 PointF p1 = mapper.GetDestCoords(x0, y0);
@@ -223,9 +232,15 @@ namespace OccuRec.Controllers
                 float y1 = p1.Y;
 
                 uint rowSum = 0;
-                uint pixAbove50 = 0;
-                uint pixAbove50Max = 0;
-                bool prevPixAbove50 = false;
+                uint pixAbove10 = 0;
+                uint pixAbove10Max = 0;
+                bool prevPixAbove10 = false;
+                uint pixAbove20 = 0;
+                uint pixAbove20Max = 0;
+                bool prevPixAbove20 = false;
+                uint pixAbove40 = 0;
+                uint pixAbove40Max = 0;
+                bool prevPixAbove40 = false;
 
                 for (int d = minDistance; d < diagonnalPixels; d++)
                 {
@@ -242,38 +257,95 @@ namespace OccuRec.Controllers
                         {
                             uint value_u = (uint)image.GetPixel((int)pu.X, (int)pu.Y);
                             uint value_d = (uint)image.GetPixel((int)pd.X, (int)pd.Y);
-                            if ((value - bgFromPsf) > brigthness20 && value > value_u && value > value_d)
+                            if ((value - bgFromPsf) > brigthness10 && value > value_u && value > value_d)
                             {
-                                if (prevPixAbove50) pixAbove50++;
-                                prevPixAbove50 = true;
+                                if (prevPixAbove10) pixAbove10++;
+                                prevPixAbove10 = true;
                             }
                             else
                             {
-                                prevPixAbove50 = false;
-                                if (pixAbove50Max < pixAbove50) pixAbove50Max = pixAbove50;
-                                pixAbove50 = 0;
+                                prevPixAbove10 = false;
+                                if (pixAbove10Max < pixAbove10) pixAbove10Max = pixAbove10;
+                                pixAbove10 = 0;
+                                peakFound = true;
+                            }
+
+                            if ((value - bgFromPsf) > brigthness20 && value > value_u && value > value_d)
+                            {
+                                if (prevPixAbove20) pixAbove20++;
+                                prevPixAbove20 = true;
+                            }
+                            else
+                            {
+                                prevPixAbove20 = false;
+                                if (pixAbove20Max < pixAbove20) pixAbove20Max = pixAbove20;
+                                pixAbove20 = 0;
+                                peakFound = true;
+                            }
+
+                            if ((value - bgFromPsf) > brigthness40 && value > value_u && value > value_d)
+                            {
+                                if (prevPixAbove40) pixAbove40++;
+                                prevPixAbove40 = true;
+                            }
+                            else
+                            {
+                                prevPixAbove40 = false;
+                                if (pixAbove40Max < pixAbove40) pixAbove40Max = pixAbove40;
+                                pixAbove40 = 0;
+                                peakFound = true;
                             }
                         }
                         else
                         {
-                            prevPixAbove50 = false;
-                            if (pixAbove50Max < pixAbove50) pixAbove50Max = pixAbove50;
-                            pixAbove50 = 0;
+                            prevPixAbove10 = false;
+                            if (pixAbove10Max < pixAbove10) pixAbove10Max = pixAbove10;
+                            pixAbove10 = 0;
+
+                            prevPixAbove20 = false;
+                            if (pixAbove20Max < pixAbove20) pixAbove20Max = pixAbove20;
+                            pixAbove20 = 0;
+
+                            prevPixAbove40 = false;
+                            if (pixAbove40Max < pixAbove40) pixAbove40Max = pixAbove40;
+                            pixAbove40 = 0;
+
+                            peakFound = true;
                         }
                     }
                 }
 
                 angles[i] = (uint)i;
                 sums[i] = rowSum;
-                pixAbove50Perc[i] = pixAbove50Max;
+                pixAbove10Perc[i] = pixAbove10Max;
+                pixAbove20Perc[i] = pixAbove20Max;
+                pixAbove40Perc[i] = pixAbove40Max;
             }
 
-            Array.Sort(pixAbove50Perc, angles);
+            if (!peakFound)
+                return float.NaN;
+
+            var angles10 = new List<uint>(angles).ToArray();
+            var angles20 = new List<uint>(angles).ToArray();
+            var angles40 = new List<uint>(angles).ToArray();
+
+            Array.Sort(sums, angles);
+            Array.Sort(pixAbove10Perc, angles10);
+            Array.Sort(pixAbove20Perc, angles20);
+            Array.Sort(pixAbove40Perc, angles40);
 
             uint roughAngle = angles[359];
 
-            if (pixAbove50Perc[358] * 2 > pixAbove50Perc[359])
-                return float.NaN;
+            if (pixAbove10Perc[358]*2 < pixAbove10Perc[359])
+            {
+                // If second best at 10% id a lot smaller score than the top 10% scopem then this is it
+                roughAngle = angles10[359];
+            }
+            else
+            {
+                if (Math.Abs((int)angles[358] - (int)angles[359]) > 3)// or for large stars the two best can be sequential angles
+                    return float.NaN;                
+            }
 
             uint bestSum = 0;
             float bestAngle = 0f;

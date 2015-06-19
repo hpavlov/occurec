@@ -96,7 +96,7 @@ void FrameProcessingThreadProc(void* pContext);
 
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating);
 HRESULT SetupGrabberInfo(LPCTSTR szGrabberName, LPCTSTR szVideoMode, float frameRate, long hardwareTimingCorrection);
-HRESULT SetupObservationInfo(LPCTSTR szTargetInfo, LPCTSTR szTelescopeInfo, LPCTSTR szObserverInfo);
+HRESULT SetupObservationInfo(LPCTSTR szTargetInfo, LPCTSTR szTelescopeInfo, LPCTSTR szObserverInfo, LPCTSTR szLongitude, LPCTSTR szLatitude);
 HRESULT SetupTelescopePosition(LPCTSTR szRaObjInfo, LPCTSTR szDecObjInfo);
 HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float diffGamma, bool forceNewFrameOnLockedRate);
 HRESULT SetupIntegrationPreservationArea(bool preserveVti, int areaTopOdd, int areaTopEven, int areaHeight);

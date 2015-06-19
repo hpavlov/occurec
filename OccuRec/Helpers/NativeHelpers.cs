@@ -346,7 +346,7 @@ namespace OccuRec.Helpers
         private static extern int SetupGrabberInfo(string grabberName, string videoMode, float videoFrameRate, int hardwareTimingCorrection);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetupObservationInfo(string targetInfo, string telescopeInfo, string observerInfo);
+        private static extern int SetupObservationInfo(string targetInfo, string telescopeInfo, string observerInfo, string longitude, string latitude);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         private static extern int SetupTelescopePosition(string raObjInfo, string decObjInfo);
@@ -586,8 +586,14 @@ namespace OccuRec.Helpers
 			string targetInfo = CurrentTargetInfo ?? ""; if (targetInfo.Length > 128) targetInfo = targetInfo.Substring(0, 127);
 			string telescopeInfo = Settings.Default.AavTelescopeInfo ?? ""; if (telescopeInfo.Length > 128) telescopeInfo = telescopeInfo.Substring(0, 127);
 			string observerInfo = Settings.Default.AavObserverInfo ?? ""; if (observerInfo.Length > 128) observerInfo = observerInfo.Substring(0, 127);
-
-			SetupObservationInfo(targetInfo, telescopeInfo, observerInfo);
+            string longitude = "";
+            string latitude = "";
+            if (Math.Abs(Settings.Default.AavObsLongitude) > 0.0001 && Math.Abs(Settings.Default.AavObsLatitude) > 0.0001)
+            {
+                longitude = AstroConvert.ToStringValue(Settings.Default.AavObsLongitude, "+DDD MM SS");
+                latitude = AstroConvert.ToStringValue(Settings.Default.AavObsLatitude, "+DD MM SS");
+            }
+            SetupObservationInfo(targetInfo, telescopeInfo, observerInfo, longitude, latitude);
 
             if (!string.IsNullOrEmpty(CurrentTelescopePosition))
             {

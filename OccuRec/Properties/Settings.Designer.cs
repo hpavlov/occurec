@@ -1417,5 +1417,29 @@ namespace OccuRec.Properties {
                 this["LocationCrossTransparency"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public float AavObsLongitude {
+            get {
+                return ((float)(this["AavObsLongitude"]));
+            }
+            set {
+                this["AavObsLongitude"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public float AavObsLatitude {
+            get {
+                return ((float)(this["AavObsLatitude"]));
+            }
+            set {
+                this["AavObsLatitude"] = value;
+            }
+        }
     }
 }
