@@ -24,6 +24,10 @@ namespace OccuRec.Config.Panels
 
 		public override void LoadSettings()
 		{
+			cbxTrackingFrequency.SetCBXIndex(Settings.Default.TrackingFrequency);
+			nudMinCertGuidingStar.SetNUDValue((double)Settings.Default.TrackingMinGuidingCertainty);
+			nudMinCertFixedObject.SetNUDValue((double)Settings.Default.TrackingMinForcedFixedObjCertainty);
+
 			nudMaxElongation.SetNUDValue((double)Settings.Default.TrackingMaxElongation);
 			cbxTestPSFElongation.Checked = Settings.Default.TrackingCheckElongation;
 			nudMaxElongation.Enabled = cbxTestPSFElongation.Checked;
@@ -36,6 +40,11 @@ namespace OccuRec.Config.Panels
 
 		public override void SaveSettings()
 		{
+			Settings.Default.TrackingFrequency = cbxTrackingFrequency.SelectedIndex;
+			if (Settings.Default.TrackingFrequency == -1) Settings.Default.TrackingFrequency = 0;
+			Settings.Default.TrackingMinGuidingCertainty = (float)nudMinCertGuidingStar.Value;
+			Settings.Default.TrackingMinForcedFixedObjCertainty = (float)nudMinCertFixedObject.Value;
+
 			Settings.Default.TrackingMaxElongation = (double)nudMaxElongation.Value;
 			Settings.Default.TrackingCheckElongation = cbxTestPSFElongation.Checked;
 

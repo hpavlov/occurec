@@ -389,6 +389,7 @@ namespace OccuRec
             UpdateASCOMConnectivityState();
 			UpdateNTPConnectivityState();
 			m_LastKnownGoodNTPServersInitialised = false;
+			UpdateObservingAidControls();
 		}
 
 		private void miConnect_Click(object sender, EventArgs e)
@@ -670,8 +671,8 @@ namespace OccuRec
 
 				tbsAddTarget.Visible = false;
 				tsbAddGuidingStar.Visible = false;
-                tsbInsertSpectra.Visible = false;
-				tsbClearTargets.Visible = false;
+                tbsInsertSpectra.Visible = false;
+				tbsClearTargets.Visible = false;
 				tssToolBorder.Visible = false;
 
 				//tsbCamControl.Enabled = false;
@@ -679,15 +680,15 @@ namespace OccuRec
 			else if (ChangedToConnectedState())
 			{
 				tbsAddTarget.Visible = videoObject.SupportsTargetTracking;
-				tsbClearTargets.Visible = videoObject.SupportsTargetTracking;
+				tbsClearTargets.Visible = videoObject.SupportsTargetTracking;
 				tsbAddGuidingStar.Visible = videoObject.SupportsTargetTracking;
-				tsbInsertSpectra.Visible = videoObject.SupportsTargetTracking;
+				tbsInsertSpectra.Visible = videoObject.SupportsTargetTracking && Settings.Default.SpectraUseAid;
 				tssToolBorder.Visible = videoObject.SupportsTargetTracking;
 			    
 				tbsAddTarget.Enabled = false;
-				tsbClearTargets.Enabled = false;
+				tbsClearTargets.Enabled = false;
 				tsbAddGuidingStar.Enabled = true;
-                tsbInsertSpectra.Enabled = true;
+                tbsInsertSpectra.Enabled = true;
 				
 				TrackingContext.Current.Reset();
 				TrackingContext.Current.ReConfigureNativeTracking(videoObject.Width, videoObject.Height);
@@ -734,9 +735,9 @@ namespace OccuRec
 				}
 
 				tbsAddTarget.Enabled = TrackingContext.Current.GuidingStar != null;
-				tsbClearTargets.Enabled = TrackingContext.Current.GuidingStar != null;
+				tbsClearTargets.Enabled = TrackingContext.Current.GuidingStar != null;
 				tsbAddGuidingStar.Enabled = true;
-			    tsbInsertSpectra.Enabled = true;
+			    tbsInsertSpectra.Enabled = true;
 #if DEBUG
 				if (!double.IsNaN(renderFps))
 				{
@@ -2004,6 +2005,20 @@ namespace OccuRec
             tsbTelControl.Enabled = !string.IsNullOrEmpty(Settings.Default.ASCOMProgIdTelescope);
 	        tsbCamControl.Enabled = m_ObservatoryController.HasVideoCamera;
         }
+
+	    private void UpdateObservingAidControls()
+	    {
+		    if (Settings.Default.SpectraUseAid)
+		    {
+				if (videoObject != null)
+					tbsInsertSpectra.Visible = true;
+		    }
+		    else
+		    {
+			    tbsInsertSpectra.Visible = false;
+				m_VideoFrameInteractionController.RemoveTrackedObjects();
+		    }
+	    }
 
 		private void frmMain_Shown(object sender, EventArgs e)
 		{

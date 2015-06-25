@@ -67,7 +67,7 @@ namespace OccuRec.Config
 				m_PropertyPages.Add(3, new ucAscomNotInstalled());
 			}
 
-			m_PropertyPages.Add(4, new ucTraking());
+			m_PropertyPages.Add(4, new ucObservingAids());
             m_PropertyPages.Add(6, new ucTelescope());
             m_PropertyPages.Add(7, new ucFocusing());
 
@@ -75,6 +75,7 @@ namespace OccuRec.Config
 			m_PropertyPages.Add(9, new ucLightCurve());
 			m_PropertyPages.Add(10, new ucFieldIdentification());
 			m_PropertyPages.Add(11, new ucAdvanced());
+			m_PropertyPages.Add(12, new ucSpectroscopy());
 
 #if !DEBUG
             tvSettings.Nodes.RemoveByKey("ndDebug");

@@ -113,6 +113,12 @@
     <Compile Include="CameraDrivers\WAT910BD\WAT910BDDriver.cs" />
     <Compile Include="CameraDrivers\WAT910BD\WAT910BDStateMachine.cs" />
     <Compile Include="Config\OcrConfigEntry.cs" />
+    <Compile Include="Config\Panels\ucSpectroscopy.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucSpectroscopy.Designer.cs">
+      <DependentUpon>ucSpectroscopy.cs</DependentUpon>
+    </Compile>
     <Compile Include="Config\Panels\ucAdvanced.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -161,11 +167,11 @@
     <Compile Include="Config\Panels\ucTrackingEngine.Designer.cs">
       <DependentUpon>ucTrackingEngine.cs</DependentUpon>
     </Compile>
-    <Compile Include="Config\Panels\ucTraking.cs">
+    <Compile Include="Config\Panels\ucObservingAids.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Config\Panels\ucTraking.Designer.cs">
-      <DependentUpon>ucTraking.cs</DependentUpon>
+    <Compile Include="Config\Panels\ucObservingAids.Designer.cs">
+      <DependentUpon>ucObservingAids.cs</DependentUpon>
     </Compile>
     <Compile Include="Context\OccuRecContext.cs" />
     <Compile Include="Controllers\VideoFrameInteractionController.cs" />
@@ -377,6 +383,9 @@
     <EmbeddedResource Include="CameraDrivers\WAT910BD\frmWAT910BDConnectionSettings.resx">
       <DependentUpon>frmWAT910BDConnectionSettings.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucSpectroscopy.resx">
+      <DependentUpon>ucSpectroscopy.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucAdvanced.resx">
       <DependentUpon>ucAdvanced.cs</DependentUpon>
     </EmbeddedResource>
@@ -413,8 +422,8 @@
     <EmbeddedResource Include="Config\Panels\ucTrackingEngine.resx">
       <DependentUpon>ucTrackingEngine.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Config\Panels\ucTraking.resx">
-      <DependentUpon>ucTraking.cs</DependentUpon>
+    <EmbeddedResource Include="Config\Panels\ucObservingAids.resx">
+      <DependentUpon>ucObservingAids.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ucCameraControl.resx">
       <DependentUpon>ucCameraControl.cs</DependentUpon>

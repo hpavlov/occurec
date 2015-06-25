@@ -386,21 +386,21 @@ namespace OccuRec.Controllers
             {
                 m_MainForm.picVideoFrame.Cursor = Cursors.Default;
                 m_MainForm.tbsAddTarget.Checked = false;
-                m_MainForm.tsbInsertSpectra.Checked = false;
+                m_MainForm.tbsInsertSpectra.Checked = false;
                 m_MainForm.tsbAddGuidingStar.Checked = false;
             }
             else if (newState == VideoFrameInteractiveState.SelectingTargetStar)
             {
                 m_MainForm.picVideoFrame.Cursor = Cursors.Cross;
                 m_MainForm.tbsAddTarget.Checked = true;
-                m_MainForm.tsbInsertSpectra.Checked = false;
+                m_MainForm.tbsInsertSpectra.Checked = false;
                 m_MainForm.tsbAddGuidingStar.Checked = false;
             }
             else if (newState == VideoFrameInteractiveState.SelectingGuidingStar)
             {
                 m_MainForm.picVideoFrame.Cursor = Cursors.Cross;
                 m_MainForm.tbsAddTarget.Checked = false;
-                m_MainForm.tsbInsertSpectra.Checked = false;
+                m_MainForm.tbsInsertSpectra.Checked = false;
                 m_MainForm.tsbAddGuidingStar.Checked = true;
             }
             else if (newState == VideoFrameInteractiveState.SelectingStarSpectra)
@@ -408,7 +408,7 @@ namespace OccuRec.Controllers
                 m_MainForm.picVideoFrame.Cursor = Cursors.Cross;
                 m_MainForm.tbsAddTarget.Checked = false;
                 m_MainForm.tsbAddGuidingStar.Checked = false;
-                m_MainForm.tsbInsertSpectra.Checked = true;
+                m_MainForm.tbsInsertSpectra.Checked = true;
             }
 
 
