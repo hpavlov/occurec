@@ -45,6 +45,8 @@ namespace OccuRec.Helpers
 
         private object syncRoot = new object();
 
+	    private int m_NumCheckedSpectraFrames;
+
         static OverlayManager()
         {
             for (int i = 0; i < 256; i++)
@@ -63,6 +65,8 @@ namespace OccuRec.Helpers
 
             foreach (string message in initializationErrorMessages)
                 errorMessagesQueue.Enqueue(message);
+
+			m_NumCheckedSpectraFrames = 0;
         }
 
 		public void ChangeOverlayState<TNewState>() where TNewState : OverlayState, new()
@@ -179,27 +183,32 @@ namespace OccuRec.Helpers
 						}
 					}
 
-                    if (!float.IsNaN(TrackingContext.Current.SpectraAngleDeg))
-                    {
-                        RectangleF originalVideoFrame = new RectangleF(0, 0, imageWidth, imageHeight);
+					if (Settings.Default.SpectraUseAid)
+					{
+						if (!float.IsNaN(TrackingContext.Current.SpectraAngleDeg))
+						{
+							m_NumCheckedSpectraFrames++;
 
-                        var mapper = new RotationMapper(imageWidth, imageHeight, TrackingContext.Current.SpectraAngleDeg);
-                        float halfWidth = (float)TrackingContext.Current.GuidingStar.FWHM;
+							RectangleF originalVideoFrame = new RectangleF(0, 0, imageWidth, imageHeight);
 
-                        PointF p0 = mapper.GetDestCoords(TrackingContext.Current.GuidingStar.X, TrackingContext.Current.GuidingStar.Y);
-                        for (float i = p0.X - mapper.MaxDestDiagonal; i < p0.X + mapper.MaxDestDiagonal; i++)
-                        {
-                            PointF p1 = mapper.GetSourceCoords(i, p0.Y - halfWidth);
-                            PointF p2 = mapper.GetSourceCoords(i + 1, p0.Y - halfWidth);
-                            if (originalVideoFrame.Contains(p1) && originalVideoFrame.Contains(p2)) g.DrawLine(Pens.Red, p1, p2);
+							var mapper = new RotationMapper(imageWidth, imageHeight, TrackingContext.Current.SpectraAngleDeg);
+							float halfWidth = (float)TrackingContext.Current.GuidingStar.FWHM;
 
-                            PointF p3 = mapper.GetSourceCoords(i, p0.Y + halfWidth);
-                            PointF p4 = mapper.GetSourceCoords(i + 1, p0.Y + halfWidth);
-                            if (originalVideoFrame.Contains(p3) && originalVideoFrame.Contains(p4)) g.DrawLine(Pens.Red, p3, p4);
-                        }
+							PointF p0 = mapper.GetDestCoords(TrackingContext.Current.GuidingStar.X, TrackingContext.Current.GuidingStar.Y);
+							for (float i = p0.X - mapper.MaxDestDiagonal; i < p0.X + mapper.MaxDestDiagonal; i++)
+							{
+								PointF p1 = mapper.GetSourceCoords(i, p0.Y - halfWidth);
+								PointF p2 = mapper.GetSourceCoords(i + 1, p0.Y - halfWidth);
+								if (originalVideoFrame.Contains(p1) && originalVideoFrame.Contains(p2)) g.DrawLine(Pens.Red, p1, p2);
 
-                        PlotStarSpectra(g, frame);
-                    }
+								PointF p3 = mapper.GetSourceCoords(i, p0.Y + halfWidth);
+								PointF p4 = mapper.GetSourceCoords(i + 1, p0.Y + halfWidth);
+								if (originalVideoFrame.Contains(p3) && originalVideoFrame.Contains(p4)) g.DrawLine(Pens.Red, p3, p4);
+							}
+
+							PlotStarSpectra(g, frame);
+						}						
+					}
 				}
 
 				analysisManager.DisplayData(g, imageWidth, imageHeight);
@@ -247,17 +256,25 @@ namespace OccuRec.Helpers
             var reader = new SpectraReader(astroImg, TrackingContext.Current.SpectraAngleDeg);
             Spectra spectra = reader.ReadSpectra(TrackingContext.Current.GuidingStar.X, TrackingContext.Current.GuidingStar.Y, (int)TrackingContext.Current.GuidingStar.FWHM);
 
-            //float xCoeff = imageWidth * 1.0f / TrackingContext.Current.Spectra.Points.Count;
-            float colorCoeff = 256.0f / spectra.MaxPixelValue;
+			StackSpectra(spectra);
 
-            List<SpectraPoint> points = new List<SpectraPoint>(spectra.Points);
+	        m_StackedSpectra.MaxPixelValue = (uint)m_StackedSpectra.Points.Max(x => x.ProcessedValue) - 1;
+			float xCoeff = imageWidth * 1.0f / (2 * m_StackedSpectra.Points.Count);
+
+	        int firstPixelToDraw = m_StackedSpectra.ZeroOrderPixelNo + m_StackedSpectra.PixelWidth * 3;
+			float yCoeff = (imageWidth / 2 - 30) * 1.0f / m_StackedSpectra.Points.Where(x => x.PixelNo > firstPixelToDraw).Max(x => x.ProcessedValue);
+			float colorCoeff = 256.0f / m_StackedSpectra.MaxPixelValue;
+
+			List<SpectraPoint> points = new List<SpectraPoint>(m_StackedSpectra.Points);
             int firstPixelNo = points[0].PixelNo;
 
-            g.FillRectangle(Brushes.Black, 0, imageHeight - 50, imageWidth, imageHeight);
+            g.FillRectangle(Brushes.Black, 0, imageHeight - 30, imageWidth / 2, imageHeight);
+
+	        PointF? prevPoint = null;
 
             foreach (SpectraPoint point in points)
             {
-                float x = point.PixelNo - firstPixelNo;
+				float x = xCoeff* (point.PixelNo - firstPixelNo);
                 Pen pen;
                 if (point.HasSaturatedPixels)
                 {
@@ -265,12 +282,154 @@ namespace OccuRec.Helpers
                 }
                 else
                 {
-                    byte clr = (byte)(Math.Round(point.RawValue * colorCoeff));
+					byte clr = (byte)(Math.Round(point.ProcessedValue * colorCoeff));
                     pen = m_GreyPens[clr];
                 }
-                g.DrawLine(pen, x, imageHeight - 50, x, imageHeight);                    
+                g.DrawLine(pen, x, imageHeight - 30, x, imageHeight);
+
+				if (!float.IsInfinity(yCoeff) && !float.IsNaN(yCoeff))
+				{
+					if (point.PixelNo > firstPixelToDraw)
+					{
+						PointF thisPoint = new PointF(x, imageHeight - 30 - yCoeff * point.ProcessedValue);
+
+						if (prevPoint.HasValue)
+							g.DrawLine(Pens.Aqua, prevPoint.Value, thisPoint);
+
+						prevPoint = thisPoint;						
+					}
+				}
             }
+
+			g.DrawString(m_NumCheckedSpectraFrames.ToString(), s_VtiOsdFont, Brushes.Aqua, 10 + imageWidth / 2.0f, imageHeight - 15);
         }
+
+	    private List<Spectra> m_StackedSpectraList = new List<Spectra>();
+	    private Spectra m_StackedSpectra = new Spectra();
+
+		private void StackSpectra(Spectra spectra)
+		{
+			while (m_StackedSpectraList.Count > Math.Max(1, Settings.Default.SpectraFrameStack - 1)) m_StackedSpectraList.RemoveAt(m_StackedSpectraList.Count - 1);
+			m_StackedSpectraList.Add(spectra);
+
+			m_StackedSpectra.Points.Clear();
+			if (m_StackedSpectraList.Count > 0)
+			{
+				m_StackedSpectra.Points.AddRange(m_StackedSpectraList[0].Points);
+				m_StackedSpectra.ZeroOrderPixelNo = m_StackedSpectraList[0].ZeroOrderPixelNo;
+				m_StackedSpectra.MaxPixelValue = m_StackedSpectraList[0].MaxPixelValue;
+				m_StackedSpectra.PixelWidth = m_StackedSpectraList[0].PixelWidth;
+				m_StackedSpectra.MaxSpectraValue = m_StackedSpectraList[0].MaxSpectraValue;
+			}
+
+			var originalMasterPoints = new List<SpectraPoint>();
+			originalMasterPoints.AddRange(m_StackedSpectra.Points);
+
+			var valueLists = new List<float>[m_StackedSpectra.Points.Count];
+			for (int j = 0; j < m_StackedSpectra.Points.Count; j++) valueLists[j] = new List<float>();
+
+			var signalLists = new List<float>[m_StackedSpectra.Points.Count];
+			for (int j = 0; j < m_StackedSpectra.Points.Count; j++) signalLists[j] = new List<float>();
+
+			for (int i = 1; i < m_StackedSpectraList.Count; i++)
+			{
+				Spectra nextSpectra = m_StackedSpectraList[i];
+				
+				int nextSpectraFirstPixelNo = nextSpectra.Points[0].PixelNo;
+				int deltaIndex = nextSpectra.ZeroOrderPixelNo - m_StackedSpectra.ZeroOrderPixelNo + m_StackedSpectra.Points[0].PixelNo - nextSpectraFirstPixelNo;
+
+				int bestOffset = 0;
+
+				float bestOffsetValue = float.MaxValue;
+
+				for (int probeOffset = -2; probeOffset <= 2; probeOffset++)
+				{
+					float currOffsetValue = 0;
+					for (int j = 0; j < m_StackedSpectra.Points.Count; j++)
+					{
+						int indexNextSpectra = deltaIndex + j + probeOffset;
+						if (indexNextSpectra >= 0 && indexNextSpectra < nextSpectra.Points.Count)
+						{
+							currOffsetValue += Math.Abs(originalMasterPoints[j].RawValue - nextSpectra.Points[indexNextSpectra].RawValue);
+						}
+					}
+
+					if (currOffsetValue < bestOffsetValue)
+					{
+						bestOffsetValue = currOffsetValue;
+						bestOffset = probeOffset;
+					}
+				}
+
+				for (int j = 0; j < m_StackedSpectra.Points.Count; j++)
+				{
+					int indexNextSpectra = deltaIndex + j + bestOffset;
+					if (indexNextSpectra >= 0 && indexNextSpectra < nextSpectra.Points.Count)
+					{
+						valueLists[j].Add(nextSpectra.Points[indexNextSpectra].RawValue);
+						signalLists[j].Add(nextSpectra.Points[indexNextSpectra].RawValue);
+						m_StackedSpectra.Points[j].HasSaturatedPixels |= nextSpectra.Points[indexNextSpectra].HasSaturatedPixels;
+					}
+				}
+			}
+
+			for (int i = 0; i < m_StackedSpectra.Points.Count; i++)
+			{
+				valueLists[i].Sort();
+				signalLists[i].Sort();
+
+				m_StackedSpectra.Points[i].RawValue = valueLists[i].Count == 0 ? 0 : valueLists[i][valueLists[i].Count / 2];
+				m_StackedSpectra.Points[i].RawSignal = signalLists[i].Count == 0 ? 0 : signalLists[i][signalLists[i].Count / 2];
+				m_StackedSpectra.Points[i].RawSignalPixelCount = signalLists[i].Count;
+			}
+
+			ApplyGaussianBlur(Settings.Default.SpectraGaussFWHM);
+		}
+
+		private static float FWHM_COEFF = (float)(4 * Math.Log(2));
+
+		private float GetGaussianValue(float fwhm, float distance)
+		{
+			// FWHM * FWHM = 4 * (2 ln(2)) * c * c => 2*c*c = FWHM*FWHM / (4 * ln(2))
+			return (float)Math.Exp(-FWHM_COEFF * distance * distance / (fwhm * fwhm));
+		}
+
+		public void ApplyGaussianBlur(float fwhm)
+		{
+			if (Math.Abs(fwhm) < 0.0001 || float.IsNaN(fwhm))
+			{
+				foreach (SpectraPoint point in m_StackedSpectra.Points)
+					point.ProcessedValue = point.RawValue;
+			}
+			else
+			{
+				float[] kernel = new float[21];
+				for (int i = 0; i < 10; i++)
+				{
+					kernel[10 + i] = kernel[10 - i] = GetGaussianValue(fwhm, i);
+				}
+
+				for (int i = 0; i < m_StackedSpectra.Points.Count; i++)
+				{
+					SpectraPoint point = m_StackedSpectra.Points[i];
+					float sum = 0;
+					float weight = 0;
+					for (int j = -10; j <= 10; j++)
+					{
+						if (j + i > 0 && j + i < m_StackedSpectra.Points.Count - 1)
+						{
+							weight += kernel[j + 10];
+							sum += kernel[j + 10] * m_StackedSpectra.Points[j + i].RawValue;
+						}
+					}
+
+					if (weight > 0)
+						point.ProcessedValue = sum / weight;
+					else
+						point.ProcessedValue = point.RawValue;
+				}
+			}
+		}
 
 	    private static Font s_VtiOsdFont = new Font(FontFamily.GenericSansSerif, 7.5f, FontStyle.Regular);
 

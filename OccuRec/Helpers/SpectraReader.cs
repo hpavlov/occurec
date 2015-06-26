@@ -11,6 +11,10 @@ namespace OccuRec.Helpers
         public int PixelNo;
         public float Wavelength;
         public float RawValue;
+	    public float RawSignal;
+	    public float ProcessedValue;
+	    public int RawSignalPixelCount;
+	    public float RawBackgroundPerPixel;
         public float RawBackground;
         public float SmoothedValue;
         public bool HasSaturatedPixels;
@@ -20,6 +24,9 @@ namespace OccuRec.Helpers
     {
         public int PixelWidth;
         public uint MaxPixelValue;
+		public int ZeroOrderPixelNo;
+	    public uint MaxSpectraValue;
+
         public List<SpectraPoint> Points = new List<SpectraPoint>();
     }
 
@@ -29,141 +36,209 @@ namespace OccuRec.Helpers
         Median
     }
 
-    public class SpectraReader
-    {
-        private AstroImage m_Image;
-        private RotationMapper m_Mapper;
-        private RectangleF m_SourceVideoFrame;
 
-        private uint[] m_BgValues;
-        private uint[] m_BgPixelCount;
+	public class SpectraReader
+	{
+		private AstroImage m_Image;
+		private RotationMapper m_Mapper;
+		private RectangleF m_SourceVideoFrame;
 
-        internal SpectraReader(AstroImage image, float angleDegrees)
-        {
-            m_Image = image;
-            m_Mapper = new RotationMapper(image.Width, image.Height, angleDegrees);
-            m_SourceVideoFrame = new RectangleF(0, 0, image.Width, image.Height);
-        }
+		private uint[] m_BgValues;
+		private uint[] m_BgPixelCount;
+		private List<uint>[] m_BgValuesList;
 
-        public Spectra ReadSpectra(float x0, float y0, int halfWidth, SpectraCombineMethod bgMethod = SpectraCombineMethod.Average)
-        {
-            var rv = new Spectra()
-            {
-                PixelWidth = 2 * halfWidth,
-                MaxPixelValue = (uint)(2 * halfWidth) * m_Image.MaxSignalValue
-            };
+		internal SpectraReader(AstroImage image, float angleDegrees)
+		{
+			m_Image = image;
+			m_Mapper = new RotationMapper(image.Width, image.Height, angleDegrees);
+			m_SourceVideoFrame = new RectangleF(0, 0, image.Width, image.Height);
+		}
 
-            int xFrom = int.MaxValue;
-            int xTo = int.MinValue;
+		public Spectra ReadSpectra(float x0, float y0, int halfWidth)
+		{
+			int bgHalfWidth = halfWidth;
+			var rv = new Spectra()
+			{
+				PixelWidth = 2 * halfWidth,
+				MaxPixelValue = (uint)(2 * halfWidth) * m_Image.MaxSignalValue
+			};
 
-            // Find the destination pixel range at the destination horizontal
-            PointF p1 = m_Mapper.GetDestCoords(x0, y0);
-            for (float x = p1.X - m_Mapper.MaxDestDiagonal; x < p1.X + m_Mapper.MaxDestDiagonal; x++)
-            {
-                PointF p = m_Mapper.GetSourceCoords(x, p1.Y);
-                if (m_SourceVideoFrame.Contains(p))
-                {
-                    int xx = (int)Math.Round(p.X);
+			int xFrom = int.MaxValue;
+			int xTo = int.MinValue;
 
-                    if (xx < xFrom) xFrom = xx;
-                    if (xx > xTo) xTo = xx;
-                }
-            }
+			// Find the destination pixel range at the destination horizontal
+			PointF p1 = m_Mapper.GetDestCoords(x0, y0);
+			rv.ZeroOrderPixelNo = (int)Math.Round(p1.X);
 
-            m_BgValues = new uint[xTo - xFrom + 1];
-            m_BgPixelCount = new uint[xTo - xFrom + 1];
+			for (float x = p1.X - m_Mapper.MaxDestDiagonal; x < p1.X + m_Mapper.MaxDestDiagonal; x++)
+			{
+				PointF p = m_Mapper.GetSourceCoords(x, p1.Y);
+				if (m_SourceVideoFrame.Contains(p))
+				{
+					int xx = (int)x;
 
-            // Get all readings in the range
-            for (int x = xFrom; x <= xTo; x++)
-            {
-                var point = new SpectraPoint();
-                point.PixelNo = x;
+					if (xx < xFrom) xFrom = xx;
+					if (xx > xTo) xTo = xx;
+				}
+			}
 
-                for (int z = -halfWidth; z <= halfWidth; z++)
-                {
-                    PointF p = m_Mapper.GetSourceCoords(x, p1.Y + z);
-                    int xx = (int)Math.Round(p.X);
-                    int yy = (int)Math.Round(p.Y);
+			m_BgValues = new uint[xTo - xFrom + 1];
+			m_BgPixelCount = new uint[xTo - xFrom + 1];
+			m_BgValuesList = new List<uint>[xTo - xFrom + 1];
 
-                    if (m_SourceVideoFrame.Contains(xx, yy))
-                    {
-                        int pixelVal = m_Image.GetPixel(xx, yy);
-                        point.RawValue += pixelVal;
-                        if (pixelVal >= m_Image.MaxSignalValue && !point.HasSaturatedPixels)
-                            point.HasSaturatedPixels = true;
-                    }
-                }
+			// Get all readings in the range
+			for (int x = xFrom; x <= xTo; x++)
+			{
+				var point = new SpectraPoint();
+				point.PixelNo = x;
+				point.RawSignalPixelCount = 0;
 
-                rv.Points.Add(point);
+				for (int z = -halfWidth; z <= halfWidth; z++)
+				{
+					PointF p = m_Mapper.GetSourceCoords(x, p1.Y + z);
+					int xx = (int)Math.Round(p.X);
+					int yy = (int)Math.Round(p.Y);
 
-                #region Reads background
-                if (bgMethod == SpectraCombineMethod.Average)
-                {
-                    ReadAverageBackgroundForPixelIndex(halfWidth, x, p1.Y, x - xFrom);
-                }
-                #endregion
-            }
+					if (m_SourceVideoFrame.Contains(xx, yy))
+					{
+						float sum = 0;
+						int numPoints = 0;
+						for (float kx = -0.4f; kx < 0.5f; kx += 0.2f)
+							for (float ky = -0.4f; ky < 0.5f; ky += 0.2f)
+							{
+								p = m_Mapper.GetSourceCoords(x + kx, p1.Y + ky + z);
+								int xxx = (int)Math.Round(p.X);
+								int yyy = (int)Math.Round(p.Y);
+								if (m_SourceVideoFrame.Contains(xxx, yyy))
+								{
+									sum += m_Image.GetPixel(xxx, yyy);
+									numPoints++;
+								}
+							}
+						point.RawValue += (sum / numPoints);
+						point.RawSignalPixelCount++;
+					}
+				}
 
-            // Apply background
-            foreach (SpectraPoint point in rv.Points)
-            {
-                if (bgMethod == SpectraCombineMethod.Average)
-                {
-                    point.RawBackground = GetAverageBackgroundValue(point.PixelNo, xFrom, xTo, halfWidth);
-                    point.RawValue -= point.RawBackground;
-                }
-            }
+				point.RawSignal = point.RawValue;
+				rv.Points.Add(point);
 
-            return rv;
-        }
+				ReadMedianBackgroundForPixelIndex(halfWidth, bgHalfWidth, x, p1.Y, x - xFrom);
+			}
 
-        private float GetAverageBackgroundValue(int pixelNo, int xFrom, int xTo, int halfWidth)
-        {
-            int idxFrom = Math.Max(xFrom, pixelNo - halfWidth);
-            int idxTo = Math.Min(xTo, pixelNo + halfWidth);
-            float bgSum = 0;
-            uint pixCount = 0;
-            for (int i = idxFrom; i <= idxTo; i++)
-            {
-                bgSum += m_BgValues[i - xFrom];
-                pixCount += m_BgPixelCount[i - xFrom];
-            }
-            return bgSum / pixCount;
-        }
+			// Apply background
+			foreach (SpectraPoint point in rv.Points)
+			{
+				point.RawBackgroundPerPixel = GetMedianBackgroundValue(point.PixelNo, xFrom, xTo, bgHalfWidth);
+				point.RawValue -= point.RawBackgroundPerPixel * point.RawSignalPixelCount;
+				if (point.RawValue < 0) point.RawValue = 0;
+			}
 
-        private void ReadAverageBackgroundForPixelIndex(int halfWidth, float x1, float y1, int index)
-        {
-            uint bgValue = 0;
-            uint bgPixelCount = 0;
+			rv.MaxSpectraValue = (uint)Math.Ceiling(rv.Points.Where(x => x.PixelNo > rv.ZeroOrderPixelNo + 20).Select(x => x.RawValue).Max());
 
-            for (int z = -2 * halfWidth; z < -halfWidth; z++)
-            {
-                PointF p = m_Mapper.GetSourceCoords(x1, y1 + z);
-                int xx = (int)Math.Round(p.X);
-                int yy = (int)Math.Round(p.Y);
+			return rv;
+		}
 
-                if (m_SourceVideoFrame.Contains(xx, yy))
-                {
-                    bgValue += (uint)m_Image.GetPixel(xx, yy);
-                    bgPixelCount++;
-                }
-            }
+		private float GetMedianBackgroundValue(int pixelNo, int xFrom, int xTo, int horizontalSpan)
+		{
+			var allAreaBgPixels = new List<uint>();
+			int idxFrom = Math.Max(xFrom, pixelNo - horizontalSpan);
+			int idxTo = Math.Min(xTo, pixelNo + horizontalSpan);
 
-            for (int z = halfWidth + 1; z <= 2 * halfWidth; z++)
-            {
-                PointF p = m_Mapper.GetSourceCoords(x1, y1 + z);
-                int xx = (int)Math.Round(p.X);
-                int yy = (int)Math.Round(p.Y);
+			for (int i = idxFrom; i <= idxTo; i++)
+			{
+				allAreaBgPixels.AddRange(m_BgValuesList[i - xFrom]);
+			}
 
-                if (m_SourceVideoFrame.Contains(xx, yy))
-                {
-                    bgValue += (uint)m_Image.GetPixel(xx, yy);
-                    bgPixelCount++;
-                }
-            }
+			allAreaBgPixels.Sort();
 
-            m_BgValues[index] = bgValue;
-            m_BgPixelCount[index] = bgPixelCount;
-        }
-    }
+			return allAreaBgPixels.Count == 0
+				? 0
+				: allAreaBgPixels[allAreaBgPixels.Count / 2];
+		}
+
+		private float GetAverageBackgroundValue(int pixelNo, int xFrom, int xTo, int horizontalSpan)
+		{
+			int idxFrom = Math.Max(xFrom, pixelNo - horizontalSpan);
+			int idxTo = Math.Min(xTo, pixelNo + horizontalSpan);
+			float bgSum = 0;
+			uint pixCount = 0;
+			for (int i = idxFrom; i <= idxTo; i++)
+			{
+				bgSum += m_BgValues[i - xFrom];
+				pixCount += m_BgPixelCount[i - xFrom];
+			}
+			return pixCount == 0
+				? 0
+				: bgSum / pixCount;
+		}
+
+		private void ReadMedianBackgroundForPixelIndex(int halfWidth, int bgHalfWidth, float x1, float y1, int index)
+		{
+			var allBgPixels = new List<uint>();
+
+			for (int z = -bgHalfWidth - halfWidth; z < -halfWidth; z++)
+			{
+				PointF p = m_Mapper.GetSourceCoords(x1, y1 + z);
+				int xx = (int)Math.Round(p.X);
+				int yy = (int)Math.Round(p.Y);
+
+				if (m_SourceVideoFrame.Contains(xx, yy))
+				{
+					allBgPixels.Add((uint)m_Image.GetPixel(xx, yy));
+				}
+			}
+
+			for (int z = halfWidth + 1; z <= halfWidth + bgHalfWidth; z++)
+			{
+				PointF p = m_Mapper.GetSourceCoords(x1, y1 + z);
+				int xx = (int)Math.Round(p.X);
+				int yy = (int)Math.Round(p.Y);
+
+				if (m_SourceVideoFrame.Contains(xx, yy))
+				{
+					allBgPixels.Add((uint)m_Image.GetPixel(xx, yy));
+				}
+			}
+
+			m_BgValuesList[index] = allBgPixels;
+			m_BgPixelCount[index] = 1;
+		}
+
+		private void ReadAverageBackgroundForPixelIndex(int halfWidth, int bgHalfWidth, float x1, float y1, int index)
+		{
+			uint bgValue = 0;
+			uint bgPixelCount = 0;
+
+			for (int z = -bgHalfWidth - halfWidth; z < -halfWidth; z++)
+			{
+				PointF p = m_Mapper.GetSourceCoords(x1, y1 + z);
+				int xx = (int)Math.Round(p.X);
+				int yy = (int)Math.Round(p.Y);
+
+				if (m_SourceVideoFrame.Contains(xx, yy))
+				{
+					bgValue += (uint)m_Image.GetPixel(xx, yy);
+					bgPixelCount++;
+				}
+			}
+
+			for (int z = halfWidth + 1; z <= halfWidth + bgHalfWidth; z++)
+			{
+				PointF p = m_Mapper.GetSourceCoords(x1, y1 + z);
+				int xx = (int)Math.Round(p.X);
+				int yy = (int)Math.Round(p.Y);
+
+				if (m_SourceVideoFrame.Contains(xx, yy))
+				{
+					bgValue += (uint)m_Image.GetPixel(xx, yy);
+					bgPixelCount++;
+				}
+			}
+
+			m_BgValues[index] = bgValue;
+			m_BgPixelCount[index] = bgPixelCount;
+		}
+	}
+
 }

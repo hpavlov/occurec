@@ -596,6 +596,7 @@
 			// 
 			// label6
 			// 
+			this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.label6.AutoSize = true;
 			this.label6.Location = new System.Drawing.Point(8, 282);
 			this.label6.Name = "label6";
@@ -605,6 +606,7 @@
 			// 
 			// tbxTargetName
 			// 
+			this.tbxTargetName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.tbxTargetName.Location = new System.Drawing.Point(8, 300);
 			this.tbxTargetName.Name = "tbxTargetName";
 			this.tbxTargetName.Size = new System.Drawing.Size(185, 20);
