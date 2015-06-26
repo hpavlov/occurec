@@ -443,6 +443,7 @@ namespace OccuRec.Controllers
 		{
 			TrackingContext.Current.TargetStar = null;
 			TrackingContext.Current.GuidingStar = null;
+            TrackingContext.Current.SpectraAngleDeg = float.NaN;
 			ChangeVideoFrameInteractiveState(VideoFrameInteractiveState.None);
 			TrackingContext.Current.ReConfigureNativeTracking(m_VideoRenderingController.Width, m_VideoRenderingController.Height);			
 		}
