@@ -93,6 +93,7 @@ namespace OccuRec.Helpers
 				point.PixelNo = x;
 				point.RawSignalPixelCount = 0;
 
+			    bool hasSaturatedPixels = false;
 				for (int z = -halfWidth; z <= halfWidth; z++)
 				{
 					PointF p = m_Mapper.GetSourceCoords(x, p1.Y + z);
@@ -111,7 +112,9 @@ namespace OccuRec.Helpers
 								int yyy = (int)Math.Round(p.Y);
 								if (m_SourceVideoFrame.Contains(xxx, yyy))
 								{
-									sum += m_Image.GetPixel(xxx, yyy);
+								    int pixel = m_Image.GetPixel(xxx, yyy);
+								    if (pixel >= m_Image.MaxSignalValue) hasSaturatedPixels = true;
+                                    sum += pixel;
 									numPoints++;
 								}
 							}
@@ -121,6 +124,7 @@ namespace OccuRec.Helpers
 				}
 
 				point.RawSignal = point.RawValue;
+			    point.HasSaturatedPixels = hasSaturatedPixels;
 				rv.Points.Add(point);
 
 				ReadMedianBackgroundForPixelIndex(halfWidth, bgHalfWidth, x, p1.Y, x - xFrom);

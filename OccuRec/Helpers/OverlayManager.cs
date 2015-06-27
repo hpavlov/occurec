@@ -187,29 +187,33 @@ namespace OccuRec.Helpers
 					{
 						if (!float.IsNaN(TrackingContext.Current.SpectraAngleDeg))
 						{
-							m_NumCheckedSpectraFrames++;
+						    m_NumCheckedSpectraFrames++;
 
-							RectangleF originalVideoFrame = new RectangleF(0, 0, imageWidth, imageHeight);
+						    RectangleF originalVideoFrame = new RectangleF(0, 0, imageWidth, imageHeight);
 
-							var mapper = new RotationMapper(imageWidth, imageHeight, TrackingContext.Current.SpectraAngleDeg);
-							float halfWidth = (float)TrackingContext.Current.GuidingStar.FWHM;
+						    var mapper = new RotationMapper(imageWidth, imageHeight, TrackingContext.Current.SpectraAngleDeg);
+						    float halfWidth = (float) TrackingContext.Current.GuidingStar.FWHM;
 
-							PointF p0 = mapper.GetDestCoords(TrackingContext.Current.GuidingStar.X, TrackingContext.Current.GuidingStar.Y);
-							for (float i = p0.X - mapper.MaxDestDiagonal; i < p0.X + mapper.MaxDestDiagonal; i++)
-							{
-								PointF p1 = mapper.GetSourceCoords(i, p0.Y - halfWidth);
-								PointF p2 = mapper.GetSourceCoords(i + 1, p0.Y - halfWidth);
-								if (originalVideoFrame.Contains(p1) && originalVideoFrame.Contains(p2)) g.DrawLine(Pens.Red, p1, p2);
+						    PointF p0 = mapper.GetDestCoords(TrackingContext.Current.GuidingStar.X, TrackingContext.Current.GuidingStar.Y);
+						    for (float i = p0.X - mapper.MaxDestDiagonal; i < p0.X + mapper.MaxDestDiagonal; i++)
+						    {
+						        PointF p1 = mapper.GetSourceCoords(i, p0.Y - halfWidth);
+						        PointF p2 = mapper.GetSourceCoords(i + 1, p0.Y - halfWidth);
+						        if (originalVideoFrame.Contains(p1) && originalVideoFrame.Contains(p2)) g.DrawLine(Pens.Red, p1, p2);
 
-								PointF p3 = mapper.GetSourceCoords(i, p0.Y + halfWidth);
-								PointF p4 = mapper.GetSourceCoords(i + 1, p0.Y + halfWidth);
-								if (originalVideoFrame.Contains(p3) && originalVideoFrame.Contains(p4)) g.DrawLine(Pens.Red, p3, p4);
-							}
+						        PointF p3 = mapper.GetSourceCoords(i, p0.Y + halfWidth);
+						        PointF p4 = mapper.GetSourceCoords(i + 1, p0.Y + halfWidth);
+						        if (originalVideoFrame.Contains(p3) && originalVideoFrame.Contains(p4)) g.DrawLine(Pens.Red, p3, p4);
+						    }
 
-							PlotStarSpectra(g, frame);
-						}						
+						    PlotStarSpectra(g, frame);
+						}
 					}
 				}
+                else
+                {
+                    if (m_StackedSpectraList.Count > 0) m_StackedSpectraList.Clear();
+                }
 
 				analysisManager.DisplayData(g, imageWidth, imageHeight);
 			}
@@ -276,6 +280,7 @@ namespace OccuRec.Helpers
             {
 				float x = xCoeff* (point.PixelNo - firstPixelNo);
                 Pen pen;
+
                 if (point.HasSaturatedPixels)
                 {
                     pen = Pens.Red;
@@ -301,7 +306,8 @@ namespace OccuRec.Helpers
 				}
             }
 
-			g.DrawString(m_NumCheckedSpectraFrames.ToString(), s_VtiOsdFont, Brushes.Aqua, 10 + imageWidth / 2.0f, imageHeight - 15);
+            int percBuff = (int)Math.Min(100, Math.Ceiling(100f * m_StackedSpectraList.Count / Settings.Default.SpectraFrameStack));
+            g.DrawString(string.Format("{0} %", percBuff), s_VtiOsdFont, Brushes.Aqua, 10 + imageWidth / 2.0f, imageHeight - 15);
         }
 
 	    private List<Spectra> m_StackedSpectraList = new List<Spectra>();
@@ -309,7 +315,7 @@ namespace OccuRec.Helpers
 
 		private void StackSpectra(Spectra spectra)
 		{
-			while (m_StackedSpectraList.Count > Math.Max(1, Settings.Default.SpectraFrameStack - 1)) m_StackedSpectraList.RemoveAt(m_StackedSpectraList.Count - 1);
+			while (m_StackedSpectraList.Count > Math.Max(1, Settings.Default.SpectraFrameStack - 1)) m_StackedSpectraList.RemoveAt(0);
 			m_StackedSpectraList.Add(spectra);
 
 			m_StackedSpectra.Points.Clear();
@@ -330,6 +336,9 @@ namespace OccuRec.Helpers
 
 			var signalLists = new List<float>[m_StackedSpectra.Points.Count];
 			for (int j = 0; j < m_StackedSpectra.Points.Count; j++) signalLists[j] = new List<float>();
+
+            var saturationFlagLists = new bool[m_StackedSpectra.Points.Count];
+            for (int j = 0; j < m_StackedSpectra.Points.Count; j++) saturationFlagLists[j] = false;
 
 			for (int i = 1; i < m_StackedSpectraList.Count; i++)
 			{
@@ -368,7 +377,7 @@ namespace OccuRec.Helpers
 					{
 						valueLists[j].Add(nextSpectra.Points[indexNextSpectra].RawValue);
 						signalLists[j].Add(nextSpectra.Points[indexNextSpectra].RawValue);
-						m_StackedSpectra.Points[j].HasSaturatedPixels |= nextSpectra.Points[indexNextSpectra].HasSaturatedPixels;
+					    if (nextSpectra.Points[indexNextSpectra].HasSaturatedPixels) saturationFlagLists[j] = true;
 					}
 				}
 			}
@@ -381,6 +390,7 @@ namespace OccuRec.Helpers
 				m_StackedSpectra.Points[i].RawValue = valueLists[i].Count == 0 ? 0 : valueLists[i][valueLists[i].Count / 2];
 				m_StackedSpectra.Points[i].RawSignal = signalLists[i].Count == 0 ? 0 : signalLists[i][signalLists[i].Count / 2];
 				m_StackedSpectra.Points[i].RawSignalPixelCount = signalLists[i].Count;
+			    m_StackedSpectra.Points[i].HasSaturatedPixels = saturationFlagLists[i];
 			}
 
 			ApplyGaussianBlur(Settings.Default.SpectraGaussFWHM);
