@@ -590,14 +590,14 @@ namespace OccuRec.Helpers
             string latitude = "";
             if (Math.Abs(Settings.Default.AavObsLongitude) > 0.0001 && Math.Abs(Settings.Default.AavObsLatitude) > 0.0001)
             {
-                longitude = AstroConvert.ToStringValue(Settings.Default.AavObsLongitude, "+DDD MM SS");
+                longitude = AstroConvert.ToStringValue(Settings.Default.AavObsLongitude, "+DD MM SS");
                 latitude = AstroConvert.ToStringValue(Settings.Default.AavObsLatitude, "+DD MM SS");
             }
             SetupObservationInfo(targetInfo, telescopeInfo, observerInfo, longitude, latitude);
 
             if (!string.IsNullOrEmpty(CurrentTelescopePosition))
             {
-                string[] tokens = CurrentTelescopePosition.Split("+-".ToCharArray(), 2);
+                string[] tokens = CurrentTelescopePosition.Split(";".ToCharArray(), 2);
                 if (tokens.Length == 2)
                 {
                     SetupTelescopePosition(tokens[0], tokens[1]);
