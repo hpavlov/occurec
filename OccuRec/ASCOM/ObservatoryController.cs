@@ -1371,6 +1371,12 @@ namespace OccuRec.ASCOM
 		{
 			m_CurrentVideoState = state;
 
+			if (NativeHelpers.CurrentCameraExposure != state.Exposure)
+			{
+				NativeHelpers.CurrentCameraExposure = state.Exposure;
+				Trace.Write(string.Format("NativeHelpers.CurrentCameraExposure = {0}", NativeHelpers.CurrentCameraExposure));
+			}
+
 			try
 			{
 			    float newGain = float.Parse(REGEX_FLOATING_POINT_VALUE.Match(state.Gain).Groups["Num"].Value.Trim());

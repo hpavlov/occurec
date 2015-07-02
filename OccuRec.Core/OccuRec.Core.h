@@ -109,8 +109,8 @@ HRESULT SetupAav(long useImageLayout, long compressionAlgorithm, long bpp, long 
 HRESULT SetupNtpDebugParams(long debugValue1, float debugValue2);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* ImageStatus);
-HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, FrameProcessingStatus* frameInfo);
-HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, FrameProcessingStatus* frameInfo);
+HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, char* cameraExposure, FrameProcessingStatus* frameInfo);
+HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, char* cameraExposure, FrameProcessingStatus* frameInfo);
 HRESULT StartRecording(LPCTSTR szFileName);
 HRESULT StopRecording(long* pixels);
 HRESULT StartOcrTesting(LPCTSTR szFileName);

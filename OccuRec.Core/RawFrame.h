@@ -14,6 +14,7 @@ public:
 	__int64 CurrentSecondaryTimeAsTicks;
 	float CameraGain;
 	float CameraGamma;
+	char CameraExposure[32];
 
 	RawFrame(int imageWidth, int imageHeight);
 	~RawFrame(void);
