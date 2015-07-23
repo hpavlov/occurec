@@ -265,6 +265,12 @@ namespace OccuRec.StateManagement
             }
         }
 
+	    public void ReInitializeState()
+	    {
+		    if (currentState != null)
+				currentState.InitialiseState(this);
+	    }
+
 		//public bool ToggleIotaVtiOcrTesting()
 		//{
 		//	if (!IsTestingIotaVtiOcr && currentState is UndeterminedIntegrationCameraState)

@@ -19,8 +19,11 @@ namespace OccuRec.StateManagement
     public abstract class CameraState
     {
         private long lastIntegratedFrameNumber;
+	    private long lastReadFrameNumber;
 	    protected int lastIntegratedFrameIntegration;
 		protected int numberOfDroppedFrames = 0;
+
+	    protected long readFrameNo = 0;
 
         private long numberConsequtiveSameIntegrationIntegratedFrames;
 
@@ -32,8 +35,10 @@ namespace OccuRec.StateManagement
         protected void ResetIntegrationStats()
         {
             lastIntegratedFrameNumber = -1;
+			lastReadFrameNumber = -1;
             lastIntegratedFrameIntegration = -1;
             numberConsequtiveSameIntegrationIntegratedFrames = 0;
+	        readFrameNo = -1;
         }
 
 		internal int GetNumberOfDroppedFrames()
@@ -46,12 +51,10 @@ namespace OccuRec.StateManagement
 
         public virtual void ProcessFrame(CameraStateManager stateManager, Helpers.VideoFrameWrapper frame)
         {
-			// NOTE: Because frames may be skipped as it could take too long to process them in OccuRec
-			//       and not all frames will be checked by this code, it is possible that integration consistency detection
-			//       implemented here will not work. The case of locking at x1 has been explicitely hacked to alway work regardless of this limitation
-
             if (lastIntegratedFrameNumber != frame.FrameNumber)
             {
+				readFrameNo++;
+
                 if (lastIntegratedFrameIntegration <= 0)
                 {
                     if (frame.IntegrationRate != null)
@@ -67,8 +70,10 @@ namespace OccuRec.StateManagement
                 }
                 else if (frame.IntegrationRate != null && lastIntegratedFrameIntegration == frame.IntegrationRate.Value)
                 {
-					if (lastIntegratedFrameNumber == frame.IntegratedFrameNo - 1 || lastIntegratedFrameIntegration == 1)
-	                    numberConsequtiveSameIntegrationIntegratedFrames++;
+	                if (lastReadFrameNumber == readFrameNo - 1)
+		                numberConsequtiveSameIntegrationIntegratedFrames++;
+	                else
+		                numberConsequtiveSameIntegrationIntegratedFrames = 0;
                 }
                 else
                 {
@@ -77,7 +82,7 @@ namespace OccuRec.StateManagement
                         lastIntegratedFrameIntegration = frame.IntegrationRate.Value;
                 }
 
-                lastIntegratedFrameNumber = frame.IntegratedFrameNo;
+				lastReadFrameNumber = readFrameNo;
             }
         }
 

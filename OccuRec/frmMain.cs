@@ -831,7 +831,8 @@ namespace OccuRec
 				btnLockIntegration.Enabled = 
 					(
 						m_StateManager.CanLockIntegrationNow && 
-						m_StateManager.IntegrationRate > 0 && 
+						m_StateManager.IntegrationRate > 0 &&
+						m_StateManager.IsValidIntegrationRate && 
 						(frame == null || !frame.PerformedAction.HasValue || frame.PerformedAction.Value == 0)
                      ) 
 					|| m_StateManager.IsIntegrationLocked;
@@ -1618,6 +1619,9 @@ namespace OccuRec
 					m_ManualIntegration = manualIntegrationRate;
 				}
 			}
+
+			// Reinitialize so the integration detection stats (previously detected integration) are reset 
+			m_StateManager.ReInitializeState();
 		}
 
 		private void frmMain_Load(object sender, EventArgs e)
