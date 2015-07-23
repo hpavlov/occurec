@@ -294,6 +294,7 @@ HRESULT TestNewIntegrationPeriod(__int64 frameNo, float diffSignature, bool* isN
 HRESULT SetManualIntegrationHint(long manualRate)
 {
 	MANUAL_INTEGRATION_RATE = manualRate;
+	NO_INTEGRATION_STACK_RATE = 0;
 
 	return S_OK;
 }

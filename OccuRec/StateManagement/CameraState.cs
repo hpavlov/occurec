@@ -46,6 +46,10 @@ namespace OccuRec.StateManagement
 
         public virtual void ProcessFrame(CameraStateManager stateManager, Helpers.VideoFrameWrapper frame)
         {
+			// NOTE: Because frames may be skipped as it could take too long to process them in OccuRec
+			//       and not all frames will be checked by this code, it is possible that integration consistency detection
+			//       implemented here will not work. The case of locking at x1 has been explicitely hacked to alway work regardless of this limitation
+
             if (lastIntegratedFrameNumber != frame.FrameNumber)
             {
                 if (lastIntegratedFrameIntegration <= 0)
@@ -63,7 +67,7 @@ namespace OccuRec.StateManagement
                 }
                 else if (frame.IntegrationRate != null && lastIntegratedFrameIntegration == frame.IntegrationRate.Value)
                 {
-					if (lastIntegratedFrameNumber == frame.IntegratedFrameNo - 1)
+					if (lastIntegratedFrameNumber == frame.IntegratedFrameNo - 1 || lastIntegratedFrameIntegration == 1)
 	                    numberConsequtiveSameIntegrationIntegratedFrames++;
                 }
                 else

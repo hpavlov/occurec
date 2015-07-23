@@ -922,8 +922,12 @@ namespace OccuRec
 
 				UpdateState(null);
 
-                if (wasLocked)
-                    m_StateManager.UnlockIntegration();
+				if (wasLocked)
+				{
+					m_StateManager.UnlockIntegration();
+					lblOneStack.Text = "No Stacking";
+					NativeHelpers.SetStackRate(0);	
+				}
 			}
 		}
 
@@ -2149,7 +2153,7 @@ namespace OccuRec
 
         private void btnNoOCR_Click(object sender, EventArgs e)
         {
-            NativeHelpers.SetupTimestampPreservation(true,  imageHeight - 2, 2);
+            NativeHelpers.SetupTimestampPreservation(false,  imageHeight - 2, 2);
 
             m_StateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
         }

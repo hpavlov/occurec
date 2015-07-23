@@ -96,7 +96,6 @@
 			this.btnUpdateVtiOsd = new System.Windows.Forms.Button();
 			this.btnConfirmUserVtiOsd = new System.Windows.Forms.Button();
 			this.label4 = new System.Windows.Forms.Label();
-			this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
 			this.timerScheduler = new System.Windows.Forms.Timer(this.components);
 			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
 			this.tsbConnectDisconnect = new System.Windows.Forms.ToolStripButton();
@@ -117,6 +116,7 @@
 			this.pnlControlArea = new System.Windows.Forms.Panel();
 			this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+			this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
 			this.statusStrip.SuspendLayout();
 			this.msMain.SuspendLayout();
 			this.pnlClient.SuspendLayout();
@@ -937,15 +937,6 @@
 			this.label4.TabIndex = 15;
 			this.label4.Text = "VTI-OSD Position";
 			// 
-			// ucVideoControl
-			// 
-			this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.ucVideoControl.Location = new System.Drawing.Point(4, 184);
-			this.ucVideoControl.Name = "ucVideoControl";
-			this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
-			this.ucVideoControl.TabIndex = 27;
-			this.ucVideoControl.Visible = false;
-			// 
 			// timerScheduler
 			// 
 			this.timerScheduler.Enabled = true;
@@ -1118,6 +1109,15 @@
 			// 
 			this.openFileDialog.DefaultExt = "avi";
 			this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
+			// 
+			// ucVideoControl
+			// 
+			this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.ucVideoControl.Location = new System.Drawing.Point(4, 184);
+			this.ucVideoControl.Name = "ucVideoControl";
+			this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
+			this.ucVideoControl.TabIndex = 27;
+			this.ucVideoControl.Visible = false;
 			// 
 			// frmMain
 			// 
