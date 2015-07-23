@@ -30,6 +30,7 @@ public:
 	char OcrErrorMessageStr[255];
 	float Gamma;
 	float Gain;
+	float Temperature;
 	char Exposure[32];
 
 	IntegratedFrame(long totalPixelsInFrame, bool is16Bit);

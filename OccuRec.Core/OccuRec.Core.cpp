@@ -172,6 +172,7 @@ unsigned int STATUS_TAG_OCR_TESTING_ERROR_MESSAGE;
 unsigned int STATUS_TAG_NTP_TIME_ERROR;
 unsigned int STATUS_TAG_GAMMA;
 unsigned int STATUS_TAG_GAIN;
+unsigned int STATUS_TAG_TEMPERATURE;
 unsigned int STATUS_TAG_EXPOSURE;
 
 OccuRec::IntegrationChecker* integrationChecker;
@@ -955,7 +956,7 @@ void CalculateDiffSignature2(long* pixels, float* signatureThisPrev)
 
 long detectedIntegrationRate = 0;
 
-long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks,  __int64 currentSecondaryTimeAsTicks, double ntpBasedTimeError, float cameraGain, float cameraGamma, char* cameraExposure)
+long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks,  __int64 currentSecondaryTimeAsTicks, double ntpBasedTimeError, float cameraGain, float cameraGamma, float temperature, char* cameraExposure)
 {
 	long numItems = 0;
 
@@ -1361,6 +1362,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				frame->NTPTimestampError = (long)(0.5 + ntpBasedTimeError * 10);
 				frame->Gain = cameraGain;
 				frame->Gamma = cameraGamma;
+				frame->Temperature = temperature;
 				if (cameraExposure)
 					strcpy(&frame->Exposure[0], cameraExposure);
 				else
@@ -1453,7 +1455,7 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 	}
 }
 
-HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError,  __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, char* cameraExposure, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError,  __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, float temperature, char* cameraExposure, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1471,7 +1473,7 @@ HRESULT ProcessVideoFrame2(long* pixels, __int64 currentUtcDayAsTicks, __int64 c
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, currentSecondaryTimeAsTicks, ntpBasedTimeError, cameraGain, cameraGamma, cameraExposure);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, currentSecondaryTimeAsTicks, ntpBasedTimeError, cameraGain, cameraGamma, temperature, cameraExposure);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1557,7 +1559,7 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, rawFrame->CurrentUtcDayAsTicks, rawFrame->CurrentNtpTimeAsTicks, rawFrame->CurrentSecondaryTimeAsTicks, rawFrame->NtpBasedTimeError, rawFrame->CameraGain, rawFrame->CameraGamma, rawFrame->CameraExposure);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, rawFrame->CurrentUtcDayAsTicks, rawFrame->CurrentNtpTimeAsTicks, rawFrame->CurrentSecondaryTimeAsTicks, rawFrame->NtpBasedTimeError, rawFrame->CameraGain, rawFrame->CameraGamma, rawFrame->Temperature, rawFrame->CameraExposure);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1676,7 +1678,7 @@ void FrameProcessingThreadProc( void* pContext )
 	};
 }
 
-HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, char* cameraExposure, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, float temperature, char* cameraExposure, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1691,6 +1693,7 @@ HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, 
 		frame->CurrentSecondaryTimeAsTicks = currentSecondaryTimeAsTicks;
 		frame->CameraGain = cameraGain;
 		frame->CameraGamma = cameraGamma;
+		frame->Temperature = temperature;
 		if (cameraExposure)
 			strcpy(&frame->CameraExposure[0], (char *)cameraExposure);
 		else
@@ -1706,7 +1709,7 @@ HRESULT ProcessVideoFrameBuffered(LPVOID bmpBits, __int64 currentUtcDayAsTicks, 
 		return E_FAIL;
 }
 
-HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError,  __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, char* cameraExposure, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError,  __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, float temperature, char* cameraExposure, FrameProcessingStatus* frameInfo)
 {
 	frameInfo->FrameDiffSignature = 0;
 
@@ -1726,7 +1729,7 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 	if (showOutputFrame)
 	{
-		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, currentSecondaryTimeAsTicks, ntpBasedTimeError, cameraGain, cameraGamma, (char*)cameraExposure);
+		BufferNewIntegratedFrame(isNewIntegrationPeriod, currentUtcDayAsTicks, currentNtpTimeAsTicks, currentSecondaryTimeAsTicks, ntpBasedTimeError, cameraGain, cameraGamma, temperature, (char*)cameraExposure);
 		::ZeroMemory(integratedPixels, IMAGE_TOTAL_PIXELS * sizeof(double));
 
 		if (isNewIntegrationPeriod)
@@ -1822,12 +1825,12 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 	return S_OK;
 }
 
-HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, char* cameraExposure, FrameProcessingStatus* frameInfo)
+HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 currentNtpTimeAsTicks, double ntpBasedTimeError, __int64 currentSecondaryTimeAsTicks, float cameraGain, float cameraGamma, float temperature, char* cameraExposure, FrameProcessingStatus* frameInfo)
 {
 	if (USE_BUFFERED_FRAME_PROCESSING)
-		return ProcessVideoFrameBuffered(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, cameraGain, cameraGamma, cameraExposure, frameInfo);
+		return ProcessVideoFrameBuffered(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, cameraGain, cameraGamma, temperature, cameraExposure, frameInfo);
 	else
-		return ProcessVideoFrameSynchronous(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, cameraGain, cameraGamma, cameraExposure, frameInfo);
+		return ProcessVideoFrameSynchronous(bmpBits, currentUtcDayAsTicks, currentNtpTimeAsTicks, ntpBasedTimeError, currentSecondaryTimeAsTicks, cameraGain, cameraGamma, temperature, cameraExposure, frameInfo);
 }
 
 long long firstRecordedFrameTimestamp = 0;
@@ -1863,6 +1866,10 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 
 		if (nextFrame->Exposure)
 			AavFrameAddStatusTag(STATUS_TAG_EXPOSURE, &nextFrame->Exposure[0]);
+
+		if (nextFrame->Temperature > -99 && nextFrame->Temperature < 99)
+			AavFrameAddStatusTagReal(STATUS_TAG_TEMPERATURE, nextFrame->Temperature);
+
 	}
 
 	if (OCR_IS_SETUP)
@@ -2054,6 +2061,7 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 		STATUS_TAG_GAIN = AavDefineStatusSectionTag("Gain", AavTagType::Real);
 		STATUS_TAG_GAMMA = AavDefineStatusSectionTag("Gamma", AavTagType::Real);
 		STATUS_TAG_EXPOSURE = AavDefineStatusSectionTag("CameraExposure", AavTagType::AnsiString255);
+		STATUS_TAG_TEMPERATURE = AavDefineStatusSectionTag("Temperature", AavTagType::Real);
 	}
 
 	STATUS_TAG_GPS_TRACKED_SATELLITES = AavDefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8);

@@ -1222,6 +1222,9 @@ namespace OccuRec.ASCOM
 
                         FocuserState state = m_ConnectedFocuser.GetCurrentState();
 
+						if (!double.IsNaN(state.Temperature))
+							NativeHelpers.CurrentTemperature = (float) state.Temperature;
+
                         OnFocuserState(state);
 
                         return state;
