@@ -1340,40 +1340,43 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			}			
 		}
 
-		if (recording && (!OCR_FAILED_TEST_RECORDING || hasOcrErors) && (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS || recordNtpDebugFrame))
+		if (recording && integratedFrameCouldBeRecorded && (!OCR_FAILED_TEST_RECORDING || hasOcrErors) && (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS || recordNtpDebugFrame))
 		{
 			// Record every buffered frame in standard mode or only record frames with OCR errors when running OCR testing
-			frame->NumberOfIntegratedFrames = numberOfIntegratedFrames;
-			frame->StartFrameId = idxFirstFrameNumber;
-			frame->EndFrameId = idxLastFrameNumber;
-			frame->StartTimeStamp = idxFirstFrameTimestamp;
-			frame->EndTimeStamp = idxLastFrameTimestamp;
-			frame->FrameNumber = idxIntegratedFrameNumber;
-			frame->GpsTrackedSatellites = trackedSatellitesCount;
-			frame->GpsAlamancStatus = almanacUpdateSatus;
-			frame->GpsFixStatus = gpsFixStatus;
-			frame->NTPStartTimestamp = firstFrameNtpTimestamp;
-			frame->NTPEndTimestamp = lastFrameNtpTimestamp;
-			frame->SecondaryStartTimestamp = firstFrameSecondaryTimestamp;
-			frame->SecondaryEndTimestamp = lastFrameSecondaryTimestamp;
-			frame->NTPTimestampError = (long)(0.5 + ntpBasedTimeError * 10);
-			frame->Gain = cameraGain;
-			frame->Gamma = cameraGamma;
-			if (cameraExposure)
-				strcpy(&frame->Exposure[0], cameraExposure);
-			else
-				frame->Exposure[0] = 0;
+			if (NULL != frame)
+			{
+				frame->NumberOfIntegratedFrames = numberOfIntegratedFrames;
+				frame->StartFrameId = idxFirstFrameNumber;
+				frame->EndFrameId = idxLastFrameNumber;
+				frame->StartTimeStamp = idxFirstFrameTimestamp;
+				frame->EndTimeStamp = idxLastFrameTimestamp;
+				frame->FrameNumber = idxIntegratedFrameNumber;
+				frame->GpsTrackedSatellites = trackedSatellitesCount;
+				frame->GpsAlamancStatus = almanacUpdateSatus;
+				frame->GpsFixStatus = gpsFixStatus;
+				frame->NTPStartTimestamp = firstFrameNtpTimestamp;
+				frame->NTPEndTimestamp = lastFrameNtpTimestamp;
+				frame->SecondaryStartTimestamp = firstFrameSecondaryTimestamp;
+				frame->SecondaryEndTimestamp = lastFrameSecondaryTimestamp;
+				frame->NTPTimestampError = (long)(0.5 + ntpBasedTimeError * 10);
+				frame->Gain = cameraGain;
+				frame->Gamma = cameraGamma;
+				if (cameraExposure)
+					strcpy(&frame->Exposure[0], cameraExposure);
+				else
+					frame->Exposure[0] = 0;
 
-			if (OCR_FAILED_TEST_RECORDING && hasOcrErors)
-				sprintf(&frame->OcrErrorMessageStr[0], "FirstFieldError: %d; LastFieldError: %d", (long)firstErrorCode, (long)secondErrorCode);
+				if (OCR_FAILED_TEST_RECORDING && hasOcrErors)
+					sprintf(&frame->OcrErrorMessageStr[0], "FirstFieldError: %d; LastFieldError: %d", (long)firstErrorCode, (long)secondErrorCode);
 
-			strcpy(&frame->StartTimeStampStr[0], &firstFrameTimestampStr[0]);
-			strcpy(&frame->EndTimeStampStr[0], &endFrameTimestampStr[0]);
+				strcpy(&frame->StartTimeStampStr[0], &firstFrameTimestampStr[0]);
+				strcpy(&frame->EndTimeStampStr[0], &endFrameTimestampStr[0]);
 
 
-			numItems = AddFrameToRecordingBuffer(frame);
+				numItems = AddFrameToRecordingBuffer(frame);
 
-			numRecordedFrames++;
+				numRecordedFrames++;
+			}
 		}
 		else if (NULL != frame)
 		{
