@@ -2155,9 +2155,10 @@ namespace OccuRec
             frm.ShowDialog(this);
         }
 
-        private void btnNoOCR_Click(object sender, EventArgs e)
+        private void btnNoOSD_Click(object sender, EventArgs e)
         {
-            NativeHelpers.SetupTimestampPreservation(false,  imageHeight - 2, 2);
+            NativeHelpers.SetupTimestampPreservation(false, imageHeight - 2, 2);
+            NativeHelpers.DisableOcr();
 
             m_StateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
         }
