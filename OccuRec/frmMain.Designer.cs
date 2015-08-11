@@ -87,15 +87,16 @@
             this.pbarIntDetPercentDone = new System.Windows.Forms.ProgressBar();
             this.btnCalibrateIntegration = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
-            this.btnLockIntegration = new System.Windows.Forms.Button();
             this.pnlOneStacking = new System.Windows.Forms.Panel();
             this.lblOneStack = new System.Windows.Forms.Label();
             this.btnOneStack = new System.Windows.Forms.Button();
+            this.btnLockIntegration = new System.Windows.Forms.Button();
             this.pnlVtiOsd = new System.Windows.Forms.Panel();
             this.btnNoOSD = new System.Windows.Forms.Button();
             this.btnUpdateVtiOsd = new System.Windows.Forms.Button();
             this.btnConfirmUserVtiOsd = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
+            this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.timerScheduler = new System.Windows.Forms.Timer(this.components);
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbConnectDisconnect = new System.Windows.Forms.ToolStripButton();
@@ -116,7 +117,6 @@
             this.pnlControlArea = new System.Windows.Forms.Panel();
             this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -843,17 +843,6 @@
             this.label3.TabIndex = 14;
             this.label3.Text = "Integration Processing";
             // 
-            // btnLockIntegration
-            // 
-            this.btnLockIntegration.Enabled = false;
-            this.btnLockIntegration.Location = new System.Drawing.Point(12, 22);
-            this.btnLockIntegration.Name = "btnLockIntegration";
-            this.btnLockIntegration.Size = new System.Drawing.Size(162, 23);
-            this.btnLockIntegration.TabIndex = 0;
-            this.btnLockIntegration.Text = "Lock at x4 video frames";
-            this.btnLockIntegration.UseVisualStyleBackColor = true;
-            this.btnLockIntegration.Click += new System.EventHandler(this.btnLockIntegration_Click);
-            // 
             // pnlOneStacking
             // 
             this.pnlOneStacking.Controls.Add(this.lblOneStack);
@@ -882,6 +871,17 @@
             this.btnOneStack.Text = "x1 Stacking";
             this.btnOneStack.UseVisualStyleBackColor = true;
             this.btnOneStack.Click += new System.EventHandler(this.btnOneStack_Click);
+            // 
+            // btnLockIntegration
+            // 
+            this.btnLockIntegration.Enabled = false;
+            this.btnLockIntegration.Location = new System.Drawing.Point(12, 22);
+            this.btnLockIntegration.Name = "btnLockIntegration";
+            this.btnLockIntegration.Size = new System.Drawing.Size(162, 23);
+            this.btnLockIntegration.TabIndex = 0;
+            this.btnLockIntegration.Text = "Lock at x4 video frames";
+            this.btnLockIntegration.UseVisualStyleBackColor = true;
+            this.btnLockIntegration.Click += new System.EventHandler(this.btnLockIntegration_Click);
             // 
             // pnlVtiOsd
             // 
@@ -936,6 +936,15 @@
             this.label4.Size = new System.Drawing.Size(90, 13);
             this.label4.TabIndex = 15;
             this.label4.Text = "VTI-OSD Position";
+            // 
+            // ucVideoControl
+            // 
+            this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.ucVideoControl.Location = new System.Drawing.Point(4, 184);
+            this.ucVideoControl.Name = "ucVideoControl";
+            this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
+            this.ucVideoControl.TabIndex = 27;
+            this.ucVideoControl.Visible = false;
             // 
             // timerScheduler
             // 
@@ -1109,15 +1118,6 @@
             // 
             this.openFileDialog.DefaultExt = "avi";
             this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
-            // 
-            // ucVideoControl
-            // 
-            this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ucVideoControl.Location = new System.Drawing.Point(4, 184);
-            this.ucVideoControl.Name = "ucVideoControl";
-            this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
-            this.ucVideoControl.TabIndex = 27;
-            this.ucVideoControl.Visible = false;
             // 
             // frmMain
             // 

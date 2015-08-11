@@ -210,8 +210,11 @@
       <DependentUpon>frmOneStacking.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AssemblyHelpers.cs" />
+    <Compile Include="Helpers\CalSpec\CalSpecDatabase.cs" />
+    <Compile Include="Helpers\LastSlewPositions.cs" />
     <Compile Include="Helpers\RotationMapper.cs" />
     <Compile Include="Helpers\SpectraReader.cs" />
+    <Compile Include="Helpers\xephem.cs" />
     <Compile Include="ObservatoryAutomation\ObservatoryManager.cs" />
     <Compile Include="FrameAnalysis\FrameAnalysisManager.cs" />
     <Compile Include="FrameAnalysis\PlateSolveManager.cs" />
@@ -473,6 +476,7 @@
       <DependentUpon>frmAddScheduleEntry.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
+    <EmbeddedResource Include="Helpers\CalSpec\CalSpec.db" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
