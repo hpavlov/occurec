@@ -17,7 +17,6 @@ namespace ASCOM.GenericCCDCamera
 		{
 			InitializeComponent();
 			// Initialise current values of user settings from the ASCOM Profile 
-			tbxCameraProgId.Text = Video.m_comPort;
 			chkTrace.Checked = Video.m_traceState;
 			tbxCameraProgId.Text = Video.m_ccdDriverProgId;
 		}
@@ -26,7 +25,7 @@ namespace ASCOM.GenericCCDCamera
 		{
 			// Place any validation constraint checks here
 
-			Video.m_comPort = tbxCameraProgId.Text; // Update the state variables with results from the dialogue
+			// Update the state variables with results from the dialogue
 			Video.m_traceState = chkTrace.Checked;
 			Video.m_ccdDriverProgId = tbxCameraProgId.Text;
 		}

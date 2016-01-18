@@ -75,7 +75,7 @@ namespace ASCOM.GenericCCDCamera
 		internal static string m_traceStateDefault = "false";
 		internal static string m_ccdDriverProgIdProfileName = "CCD Driver ProgId";
 
-		internal static string m_comPort; // Variables to hold the currrent device configuration
+		// Variables to hold the currrent device configuration
 		internal static bool m_traceState;
 		internal static string m_ccdDriverProgId;
 
@@ -230,14 +230,14 @@ namespace ASCOM.GenericCCDCamera
 				if (value)
 				{
 					m_connectedState = true;
-					m_tl.LogMessage("Connected Set", "Connecting to port " + m_comPort);
+					m_tl.LogMessage("Connected Set", "Connecting to CCD device " + m_ccdDriverProgId);
 
 					m_video.Connected = true;
 				}
 				else
 				{
 					m_connectedState = false;
-					m_tl.LogMessage("Connected Set", "Disconnecting from port " + m_comPort);
+					m_tl.LogMessage("Connected Set", "Disconnecting from CCD device " + m_ccdDriverProgId);
 
 					m_video.Connected = false;
 				}
@@ -725,7 +725,6 @@ namespace ASCOM.GenericCCDCamera
 			{
 				driverProfile.DeviceType = "Video";
 				m_traceState = Convert.ToBoolean(driverProfile.GetValue(m_driverID, m_traceStateProfileName, string.Empty, m_traceStateDefault));
-				m_comPort = driverProfile.GetValue(m_driverID, m_comPortProfileName, string.Empty, m_comPortDefault);
 				m_ccdDriverProgId = driverProfile.GetValue(m_driverID, m_ccdDriverProgIdProfileName, string.Empty, string.Empty);
 			}
 		}
@@ -739,7 +738,6 @@ namespace ASCOM.GenericCCDCamera
 			{
 				driverProfile.DeviceType = "Video";
 				driverProfile.WriteValue(m_driverID, m_traceStateProfileName, m_traceState.ToString());
-				driverProfile.WriteValue(m_driverID, m_comPortProfileName, m_comPort.ToString());
 				driverProfile.WriteValue(m_driverID, m_ccdDriverProgIdProfileName, m_ccdDriverProgId.ToString());
 			}
 		}
