@@ -82,6 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CCDVideoFrame.cs" />
     <Compile Include="CCDVideoImpl.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="DriverSettings.cs" />

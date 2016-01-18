@@ -317,7 +317,7 @@ namespace ASCOM.GenericCCDCamera
 
 		public VideoCameraState CameraState
 		{
-			get { return VideoCameraState.videoCameraError; }
+			get { return m_video != null ? m_video.CameraState : VideoCameraState.videoCameraError; }
 		}
 
 		public bool CanConfigureDeviceProperties
@@ -473,22 +473,28 @@ namespace ASCOM.GenericCCDCamera
 			}
 		}
 
+
+		private int m_IntegrationRate = -1;
+
 		///	<exception cref="T:ASCOM.NotConnectedException">Must throw an exception if the information is not available. (Some drivers may require an 
 		///	active <see cref="P:ASCOM.DeviceInterface.IVideo.Connected">connection</see> in order to retrieve necessary information from the camera.)</exception>
 		///	<exception cref="T:ASCOM.InvalidValueException">Must throw an exception if not valid.</exception>
 		///	<exception cref="T:ASCOM.PropertyNotImplementedException">Must throw an exception if the camera supports only one integration rate (exposure) that cannot be changed.</exception>
 		public int IntegrationRate
 		{
-
 			get
 			{
-				throw new PropertyNotImplementedException("IntegrationRate", false);
+				if (!m_video.Connected) throw new NotConnectedException();
+
+				return m_video.IntegrationRate;
 			}
 
 
 			set
 			{
-				throw new PropertyNotImplementedException("IntegrationRate", true);
+				if (!m_video.Connected) throw new NotConnectedException();
+
+				m_video.IntegrationRate = value;
 			}
 		}
 
@@ -560,13 +566,22 @@ namespace ASCOM.GenericCCDCamera
 
 			get
 			{
-				throw new PropertyNotImplementedException("SupportedIntegrationRates", false);
+				if (!m_video.Connected)
+					throw new ASCOM.NotConnectedException();
+
+				return m_video.SupportedIntegrationRates;
 			}
 		}
 
 		public string VideoCaptureDeviceName
 		{
-			get { return string.Empty; }
+			get
+			{
+				if (m_video != null)
+					return m_video.CCDDeviceName;
+
+				return "Unknown";
+			}
 		}
 
 		public string VideoCodec

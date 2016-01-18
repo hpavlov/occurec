@@ -42,7 +42,7 @@ namespace ASCOM.GenericCCDCamera
 			// 
 			this.cmdOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cmdOK.DialogResult = System.Windows.Forms.DialogResult.OK;
-			this.cmdOK.Location = new System.Drawing.Point(289, 154);
+			this.cmdOK.Location = new System.Drawing.Point(237, 95);
 			this.cmdOK.Name = "cmdOK";
 			this.cmdOK.Size = new System.Drawing.Size(59, 24);
 			this.cmdOK.TabIndex = 0;
@@ -54,7 +54,7 @@ namespace ASCOM.GenericCCDCamera
 			// 
 			this.cmdCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.cmdCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.cmdCancel.Location = new System.Drawing.Point(354, 153);
+			this.cmdCancel.Location = new System.Drawing.Point(302, 94);
 			this.cmdCancel.Name = "cmdCancel";
 			this.cmdCancel.Size = new System.Drawing.Size(59, 25);
 			this.cmdCancel.TabIndex = 1;
@@ -67,7 +67,7 @@ namespace ASCOM.GenericCCDCamera
 			this.picASCOM.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.picASCOM.Cursor = System.Windows.Forms.Cursors.Hand;
 			this.picASCOM.Image = global::ASCOM.GenericCCDCamera.Properties.Resources.ASCOM;
-			this.picASCOM.Location = new System.Drawing.Point(365, 9);
+			this.picASCOM.Location = new System.Drawing.Point(313, 9);
 			this.picASCOM.Name = "picASCOM";
 			this.picASCOM.Size = new System.Drawing.Size(48, 56);
 			this.picASCOM.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -94,7 +94,6 @@ namespace ASCOM.GenericCCDCamera
 			// 
 			// btnChooseCCDCamera
 			// 
-			this.btnChooseCCDCamera.Anchor = System.Windows.Forms.AnchorStyles.None;
 			this.btnChooseCCDCamera.Location = new System.Drawing.Point(263, 36);
 			this.btnChooseCCDCamera.Name = "btnChooseCCDCamera";
 			this.btnChooseCCDCamera.Size = new System.Drawing.Size(39, 24);
@@ -105,8 +104,9 @@ namespace ASCOM.GenericCCDCamera
 			// 
 			// chkTrace
 			// 
+			this.chkTrace.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.chkTrace.AutoSize = true;
-			this.chkTrace.Location = new System.Drawing.Point(15, 153);
+			this.chkTrace.Location = new System.Drawing.Point(15, 102);
 			this.chkTrace.Name = "chkTrace";
 			this.chkTrace.Size = new System.Drawing.Size(96, 17);
 			this.chkTrace.TabIndex = 7;
@@ -117,7 +117,7 @@ namespace ASCOM.GenericCCDCamera
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(423, 186);
+			this.ClientSize = new System.Drawing.Size(371, 127);
 			this.Controls.Add(this.chkTrace);
 			this.Controls.Add(this.btnChooseCCDCamera);
 			this.Controls.Add(this.label2);
