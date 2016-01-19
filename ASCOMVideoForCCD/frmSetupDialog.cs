@@ -11,9 +11,9 @@ using ASCOM.GenericCCDCamera;
 namespace ASCOM.GenericCCDCamera
 {
 	[ComVisible(false)]					// Form not registered for COM!
-	public partial class SetupDialogForm : Form
+	public partial class frmSetupDialog : Form
 	{
-		public SetupDialogForm()
+		public frmSetupDialog()
 		{
 			InitializeComponent();
 			// Initialise current values of user settings from the ASCOM Profile 

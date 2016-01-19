@@ -8,34 +8,16 @@ namespace ASCOM.GenericCCDCamera
 {
 	internal class CCDVideoFrame : IVideoFrame
 	{
-		public double ExposureDuration
-		{
-			get { throw new System.NotImplementedException(); }
-		}
+		public double ExposureDuration { get; internal set; }
 
-		public string ExposureStartTime
-		{
-			get { throw new System.NotImplementedException(); }
-		}
+		public string ExposureStartTime { get; internal set; }
 
-		public long FrameNumber
-		{
-			get { throw new System.NotImplementedException(); }
-		}
+		public long FrameNumber { get; internal set; }
 
-		public object ImageArray
-		{
-			get { throw new System.NotImplementedException(); }
-		}
+		public object ImageArray { get; internal set; }
 
-		public System.Collections.ArrayList ImageMetadata
-		{
-			get { throw new System.NotImplementedException(); }
-		}
+		public System.Collections.ArrayList ImageMetadata { get; internal set; }
 
-		public byte[] PreviewBitmap
-		{
-			get { throw new System.NotImplementedException(); }
-		}
+		public byte[] PreviewBitmap { get; internal set; }
 	}
 }

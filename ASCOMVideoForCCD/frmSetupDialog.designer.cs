@@ -1,6 +1,6 @@
 namespace ASCOM.GenericCCDCamera
 {
-	partial class SetupDialogForm
+	partial class frmSetupDialog
 	{
 		/// <summary>
 		/// Required designer variable.

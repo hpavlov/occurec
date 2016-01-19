@@ -141,7 +141,7 @@ namespace ASCOM.GenericCCDCamera
 			if (IsConnected)
 				System.Windows.Forms.MessageBox.Show("Already connected, just press OK");
 
-			using (SetupDialogForm F = new SetupDialogForm())
+			using (frmSetupDialog F = new frmSetupDialog())
 			{
 				var result = F.ShowDialog();
 				if (result == System.Windows.Forms.DialogResult.OK)
@@ -330,7 +330,9 @@ namespace ASCOM.GenericCCDCamera
 
 		public void ConfigureDeviceProperties()
 		{
-			throw new ASCOM.PropertyNotImplementedException();
+			var frmConfigureImage = new frmConfigureImage();
+			// TODO: Set current settings
+			frmConfigureImage.Show();
 		}
 
 		public double ExposureMax

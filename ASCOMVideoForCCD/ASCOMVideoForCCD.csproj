@@ -86,6 +86,12 @@
     <Compile Include="CCDVideoImpl.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="DriverSettings.cs" />
+    <Compile Include="frmConfigureImage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmConfigureImage.Designer.cs">
+      <DependentUpon>frmConfigureImage.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -97,21 +103,24 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="SetupDialogForm.cs">
+    <Compile Include="frmSetupDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SetupDialogForm.designer.cs">
-      <DependentUpon>SetupDialogForm.cs</DependentUpon>
+    <Compile Include="frmSetupDialog.designer.cs">
+      <DependentUpon>frmSetupDialog.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="frmConfigureImage.resx">
+      <DependentUpon>frmConfigureImage.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="SetupDialogForm.resx">
-      <DependentUpon>SetupDialogForm.cs</DependentUpon>
+    <EmbeddedResource Include="frmSetupDialog.resx">
+      <DependentUpon>frmSetupDialog.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
