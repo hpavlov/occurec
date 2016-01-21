@@ -15,6 +15,7 @@ using OccuRec.Helpers;
 using OccuRec.OCR;
 using OccuRec.Properties;
 using DirectShowLib;
+using OccuRec.Utilities;
 
 namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 {
@@ -354,7 +355,9 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
                     // If overriding the framerate, set the frame rate
                     if (iFrameRate > 0)
                     {
-                        v.AvgTimePerFrame = (int)Math.Round(10000000 / iFrameRate);
+                        int newAvgTimePerFrame = (int)Math.Round(10000000 / iFrameRate);
+                        Trace.WriteLine(string.Format("Overwriting VideoInfoHeader.AvgTimePerFrame from {0} to {1}", v.AvgTimePerFrame, newAvgTimePerFrame));
+                        v.AvgTimePerFrame = newAvgTimePerFrame;
                     }
                     else
                         iFrameRate = 10000000 / v.AvgTimePerFrame;
@@ -362,6 +365,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
                     // If overriding the width, set the width
                     if (iWidth > 0)
                     {
+                        Trace.WriteLine(string.Format("Overwriting VideoInfoHeader.BmiHeader.Width from {0} to {1}", v.BmiHeader.Width, iWidth));
                         v.BmiHeader.Width = iWidth;
                     }
                     else
@@ -370,6 +374,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
                     // If overriding the Height, set the Height
                     if (iHeight > 0)
                     {
+                        Trace.WriteLine(string.Format("Overwriting VideoInfoHeader.BmiHeader.Height from {0} to {1}", v.BmiHeader.Height, iHeight));
                         v.BmiHeader.Height = iHeight;
                     }
                     else
@@ -380,7 +385,15 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 
                     // Set the new format
                     hr = videoStreamConfig.SetFormat(media);
-                    DsError.ThrowExceptionForHR(hr);
+                    try
+                    {
+                        DsError.ThrowExceptionForHR(hr);
+                    }
+                    catch (Exception ex)
+                    {
+                        // If setting the format failed then log the error but try to continue
+                        Trace.WriteLine(ex.GetFullStackTrace());
+                    }
 
                     DsUtils.FreeAMMediaType(media);
                     media = null;
