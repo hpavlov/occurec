@@ -74,6 +74,32 @@ namespace OccuRec
 
         private void btnOK_Click(object sender, EventArgs e)
         {            
+	        if (string.IsNullOrEmpty(Settings.Default.SelectedVideoFormat))
+	        {
+		        if (pnlSimpleFrameRate.Visible && rbPAL.Checked)
+			        Settings.Default.SelectedVideoFormat = VideoFormatHelper.SupportedVideoFormat.PAL.AsSerialized();
+				else if (pnlSimpleFrameRate.Visible && rbNTSC.Checked)
+					Settings.Default.SelectedVideoFormat = VideoFormatHelper.SupportedVideoFormat.NTSC.AsSerialized();
+				else if (cbxVideoFormats.SelectedIndex > -1)
+					Settings.Default.SelectedVideoFormat = ((VideoFormatHelper.SupportedVideoFormat)(cbxVideoFormats.SelectedItem)).AsSerialized();
+				else
+				{
+					MessageBox.Show(
+						this,
+						"Please select a video resolution and framerate to use.",
+						"OccuRec",
+						MessageBoxButtons.OK,
+						MessageBoxIcon.Error);
+
+					if (pnlSimpleFrameRate.Visible)
+						pnlSimpleFrameRate.Focus();
+					else
+						cbxVideoFormats.Focus();
+
+					return;
+				}
+	        }
+
             if (pnlCrossbar.Visible && cbxCrossbarInput.Enabled)
             {
                 var selectedItem = (CrossbarHelper.CrossbarPinEntry)cbxCrossbarInput.SelectedItem;
@@ -385,6 +411,24 @@ namespace OccuRec
 			{
 				pnlSimpleFrameRate.Visible = false;
 				cbxVideoFormats.Visible = true;				
+			}
+		}
+
+		private void rbNTSC_CheckedChanged(object sender, EventArgs e)
+		{
+			if (rbNTSC.Checked)
+			{
+				Settings.Default.SelectedVideoFormat = VideoFormatHelper.SupportedVideoFormat.NTSC.AsSerialized();
+				Settings.Default.Save();
+			}
+		}
+
+		private void rbPAL_CheckedChanged(object sender, EventArgs e)
+		{
+			if (rbPAL.Checked)
+			{
+				Settings.Default.SelectedVideoFormat = VideoFormatHelper.SupportedVideoFormat.PAL.AsSerialized();
+				Settings.Default.Save();
 			}
 		}
     }
