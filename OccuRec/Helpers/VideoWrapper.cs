@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using OccuRec.Drivers;
+using OccuRec.Properties;
 using OccuRec.Utilities;
 using OccuRec.Utilities.Exceptions;
 
@@ -1020,6 +1021,9 @@ namespace OccuRec.Helpers
 					{
 						string rv = video.StartRecordingVideoFile(fileName);
 
+                        if (Settings.Default.BeepOnStartStopRecording)
+                            Console.Beep(900, 500);
+
 						m_StartedRecordingAtUT = DateTime.UtcNow;
 
 						return rv;
@@ -1038,6 +1042,9 @@ namespace OccuRec.Helpers
 					() =>
 						{
 							video.StopRecordingVideoFile();
+
+                            if (Settings.Default.BeepOnStartStopRecording)
+                                Console.Beep(900, 500);
 
 							m_StartedRecordingAtUT = null;
 							return null;

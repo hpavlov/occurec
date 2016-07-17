@@ -62,6 +62,8 @@ namespace OccuRec.Config.Panels
 		    nudCrossX.SetNUDValue(Settings.Default.LocationCrossX);
             nudCrossY.SetNUDValue(Settings.Default.LocationCrossY);
             nudCorssTransparency.SetNUDValue(Settings.Default.LocationCrossTransparency);
+
+		    cbxBeepOnStartStopRecording.Checked = Settings.Default.BeepOnStartStopRecording;
 		}
 
 		public override void SaveSettings()
@@ -85,6 +87,7 @@ namespace OccuRec.Config.Panels
             Settings.Default.LocationCrossX = (int)nudCrossX.Value;
             Settings.Default.LocationCrossY = (int)nudCrossY.Value;
             Settings.Default.LocationCrossTransparency = (int)nudCorssTransparency.Value;
+            Settings.Default.BeepOnStartStopRecording = cbxBeepOnStartStopRecording.Checked;
 		}
 
 		private void cbxUserPreserveOSDLines_CheckedChanged(object sender, EventArgs e)

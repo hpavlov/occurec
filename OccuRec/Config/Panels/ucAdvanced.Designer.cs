@@ -47,10 +47,11 @@
             this.cbxAdvCompression = new System.Windows.Forms.ComboBox();
             this.cbxMustConfirmVTI = new System.Windows.Forms.CheckBox();
             this.pnlLocationCorss = new System.Windows.Forms.Panel();
+            this.nudCorssTransparency = new System.Windows.Forms.NumericUpDown();
             this.nudCrossY = new System.Windows.Forms.NumericUpDown();
             this.nudCrossX = new System.Windows.Forms.NumericUpDown();
             this.cbxLocationCross = new System.Windows.Forms.CheckBox();
-            this.nudCorssTransparency = new System.Windows.Forms.NumericUpDown();
+            this.cbxBeepOnStartStopRecording = new System.Windows.Forms.CheckBox();
             this.pnlPreserveOSDArea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
@@ -58,9 +59,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).BeginInit();
             this.pnlNTPDebug.SuspendLayout();
             this.pnlLocationCorss.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlPreserveOSDArea
@@ -295,6 +296,24 @@
             this.pnlLocationCorss.Size = new System.Drawing.Size(232, 27);
             this.pnlLocationCorss.TabIndex = 44;
             // 
+            // nudCorssTransparency
+            // 
+            this.nudCorssTransparency.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudCorssTransparency.Location = new System.Drawing.Point(141, 3);
+            this.nudCorssTransparency.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.nudCorssTransparency.Name = "nudCorssTransparency";
+            this.nudCorssTransparency.Size = new System.Drawing.Size(49, 20);
+            this.nudCorssTransparency.TabIndex = 29;
+            this.nudCorssTransparency.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            // 
             // nudCrossY
             // 
             this.nudCrossY.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
@@ -342,28 +361,21 @@
             this.cbxLocationCross.UseVisualStyleBackColor = true;
             this.cbxLocationCross.CheckedChanged += new System.EventHandler(this.cbxLocationCross_CheckedChanged);
             // 
-            // nudCorssTransparency
+            // cbxBeepOnStartStopRecording
             // 
-            this.nudCorssTransparency.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.nudCorssTransparency.Location = new System.Drawing.Point(141, 3);
-            this.nudCorssTransparency.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
-            this.nudCorssTransparency.Name = "nudCorssTransparency";
-            this.nudCorssTransparency.Size = new System.Drawing.Size(49, 20);
-            this.nudCorssTransparency.TabIndex = 29;
-            this.nudCorssTransparency.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
+            this.cbxBeepOnStartStopRecording.AutoSize = true;
+            this.cbxBeepOnStartStopRecording.Location = new System.Drawing.Point(12, 304);
+            this.cbxBeepOnStartStopRecording.Name = "cbxBeepOnStartStopRecording";
+            this.cbxBeepOnStartStopRecording.Size = new System.Drawing.Size(176, 17);
+            this.cbxBeepOnStartStopRecording.TabIndex = 45;
+            this.cbxBeepOnStartStopRecording.Text = "\'Beep\' On Start/Stop Recording";
+            this.cbxBeepOnStartStopRecording.UseVisualStyleBackColor = true;
             // 
             // ucAdvanced
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cbxBeepOnStartStopRecording);
             this.Controls.Add(this.pnlLocationCorss);
             this.Controls.Add(this.cbxLocationCross);
             this.Controls.Add(this.cbxMustConfirmVTI);
@@ -380,7 +392,7 @@
             this.Controls.Add(this.cbDebugIntegration);
             this.Controls.Add(this.cbxStatusSectionOnly);
             this.Name = "ucAdvanced";
-            this.Size = new System.Drawing.Size(532, 303);
+            this.Size = new System.Drawing.Size(532, 347);
             this.pnlPreserveOSDArea.ResumeLayout(false);
             this.pnlPreserveOSDArea.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).EndInit();
@@ -389,9 +401,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).EndInit();
             this.pnlNTPDebug.ResumeLayout(false);
             this.pnlLocationCorss.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -422,5 +434,6 @@
         private System.Windows.Forms.NumericUpDown nudCrossX;
         private System.Windows.Forms.CheckBox cbxLocationCross;
         private System.Windows.Forms.NumericUpDown nudCorssTransparency;
+        private System.Windows.Forms.CheckBox cbxBeepOnStartStopRecording;
 	}
 }
