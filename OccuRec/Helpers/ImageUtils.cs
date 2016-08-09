@@ -74,10 +74,52 @@ namespace OccuRec.Helpers
 				finally
 				{
 					b.UnlockBits(bmData);
-				}				
+				}
 			}
 
             return rv;
+        }
+
+        public static void ProduceBitmap(byte[] pixels, int width, int height, Bitmap b)
+        {
+            if (b != null)
+            {
+                // GDI+ still lies to us - the return format is BGR, NOT RGB.
+                BitmapData bmData = b.LockBits(new Rectangle(0, 0, b.Width, b.Height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+
+                try
+                {
+                    int stride = bmData.Stride;
+                    System.IntPtr Scan0 = bmData.Scan0;
+
+                    unsafe
+                    {
+                        byte* p = (byte*)(void*)Scan0;
+
+                        int nOffset = stride - b.Width * 3;
+
+                        for (int y = 0; y < b.Height; ++y)
+                        {
+                            for (int x = 0; x < b.Width; ++x)
+                            {
+                                byte red = pixels[y * width + x];
+
+                                p[0] = red;
+                                p[1] = red;
+                                p[2] = red;
+
+                                p += 3;
+                            }
+
+                            p += nOffset;
+                        }
+                    }
+                }
+                finally
+                {
+                    b.UnlockBits(bmData);
+                }
+            }
         }
     }
 }

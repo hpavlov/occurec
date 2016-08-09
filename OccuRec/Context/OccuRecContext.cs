@@ -14,6 +14,7 @@ namespace OccuRec.Context
 		public static OccuRecContext Current = new OccuRecContext();
 
 		public bool IsAAV { get; set; }
+        public bool IsQHY { get; set; }
 		public bool IsConnected { get; set; }
 
 

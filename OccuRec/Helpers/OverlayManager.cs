@@ -252,6 +252,11 @@ namespace OccuRec.Helpers
                 g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX, Settings.Default.LocationCrossY + 6, Settings.Default.LocationCrossX, imageHeight);
                 g.DrawEllipse(m_LocationCrossPen, Settings.Default.LocationCrossX - 6, Settings.Default.LocationCrossY - 6, 12, 12);
             }
+
+            if (!string.IsNullOrEmpty(frame.ExposureStartTime))
+            {
+                g.DrawString(frame.ExposureStartTime, s_VtiOsdFont, Brushes.Lime, imageWidth - 100, 20);
+            }
         }
 
         private void PlotStarSpectra(Graphics g, VideoFrameWrapper frame)

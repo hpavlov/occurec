@@ -1,0 +1,291 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AdvLib</name>
+    </assembly>
+    <members>
+        <member name="M:Obsolete.AdvImageConfig.SetImageParameters(System.UInt16,System.UInt16,System.Byte)">
+            <summary>
+            Sets the image configuration
+            </summary>
+            <param name="width">The width of the image in pixels.</param>
+            <param name="height">The height of the image in pixels.</param>
+            <param name="imageDynamicBitDepth">The bit depth of the dynamic range of the saved images.</param>
+        </member>
+        <member name="F:Obsolete.AdvStatusEntry.AdditionalStatusTags">
+            <summary>
+            The values of the additional tags. The value types must correspond to the defined tag type. Only the following
+            .NET types are supported: byte, ushort, uint, ulong, float, string and string[]
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.SystemTime">
+            <summary>
+            Lower accuracy system timestamp for the frame. Could be used as a backup time reference in case of a problem with the main timing hardware.
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.GPSTrackedSatellites">
+            <summary>
+            Number of tracked GPS satellites
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.GPSAlmanacStatus">
+            <summary>
+            The status of the GPS almanac update 
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.GPSAlmanacOffset">
+            <summary>
+            The almanac offset in seconds that was added to the uncorrected time reported by the GPS in order to compute the UTC time
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.GPSFixStatus">
+            <summary>
+            The status of the GPS fix
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.Gain">
+            <summary>
+            The gain of the camera in dB
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.Shutter">
+            <summary>
+            Camera shutter speed in seconds
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.Gamma">
+            <summary>
+            The gamma correction applied to the produced image
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.CameraOffset">
+            <summary>
+            The offset in percentage applied to the produced image
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.VideoCameraFrameId">
+            <summary>
+            The id of the frame as labeled by the camera frame counter
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.UserCommands">
+            <summary>
+            The user commands executed since the last recorded frame. Up to 16 lines, each line up to 255 characters.
+            </summary>
+        </member>
+        <member name="P:Obsolete.AdvStatusEntry.SystemErrors">
+            <summary>
+            System errors detected since the last recorded frame. Up to 16 lines, each line up to 255 characters.
+            </summary>
+        </member>
+        <member name="F:Obsolete.AdvVer1.AdvRecorder.StatusSectionConfig">
+            <summary>
+            The status section configuration to be used for the ADV file when StartRecordingNewFile() is called.
+            </summary>
+        </member>
+        <member name="F:Obsolete.AdvVer1.AdvRecorder.FileMetaData">
+            <summary>
+            The file metadata to be saved in the file when StartRecordingNewFile() is called.
+            </summary>
+        </member>
+        <member name="F:Obsolete.AdvVer1.AdvRecorder.ImageConfig">
+            <summary>
+            The image configuration to be used for the ADV file when StartRecordingNewFile() is called.
+            </summary>
+        </member>
+        <member name="F:Obsolete.AdvVer1.AdvRecorder.LocationData">
+            <summary>
+            The location data to be saved in the file when StartRecordingNewFile() is called.
+            </summary>
+        </member>
+        <member name="M:Obsolete.AdvVer1.AdvRecorder.StartRecordingNewFile(System.String)">
+            <summary>
+            Creates new ADV file and gets it ready for recording 
+            </summary>
+            <param name="fileName"></param>
+        </member>
+        <member name="M:Obsolete.AdvVer1.AdvRecorder.FinishRecording">
+            <summary>
+            Closes the AVD file and stops any recording to it.
+            </summary>
+        </member>
+        <member name="M:Obsolete.AdvVer1.AdvRecorder.AddVideoFrame(System.Byte[],System.Boolean,Adv.AdvImageData,Adv.AdvTimeStamp,System.UInt32,Obsolete.AdvStatusEntry)">
+            <summary>
+            Adds a new video frame from a byte array.
+            </summary>
+            <param name="pixels">The pixels to be saved. The row-major array is of size Width * Height in 8-bit mode and 2 * Width * Height in little-endian 16-bit mode.</param>
+            <param name="compress">True if the frame is to be compressed. Please note that compression is CPU and I/O intensive and may not work at high frame rates. Use wisely.</param>
+            <param name="imageData">The format of the pixels - 8 bit or 16 bit.</param>
+            <param name="timeStamp">The high accuracy timestamp for the middle of the frame. If the timestamp is not with an accuracy of 1ms then set it as zero. A lower accuracy timestamp can be specified in the SystemTime status value.</param>
+            <param name="exposureIn10thMilliseconds">The duration of the frame in whole 0.1 ms as determined by the high accuracy timestamping. If high accuracy timestamp is not available then set this to zero. Note that the Shutter status value should be derived from the camera settings rather than from the timestamps.</param>
+            <param name="metadata">The status metadata to be saved with the video frame.</param>
+        </member>
+        <member name="M:Obsolete.AdvVer1.AdvRecorder.AddVideoFrame(System.UInt16[],System.Boolean,Adv.AdvTimeStamp,System.UInt32,Obsolete.AdvStatusEntry)">
+            <summary>
+            Adds a new video frame from an ushort array.
+            </summary>
+            <param name="pixels">The pixels to be saved. The row-major array is of size 2 * Width * Height. This only works in little-endian 16-bit mode.</param>
+            <param name="compress">True if the frame is to be compressed. Please note that compression is CPU and I/O intensive and may not work at high frame rates. Use wisely.</param>
+            <param name="timeStamp">The high accuracy timestamp for the middle of the frame. If the timestamp is not with an accuracy of 1ms then set it as zero. A lower accuracy timestamp can be specified in the SystemTime status value.</param>
+            <param name="exposureIn10thMilliseconds">The duration of the frame in whole 0.1 ms as determined by the high accuracy timestamping. If high accuracy timestamp is not available then set this to zero. Note that the Shutter status value should be derived from the camera settings rather than from the timestamps.</param>
+            <param name="metadata">The status metadata to be saved with the video frame.</param>
+        </member>
+        <member name="M:Obsolete.AdvVer1.AdvRecorder.SetNativeDllDirectory(System.String)">
+            <summary>
+            Adds a directory to the search path for AdvLib.Core32.dll and AdvLib.Core64.dll
+            </summary>
+            <param name="path">The full path to AdvLib.Core32.dll and AdvLib.Core64.dll</param>
+        </member>
+        <member name="F:Adv.AdvRecorder.ImageConfig">
+            <summary>
+            The image configuration to be used for the ADV file when StartRecordingNewFile() is called.
+            </summary>
+        </member>
+        <member name="M:Adv.AdvRecorder.StartRecordingNewFile(System.String,System.Int64,System.Boolean)">
+            <summary>
+            Creates new ADV file and gets it ready for recording 
+            </summary>
+            <param name="fileName"></param>
+        </member>
+        <member name="M:Adv.AdvRecorder.FinishRecording">
+            <summary>
+            Closes the AVD file and stops any recording to it.
+            </summary>
+        </member>
+        <member name="M:Adv.AdvRecorder.AdvImageConfig.SetImageParameters(System.UInt16,System.UInt16,System.Byte,System.Nullable{System.Int32})">
+            <summary>
+            Sets the image configuration. Here are some examples: 
+            
+            8 bit camera, running with x4 frames on the fly integration, pixel values saved as 16 bit:
+            Image Bits Per Pixel: 16 bit
+            Pixel Max Value: 0x3FC (1020)
+            
+            14 bit camera with image saved as 16 bit (unscaled):
+            
+            Image Bits Per Pixel: 16 bit
+            Pixel Max Value: 0x3FFF (16383)
+            
+            14 bit camera with image scaled to and saved as 16 bit:
+            
+            Image Bits Per Pixel: 16 bit
+            Pixel Max Value: null
+            
+            16 bit camera with image saved as 16 bit:
+            
+            Image Bits Per Pixel: 16 bit
+            Pixel Max Value: null
+                       
+            12 bit camera with image saved as 12 bit (2 pixels in 3 bytes):
+            
+            Image Bits Per Pixel: 12 bit
+            Pixel Max Value: null
+            </summary>
+            <param name="width">The width of the image in pixels.</param>
+            <param name="height">The height of the image in pixels.</param>
+            <param name="imageBitsPerPixel">The bit depth of the pixel values saved in the image.</param>
+            <param name="pixelMaxValue">The upper limit of the dynamic range of the image expressed as the maximum pixel value (or <b>null</b> if not applicable).</param>
+        </member>
+        <member name="M:Adv.AdvRecorder.AdvImageConfig.SetBayerPattern(Adv.BayerPattern)">
+            <summary>
+            Sets the bayer pattern used by the CCD colour chip to one of the predefined values
+            </summary>
+            <param name="pattern">The bayer pattern to be set</param>
+        </member>
+        <member name="F:Adv.AdvRecorder.AdvStatusEntry.AdditionalStatusTags">
+            <summary>
+            The values of the additional tags. The value types must correspond to the defined tag type. Only the following
+            .NET types are supported: byte, ushort, uint, ulong, float, string and string[]
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.SystemTime">
+            <summary>
+            Lower accuracy system timestamp for the frame. Could be used as a backup time reference in case of a problem with the main timing hardware.
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.TrackedSatellites">
+            <summary>
+            Number of tracked satellites when obtaining a UTC timestamp
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.AlmanacStatus">
+            <summary>
+            The status of the almanac update when obtaining a UTC timestamp
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.FixStatus">
+            <summary>
+            The status of the UTC time satellite fix
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.Gain">
+            <summary>
+            The gain of the camera in dB
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.Shutter">
+            <summary>
+            Camera shutter speed in seconds
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.Gamma">
+            <summary>
+            The gamma correction applied to the produced image
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.CameraOffset">
+            <summary>
+            The offset in percentage applied to the produced image
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.VideoCameraFrameId">
+            <summary>
+            The id of the frame as labeled by the camera frame counter
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.HardwareTimerFrameId">
+            <summary>
+            The id of the frame as labeled by the hardware timer (when used)
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvStatusEntry.SystemErrors">
+            <summary>
+            System errors detected since the last recorded frame. 
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvFileMetaData.EffectivePixelSizeX">
+            <summary>
+            Effective pixel size in µm (taking any binning into account)
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvFileMetaData.EffectivePixelSizeY">
+            <summary>
+            Effective pixel size in µm (taking any binning into account)
+            </summary>
+        </member>
+        <member name="M:Adv.AdvRecorder.AdvLocationData.SetLocation(System.Double,System.Double,System.Double,System.String,System.String)">
+            <summary>
+            Sets the location.
+            </summary>
+            <param name="longitude">Longitude in degrees- positive to the east and negative to the west.</param>
+            <param name="latitude">Latitude in degrees - positive to the north and negative to the south.</param>
+            <param name="alitude">Altitude in meters.</param>
+            <param name="positionReference">The position reference e.g. 'WGS84'</param>
+            <param name="positionAccuracy">An indication of the accuracy of the position. For GPS derived positions this could be HDOP value, for fixed coordinates this could be for example '+/-1m'</param>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvLocationData.PositionReference">
+            <summary>
+            The position reference e.g. 'WGS84'
+            </summary>
+        </member>
+        <member name="P:Adv.AdvRecorder.AdvLocationData.PositionAccuracy">
+            <summary>
+            An indication of the accuracy of the position. For GPS derived positions this could be HDOP value, for fixed coordinates this could be for example '+/-1m'
+            </summary>
+        </member>
+        <member name="T:Adv.AdvTimeStamp">
+            <summary>
+            Represents the ADV system time which is the number of milliseconds elapsed since: 1 Jan 2010, 00:00:00 GMT
+            </summary>
+        </member>
+    </members>
+</doc>

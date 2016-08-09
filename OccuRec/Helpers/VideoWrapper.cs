@@ -96,16 +96,27 @@ namespace OccuRec.Helpers
 		{
 			if (SupporstFreeStyleGain)
 			{
-				gainSlots = new short[numIntervals];
-				gainSlots[0] = video.GainMin;
-				gainSlots[numIntervals - 1] = video.GainMax;
+			    if (numIntervals > 0)
+			    {
+			        gainSlots = new short[numIntervals];
+			        gainSlots[0] = video.GainMin;
+			        gainSlots[numIntervals - 1] = video.GainMax;
 
-				double step = (video.GainMax - video.GainMin) * 1.0 / numIntervals;
+			        double step = (video.GainMax - video.GainMin)*1.0/numIntervals;
 
-				for (int i = 1; i < numIntervals - 1; i++)
-				{
-					gainSlots[i] = (short)Math.Round(video.GainMin + i * step);
-				}
+			        for (int i = 1; i < numIntervals - 1; i++)
+			        {
+			            gainSlots[i] = (short) Math.Round(video.GainMin + i*step);
+			        }
+			    }
+			    else
+			    {
+                    gainSlots = new short[video.GainMax - video.GainMin + 1];
+                    for (int i = video.GainMin; i <= video.GainMax; i++)
+                    {
+                        gainSlots[i - video.GainMin] = (short)i;
+                    }
+			    }
 			}
 		}
 
@@ -197,9 +208,14 @@ namespace OccuRec.Helpers
 			}
 		}
 
-		public bool IsASCOMVideo
+        public bool AllowsCameraControl
 		{
-			get { return video is Drivers.ASCOMVideo.Video; }
+            get
+            {
+                return 
+                    video is Drivers.ASCOMVideo.Video ||
+                    video is Drivers.QHYVideo.Video;
+            }
 		}
 
 		public void ConfigureImage()

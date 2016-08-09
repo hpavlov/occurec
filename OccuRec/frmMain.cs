@@ -23,11 +23,11 @@ using System.Xml;
 using OccuRec.ASCOM.Wrapper;
 using OccuRec.ASCOM;
 using OccuRec.ASCOM.Interfaces.Devices;
-using OccuRec.CameraDrivers;
 using OccuRec.Config;
 using OccuRec.Context;
 using OccuRec.Controllers;
 using OccuRec.Drivers;
+using OccuRec.Drivers.QHYVideo;
 using OccuRec.FrameAnalysis;
 using OccuRec.Helpers;
 using OccuRec.OCR;
@@ -64,7 +64,7 @@ namespace OccuRec
 
 			statusStrip.SizingGrip = false;
 
-		    m_StateManager = new CameraStateManager();
+            m_StateManager = new CameraStateManager();
             m_StateManager.CameraDisconnected();
 
 		    m_ObservatoryController = new ObservatoryController();
@@ -115,6 +115,7 @@ namespace OccuRec
 		    m_VideoRenderingController.Dispose();
 			m_ObservatoryController.Dispose();
             ASCOMClient.Instance.Dispose();
+		    QHYCameraManager.Instance.Dispose();
 		}
 
         public void OnError(int errorCode, string errorMessage)
@@ -193,7 +194,7 @@ namespace OccuRec
 					else
 					{
 						// TODO:
-						MessageBox.Show("ASCOM Video is not implemented yet!");						
+						MessageBox.Show("ASCOM Video is not implemented yet!");
 					}
 				}
 
@@ -224,7 +225,7 @@ namespace OccuRec
 					pnlAAV.Visible = OccuRecContext.Current.IsAAV;
 					tsbtnDisplayMode.Visible = true;
 
-					if (videoObject.SupporstFreeStyleGain) videoObject.SetFreeRangeGainIntervals(10);
+					if (videoObject.SupporstFreeStyleGain) videoObject.SetFreeRangeGainIntervals(0);
 
 					m_OverlayManager = new OverlayManager(videoObject.Width, videoObject.Height, initializationErrorMessages, m_AnalysisManager, m_StateManager);
 					m_VideoFrameInteractionController.OnNewVideoSource(videoObject);
@@ -323,7 +324,7 @@ namespace OccuRec
             btnStopRecording.Enabled = CanStopRecordingNow(connected);
 			btnImageSettings.Enabled = connected && videoObject != null && videoObject.CanConfigureImage;
 
-			ucVideoControl.Visible = connected && videoObject != null && videoObject.IsASCOMVideo;
+			ucVideoControl.Visible = connected && videoObject != null && videoObject.AllowsCameraControl;
 		    
 			if (videoObject != null)
 			{
@@ -726,7 +727,7 @@ namespace OccuRec
 						else
 						{
 							if (tssIntegrationRate.Visible) tssIntegrationRate.Visible = false;
-						}						
+						}
 					}
 					else
 					{
@@ -2161,6 +2162,23 @@ namespace OccuRec
             NativeHelpers.DisableOcr();
 
             m_StateManager.ChangeState(UndeterminedIntegrationCameraState.Instance);
+        }
+
+        private void miConnectQHYCCD_Click(object sender, EventArgs e)
+        {
+            var frm = new frmChooseQHYCamera();
+            frm.StartPosition = FormStartPosition.CenterParent;
+            if (frm.ShowDialog(this) == DialogResult.OK)
+            {
+                OccuRecContext.Current.IsQHY = true;
+
+                var driverInstance = new Drivers.QHYVideo.Video((string)frm.cbxQHYCamera.SelectedItem);
+
+                //m_ObservatoryController.SetExternalCameraDriver(driverInstance);
+                VideoConnectionChanged(ASCOMConnectionState.Disconnected);
+
+                ConnectToDriver(driverInstance);
+            }
         }
     }
 }

@@ -191,6 +191,15 @@
     <Compile Include="Drivers\BasicVideoFrame.cs" />
     <Compile Include="Drivers\DirectShowSimulator\DxPlayImpl\DxPlayer.cs" />
     <Compile Include="Drivers\DirectShowSimulator\Video.cs" />
+    <Compile Include="Drivers\QHYVideo\frmChooseQHYCamera.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Drivers\QHYVideo\frmChooseQHYCamera.Designer.cs">
+      <DependentUpon>frmChooseQHYCamera.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Drivers\QHYVideo\QHYCameraManager.cs" />
+    <Compile Include="Drivers\QHYVideo\Video.cs" />
+    <Compile Include="Drivers\QHYVideo\VideoFrame.cs" />
     <Compile Include="frmAbout.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -212,6 +221,7 @@
     <Compile Include="Helpers\AssemblyHelpers.cs" />
     <Compile Include="Helpers\CalSpec\CalSpecDatabase.cs" />
     <Compile Include="Helpers\LastSlewPositions.cs" />
+    <Compile Include="Helpers\QHYPInvoke.cs" />
     <Compile Include="Helpers\RotationMapper.cs" />
     <Compile Include="Helpers\SpectraReader.cs" />
     <Compile Include="Helpers\xephem.cs" />
@@ -431,6 +441,9 @@
     <EmbeddedResource Include="Controls\ucCameraControl.resx">
       <DependentUpon>ucCameraControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Drivers\QHYVideo\frmChooseQHYCamera.resx">
+      <DependentUpon>frmChooseQHYCamera.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmAbout.resx">
       <DependentUpon>frmAbout.cs</DependentUpon>
     </EmbeddedResource>
@@ -524,6 +537,11 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(ProjectDir)lib\qhyccd.dll" "$(TargetDir)" /Y
+copy "$(ProjectDir)lib\tbb.dll" "$(TargetDir)" /Y
+copy "$(ProjectDir)lib\winusb.dll" "$(TargetDir)" /Y</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
