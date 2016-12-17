@@ -10,6 +10,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using OccuRec.Helpers;
 using OccuRec.Properties;
 using OccuRec.Utilities;
 
@@ -24,12 +25,16 @@ namespace OccuRec.Config.Panels
 
 		public override void LoadSettings()
 		{
+		    string aavLibVer = NativeHelpers.GetAav2LibraryVersion();
+            cbxAavVersion.Items[0] = string.Format("AAV2 (AdvLib {0})", aavLibVer);
+
 			nudSignDiffRatio.Value = Math.Min(50, Math.Max(1, (decimal)Settings.Default.MinSignatureDiffRatio));
 			nudMinSignDiff.Value = Math.Min(10, Math.Max(0, (decimal)Settings.Default.MinSignatureDiff));
 			nudGammaDiff.Value = (decimal)Settings.Default.GammaDiff;
 			nudCalibrIntegrRate.Value = Settings.Default.CalibrationIntegrationRate;
 			cbForceIntegrationRateRestrictions.Checked = Settings.Default.ForceIntegrationRatesRestrictions;
 			cbxFrameProcessingMode.SelectedIndex = Settings.Default.UsesBufferedFrameProcessing ? 0 : 1;
+            cbxAavVersion.SelectedIndex = Settings.Default.UseAavVersion2 ? 0 : 1;
 			rbIntegrationBin.Checked = Settings.Default.Use16BitAAV;
 			tbxObserverInfo.Text = Settings.Default.AavObserverInfo;
 			tbxTelescopeInfo.Text = Settings.Default.AavTelescopeInfo;

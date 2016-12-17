@@ -25,6 +25,7 @@
 
 #include "simplified_tracking.h"
 #include "OccuRec.Math.h"
+#include "adv_lib.h"
 
 using namespace OccuOcr;
 
@@ -50,6 +51,7 @@ long NTP_DEBUG_REC_FREQ = 1;
 float NTP_DEBUG_MAX_IGNORED_SHIFT = 10;
 
 
+bool AAV_VER2 = false;
 bool OCR_IS_SETUP = false;
 bool RUN_TRACKING = false;
 long TRACKED_TARGET_ID = -1;
@@ -351,9 +353,10 @@ bool IsNewIntegrationPeriod(float diffSignature, bool expectedNewPeriod)
 }
 
 
-HRESULT SetupAav(long useImageLayout, long compressionAlgorithm, long bpp, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp)
+HRESULT SetupAav(long aavVersion, long useImageLayout, long compressionAlgorithm, long bpp, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp)
 {
 	OCR_IS_SETUP = false;
+	AAV_VER2 = aavVersion == 2;
 	USE_IMAGE_LAYOUT = useImageLayout;
 	USE_COMPRESSION_ALGORITHM = compressionAlgorithm;
 	USE_BUFFERED_FRAME_PROCESSING = usesBufferedMode == 1;
@@ -2226,5 +2229,11 @@ HRESULT DisableTracking()
 {
 	RUN_TRACKING = false;
 
+	return S_OK;
+}
+
+HRESULT GetAav2LibraryVersion(char* version)
+{
+	AdvVer2::GetLibraryVersion(version);
 	return S_OK;
 }

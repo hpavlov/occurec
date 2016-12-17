@@ -77,6 +77,7 @@ extern bool FLIP_HORIZONTALLY;
 extern bool IS_INTEGRATING_CAMERA;
 extern float SIGNATURE_DIFFERENCE_RATIO;
 
+extern bool AAV_VER2;
 extern bool OCR_IS_SETUP;
 extern long OCR_FRAME_TOP_ODD;
 extern long OCR_FRAME_TOP_EVEN;
@@ -105,7 +106,7 @@ HRESULT SetupOcrZoneMatrix(long* matrix);
 HRESULT SetupOcrChar(char character, long fixedPosition);
 HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue);
 HRESULT DisableOcrProcessing();
-HRESULT SetupAav(long useImageLayout, long compressionAlgorithm, long bpp, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp);
+HRESULT SetupAav(long aavVersion, long useImageLayout, long compressionAlgorithm, long bpp, long usesBufferedMode, long integrationDetectionTuning, LPCTSTR szOccuRecVersion, long recordNtpTimestamp, long recordSecondaryTimestamp);
 HRESULT SetupNtpDebugParams(long debugValue1, float debugValue2);
 HRESULT GetCurrentImage(BYTE* bitmapPixels);
 HRESULT GetCurrentImageStatus(ImageStatus* ImageStatus);
@@ -124,3 +125,4 @@ HRESULT InitNewIntegrationPeriodTesting(float differenceRatio, float minimumDiff
 HRESULT TestNewIntegrationPeriod(__int64 frameNo, float diffSignature, bool* isNew);
 HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency, float targetAperture, float guidingAperture, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture);
 HRESULT DisableTracking();
+HRESULT GetAav2LibraryVersion(char* version);

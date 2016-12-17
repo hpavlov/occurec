@@ -32,6 +32,7 @@ EXPORTS
 	StartRecording
 	StopRecording
 	StartOcrTesting
+	GetAav2LibraryVersion
 
 	LockIntegration
 	SetManualIntegrationHint

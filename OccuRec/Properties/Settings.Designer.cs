@@ -1525,5 +1525,17 @@ namespace OccuRec.Properties {
                 this["BeepOnStartStopRecording"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseAavVersion2 {
+            get {
+                return ((bool)(this["UseAavVersion2"]));
+            }
+            set {
+                this["UseAavVersion2"] = value;
+            }
+        }
     }
 }

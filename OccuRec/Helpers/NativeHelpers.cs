@@ -355,7 +355,7 @@ namespace OccuRec.Helpers
         private static extern int SetupIntegrationDetection(float differenceRatio, float minSignDiff, float diffGamma, bool forceNewFrameOnLockedRate);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-		private static extern int SetupAav(int imageLayout, int compression, int bpp, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion, int recordNtpTimestamp, int recordSecondaryTimestamp);
+        private static extern int SetupAav(int aavVersion, int imageLayout, int compression, int bpp, int usesBufferedMode, int integrationDetectionTuning, string occuRecVersion, int recordNtpTimestamp, int recordSecondaryTimestamp);
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int SetupNtpDebugParams(int debugParam1, float debugParam2);
@@ -428,6 +428,16 @@ namespace OccuRec.Helpers
 
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		private static extern int DisableTracking();
+
+	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+	    private static extern int GetAav2LibraryVersion([In, Out] byte[] version);
+
+	    public static string GetAav2LibraryVersion()
+	    {
+	        var byteArr = new byte[64];
+            GetAav2LibraryVersion(byteArr);
+	        return Encoding.ASCII.GetString(byteArr).TrimEnd('\0');
+	    }
 
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory")]
         public static extern void CopyMemory(IntPtr Destination, IntPtr Source, [MarshalAs(UnmanagedType.U4)] uint Length);
@@ -688,6 +698,7 @@ namespace OccuRec.Helpers
         public static void SetupAav(AavImageLayout imageLayout, AavCompression compression)
         {
             SetupAav(
+                Settings.Default.UseAavVersion2 ? 2 : 1,
                 (int)imageLayout,
 				(int)compression,
 				Settings.Default.Use16BitAAV ? 16 : 8,
