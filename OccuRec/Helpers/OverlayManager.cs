@@ -253,9 +253,43 @@ namespace OccuRec.Helpers
                 g.DrawEllipse(m_LocationCrossPen, Settings.Default.LocationCrossX - 6, Settings.Default.LocationCrossY - 6, 12, 12);
             }
 
-            if (!string.IsNullOrEmpty(frame.ExposureStartTime))
+            if (frame != null)
             {
-                g.DrawString(frame.ExposureStartTime, s_VtiOsdFont, Brushes.Lime, imageWidth - 100, 20);
+                if (!string.IsNullOrEmpty(frame.ExposureStartTime))
+                {
+                    g.DrawString(frame.ExposureStartTime, s_VtiOsdFont, Brushes.Lime, imageWidth - 100, 10);
+                }
+
+                if (!string.IsNullOrEmpty(frame.ImageInfo))
+                {
+                    var dict = new Dictionary<string, string>();
+                    foreach (string token in frame.ImageInfo.Split(';'))
+                    {
+                        string[] tokens = token.Split(':');
+                        if (tokens.Length == 2) 
+                            dict.Add(tokens[0], tokens[1]);
+                    }
+
+                    string gpsStatus;
+                    if (dict.TryGetValue("GPS", out gpsStatus))
+                    {
+                        g.DrawString(gpsStatus, s_VtiOsdFont, Brushes.Yellow, 10, 10);
+
+                        string clockFreq;
+                        if (dict.TryGetValue("CLKFRQ", out clockFreq))
+                            g.DrawString(clockFreq, s_VtiOsdFont, Brushes.Yellow, 50, 10);
+
+                        string longitude, latitude;
+                        if (dict.TryGetValue("LONG", out longitude) && dict.TryGetValue("LAT", out latitude))
+                        {
+                            g.DrawString(string.Format("Long:{0}, Lat:{1}", longitude, latitude), s_VtiOsdFont, Brushes.Yellow, 110, 10);
+                        }
+
+                        string ccdTemp;
+                        if (dict.TryGetValue("CCDTMP", out ccdTemp))
+                            g.DrawString("CCD Temp: " + ccdTemp + "°C", s_VtiOsdFont, Brushes.Yellow, 400, 10);
+                    }
+                }
             }
         }
 

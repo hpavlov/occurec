@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -361,7 +362,7 @@ namespace OccuRec.Helpers
         public static extern int SetQHYCCDGPSMasterSlave(IntPtr handle, byte mode);
 
         [DllImport(LIBRARY_QHYCCD, CallingConvention = CallingConvention.StdCall, EntryPoint = "SetQHYCCDGPSVCOXFreq")]
-        public static extern int SetQHYCCDGPSVCOXFreq(IntPtr handle, short frequency);
+        public static extern int SetQHYCCDGPSVCOXFreq(IntPtr handle, ushort voltage);
 
         [DllImport(LIBRARY_QHYCCD, CallingConvention = CallingConvention.StdCall, EntryPoint = "SetQHYCCDGPSLedCalMode")]
         public static extern int SetQHYCCDGPSLedCalMode(IntPtr handle, byte mode);
@@ -1271,32 +1272,46 @@ namespace OccuRec.Helpers
         }
     }
 
+    public enum QHYGPSStatus
+    {
+        PoweredUp = 0,
+        NoTiming = 1,
+        NoPPS = 2,
+        PPS = 3
+    }
+
     public class ImageHeader
     {
-        public ImageHeader(int frameNo, byte[] imageHead)
+        public ImageHeader(int frameNo, byte[] imageHead, int bpp)
         {
             this.FrameNo = frameNo;
-            SeqNumber = 256 * 256 * 256 * imageHead[0] + 256 * 256 * imageHead[1] + 256 * imageHead[2] + imageHead[3];
-            TempNumber = imageHead[4];
-            Width = 256 * imageHead[5] + imageHead[6];
-            Height = 256 * imageHead[7] + imageHead[8];
-            Latitude = 256 * 256 * 256 * imageHead[9] + 256 * 256 * imageHead[10] + 256 * imageHead[11] + imageHead[12];
-            Longitude = 256 * 256 * 256 * imageHead[13] + 256 * 256 * imageHead[14] + 256 * imageHead[15] + imageHead[16];
+            int mult = bpp == 16 ? 2 : 1;
+            int add = bpp == 16 ? 1 : 0;
+            SeqNumber = 256 * 256 * 256 * imageHead[0 * mult + add] + 256 * 256 * imageHead[1 * mult + add] + 256 * imageHead[2 * mult + add] + imageHead[3 * mult + add];
+            TempNumber = imageHead[4 * mult + add];
+            Width = 256 * imageHead[5 * mult + add] + imageHead[6 * mult + add];
+            Height = 256 * imageHead[7 * mult + add] + imageHead[8 * mult + add];
+            Latitude = 256 * 256 * 256 * imageHead[9 * mult + add] + 256 * 256 * imageHead[10 * mult + add] + 256 * imageHead[11 * mult + add] + imageHead[12 * mult + add];
+            Longitude = 256 * 256 * 256 * imageHead[13 * mult + add] + 256 * 256 * imageHead[14 * mult + add] + 256 * imageHead[15 * mult + add] + imageHead[16 * mult + add];
 
-            StartFlag = imageHead[17];
-            StartSec = 256 * 256 * 256 * imageHead[18] + 256 * 256 * imageHead[19] + 256 * imageHead[20] + imageHead[21];
-            StartUs = 256 * 256 * imageHead[22] + 256 * imageHead[23] + imageHead[24];
+            StartFlag = imageHead[17 * mult + add];
+            StartSec = 256 * 256 * 256 * imageHead[18 * mult + add] + 256 * 256 * imageHead[19 * mult + add] + 256 * imageHead[20 * mult + add] + imageHead[21 * mult + add];
+            StartUs = 256 * 256 * imageHead[22 * mult + add] + 256 * imageHead[23 * mult + add] + imageHead[24 * mult + add];
 
-            EndFlag = imageHead[25];
-            EndSec = 256 * 256 * 256 * imageHead[26] + 256 * 256 * imageHead[27] + 256 * imageHead[28] + imageHead[29];
-            EndUs = 256 * 256 * imageHead[30] + 256 * imageHead[31] + imageHead[32];
+            EndFlag = imageHead[25 * mult + add];
+            EndSec = 256 * 256 * 256 * imageHead[26 * mult + add] + 256 * 256 * imageHead[27 * mult + add] + 256 * imageHead[28 * mult + add] + imageHead[29 * mult + add];
+            EndUs = 256 * 256 * imageHead[30 * mult + add] + 256 * imageHead[31 * mult + add] + imageHead[32 * mult + add];
 
-            NowFlag = imageHead[33];
-            NowSec = 256 * 256 * 256 * imageHead[34] + 256 * 256 * imageHead[35] + 256 * imageHead[36] + imageHead[37];
-            NowUs = 256 * 256 * imageHead[38] + 256 * imageHead[39] + imageHead[40];
-            MaxClock = 256 * 256 * imageHead[41] + 256 * imageHead[42] + imageHead[43];
+            NowFlag = imageHead[33 * mult + add];
+            NowSec = 256 * 256 * 256 * imageHead[34 * mult + add] + 256 * 256 * imageHead[35 * mult + add] + 256 * imageHead[36 * mult + add] + imageHead[37 * mult + add];
+            NowUs = 256 * 256 * imageHead[38 * mult + add] + 256 * imageHead[39 * mult + add] + imageHead[40 * mult + add];
+            MaxClock = 256 * 256 * imageHead[41 * mult + add] + 256 * imageHead[42 * mult + add] + imageHead[43 * mult + add];
+
+            // NOTE: Lo and Hi 4-bits of NowFlag are the GPS Status at Start and End exposure. We only use one of the flags here
+            GPSStatus = (QHYGPSStatus)((NowFlag >> 4) & 0x0F);
         }
 
+        public readonly QHYGPSStatus GPSStatus;
         public readonly int FrameNo;
         public readonly int SeqNumber;
         public readonly int TempNumber;
@@ -1304,6 +1319,31 @@ namespace OccuRec.Helpers
         public readonly int Height;
         public readonly int Latitude;
         public readonly int Longitude;
+
+        public double ParseLatitude
+        {
+            get
+            {
+                int part = Latitude % 100000;
+                int min = (Latitude / 100000) % 100;
+                int deg = (Latitude / 10000000) % 100;
+                int sign = (Latitude / 1000000000) == 1 ? -1 : 1;
+                return sign * (deg + min / 60.0 + (part / 100000.0) / 60.0);
+            }
+        }
+
+        public double ParseLongitude
+        {
+            get
+            {
+                int part = Longitude % 10000;
+                int min = (Longitude / 10000) % 100;
+                int deg = (Longitude / 1000000) % 1000;
+                int sign = (Longitude / 1000000000) == 1 ? -1 : 1;
+                return sign * (deg + min / 60.0 + (part / 10000.0) / 60.0);
+
+            }
+        }
 
         public readonly int StartFlag;
         public readonly int StartSec;
@@ -1331,5 +1371,133 @@ namespace OccuRec.Helpers
         public readonly int NowSec;
         public readonly int NowUs;
         public readonly int MaxClock;
+
+        public bool GpsTimeAvailable
+        {
+            get { return MaxClock <  10000500; }
+        }
+    }
+
+    public class VOXFreqFitter
+    {
+        private const uint INVALID_FREQ_MIN = 9999000;
+        private const uint INVALID_FREQ_MAX = 10000500;
+        private const uint TARGET_FREQ = 10000000;
+        private const ushort TARGET_PRECISION = 2;
+        private const ushort LARGE_MOVEMENT = 100;
+        private const int WAIT_SECONDS_AFTER_REACH_TARGET = 120; /* 2 min */
+
+        public ushort CURRENT_STEP = 0;
+
+        private ushort m_StartingVoltage;
+
+        private ushort m_PrevVoltage = 0;
+        private uint m_PrevFreq = 0;
+
+        private List<ushort> m_VoltageHistory = new List<ushort>();
+        private List<uint> m_FreqHistory = new List<uint>();
+
+        private DateTime? m_NextAdjustment;
+
+        public VOXFreqFitter(ushort startingVoiltage)
+        {
+            m_StartingVoltage = startingVoiltage;
+        }
+
+        public ushort Initialize()
+        {
+            CURRENT_STEP = LARGE_MOVEMENT;
+
+            m_VoltageHistory.Clear();
+            m_FreqHistory.Clear();
+
+            m_PrevVoltage = m_StartingVoltage;
+            m_NextAdjustment = null;
+
+            Trace.WriteLine(string.Format("QHYCDD VOX Fitter: Initialized at {0}", m_StartingVoltage));
+
+            return m_StartingVoltage;
+        }
+
+        public ushort? GetNextValue(uint currentFreq)
+        {
+            if (currentFreq <= INVALID_FREQ_MIN || currentFreq >= INVALID_FREQ_MAX)
+                return null;
+
+            if (m_NextAdjustment.HasValue)
+            {
+                if (m_NextAdjustment.Value > DateTime.UtcNow)
+                    return null;
+                else
+                {
+                    m_NextAdjustment = null;
+                    return m_PrevVoltage;
+                }
+            }
+
+            if (m_FreqHistory.Count == 0)
+            {
+                m_VoltageHistory.Add(m_PrevVoltage);
+                m_FreqHistory.Add(currentFreq);
+
+                StepUp(currentFreq);
+            }
+            else
+            {
+                m_VoltageHistory.Add(m_PrevVoltage);
+                m_FreqHistory.Add(currentFreq);
+
+                if (Math.Abs(currentFreq - TARGET_FREQ) < TARGET_PRECISION)
+                {
+                    m_PrevFreq = currentFreq;
+                    m_NextAdjustment = DateTime.UtcNow.AddSeconds(WAIT_SECONDS_AFTER_REACH_TARGET);
+                    Trace.WriteLine(string.Format("QHYCDD VOX Fitter: {0} => {1}. Reached Target. Next adjustment at {2}", m_PrevVoltage, m_PrevFreq, m_NextAdjustment.Value.ToString("HH:mm:ss UTC")));
+                    return null;
+                }
+
+                if (currentFreq > m_PrevFreq)
+                {
+                    if (currentFreq < TARGET_FREQ)
+                        StepUp(currentFreq);
+                    else
+                    {
+                        if (CURRENT_STEP > 2) CURRENT_STEP /= 2;
+                        StepDown(currentFreq);
+                    }
+                }
+                else
+                {
+                    if (currentFreq > TARGET_FREQ)
+                        StepDown(currentFreq);
+                    else
+                    {
+                        if (CURRENT_STEP > 2) CURRENT_STEP /= 2;
+                        StepUp(currentFreq);
+                    }
+                }
+            }
+
+            return m_PrevVoltage;
+        }
+
+        private void StepUp(uint currentFreq)
+        {
+            RecordNextStep(currentFreq, (ushort)(m_PrevVoltage + CURRENT_STEP));
+
+            Trace.WriteLine(string.Format("QHYCDD VOX Fitter: {0} => {1}. StepUp {2}", m_PrevVoltage, m_PrevFreq, CURRENT_STEP));
+        }
+
+        private void StepDown(uint currentFreq)
+        {
+            RecordNextStep(currentFreq, (ushort)(m_PrevVoltage - CURRENT_STEP));
+
+            Trace.WriteLine(string.Format("QHYCDD VOX Fitter: {0} => {1}. StepDown {2}", m_PrevVoltage, m_PrevFreq, CURRENT_STEP));
+        }
+
+        private void RecordNextStep(uint currentFreq, ushort proposedVoltage)
+        {
+            m_PrevFreq = currentFreq;
+            m_PrevVoltage = proposedVoltage;
+        }
     }
 }

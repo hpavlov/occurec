@@ -81,9 +81,9 @@ namespace OccuRec
             m_VideoRenderingController = new VideoRenderingController(this, m_StateManager, m_AnalysisManager);
             m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
 
-            Version tangraVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            Version occuRecVersion = Assembly.GetExecutingAssembly().GetName().Version;
             bool isBeta = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(BetaReleaseAttribute), false).Length == 1;
-            appVersion = string.Format("v{0}.{1}{2}", tangraVersion.Major, tangraVersion.Minor, isBeta ? " BETA" : "");
+            appVersion = string.Format("v{0}.{1}{2}", occuRecVersion.Major, occuRecVersion.Minor, isBeta ? " BETA" : "");
 
             Text = string.Format("OccuRec {0}", appVersion);
 
@@ -2172,7 +2172,7 @@ namespace OccuRec
             {
                 OccuRecContext.Current.IsQHY = true;
 
-                var driverInstance = new Drivers.QHYVideo.Video((string)frm.cbxQHYCamera.SelectedItem);
+                var driverInstance = new Drivers.QHYVideo.Video(frm.CameraId, frm.BinningMode, frm.BPP, frm.UseGPS, frm.UseCooling);
 
                 //m_ObservatoryController.SetExternalCameraDriver(driverInstance);
                 VideoConnectionChanged(ASCOMConnectionState.Disconnected);

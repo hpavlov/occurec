@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using OccuRec.Drivers;
+using OccuRec.Utilities.Exceptions;
 
 namespace OccuRec.Helpers
 {
@@ -93,9 +94,25 @@ namespace OccuRec.Helpers
             get { return videoFrame.ExposureDuration; }
         }
 
+        private static bool m_TimingUnsupported = false;
+
         public string ExposureStartTime
         {
-            get { return videoFrame.ExposureStartTime; }
+            get
+            {
+                if (m_TimingUnsupported) return null;
+
+                try
+                {
+                    return videoFrame.ExposureStartTime;
+                }
+                catch (PropertyNotImplementedException)
+                {
+                    m_TimingUnsupported = true;
+                    return null;
+                }
+                
+            }
         }
 
         public string ImageInfo

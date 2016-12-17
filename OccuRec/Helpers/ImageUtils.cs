@@ -80,7 +80,7 @@ namespace OccuRec.Helpers
             return rv;
         }
 
-        public static void ProduceBitmap(byte[] pixels, int width, int height, Bitmap b)
+        public static void ProduceBitmap(byte[] pixels, int width, int height, int bpp, Bitmap b)
         {
             if (b != null)
             {
@@ -102,7 +102,7 @@ namespace OccuRec.Helpers
                         {
                             for (int x = 0; x < b.Width; ++x)
                             {
-                                byte red = pixels[y * width + x];
+                                byte red = bpp == 16 ? pixels[2 * (y * width + x) + 1] : pixels[y * width + x];
 
                                 p[0] = red;
                                 p[1] = red;

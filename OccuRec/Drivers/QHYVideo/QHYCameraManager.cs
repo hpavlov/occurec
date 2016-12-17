@@ -16,7 +16,9 @@ namespace OccuRec.Drivers.QHYVideo
         {
             var rv = new List<string>();
 
-            QHYPInvoke.CHECK(QHYPInvoke.InitQHYCCDResource());
+            if (!m_Initialized)
+                QHYPInvoke.CHECK(QHYPInvoke.InitQHYCCDResource());
+
             m_Initialized = true;
 
             int numCameras = QHYPInvoke.ScanQHYCCD();
