@@ -156,6 +156,7 @@ char raObjInfo[128];
 char decObjInfo[128];
 float videoFrameRate = 0;
 int HARDWARE_TIMING_CORRECTION = 0;
+int calibrationFramesLeftToRecord = 0;
 
 unsigned int STATUS_TAG_NUMBER_INTEGRATED_FRAMES;
 unsigned int STATUS_TAG_START_FRAME_ID;
@@ -176,6 +177,7 @@ unsigned int STATUS_TAG_GAMMA;
 unsigned int STATUS_TAG_GAIN;
 unsigned int STATUS_TAG_TEMPERATURE;
 unsigned int STATUS_TAG_EXPOSURE;
+unsigned int STATUS_TAG_FRAME_TYPE;
 
 OccuRec::IntegrationChecker* integrationChecker;
 
@@ -1378,6 +1380,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 				strcpy(&frame->EndTimeStampStr[0], &endFrameTimestampStr[0]);
 
 
+				frame->IsAavVer2CalibrationFrame = false;
 				numItems = AddFrameToRecordingBuffer(frame);
 
 				numRecordedFrames++;
@@ -1646,6 +1649,8 @@ void ProcessRawFrame(RawFrame* rawFrame)
 
 	HandleTracking(currTrackedFramePixels, NULL);
 
+	EnsureRecordedCalibrationFrames(currTrackedFramePixels);
+
 	if (lastFrameWasNewIntegrationPeriod)
 		trackedThisIntegrationPeriod = false;
 }
@@ -1822,6 +1827,8 @@ HRESULT ProcessVideoFrameSynchronous(LPVOID bmpBits, __int64 currentUtcDayAsTick
 
 	HandleTracking(currTrackedFramePixels, NULL);
 
+	EnsureRecordedCalibrationFrames(currTrackedFramePixels);
+
 	if (lastFrameWasNewIntegrationPeriod)
 		trackedThisIntegrationPeriod = false;
 
@@ -1838,7 +1845,7 @@ HRESULT ProcessVideoFrame(LPVOID bmpBits, __int64 currentUtcDayAsTicks, __int64 
 
 long long firstRecordedFrameTimestamp = 0;
 
-void RecordCurrentFrame(IntegratedFrame* nextFrame)
+void RecordCurrentFrame_AAV1(IntegratedFrame* nextFrame)
 {
 	long long timeStamp = WindowsTicksToAavTicks((nextFrame->StartTimeStamp + nextFrame->EndTimeStamp) / 2);
 	unsigned int exposureIn10thMilliseconds = (nextFrame->EndTimeStamp - nextFrame->StartTimeStamp) / 1000;
@@ -1916,6 +1923,153 @@ void RecordCurrentFrame(IntegratedFrame* nextFrame)
 	AavEndFrame();
 }
 
+
+void Check(HRESULT errorCode)
+{
+	if (errorCode >= 0)
+		return;
+	else
+	{
+		switch(errorCode)
+		{
+			case -2130702335:
+			  DebugViewPrint(L"This status TagId has been already added to the current frame.");
+			case -2130702334:
+			  DebugViewPrint(L"Unknown status TagId");
+			case -2130702333:
+			  DebugViewPrint(L"The type of the status TagId doesn't match the currently called method.");
+			case -2130702332:
+			  DebugViewPrint(L"The requested status TagId is not present in the current frame.");
+			case -2130702331:
+			  DebugViewPrint(L"No status has been loaded. Call GetFramePixels() first.");
+			case -2130702330:
+			  DebugViewPrint(L"Frame not started. Call BeginFrame() first.");
+			case -2130702329:
+			  DebugViewPrint(L"No image has been added to the started frame.");
+			case -2130702328:
+			  DebugViewPrint(L"Invalid StreamId. Must be 0 for MAIN or 1 for CALIBRATION.");
+			case -2130702327:
+			  DebugViewPrint(L"No Image Section has been defined.");
+			case -2130702326:
+			  DebugViewPrint(L"No Status Section has been defined.");
+			case -2130702324:
+			  DebugViewPrint(L"Invalid image LayoutId.");
+			case -2130702323:
+			  DebugViewPrint(L"This change is not allowed on an existing file or once a frame insertion has started.");
+			case -2130702322:
+			  DebugViewPrint(L"The Image Section can be only defined once per file");
+			case -2130702321:
+			  DebugViewPrint(L"The Status Section can be only defined once per file");
+			case -2130702320:
+			  DebugViewPrint(L"An Image Layout with this LayoutId has been already defined.");
+			case -2130702319:
+			  DebugViewPrint(L"Invalid Image Layout type. Accepted values are FULL-IMAGE-RAW, 12BIT-IMAGE-PACKED and 8BIT-COLOR-IMAGE.");
+			case -2130702318:
+			  DebugViewPrint(L"Invalid Image Layout compression. Accepted values are UNCOMPRESSED, LAGARITH16 and QUICKLZ.");
+			case -2130702317:
+			  DebugViewPrint(L"Invalid Image Layout bits per pixel value. Accepted range is from 1 to 32.");
+			case -2130702316:
+			  DebugViewPrint(L"The requested frame cannot be located in the index. The file may be have been corrupted. Try rebuilding it.");
+			case -2130702315:
+			  DebugViewPrint(L"The frame binary data appears to be corrupted.");
+			case -2130702314:
+			  DebugViewPrint(L"File system file is not open.");
+			case 1895825409:
+			  DebugViewPrint(L"An existing tag with the same name has been replaced.");
+			case -2147467263:
+			  DebugViewPrint(L"Not Implemented.");
+			case -2147467259:
+			  DebugViewPrint(L"Error.");
+			case -2130706430:
+			{
+				int ioError = AdvVer2::AdvVer2_GetLastSystemSpecificFileError();
+				DebugViewPrint(L"An I/O error %d has occured.", ioError);
+			}
+		}
+	}
+}
+
+void RecordCurrentFrame_AAV2(IntegratedFrame* nextFrame)
+{
+	long long timeStampNanoseconds = WindowsTicksToAav2Ticks((nextFrame->StartTimeStamp + nextFrame->EndTimeStamp) / 2);
+	unsigned int exposureInNanoseconds = (nextFrame->EndTimeStamp - nextFrame->StartTimeStamp) * 100;
+
+	unsigned int streamId = nextFrame->IsAavVer2CalibrationFrame ? 1 : 0;
+
+	Check(AdvVer2::AdvVer2_BeginFrame(streamId, timeStampNanoseconds, exposureInNanoseconds));
+
+	if (nextFrame->IsAavVer2CalibrationFrame)
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_FRAME_TYPE, "VTI-OSD-CALIBRATION"));
+	else
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_FRAME_TYPE, "DATA"));
+
+	SYSTEMTIME sysTime;
+	GetSystemTime(&sysTime);
+
+	if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+	{
+		Check(AdvVer2::AdvVer2_FrameAddStatusTag16(STATUS_TAG_NUMBER_INTEGRATED_FRAMES, nextFrame->NumberOfIntegratedFrames));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_START_FRAME_ID, nextFrame->StartFrameId));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_END_FRAME_ID, nextFrame->EndFrameId));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime)));
+
+		if (nextFrame->Gamma > 0)
+			Check(AdvVer2::AdvVer2_FrameAddStatusTagReal(STATUS_TAG_GAMMA, nextFrame->Gamma));
+
+		if (nextFrame->Gain > 0)
+			Check(AdvVer2::AdvVer2_FrameAddStatusTagReal(STATUS_TAG_GAIN, nextFrame->Gain));
+
+		if (nextFrame->Exposure)
+			Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_EXPOSURE, &nextFrame->Exposure[0]));
+
+		if (nextFrame->Temperature > -99 && nextFrame->Temperature < 99)
+			Check(AdvVer2::AdvVer2_FrameAddStatusTagReal(STATUS_TAG_TEMPERATURE, nextFrame->Temperature));
+
+	}
+
+	if (OCR_IS_SETUP)
+	{
+		if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+		{
+			Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]));
+			Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_END_TIMESTAMP, &nextFrame->EndTimeStampStr[0]));
+		}
+
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagUInt8(STATUS_TAG_GPS_TRACKED_SATELLITES, nextFrame->GpsTrackedSatellites));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagUInt8(STATUS_TAG_GPS_ALMANAC, nextFrame->GpsAlamancStatus));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagUInt8(STATUS_TAG_GPS_FIX, nextFrame->GpsFixStatus));
+
+		if (OCR_FAILED_TEST_RECORDING)
+			Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_OCR_TESTING_ERROR_MESSAGE, &nextFrame->OcrErrorMessageStr[0]));
+	}
+
+	if (USE_NTP_TIMESTAMP)
+	{
+		long long ntpStartTimeStamp = WindowsTicksToAavTicks(nextFrame->NTPStartTimestamp);
+		long long ntpEndTimeStamp = WindowsTicksToAavTicks(nextFrame->NTPEndTimestamp);
+		Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_NTP_START_TIMESTAMP, ntpStartTimeStamp));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_NTP_END_TIMESTAMP, ntpEndTimeStamp));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTag16(STATUS_TAG_NTP_TIME_ERROR, (short)nextFrame->NTPTimestampError));
+	}
+
+	if (USE_SECONDARY_TIMESTAMP)
+	{
+		long long secondaryStartTimeStamp = WindowsTicksToAavTicks(nextFrame->SecondaryStartTimestamp);
+		long long secondaryEndTimeStamp = WindowsTicksToAavTicks(nextFrame->SecondaryEndTimestamp);
+		Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_SECONDARY_START_TIMESTAMP, secondaryStartTimeStamp));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_SECONDARY_END_TIMESTAMP, secondaryEndTimeStamp));
+	}
+
+	if (AAV_16)
+		Check(AdvVer2::AdvVer2_FrameAddImage(USE_IMAGE_LAYOUT, nextFrame->Pixels16, 16));
+	else
+	{
+		// AAV_8 is not supported in AAV Ver 2
+	}
+
+	Check(AdvVer2::AdvVer2_EndFrame());
+}
+
 void RecordAllbufferedFrames()
 {
 	IntegratedFrame* nextFrame = NULL;
@@ -1928,7 +2082,10 @@ void RecordAllbufferedFrames()
 		{
 			unsigned char* dataToSave;
 
-			RecordCurrentFrame(nextFrame);
+			if (AAV_VER2)
+				RecordCurrentFrame_AAV2(nextFrame);
+			else
+				RecordCurrentFrame_AAV1(nextFrame);
 
 			delete nextFrame;
 		}
@@ -1951,23 +2108,69 @@ void RecorderThreadProc( void* pContext )
     _endthread();
 }
 
-void CopyBuffer(IntegratedFrame* frame, unsigned char* rawPixels)
+void CopyBuffer(IntegratedFrame* frame, unsigned char* rawPixels, bool scaleCalibrationFrame)
 {
 	if (AAV_16)
 	{
-		for (int i = 0; i < IMAGE_TOTAL_PIXELS; i++)
-			frame->Pixels16[i] = *(rawPixels + i);
+		if (scaleCalibrationFrame)
+		{
+			for (int i = 0; i < IMAGE_TOTAL_PIXELS; i++)
+				frame->Pixels16[i] = *(rawPixels + i) * lockedIntegrationFrames;
+		}
+		else
+		{
+			for (int i = 0; i < IMAGE_TOTAL_PIXELS; i++)
+				frame->Pixels16[i] = *(rawPixels + i);
+		}
 	}
 	else
 		memcpy(frame->Pixels, rawPixels, IMAGE_TOTAL_PIXELS);
 }
 
+void BufferCalibrationFrame_AAV2(unsigned char* rawPixels)
+{
+	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16);
+	CopyBuffer(frame, rawPixels, true);
 
-HRESULT StartRecordingInternal(LPCTSTR szFileName)
+	frame->NumberOfIntegratedFrames = 0;
+	frame->StartFrameId = -1;
+	frame->EndFrameId = -1;
+	frame->StartTimeStamp = 0;
+	frame->EndTimeStamp = 0;
+	frame->FrameNumber = -1;
+	frame->GpsTrackedSatellites = 0;
+	frame->GpsAlamancStatus = 0;
+	frame->GpsFixStatus = 0;
+	frame->StartTimeStampStr[0] = 0;
+	frame->EndTimeStampStr[0] = 0;
+	frame->OcrErrorMessageStr[0] = 0;
+	frame->NTPStartTimestamp = 0;
+	frame->NTPEndTimestamp = 0;
+	frame->NTPTimestampError = 0;
+	frame->SecondaryStartTimestamp = 0;
+	frame->SecondaryEndTimestamp = 0;
+	frame->Gain = -1;
+	frame->Gamma = -1;
+	frame->Exposure[0] = 0; 
+	frame->IsAavVer2CalibrationFrame = true;
+
+	AddFrameToRecordingBuffer(frame);
+}
+
+void EnsureRecordedCalibrationFrames(unsigned char* rawPixels)
+{
+	if (recording && AAV_VER2 && calibrationFramesLeftToRecord > 0)
+	{
+		BufferCalibrationFrame_AAV2(rawPixels);
+		calibrationFramesLeftToRecord--;
+	}
+}
+
+HRESULT StartRecordingInternal_AAV1(LPCTSTR szFileName)
 {
 	AavNewFile((const char*)szFileName);
-	
-	AavAddFileTag("AAVR-SOFTWARE-VERSION", "1.0");
+
+	AavAddFileTag("AAVR-SOFTWARE-VERSION", "2.0");
 	AavAddFileTag("RECORDER", occuRecVersion);
 	AavAddFileTag("FSTF-TYPE", "AAV");
 	AavAddFileTag("AAV-VERSION", "1");
@@ -2041,9 +2244,9 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 
 	AavDefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT, AAV_16 ? 16 : 8);
 	AavAddOrUpdateImageSectionTag("IMAGE-BYTE-ORDER", "LITTLE-ENDIAN");
-	
+
 	AavDefineImageLayout(1, AAV_16 ? 16 : 8, "FULL-IMAGE-RAW", "UNCOMPRESSED", 0, NULL);
-	
+
 	AavDefineImageLayout(2, AAV_16 ? 16 : 8, "FULL-IMAGE-DIFFERENTIAL-CODING-NOSIGNS", USE_COMPRESSION_ALGORITHM == 1 ? "LAGARITH16" : "QUICKLZ", 32, "PREV-FRAME");
 	AavDefineImageLayout(3, AAV_16 ? 16 : 8, "FULL-IMAGE-DIFFERENTIAL-CODING", USE_COMPRESSION_ALGORITHM == 1 ? "LAGARITH16" : "QUICKLZ", 32, "PREV-FRAME");
 	AavDefineImageLayout(4, AAV_16 ? 16 : 8, "FULL-IMAGE-RAW", USE_COMPRESSION_ALGORITHM == 1 ? "LAGARITH16" : "QUICKLZ", 0, NULL);
@@ -2098,7 +2301,7 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 
 	// As a first frame add a non-integrated frame (to be able to tell the star-end timestamp order)
 	IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16);
-	CopyBuffer(frame, firstIntegratedFramePixels);
+	CopyBuffer(frame, firstIntegratedFramePixels, false);
 
 	frame->NumberOfIntegratedFrames = 0;
 	frame->StartFrameId = -1;
@@ -2121,7 +2324,7 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	frame->Gamma = -1;
 	frame->Exposure[0] = 0; 
 
-	RecordCurrentFrame(frame);
+	RecordCurrentFrame_AAV1(frame);
 
 	recording = true;
 	numRecordedFrames = 0;
@@ -2136,13 +2339,186 @@ HRESULT StartRecordingInternal(LPCTSTR szFileName)
 	return S_OK;
 }
 
+HRESULT StartRecordingInternal_AAV2(LPCTSTR szFileName)
+{
+	Check(AdvVer2::AdvVer2_NewFile((const char*)szFileName, true));
+
+	Check(AdvVer2::AdvVer2_AddCalibrationStreamTag("TYPE", "VTI-OSD-CALIBRATION"));
+
+	Check(AdvVer2::AdvVer2_AddFileTag("RECORDER-SOFTWARE", "OccuRec"));
+	Check(AdvVer2::AdvVer2_AddFileTag("RECORDER-SOFTWARE-VERSION", occuRecVersion));
+	Check(AdvVer2::AdvVer2_AddFileTag("FSTF-TYPE", "ADV"));
+	Check(AdvVer2::AdvVer2_AddFileTag("ADV-VERSION", "2"));
+	Check(AdvVer2::AdvVer2_AddFileTag("AAV-VERSION", "2"));
+
+	char versionInfo[64];
+	AdvVer2::GetLibraryVersion(&versionInfo[0]);
+	Check(AdvVer2::AdvVer2_AddFileTag("ADVLIB-VERSION", &versionInfo[0]));
+
+	Check(AdvVer2::AdvVer2_AddFileTag("GRABBER", grabberName));
+	Check(AdvVer2::AdvVer2_AddFileTag("VIDEO-MODE", videoMode));
+	Check(AdvVer2::AdvVer2_AddFileTag("CAMERA-MODEL", cameraModel));
+	Check(AdvVer2::AdvVer2_AddFileTag("CAMERA-BITPIX", "8"));
+
+	Check(AdvVer2::AdvVer2_AddFileTag("OBSERVER", observerInfo));
+	Check(AdvVer2::AdvVer2_AddFileTag("TELESCOP", telescopeInfo));
+	Check(AdvVer2::AdvVer2_AddFileTag("OBJECT", targetInfo));
+	Check(AdvVer2::AdvVer2_AddFileTag("RA_OBJ", raObjInfo));
+	Check(AdvVer2::AdvVer2_AddFileTag("DEC_OBJ", decObjInfo));
+	Check(AdvVer2::AdvVer2_AddFileTag("LONGITUDE", obsLongitude));
+	Check(AdvVer2::AdvVer2_AddFileTag("LATITUDE", obsLatitude));
+
+	if (OCR_IS_SETUP)
+		Check(AdvVer2::AdvVer2_AddFileTag("OCR-ENGINE", "IOTA-VTI OccuRec OCR v1.1"));
+
+	char buffer[128];
+
+	if (AAV_16)
+	{
+		Check(AdvVer2::AdvVer2_AddFileTag("FRAME-COMBINING", "Binning"));
+		// Add the max pixel value for normalisation in AAV-16 mode
+		sprintf(&buffer[0], "%d", AAV16_MAX_BINNED_FRAMES * 255);
+		Check(AdvVer2::AdvVer2_AddFileTag("AAV16-NORMVAL", &buffer[0]));
+	}
+	else
+		Check(AdvVer2::AdvVer2_AddFileTag("FRAME-COMBINING", "Averaging"));
+
+
+	if (OCR_PRESERVE_VTI)
+	{
+		sprintf(&buffer[0], "%d", OCR_FRAME_TOP_ODD);
+		Check(AdvVer2::AdvVer2_AddFileTag("OSD-FIRST-LINE", &buffer[0]));
+		Check(AdvVer2::AdvVer2_AddCalibrationStreamTag("OSD-FIRST-LINE", &buffer[0]));
+
+		sprintf(&buffer[0], "%d", OCR_FRAME_TOP_EVEN + 2 * OCR_CHAR_FIELD_HEIGHT);
+		Check(AdvVer2::AdvVer2_AddFileTag("OSD-LAST-LINE", &buffer[0]));
+		Check(AdvVer2::AdvVer2_AddCalibrationStreamTag("OSD-LAST-LINE", &buffer[0]));
+	}
+
+	if (NO_INTEGRATION_STACK_RATE > 0)
+	{
+		sprintf(&buffer[0], "%d", NO_INTEGRATION_STACK_RATE);
+		Check(AdvVer2::AdvVer2_AddFileTag("FRAME-STACKING-RATE", &buffer[0]));
+	}
+
+	float effectiveIntegrationRate = videoFrameRate / detectedIntegrationRate;
+	sprintf(&buffer[0], "%.5f", effectiveIntegrationRate);
+	Check(AdvVer2::AdvVer2_AddFileTag("EFFECTIVE-FRAME-RATE", &buffer[0]));
+
+	sprintf(&buffer[0], "%.2f", videoFrameRate);
+	Check(AdvVer2::AdvVer2_AddFileTag("NATIVE-FRAME-RATE", &buffer[0]));
+
+	if (abs(videoFrameRate - 25.0) < 0.05)
+	{
+		Check(AdvVer2::AdvVer2_AddFileTag("NATIVE-VIDEO-STANDARD", "PAL"));
+		VIDEO_FRAME_IN_WINDOWS_TICKS = 400000;
+	}
+	else if (abs(videoFrameRate - 29.97) < 0.05)
+	{
+		Check(AdvVer2::AdvVer2_AddFileTag("NATIVE-VIDEO-STANDARD", "NTSC"));
+		VIDEO_FRAME_IN_WINDOWS_TICKS = 333667;
+	}
+	else
+	{
+		Check(AdvVer2::AdvVer2_AddFileTag("NATIVE-VIDEO-STANDARD", ""));
+		VIDEO_FRAME_IN_WINDOWS_TICKS = (__int64)(10000000.0 / videoFrameRate);
+	}
+
+	if (USE_NTP_TIMESTAMP)
+	{
+		sprintf(&buffer[0], "%d", HARDWARE_TIMING_CORRECTION);
+		Check(AdvVer2::AdvVer2_AddFileTag("CAPHNTP-TIMING-CORRECTION", &buffer[0]));
+	}
+
+	Check(AdvVer2::AdvVer2_DefineImageSection(IMAGE_WIDTH, IMAGE_HEIGHT, AAV_16 ? 16 : 8));
+	Check(AdvVer2::AdvVer2_AddOrUpdateImageSectionTag("IMAGE-BYTE-ORDER", "LITTLE-ENDIAN"));
+	if (AAV_16)
+	{
+		Check(AdvVer2::AdvVer2_AddOrUpdateImageSectionTag("IMAGE-BITPIX", "16"));
+		sprintf(&buffer[0], "%d", AAV16_MAX_BINNED_FRAMES * 255);
+		Check(AdvVer2::AdvVer2_AddOrUpdateImageSectionTag("IMAGE-MAX-PIXEL-VALUE", &buffer[0]));
+	}
+	Check(AdvVer2::AdvVer2_DefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", AAV_16 ? 16 : 8));
+	Check(AdvVer2::AdvVer2_DefineImageLayout(4, "FULL-IMAGE-RAW", USE_COMPRESSION_ALGORITHM == 1 ? "LAGARITH16" : "QUICKLZ", AAV_16 ? 16 : 8));
+
+	if (RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+	{
+		Check(AdvVer2::AdvVer2_DefineImageLayout(5, "STATUS-CHANNEL-ONLY", "UNCOMPRESSED", AAV_16 ? 16 : 8));
+	}
+	
+	Check(AdvVer2::AdvVer2_DefineStatusSection(0));
+
+	if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+	{
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("SystemTime", AavTagType::ULong64, &STATUS_TAG_SYSTEM_TIME));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("IntegratedFrames", AavTagType::UInt16, &STATUS_TAG_NUMBER_INTEGRATED_FRAMES));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("StartFrame", AavTagType::ULong64, &STATUS_TAG_START_FRAME_ID));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("EndFrame", AavTagType::ULong64, &STATUS_TAG_END_FRAME_ID));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("StartFrameTimestamp", AavTagType::AnsiString255, &STATUS_TAG_START_TIMESTAMP));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("EndFrameTimestamp", AavTagType::AnsiString255, &STATUS_TAG_END_TIMESTAMP));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Gain", AavTagType::Real, &STATUS_TAG_GAIN));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Gamma", AavTagType::Real, &STATUS_TAG_GAMMA));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("CameraExposure", AavTagType::AnsiString255, &STATUS_TAG_EXPOSURE));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Temperature", AavTagType::Real, &STATUS_TAG_TEMPERATURE));
+	}
+
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8, &STATUS_TAG_GPS_TRACKED_SATELLITES));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("GPSAlmanacStatus", AavTagType::UInt8, &STATUS_TAG_GPS_ALMANAC));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("GPSFixStatus", AavTagType::UInt8, &STATUS_TAG_GPS_FIX));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("FRAME-TYPE", AavTagType::AnsiString255, &STATUS_TAG_FRAME_TYPE));
+
+	if (USE_NTP_TIMESTAMP)
+	{
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("NTPStartTimestamp", AavTagType::ULong64, &STATUS_TAG_NTP_START_TIMESTAMP));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("NTPEndTimestamp", AavTagType::ULong64, &STATUS_TAG_NTP_END_TIMESTAMP));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("NTPTimestampError", AavTagType::UInt16, &STATUS_TAG_NTP_TIME_ERROR));
+	}
+
+	if (USE_SECONDARY_TIMESTAMP)
+	{
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("StartTimestampSecondary", AavTagType::ULong64, &STATUS_TAG_SECONDARY_START_TIMESTAMP));
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("EndTimestampSecondary", AavTagType::ULong64, &STATUS_TAG_SECONDARY_END_TIMESTAMP));
+	}
+
+	if (OCR_FAILED_TEST_RECORDING)
+		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("OcrTestingErrorMessage", AavTagType::AnsiString255, &STATUS_TAG_OCR_TESTING_ERROR_MESSAGE));
+
+	ClearRecordingBuffer();
+
+	firstRecordedFrameTimestamp = 0;
+
+	if (NULL != ocrManager)
+	{
+		ocrManager->ResetErrorCounter();
+	}
+
+	// Add the first 16 frames as VTI-OSD-CALIBRATION frames in the Calibration stream
+	//TODO: This should probably happen during the processing of the integration detection etc.
+
+	recording = true;
+	numRecordedFrames = 0;
+	averageNtpDebugOffsetMS = 0;
+	aggregatedNtpDebug = 0;
+	calibrationFramesLeftToRecord = 16;
+
+	AAV16_MAX_BINNED_FRAMES = 0;
+
+	// Create a new thread
+	hRecordingThread = (HANDLE)_beginthread(RecorderThreadProc, 0, NULL);
+
+	return S_OK;
+}
+
 HRESULT StartRecording(LPCTSTR szFileName)
 {
 	OCR_FAILED_TEST_RECORDING = false;
-	return StartRecordingInternal(szFileName);
+	if (AAV_VER2)
+		return StartRecordingInternal_AAV2(szFileName);
+	else
+		return StartRecordingInternal_AAV1(szFileName);
 }
 
-HRESULT StopRecording(long* pixels)
+HRESULT StopRecording_AAV1(long* pixels)
 {
 	recording = false;
 
@@ -2152,7 +2528,7 @@ HRESULT StopRecording(long* pixels)
 	{
 		// As a last frame add a non-integrated frame (to be able to tell the star-end timestamp order)
 		IntegratedFrame* frame = new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16);
-		CopyBuffer(frame, firstIntegratedFramePixels);
+		CopyBuffer(frame, firstIntegratedFramePixels, false);
 
 		frame->NumberOfIntegratedFrames = 0;
 		frame->StartFrameId = -1;
@@ -2175,7 +2551,7 @@ HRESULT StopRecording(long* pixels)
 		frame->Gamma = -1;
 		frame->Exposure[0] = 0; 
 
-		RecordCurrentFrame(frame);
+		RecordCurrentFrame_AAV1(frame);
 	}
 
 	if (AAV_16)
@@ -2193,6 +2569,27 @@ HRESULT StopRecording(long* pixels)
 	return S_OK;
 }
 
+HRESULT StopRecording_AAV2(long* pixels)
+{
+	recording = false;
+
+	WaitForSingleObject(hRecordingThread, INFINITE); // wait for thread to exit
+
+	Check(AdvVer2::AdvVer2_EndFile());
+
+	OCR_FAILED_TEST_RECORDING = false;
+
+	return S_OK;
+}
+
+HRESULT StopRecording(long* pixels)
+{
+	if (AAV_VER2)
+		return StopRecording_AAV2(pixels);
+	else
+		return StopRecording_AAV1(pixels);
+}
+
 HRESULT StartOcrTesting(LPCTSTR szFileName)
 {
 	if (!OCR_IS_SETUP)
@@ -2200,7 +2597,10 @@ HRESULT StartOcrTesting(LPCTSTR szFileName)
 
 	OCR_FAILED_TEST_RECORDING = true;
 
-	return StartRecordingInternal(szFileName);
+	if (AAV_VER2)
+		return StartRecordingInternal_AAV2(szFileName);
+	else
+		return StartRecordingInternal_AAV1(szFileName);
 }
 
 HRESULT DisableOcrProcessing()

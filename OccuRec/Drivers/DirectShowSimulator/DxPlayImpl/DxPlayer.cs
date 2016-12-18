@@ -519,6 +519,8 @@ namespace OccuRec.Drivers.DirectShowSimulator.DxPlayImpl
 
 			m_FrameCounter++;
 
+		    Thread.Sleep(40);
+
 			return 0;
 		}
 

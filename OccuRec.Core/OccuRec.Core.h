@@ -94,6 +94,7 @@ extern OcrFrameProcessor* firstFrameOcrProcessor;
 extern OcrFrameProcessor* lastFrameOcrProcessor;
 
 void FrameProcessingThreadProc(void* pContext);
+void EnsureRecordedCalibrationFrames(unsigned char* rawPixels);
 
 HRESULT SetupCamera(long width, long height, LPCTSTR szCameraModel, long monochromeConversionMode, bool flipHorizontally, bool flipVertically, bool isIntegrating);
 HRESULT SetupGrabberInfo(LPCTSTR szGrabberName, LPCTSTR szVideoMode, float frameRate, long hardwareTimingCorrection);

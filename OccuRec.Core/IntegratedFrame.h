@@ -32,6 +32,7 @@ public:
 	float Gain;
 	float Temperature;
 	char Exposure[32];
+	bool IsAavVer2CalibrationFrame;
 
 	IntegratedFrame(long totalPixelsInFrame, bool is16Bit);
 	~IntegratedFrame(void);

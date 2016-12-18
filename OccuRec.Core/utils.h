@@ -50,6 +50,7 @@ unsigned int compute_crc32(unsigned char *data, int len);
 long long DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs);
 long long SystemTimeToAavTicks(SYSTEMTIME systemTime);
 long long WindowsTicksToAavTicks(__int64 windowsTicks);
+long long WindowsTicksToAav2Ticks(__int64 windowsTicks);
 
 void DebugViewPrint(const wchar_t* formatText, ...);
 

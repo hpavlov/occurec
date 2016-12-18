@@ -269,6 +269,9 @@ namespace OccuRec
 		{
 			if (videoObject != null)
 			{
+			    if (videoObject.State == VideoCameraState.videoCameraRecording)
+			        videoObject.StopRecording();
+
 				videoObject.Disconnect();
 				videoObject = null;
 			}

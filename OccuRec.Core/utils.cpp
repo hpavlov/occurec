@@ -111,6 +111,19 @@ long long WindowsTicksToAavTicks(__int64 windowsTicks)
 		return 0;
 }
 
+long long WindowsTicksToAav2Ticks(__int64 windowsTicks)
+{
+	if (windowsTicks > 0)
+	{
+		long long advTicks = 
+				(long long)(windowsTicks - ADV_EPOCH_ZERO_TICKS) * 100;
+
+		return advTicks;		
+	}
+	else
+		return 0;
+}
+
 void DebugViewPrint(const wchar_t* formatText, ...)
 {
 	wchar_t debug512CharBuffer[512];
