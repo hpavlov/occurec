@@ -42,6 +42,8 @@ namespace OccuRec.Drivers.QHYVideo
 
         private string[] m_SupportedExposures = new string[] { "1 ms", "2 ms", "5 ms", "10 ms", "20 ms", "40 ms", "80 ms", "160 ms", "320 ms", "640 ms", "1 sec", "1.28 sec", "2 sec", "3 sec", "4 sec", "5 sec", "8 sec", "10 sec" };
         private int[] m_SupportedExposureMilliseconds = new int[] { 1, 2, 5, 10, 20, 40, 80, 160, 320, 640, 1000, 1280, 2000, 3000, 4000, 5000, 8000, 10000 };
+        private int[] m_LED_POS_A = new int[] { 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880, 2880 };
+        private int[] m_LED_POS_B = new int[] { 481150, 406310, 180960, 6240, 6240, 6240, 6240, 6240, 6240, 6240, 6240, 6240, 6240, 6240, 6240, 6240, 6240, 6240 };
 
         private string[] m_SupportedGammas = new string[] { "N/A" };
         private double[] m_SupportedGammaValues = new double[] { 1 };
@@ -88,7 +90,7 @@ namespace OccuRec.Drivers.QHYVideo
                         QHYPInvoke.CHECK(QHYPInvoke.InitQHYCCD(m_Handle));
 
                         QHYPInvoke.CHECK(QHYPInvoke.SetQHYCCDParam(m_Handle, CONTROL_ID.CONTROL_SPEED, 2));
-                        QHYPInvoke.CHECK(QHYPInvoke.SetQHYCCDParam(m_Handle, CONTROL_ID.CONTROL_EXPOSURE, m_SupportedExposureMilliseconds[m_CurrentExposureIndex] * 1000));
+                        ChangeExposure(m_CurrentExposureIndex, true);
                         QHYPInvoke.CHECK(QHYPInvoke.SetQHYCCDParam(m_Handle, CONTROL_ID.CONTROL_GAIN, m_CurrentGain));
                         QHYPInvoke.CHECK(QHYPInvoke.SetQHYCCDParam(m_Handle, CONTROL_ID.CONTROL_OFFSET, 10));
 
@@ -361,11 +363,14 @@ namespace OccuRec.Drivers.QHYVideo
 
                         try
                         {
-                            m_LastVideoFrame = new VideoFrame(m_CurrentBytes, m_Width, m_Height, m_Bpp, m_FrameNo, false, m_CCDTemp);
-                            if (!double.IsNaN(m_LastVideoFrame.Longitude) && !double.IsNaN(m_LastVideoFrame.Latitude))
+                            if (m_CurrentBytes != null)
                             {
-                                m_GPSLongitude = m_LastVideoFrame.Longitude;
-                                m_GPSLatitude = m_LastVideoFrame.Latitude;
+                                m_LastVideoFrame = new VideoFrame(m_CurrentBytes, m_Width, m_Height, m_Bpp, m_FrameNo, false, m_CCDTemp);
+                                if (!double.IsNaN(m_LastVideoFrame.Longitude) && !double.IsNaN(m_LastVideoFrame.Latitude))
+                                {
+                                    m_GPSLongitude = m_LastVideoFrame.Longitude;
+                                    m_GPSLatitude = m_LastVideoFrame.Latitude;
+                                }
                             }
                         }
                         catch (NotConnectedException)
@@ -403,11 +408,14 @@ namespace OccuRec.Drivers.QHYVideo
                             }
                         }
 
-                        m_LastVideoFrame = new VideoFrame(m_CurrentBytes, m_Width, m_Height, m_Bpp, m_FrameNo, true, m_CCDTemp);
-                        if (!double.IsNaN(m_LastVideoFrame.Longitude) && !double.IsNaN(m_LastVideoFrame.Latitude))
+                        if (m_CurrentBytes != null)
                         {
-                            m_GPSLongitude = m_LastVideoFrame.Longitude;
-                            m_GPSLatitude = m_LastVideoFrame.Latitude;
+                            m_LastVideoFrame = new VideoFrame(m_CurrentBytes, m_Width, m_Height, m_Bpp, m_FrameNo, true, m_CCDTemp);
+                            if (!double.IsNaN(m_LastVideoFrame.Longitude) && !double.IsNaN(m_LastVideoFrame.Latitude))
+                            {
+                                m_GPSLongitude = m_LastVideoFrame.Longitude;
+                                m_GPSLatitude = m_LastVideoFrame.Latitude;
+                            }
                         }
                     }
                 }
@@ -591,6 +599,32 @@ namespace OccuRec.Drivers.QHYVideo
                 throw new NotConnectedException();
         }
 
+        private bool ChangeExposure(int exposureIndex, bool checkResult = false)
+        {
+            int rv = QHYPInvoke.SetQHYCCDParam(m_Handle, CONTROL_ID.CONTROL_EXPOSURE, m_SupportedExposureMilliseconds[exposureIndex] * 1000);
+            if (QHYPInvoke.SUCCEEDED(rv))
+            {
+                // Set the calibration data
+                rv = QHYPInvoke.SetQHYCCDGPSLedCalMode(m_Handle, 2); //posA is the falling edge (2) in master mode
+                if (!QHYPInvoke.SUCCEEDED(rv)) Trace.WriteLine("QHYPInvoke.SetQHYCCDGPSLedCalMode(2) Failed!");
+                rv = QHYPInvoke.SetQHYCCDGPSLedCal(m_Handle, m_LED_POS_A[exposureIndex], 54);
+                if (!QHYPInvoke.SUCCEEDED(rv)) Trace.WriteLine("QHYPInvoke.SetQHYCCDGPSLedCal() Failed!");
+                rv = QHYPInvoke.SetQHYCCDGPSLedCalMode(m_Handle, 1); //posB is the rasing edge (1) in master mode
+                if (!QHYPInvoke.SUCCEEDED(rv)) Trace.WriteLine("QHYPInvoke.SetQHYCCDGPSLedCalMode(1) Failed!");
+                rv = QHYPInvoke.SetQHYCCDGPSLedCal(m_Handle, m_LED_POS_B[exposureIndex], 54);
+                if (!QHYPInvoke.SUCCEEDED(rv)) Trace.WriteLine("QHYPInvoke.SetQHYCCDGPSLedCal() Failed!");
+                rv = QHYPInvoke.SetQHYCCDGPSLedCalMode(m_Handle, 0); // Turn off the LED lights
+                if (!QHYPInvoke.SUCCEEDED(rv)) Trace.WriteLine("QHYPInvoke.SetQHYCCDGPSLedCalMode(0) Failed!");
+
+                return true;
+            }
+            else
+            {
+                if (checkResult) QHYPInvoke.CHECK(rv);
+            }
+            return false;
+        }
+
         private double m_CCDTemp = double.NaN;
         private double m_GPSLongitude;
         private double m_GPSLatitude;
@@ -757,8 +791,7 @@ namespace OccuRec.Drivers.QHYVideo
 
                         if (m_ChangeExposureIndexTo.HasValue)
                         {
-                            rv = QHYPInvoke.SetQHYCCDParam(m_Handle, CONTROL_ID.CONTROL_EXPOSURE, m_SupportedExposureMilliseconds[m_ChangeExposureIndexTo.Value] * 1000);
-                            if (QHYPInvoke.SUCCEEDED(rv))
+                            if (ChangeExposure(m_ChangeExposureIndexTo.Value))
                             {
                                 m_CurrentExposureIndex = m_ChangeExposureIndexTo.Value;
                                 m_ChangeExposureIndexTo = null;

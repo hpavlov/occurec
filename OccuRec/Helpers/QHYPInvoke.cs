@@ -379,6 +379,9 @@ namespace OccuRec.Helpers
         [DllImport(LIBRARY_QHYCCD, CallingConvention = CallingConvention.StdCall, EntryPoint = "SetQHYCCDGPSSlaveModeParameter")]
         public static extern int SetQHYCCDGPSSlaveModeParameter(IntPtr handle, int targetSec, int targetUs, int deltaTSec, int deltaTUs, int expTime);
 
+        [DllImport(LIBRARY_QHYCCD, CallingConvention = CallingConvention.StdCall, EntryPoint = "QHYCCDVendRequestWrite")]
+        public static extern int QHYCCDVendRequestWrite(IntPtr handle, byte param, ushort value, ushort index, uint length, [MarshalAs(UnmanagedType.LPArray)]byte[] data);
+
 
         public static void CHECK(int result)
         {
