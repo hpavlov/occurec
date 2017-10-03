@@ -17,7 +17,7 @@ using OccuRec.Helpers;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("OccuRec")]
-[assembly: AssemblyCopyright("Copyright © Hristo Pavlov 2013-2016")]
+[assembly: AssemblyCopyright("Copyright © Hristo Pavlov 2013-2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -41,5 +41,5 @@ using OccuRec.Helpers;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("3.0.0.1")]
 [assembly: AssemblyFileVersion("3.0.1")]
-[assembly: ReleaseDate("2016-08-19")]
+//[assembly: ReleaseDate("2016-08-19")]
 [assembly: BetaReleaseAttribute()]
