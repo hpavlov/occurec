@@ -52,6 +52,11 @@
             this.nudCrossX = new System.Windows.Forms.NumericUpDown();
             this.cbxLocationCross = new System.Windows.Forms.CheckBox();
             this.cbxBeepOnStartStopRecording = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.cbxPALStandard = new System.Windows.Forms.ComboBox();
+            this.cbxNTSCStandard = new System.Windows.Forms.ComboBox();
             this.pnlPreserveOSDArea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
@@ -70,7 +75,7 @@
             this.pnlPreserveOSDArea.Controls.Add(this.nudPreserveVTITopRow);
             this.pnlPreserveOSDArea.Controls.Add(this.label3);
             this.pnlPreserveOSDArea.Enabled = false;
-            this.pnlPreserveOSDArea.Location = new System.Drawing.Point(162, 11);
+            this.pnlPreserveOSDArea.Location = new System.Drawing.Point(162, 2);
             this.pnlPreserveOSDArea.Name = "pnlPreserveOSDArea";
             this.pnlPreserveOSDArea.Size = new System.Drawing.Size(141, 25);
             this.pnlPreserveOSDArea.TabIndex = 32;
@@ -124,7 +129,7 @@
             // cbxLiveOCR
             // 
             this.cbxLiveOCR.AutoSize = true;
-            this.cbxLiveOCR.Location = new System.Drawing.Point(12, 238);
+            this.cbxLiveOCR.Location = new System.Drawing.Point(12, 229);
             this.cbxLiveOCR.Name = "cbxLiveOCR";
             this.cbxLiveOCR.Size = new System.Drawing.Size(118, 17);
             this.cbxLiveOCR.TabIndex = 29;
@@ -171,7 +176,7 @@
             // cbDebugIntegration
             // 
             this.cbDebugIntegration.AutoSize = true;
-            this.cbDebugIntegration.Location = new System.Drawing.Point(12, 173);
+            this.cbDebugIntegration.Location = new System.Drawing.Point(12, 164);
             this.cbDebugIntegration.Name = "cbDebugIntegration";
             this.cbDebugIntegration.Size = new System.Drawing.Size(161, 17);
             this.cbDebugIntegration.TabIndex = 24;
@@ -181,7 +186,7 @@
             // cbxStatusSectionOnly
             // 
             this.cbxStatusSectionOnly.AutoSize = true;
-            this.cbxStatusSectionOnly.Location = new System.Drawing.Point(12, 205);
+            this.cbxStatusSectionOnly.Location = new System.Drawing.Point(12, 196);
             this.cbxStatusSectionOnly.Name = "cbxStatusSectionOnly";
             this.cbxStatusSectionOnly.Size = new System.Drawing.Size(179, 17);
             this.cbxStatusSectionOnly.TabIndex = 26;
@@ -192,7 +197,7 @@
             // cbxUserPreserveOSDLines
             // 
             this.cbxUserPreserveOSDLines.AutoSize = true;
-            this.cbxUserPreserveOSDLines.Location = new System.Drawing.Point(12, 17);
+            this.cbxUserPreserveOSDLines.Location = new System.Drawing.Point(12, 8);
             this.cbxUserPreserveOSDLines.Name = "cbxUserPreserveOSDLines";
             this.cbxUserPreserveOSDLines.Size = new System.Drawing.Size(147, 17);
             this.cbxUserPreserveOSDLines.TabIndex = 33;
@@ -205,7 +210,7 @@
             this.pnlNTPDebug.Controls.Add(this.nudNTPDebugValue2);
             this.pnlNTPDebug.Controls.Add(this.nudNTPDebugValue1);
             this.pnlNTPDebug.Enabled = false;
-            this.pnlNTPDebug.Location = new System.Drawing.Point(194, 201);
+            this.pnlNTPDebug.Location = new System.Drawing.Point(194, 192);
             this.pnlNTPDebug.Name = "pnlNTPDebug";
             this.pnlNTPDebug.Size = new System.Drawing.Size(141, 27);
             this.pnlNTPDebug.TabIndex = 34;
@@ -213,7 +218,7 @@
             // cbxGraphDebugMode
             // 
             this.cbxGraphDebugMode.AutoSize = true;
-            this.cbxGraphDebugMode.Location = new System.Drawing.Point(12, 76);
+            this.cbxGraphDebugMode.Location = new System.Drawing.Point(12, 67);
             this.cbxGraphDebugMode.Name = "cbxGraphDebugMode";
             this.cbxGraphDebugMode.Size = new System.Drawing.Size(148, 17);
             this.cbxGraphDebugMode.TabIndex = 37;
@@ -224,7 +229,7 @@
             // 
             this.cbxImageLayoutMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxImageLayoutMode.FormattingEnabled = true;
-            this.cbxImageLayoutMode.Location = new System.Drawing.Point(164, 105);
+            this.cbxImageLayoutMode.Location = new System.Drawing.Point(164, 96);
             this.cbxImageLayoutMode.Name = "cbxImageLayoutMode";
             this.cbxImageLayoutMode.Size = new System.Drawing.Size(170, 21);
             this.cbxImageLayoutMode.TabIndex = 36;
@@ -233,7 +238,7 @@
             // cbxCustomAdvImageLayout
             // 
             this.cbxCustomAdvImageLayout.AutoSize = true;
-            this.cbxCustomAdvImageLayout.Location = new System.Drawing.Point(12, 109);
+            this.cbxCustomAdvImageLayout.Location = new System.Drawing.Point(12, 100);
             this.cbxCustomAdvImageLayout.Name = "cbxCustomAdvImageLayout";
             this.cbxCustomAdvImageLayout.Size = new System.Drawing.Size(146, 17);
             this.cbxCustomAdvImageLayout.TabIndex = 38;
@@ -244,7 +249,7 @@
             // cbxSaveVtiOsdReport
             // 
             this.cbxSaveVtiOsdReport.AutoSize = true;
-            this.cbxSaveVtiOsdReport.Location = new System.Drawing.Point(12, 45);
+            this.cbxSaveVtiOsdReport.Location = new System.Drawing.Point(12, 36);
             this.cbxSaveVtiOsdReport.Name = "cbxSaveVtiOsdReport";
             this.cbxSaveVtiOsdReport.Size = new System.Drawing.Size(277, 17);
             this.cbxSaveVtiOsdReport.TabIndex = 39;
@@ -254,7 +259,7 @@
             // cbxCustomAdvCompression
             // 
             this.cbxCustomAdvCompression.AutoSize = true;
-            this.cbxCustomAdvCompression.Location = new System.Drawing.Point(12, 142);
+            this.cbxCustomAdvCompression.Location = new System.Drawing.Point(12, 133);
             this.cbxCustomAdvCompression.Name = "cbxCustomAdvCompression";
             this.cbxCustomAdvCompression.Size = new System.Drawing.Size(142, 17);
             this.cbxCustomAdvCompression.TabIndex = 41;
@@ -269,7 +274,7 @@
             this.cbxAdvCompression.Items.AddRange(new object[] {
             "QuickLZ",
             "Lagarith16"});
-            this.cbxAdvCompression.Location = new System.Drawing.Point(164, 138);
+            this.cbxAdvCompression.Location = new System.Drawing.Point(164, 129);
             this.cbxAdvCompression.Name = "cbxAdvCompression";
             this.cbxAdvCompression.Size = new System.Drawing.Size(170, 21);
             this.cbxAdvCompression.TabIndex = 40;
@@ -278,7 +283,7 @@
             // cbxMustConfirmVTI
             // 
             this.cbxMustConfirmVTI.AutoSize = true;
-            this.cbxMustConfirmVTI.Location = new System.Drawing.Point(316, 17);
+            this.cbxMustConfirmVTI.Location = new System.Drawing.Point(316, 8);
             this.cbxMustConfirmVTI.Name = "cbxMustConfirmVTI";
             this.cbxMustConfirmVTI.Size = new System.Drawing.Size(99, 17);
             this.cbxMustConfirmVTI.TabIndex = 42;
@@ -291,7 +296,7 @@
             this.pnlLocationCorss.Controls.Add(this.nudCrossY);
             this.pnlLocationCorss.Controls.Add(this.nudCrossX);
             this.pnlLocationCorss.Enabled = false;
-            this.pnlLocationCorss.Location = new System.Drawing.Point(194, 267);
+            this.pnlLocationCorss.Location = new System.Drawing.Point(194, 258);
             this.pnlLocationCorss.Name = "pnlLocationCorss";
             this.pnlLocationCorss.Size = new System.Drawing.Size(232, 27);
             this.pnlLocationCorss.TabIndex = 44;
@@ -353,7 +358,7 @@
             // cbxLocationCross
             // 
             this.cbxLocationCross.AutoSize = true;
-            this.cbxLocationCross.Location = new System.Drawing.Point(12, 271);
+            this.cbxLocationCross.Location = new System.Drawing.Point(12, 262);
             this.cbxLocationCross.Name = "cbxLocationCross";
             this.cbxLocationCross.Size = new System.Drawing.Size(133, 17);
             this.cbxLocationCross.TabIndex = 43;
@@ -364,17 +369,80 @@
             // cbxBeepOnStartStopRecording
             // 
             this.cbxBeepOnStartStopRecording.AutoSize = true;
-            this.cbxBeepOnStartStopRecording.Location = new System.Drawing.Point(12, 304);
+            this.cbxBeepOnStartStopRecording.Location = new System.Drawing.Point(12, 295);
             this.cbxBeepOnStartStopRecording.Name = "cbxBeepOnStartStopRecording";
             this.cbxBeepOnStartStopRecording.Size = new System.Drawing.Size(176, 17);
             this.cbxBeepOnStartStopRecording.TabIndex = 45;
             this.cbxBeepOnStartStopRecording.Text = "\'Beep\' On Start/Stop Recording";
             this.cbxBeepOnStartStopRecording.UseVisualStyleBackColor = true;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 326);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(131, 13);
+            this.label1.TabIndex = 46;
+            this.label1.Text = "Preferred Video Standards";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(158, 326);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(30, 13);
+            this.label2.TabIndex = 47;
+            this.label2.Text = "PAL:";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(259, 326);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(39, 13);
+            this.label4.TabIndex = 48;
+            this.label4.Text = "NTSC:";
+            // 
+            // cbxPALStandard
+            // 
+            this.cbxPALStandard.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxPALStandard.FormattingEnabled = true;
+            this.cbxPALStandard.Items.AddRange(new object[] {
+            "PAL_B",
+            "PAL_D",
+            "PAL_G",
+            "PAL_H",
+            "PAL_I",
+            "PAL_M",
+            "PAL_N",
+            "PAL_60"});
+            this.cbxPALStandard.Location = new System.Drawing.Point(192, 322);
+            this.cbxPALStandard.Name = "cbxPALStandard";
+            this.cbxPALStandard.Size = new System.Drawing.Size(61, 21);
+            this.cbxPALStandard.TabIndex = 49;
+            // 
+            // cbxNTSCStandard
+            // 
+            this.cbxNTSCStandard.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxNTSCStandard.FormattingEnabled = true;
+            this.cbxNTSCStandard.Items.AddRange(new object[] {
+            "NTSC_M",
+            "NTSC_M_J",
+            "NTSC_433"});
+            this.cbxNTSCStandard.Location = new System.Drawing.Point(304, 322);
+            this.cbxNTSCStandard.Name = "cbxNTSCStandard";
+            this.cbxNTSCStandard.Size = new System.Drawing.Size(80, 21);
+            this.cbxNTSCStandard.TabIndex = 50;
+            // 
             // ucAdvanced
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cbxNTSCStandard);
+            this.Controls.Add(this.cbxPALStandard);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.cbxBeepOnStartStopRecording);
             this.Controls.Add(this.pnlLocationCorss);
             this.Controls.Add(this.cbxLocationCross);
@@ -392,7 +460,7 @@
             this.Controls.Add(this.cbDebugIntegration);
             this.Controls.Add(this.cbxStatusSectionOnly);
             this.Name = "ucAdvanced";
-            this.Size = new System.Drawing.Size(532, 347);
+            this.Size = new System.Drawing.Size(470, 371);
             this.pnlPreserveOSDArea.ResumeLayout(false);
             this.pnlPreserveOSDArea.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).EndInit();
@@ -435,5 +503,10 @@
         private System.Windows.Forms.CheckBox cbxLocationCross;
         private System.Windows.Forms.NumericUpDown nudCorssTransparency;
         private System.Windows.Forms.CheckBox cbxBeepOnStartStopRecording;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ComboBox cbxPALStandard;
+        private System.Windows.Forms.ComboBox cbxNTSCStandard;
 	}
 }

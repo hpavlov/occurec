@@ -1537,5 +1537,29 @@ namespace OccuRec.Properties {
                 this["UseAavVersion2"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        public DirectShowLib.AnalogVideoStandard PALStandard {
+            get {
+                return ((DirectShowLib.AnalogVideoStandard)(this["PALStandard"]));
+            }
+            set {
+                this["PALStandard"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public DirectShowLib.AnalogVideoStandard NTSCStandard {
+            get {
+                return ((DirectShowLib.AnalogVideoStandard)(this["NTSCStandard"]));
+            }
+            set {
+                this["NTSCStandard"] = value;
+            }
+        }
     }
 }

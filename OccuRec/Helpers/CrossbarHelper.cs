@@ -283,13 +283,59 @@ namespace OccuRec.Helpers
             cbxCrossbarInput.Enabled = false;
         }
 
-        public static IAMCrossbar SetupTunerAndCrossbar(ICaptureGraphBuilder2 graphBuilder, IBaseFilter deviceFilter)
+        public static IAMCrossbar SetupTunerCrossbarAndAnalogueStandard(ICaptureGraphBuilder2 graphBuilder, IBaseFilter deviceFilter, float iFrameRate)
         {
+            AnalogVideoStandard? formatToSet = null;
+
+            if (Math.Abs(iFrameRate - 25.0) < 0.1) formatToSet = Settings.Default.PALStandard;
+            if (Math.Abs(iFrameRate - 29.97) < 0.1) formatToSet = Settings.Default.NTSCStandard;
+
+            IAMAnalogVideoDecoder pDecoder;
+            object o;
+            int hr;
+
+            if (formatToSet != null)
+            {
+                hr = graphBuilder.FindInterface(null, null, deviceFilter, typeof(IAMAnalogVideoDecoder).GUID, out o);
+                if (hr >= 0)
+                {
+                    pDecoder = (IAMAnalogVideoDecoder)o;
+
+                    if (pDecoder != null)
+                    {
+                        AnalogVideoStandard availableFormats;
+                        hr = pDecoder.get_AvailableTVFormats(out availableFormats);
+                        if (hr >= 0)
+                        {
+                            Trace.WriteLine(string.Format("SetupTunerCrossbarAndAnalogueStandard: Available TV Formats: {0}.", availableFormats));
+
+                            if ((availableFormats & formatToSet.Value) == formatToSet.Value)
+                            {
+                                hr = pDecoder.put_TVFormat(formatToSet.Value);
+                                if (hr < 0)
+                                    Trace.WriteLine(string.Format("SetupTunerCrossbarAndAnalogueStandard: Failed to set TVFormat to {0}.", formatToSet.Value));
+                                else
+                                    Trace.WriteLine(string.Format("SetupTunerCrossbarAndAnalogueStandard: TVFormat set to {0}.", formatToSet.Value));
+                            }
+                            else
+                                Trace.WriteLine(string.Format("SetupTunerCrossbarAndAnalogueStandard: {0} is not in AvailableTVFormats.", formatToSet.Value));
+                        }
+                        else
+                            Trace.WriteLine("SetupTunerCrossbarAndAnalogueStandard: Failed to get AvailableTVFormats.");
+                    }
+                    else
+                        Trace.WriteLine("SetupTunerCrossbarAndAnalogueStandard: Failed to get an IAMAnalogVideoDecoder.");
+                }
+                else
+                    Trace.WriteLine("SetupTunerCrossbarAndAnalogueStandard: Device filter doesn't support IAMAnalogVideoDecoder.");
+            }
+            else
+                Trace.WriteLine(string.Format("SetupTunerCrossbarAndAnalogueStandard: Cannot choose a TVFormat for the selected frame rate of {0}.", iFrameRate));
+
+
             if (Settings.Default.UsesTunerCrossbar)
             {
-                object o;
-
-                int hr = graphBuilder.FindInterface(null, null, deviceFilter, typeof(IAMCrossbar).GUID, out o);
+                hr = graphBuilder.FindInterface(null, null, deviceFilter, typeof(IAMCrossbar).GUID, out o);
                 if (hr >= 0)
                 {
                     IAMCrossbar crossbar = (IAMCrossbar)o;
@@ -299,7 +345,7 @@ namespace OccuRec.Helpers
                         hr = crossbar.Route(Settings.Default.CrossbarOutputPin, Settings.Default.CrossbarInputPin);
                         DsError.ThrowExceptionForHR(hr);
 
-                        Trace.WriteLine(string.Format("SetupTunerAndCrossbar: Crossbar Input Pin {0} routed to Output Pin {1}.", Settings.Default.CrossbarInputPin, Settings.Default.CrossbarOutputPin));
+                        Trace.WriteLine(string.Format("SetupTunerCrossbarAndAnalogueStandard: Crossbar Input Pin {0} routed to Output Pin {1}.", Settings.Default.CrossbarInputPin, Settings.Default.CrossbarOutputPin));
 
                         return crossbar;
                     }

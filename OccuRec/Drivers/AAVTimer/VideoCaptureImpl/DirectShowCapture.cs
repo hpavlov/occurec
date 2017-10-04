@@ -92,7 +92,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 				// Now that sizes are fixed/known, store the sizes
 				SaveSizeInfo(samplGrabber);
 
-				crossbar = CrossbarHelper.SetupTunerAndCrossbar(capBuilder, capFilter);
+                crossbar = CrossbarHelper.SetupTunerCrossbarAndAnalogueStandard(capBuilder, capFilter, iFrameRate);
 
 				latestBitmap = new Bitmap(iWidth, iHeight, PixelFormat.Format24bppRgb);
 				fullRect = new Rectangle(0, 0, latestBitmap.Width, latestBitmap.Height);
