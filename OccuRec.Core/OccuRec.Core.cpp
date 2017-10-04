@@ -2492,14 +2492,14 @@ HRESULT StartRecordingInternal_AAV2(LPCTSTR szFileName)
 		ocrManager->ResetErrorCounter();
 	}
 
-	// Add the first 16 frames as VTI-OSD-CALIBRATION frames in the Calibration stream
+	// Add the first 32 frames as VTI-OSD-CALIBRATION frames in the Calibration stream
 	//TODO: This should probably happen during the processing of the integration detection etc.
 
 	recording = true;
 	numRecordedFrames = 0;
 	averageNtpDebugOffsetMS = 0;
 	aggregatedNtpDebug = 0;
-	calibrationFramesLeftToRecord = 16;
+	calibrationFramesLeftToRecord = 32;
 
 	AAV16_MAX_BINNED_FRAMES = 0;
 
