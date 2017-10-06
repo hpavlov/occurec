@@ -719,6 +719,8 @@ namespace OccuRec.Helpers
 
 		public static string SetupTimestampPreservation(bool enabled, int areaTopOdd, int areaHeight)
 		{
+            Trace.WriteLine(string.Format("SetupTimestampPreservation({0}, {1}, {2})", enabled, areaTopOdd, areaHeight));
+
 			int hr = SetupIntegrationPreservationArea(
 				enabled,
 				areaTopOdd,

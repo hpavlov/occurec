@@ -975,11 +975,14 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			lockedIntegrationFrames = detectedIntegrationRate;
 		else if (INTEGRATION_LOCKED && lockedIntegrationFrames > 1)
 		{
+			if (AAV_16 && AAV16_MAX_BINNED_FRAMES != detectedIntegrationRate)
+				AAV16_MAX_BINNED_FRAMES = detectedIntegrationRate;
+
 			if (lockedIntegrationFrames != detectedIntegrationRate)
 			{
 				droppedFramesSinceIntegrationIsLocked += abs(lockedIntegrationFrames - detectedIntegrationRate);
 				DebugViewPrint(L"Detected Dropped Frames= %d (LOCKED %d)", detectedIntegrationRate, lockedIntegrationFrames);
-			}			
+			}
 		}
 		else
 		{
@@ -1002,9 +1005,6 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 		IntegratedFrame* frame = integratedFrameCouldBeRecorded 
 			? new IntegratedFrame(IMAGE_TOTAL_PIXELS, AAV_16) 
 			: NULL;
-		
-		if (AAV_16 && AAV16_MAX_BINNED_FRAMES < numberOfIntegratedFrames)
-			AAV16_MAX_BINNED_FRAMES = numberOfIntegratedFrames;
 
 		double* ptrPixels = integratedPixels;
 		unsigned char* singleRawFramePixles = NULL;
@@ -2376,8 +2376,7 @@ HRESULT StartRecordingInternal_AAV2(LPCTSTR szFileName)
 	if (AAV_16)
 	{
 		Check(AdvVer2::AdvVer2_AddFileTag("FRAME-COMBINING", "Binning"));
-		// Add the max pixel value for normalisation in AAV-16 mode
-		sprintf(&buffer[0], "%d", AAV16_MAX_BINNED_FRAMES * 255);
+		sprintf(&buffer[0], "%d", detectedIntegrationRate * 256);
 		Check(AdvVer2::AdvVer2_AddFileTag("AAV16-NORMVAL", &buffer[0]));
 	}
 	else
@@ -2435,7 +2434,7 @@ HRESULT StartRecordingInternal_AAV2(LPCTSTR szFileName)
 	if (AAV_16)
 	{
 		Check(AdvVer2::AdvVer2_AddOrUpdateImageSectionTag("IMAGE-BITPIX", "16"));
-		sprintf(&buffer[0], "%d", AAV16_MAX_BINNED_FRAMES * 255);
+		sprintf(&buffer[0], "%d", detectedIntegrationRate * 256);
 		Check(AdvVer2::AdvVer2_AddOrUpdateImageSectionTag("IMAGE-MAX-PIXEL-VALUE", &buffer[0]));
 	}
 	Check(AdvVer2::AdvVer2_DefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", AAV_16 ? 16 : 8));
@@ -2558,7 +2557,7 @@ HRESULT StopRecording_AAV1(long* pixels)
 	{
 		// Add the max pixel value for normalisation in AAV-16 mode
 		char buffer[128];
-		sprintf(&buffer[0], "%d", AAV16_MAX_BINNED_FRAMES * 255);
+		sprintf(&buffer[0], "%d", AAV16_MAX_BINNED_FRAMES * 256);
 		AavAddUserTag("AAV16-NORMVAL", &buffer[0]);
 	}
 
@@ -2574,6 +2573,14 @@ HRESULT StopRecording_AAV2(long* pixels)
 	recording = false;
 
 	WaitForSingleObject(hRecordingThread, INFINITE); // wait for thread to exit
+
+	if (AAV_16)
+	{
+		// Add the max pixel value for normalisation in AAV-16 mode
+		char buffer[128];
+		sprintf(&buffer[0], "%d", AAV16_MAX_BINNED_FRAMES * 256);
+		AdvVer2::AdvVer2_AddUserTag("AAV16-NORMVAL", &buffer[0]);
+	}
 
 	Check(AdvVer2::AdvVer2_EndFile());
 

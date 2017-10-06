@@ -129,12 +129,6 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 						ocrEnabled = true;
 					}
 				}
-				else
-				{
-					errorMessage = NativeHelpers.SetupTimestampPreservation(false, 0, 0);
-					if (errorMessage != null && callbacksObject != null)
-						callbacksObject.OnError(-1, errorMessage);
-				}
 			}
 			catch
 			{

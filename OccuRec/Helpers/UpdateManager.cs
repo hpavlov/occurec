@@ -59,6 +59,29 @@ namespace OccuRec.Helpers
 			return version;
 		}
 
+        private static Assembly OnReflectionOnlyResolve(ResolveEventArgs args, DirectoryInfo directory)
+        {
+            Assembly loadedAssembly =
+                AppDomain.CurrentDomain.ReflectionOnlyGetAssemblies()
+                    .FirstOrDefault(
+                      asm => string.Equals(asm.FullName, args.Name,
+                          StringComparison.OrdinalIgnoreCase));
+
+            if (loadedAssembly != null)
+            {
+                return loadedAssembly;
+            }
+
+            AssemblyName assemblyName = new AssemblyName(args.Name);
+            string dependentAssemblyFilename = Path.Combine(directory.FullName, assemblyName.Name + ".dll");
+
+            if (File.Exists(dependentAssemblyFilename))
+            {
+                return Assembly.ReflectionOnlyLoadFrom(dependentAssemblyFilename);
+            }
+            return Assembly.ReflectionOnlyLoad(args.Name);
+        }
+
 		public static int CurrentlyInstalledModuleVersion(string moduleFileName)
 		{
 			try
@@ -66,17 +89,34 @@ namespace OccuRec.Helpers
 				string modulePath = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory + "\\" + moduleFileName);
 				if (File.Exists(modulePath))
 				{
-					Assembly asm = Assembly.ReflectionOnlyLoadFrom(modulePath);
+                    DirectoryInfo directory = new FileInfo(modulePath).Directory;
 
-					IList<CustomAttributeData> atts = CustomAttributeData.GetCustomAttributes(asm);
-					foreach (CustomAttributeData cad in atts)
-					{
-						if (cad.Constructor.DeclaringType.FullName == "System.Reflection.AssemblyFileVersionAttribute")
-						{
-							string currVersionString = (string)cad.ConstructorArguments[0].Value;
-							return VersionStringToVersion(currVersionString);
-						}
-					}
+                    ResolveEventHandler resolveEventHandler =
+                     (s, e) =>
+                     {
+                         return OnReflectionOnlyResolve(e, directory);
+                     };
+
+                    AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += resolveEventHandler;
+
+				    try
+				    {
+                        Assembly asm = Assembly.ReflectionOnlyLoadFrom(modulePath);
+
+                        IList<CustomAttributeData> atts = CustomAttributeData.GetCustomAttributes(asm);
+                        foreach (CustomAttributeData cad in atts)
+                        {
+                            if (cad.Constructor.DeclaringType.FullName == "System.Reflection.AssemblyFileVersionAttribute")
+                            {
+                                string currVersionString = (string)cad.ConstructorArguments[0].Value;
+                                return VersionStringToVersion(currVersionString);
+                            }
+                        }
+				    }
+				    finally
+				    {
+                        AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve -= resolveEventHandler;
+				    }
 				}
 				else
 					return 0;
