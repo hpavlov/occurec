@@ -222,15 +222,27 @@ namespace OccuRecUpdate
             return outVer.ToString();
         }
 
-        public int VersionStringToVersion(string versionString)
+        public int FileVersionStringToVersion(string versionString)
         {
             string[] tokens = versionString.Split('.');
-            int version =
-                10000 * int.Parse(tokens[0]) +
-                1000 * int.Parse(tokens[1]) +
-                (tokens.Length > 2 ? 100 * int.Parse(tokens[2]) : 0) + 
-                (tokens.Length > 3 ? int.Parse(tokens[3]) : 0);
-            return version;
+            if (tokens.Length == 3)
+            {
+                int version =
+                    10000 * int.Parse(tokens[0]) +
+                    1000 * int.Parse(tokens[1]) +
+                    int.Parse(tokens[2]);
+                return version;
+            }
+            else if (tokens.Length == 4)
+            {
+                int version =
+                    10000 * int.Parse(tokens[0]) +
+                    1000 * int.Parse(tokens[1]) +
+                    100 * int.Parse(tokens[2]) +
+                    int.Parse(tokens[3]);
+                return version;
+            }
+            return 0;
         }
 
         public int OccuRecUpdateVersionStringToVersion(string versionString)

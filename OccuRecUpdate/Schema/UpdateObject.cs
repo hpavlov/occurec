@@ -128,6 +128,7 @@ namespace OccuRecUpdate.Schema
         {
             Assembly asm = null;
 			string fullLocalFileName = System.IO.Path.GetFullPath(occuRecPath + "\\" + this.File);
+            Trace.WriteLine(string.Format("Checking updates for: '{0}'", fullLocalFileName));
             if (System.IO.File.Exists(fullLocalFileName))
             {
                 byte[] asmBytes = System.IO.File.ReadAllBytes(fullLocalFileName);
@@ -135,9 +136,11 @@ namespace OccuRecUpdate.Schema
                 try
                 {
                     asm = Assembly.Load(asmBytes);
+
                 }
                 catch(BadImageFormatException)
                 {
+                    Trace.WriteLine(string.Format("Cannot load assembly: '{0}'", fullLocalFileName));
                     asm = null;
                     try
                     {
@@ -150,6 +153,9 @@ namespace OccuRecUpdate.Schema
                 }
             }
             else
+            {
+                Trace.WriteLine(string.Format("File not found: '{0}'", fullLocalFileName));
+
                 // The file doesn't have to exist and because it actually doesn't 
                 // this is why it must be downloaded i.e. a newer version is available
                 if (!m_MustExist)
@@ -157,6 +163,7 @@ namespace OccuRecUpdate.Schema
                     Trace.WriteLine(string.Format("Update required for '{0}': The file is not found locally", File));
                     return true;
                 }
+            }
 
             if (asm != null)
             {
@@ -164,7 +171,9 @@ namespace OccuRecUpdate.Schema
                 if (atts.Length == 1)
                 {
                     string currVersionString = ((AssemblyFileVersionAttribute)atts[0]).Version;
-                    int currVersionAsInt = Config.Instance.VersionStringToVersion(currVersionString);
+                    int currVersionAsInt = Config.Instance.FileVersionStringToVersion(currVersionString);
+
+                    Trace.WriteLine(string.Format("Module: '{0}', Local Version: {1}, Server Version: {2}", this.File, currVersionAsInt, Version));
 
                     if (Version > currVersionAsInt)
                     {
