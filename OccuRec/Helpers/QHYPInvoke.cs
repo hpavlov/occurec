@@ -1285,30 +1285,29 @@ namespace OccuRec.Helpers
 
     public class ImageHeader
     {
-        public ImageHeader(int frameNo, byte[] imageHead, int bpp)
+        public ImageHeader(int frameNo, byte[] imageHead)
         {
             this.FrameNo = frameNo;
-            int mult = bpp == 16 ? 2 : 1;
-            int add = bpp == 16 ? 1 : 0;
-            SeqNumber = 256 * 256 * 256 * imageHead[0 * mult + add] + 256 * 256 * imageHead[1 * mult + add] + 256 * imageHead[2 * mult + add] + imageHead[3 * mult + add];
-            TempNumber = imageHead[4 * mult + add];
-            Width = 256 * imageHead[5 * mult + add] + imageHead[6 * mult + add];
-            Height = 256 * imageHead[7 * mult + add] + imageHead[8 * mult + add];
-            Latitude = 256 * 256 * 256 * imageHead[9 * mult + add] + 256 * 256 * imageHead[10 * mult + add] + 256 * imageHead[11 * mult + add] + imageHead[12 * mult + add];
-            Longitude = 256 * 256 * 256 * imageHead[13 * mult + add] + 256 * 256 * imageHead[14 * mult + add] + 256 * imageHead[15 * mult + add] + imageHead[16 * mult + add];
 
-            StartFlag = imageHead[17 * mult + add];
-            StartSec = 256 * 256 * 256 * imageHead[18 * mult + add] + 256 * 256 * imageHead[19 * mult + add] + 256 * imageHead[20 * mult + add] + imageHead[21 * mult + add];
-            StartUs = 256 * 256 * imageHead[22 * mult + add] + 256 * imageHead[23 * mult + add] + imageHead[24 * mult + add];
+            SeqNumber = 256 * 256 * 256 * imageHead[0] + 256 * 256 * imageHead[1] + 256 * imageHead[2] + imageHead[3];
+            TempNumber = imageHead[4];
+            Width = 256 * imageHead[5] + imageHead[6];
+            Height = 256 * imageHead[7] + imageHead[8];
+            Latitude = 256 * 256 * 256 * imageHead[9] + 256 * 256 * imageHead[10] + 256 * imageHead[11] + imageHead[12];
+            Longitude = 256 * 256 * 256 * imageHead[13] + 256 * 256 * imageHead[14] + 256 * imageHead[15] + imageHead[16];
 
-            EndFlag = imageHead[25 * mult + add];
-            EndSec = 256 * 256 * 256 * imageHead[26 * mult + add] + 256 * 256 * imageHead[27 * mult + add] + 256 * imageHead[28 * mult + add] + imageHead[29 * mult + add];
-            EndUs = 256 * 256 * imageHead[30 * mult + add] + 256 * imageHead[31 * mult + add] + imageHead[32 * mult + add];
+            StartFlag = imageHead[17];
+            StartSec = 256 * 256 * 256 * imageHead[18] + 256 * 256 * imageHead[19] + 256 * imageHead[20] + imageHead[21];
+            StartUs = 256 * 256 * imageHead[22] + 256 * imageHead[23] + imageHead[24];
 
-            NowFlag = imageHead[33 * mult + add];
-            NowSec = 256 * 256 * 256 * imageHead[34 * mult + add] + 256 * 256 * imageHead[35 * mult + add] + 256 * imageHead[36 * mult + add] + imageHead[37 * mult + add];
-            NowUs = 256 * 256 * imageHead[38 * mult + add] + 256 * imageHead[39 * mult + add] + imageHead[40 * mult + add];
-            MaxClock = 256 * 256 * imageHead[41 * mult + add] + 256 * imageHead[42 * mult + add] + imageHead[43 * mult + add];
+            EndFlag = imageHead[25];
+            EndSec = 256 * 256 * 256 * imageHead[26] + 256 * 256 * imageHead[27] + 256 * imageHead[28] + imageHead[29];
+            EndUs = 256 * 256 * imageHead[30] + 256 * imageHead[31] + imageHead[32];
+
+            NowFlag = imageHead[33];
+            NowSec = 256 * 256 * 256 * imageHead[34] + 256 * 256 * imageHead[35] + 256 * imageHead[36] + imageHead[37];
+            NowUs = 256 * 256 * imageHead[38] + 256 * imageHead[39] + imageHead[40];
+            MaxClock = 256 * 256 * imageHead[41] + 256 * imageHead[42] + imageHead[43];
 
             // NOTE: Lo and Hi 4-bits of NowFlag are the GPS Status at Start and End exposure. We only use one of the flags here
             GPSStatus = (QHYGPSStatus)((NowFlag >> 4) & 0x0F);

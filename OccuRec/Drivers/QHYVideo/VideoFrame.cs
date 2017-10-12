@@ -27,7 +27,7 @@ namespace OccuRec.Drivers.QHYVideo
         public VideoFrame(byte[] pixelBytes, int width, int height, int bpp, int frameNo, bool variant, double ccdTemp)
         {
             m_FrameNo = frameNo;
-            m_Header = new ImageHeader(m_FrameNo, pixelBytes, bpp);
+            m_Header = new ImageHeader(m_FrameNo, pixelBytes);
 
             if (variant)
             {

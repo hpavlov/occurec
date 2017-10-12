@@ -666,7 +666,7 @@ namespace OccuRec.Drivers.QHYVideo
                     {
                         m_FrameNo++;
 
-                        var header = new ImageHeader(m_FrameNo, imageBytes, bpp);
+                        var header = new ImageHeader(m_FrameNo, imageBytes);
 
                         if (m_CameraState == VideoCameraState.videoCameraRecording)
                         {
