@@ -40,7 +40,7 @@ namespace OccuRec.Config.Panels
 			tbxTelescopeInfo.Text = Settings.Default.AavTelescopeInfo;
             nudLongitude.SetNUDValue(Settings.Default.AavObsLongitude);
             nudLatitude.SetNUDValue(Settings.Default.AavObsLatitude);
-		    cbxForceNewFrameOnLockedRate.Checked = Settings.Default.ForceNewFrameOnLockedRate;
+		    cbxForceNewFrameOnLockedRate.Checked = Settings.Default.ForceNewFrameOnLockedIntRate;
 		}
 
 		public override void SaveSettings()
@@ -59,7 +59,7 @@ namespace OccuRec.Config.Panels
 		    Settings.Default.AavObsLongitude = (float)nudLongitude.Value;
             Settings.Default.AavObsLatitude = (float)nudLatitude.Value;
 
-            Settings.Default.ForceNewFrameOnLockedRate = cbxForceNewFrameOnLockedRate.Checked;
+            Settings.Default.ForceNewFrameOnLockedIntRate = cbxForceNewFrameOnLockedRate.Checked;
 		}
 	}
 }

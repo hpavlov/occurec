@@ -106,7 +106,7 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
                     (float)Settings.Default.MinSignatureDiffRatio,
                     (float)Settings.Default.MinSignatureDiff,
 					Settings.Default.GammaDiff,
-                    Settings.Default.ForceNewFrameOnLockedRate,
+                    Settings.Default.ForceNewFrameOnLockedIntRate,
 					dev.Name,
 					selectedFormat.AsSerialized(),
                     selectedFormat.FrameRate);

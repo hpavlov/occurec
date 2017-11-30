@@ -1349,12 +1349,12 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool ForceNewFrameOnLockedRate {
+        public bool ForceNewFrameOnLockedIntRate {
             get {
-                return ((bool)(this["ForceNewFrameOnLockedRate"]));
+                return ((bool)(this["ForceNewFrameOnLockedIntRate"]));
             }
             set {
-                this["ForceNewFrameOnLockedRate"] = value;
+                this["ForceNewFrameOnLockedIntRate"] = value;
             }
         }
         
