@@ -597,6 +597,13 @@ HRESULT SetupGrabberInfo(LPCTSTR szGrabberName, LPCTSTR szVideoMode, float frame
 	videoFrameRate = frameRate;
 	HARDWARE_TIMING_CORRECTION = hardwareTimingCorrection;
 
+	std::wstring wcGrabberName( 256, L'#' );
+	mbstowcs( &wcGrabberName[0], grabberName, 128 );
+	std::wstring wcVideoMode( 256, L'#' );
+	mbstowcs( &wcVideoMode[0], videoMode, 128 );
+
+	DebugViewPrint(L"SetupGrabberInfo(GrabberName = '%s'; VideoMode = '%s'; frameRate = %.2f; hardwareTimingCorrection = %d)\n", &wcGrabberName[0], &wcVideoMode[0], frameRate, hardwareTimingCorrection); 
+
 	return S_OK;
 }
 
@@ -701,9 +708,7 @@ HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float d
 
 	SyncLock::UnlockIntDet();
 
-#if _DEBUG
 	DebugViewPrint(L"SetupIntegrationDetection(SIGNATURE_DIFFERENCE_RATIO = %.2f; MINIMUM_SIGNATURE_DIFFERENCE = %.2f; INTEGRATION_LOCKED = %d)\n", SIGNATURE_DIFFERENCE_RATIO, MINIMUM_SIGNATURE_DIFFERENCE, INTEGRATION_LOCKED); 
-#endif
 
 	return S_OK;
 }

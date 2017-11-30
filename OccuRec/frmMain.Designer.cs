@@ -425,7 +425,6 @@
             this.miConnectQHYCCD.Name = "miConnectQHYCCD";
             this.miConnectQHYCCD.Size = new System.Drawing.Size(171, 22);
             this.miConnectQHYCCD.Text = "Connect &QHYCCD";
-            this.miConnectQHYCCD.Visible = false;
             this.miConnectQHYCCD.Click += new System.EventHandler(this.miConnectQHYCCD_Click);
             // 
             // miASCOMConnect

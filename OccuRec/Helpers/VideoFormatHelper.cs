@@ -31,7 +31,7 @@ namespace OccuRec.Helpers
 				BitCount = cloneFrom.BitCount;
 			}
 
-			private static Regex REGEX_FORMATTER = new Regex("^(\\d+) x (\\d+) @([\\d\\.]+) fps \\((\\d+) bpp\\)$");
+			private static Regex REGEX_FORMATTER = new Regex("^(\\d+) x (\\d+) @([\\d\\.,]+) fps \\((\\d+) bpp\\)$");
 
 			public static SupportedVideoFormat PAL = new SupportedVideoFormat("720 x 576 @25 fps (24 bpp)");
 			public static SupportedVideoFormat NTSC = new SupportedVideoFormat("720 x 480 @29.97 fps (24 bpp)");
@@ -45,7 +45,7 @@ namespace OccuRec.Helpers
                     {
                         Width = int.Parse(regexMatch.Groups[1].Value);
                         Height = int.Parse(regexMatch.Groups[2].Value);
-                        FrameRate = double.Parse(regexMatch.Groups[3].Value, CultureInfo.InvariantCulture);
+                        FrameRate = double.Parse(regexMatch.Groups[3].Value.Replace(',', '.'), CultureInfo.InvariantCulture);
 						BitCount = int.Parse(regexMatch.Groups[4].Value);
                     }
                 }
