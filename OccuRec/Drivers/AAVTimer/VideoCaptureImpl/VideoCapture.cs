@@ -4,8 +4,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -14,6 +16,7 @@ using System.Windows.Forms;
 using OccuRec.Helpers;
 using OccuRec.Properties;
 using DirectShowLib;
+using OccuRec.Context;
 
 namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 {
@@ -89,11 +92,31 @@ namespace OccuRec.Drivers.AAVTimer.VideoCaptureImpl
 		{
 			if (!IsConnected)
 			{
+                OccuRecContext.Current.FailedToSetRequestedMode = false;
+			    OccuRecContext.Current.StandardVideoModeSet = null;
+
 				dsCapture.CloseResources();
+                Trace.WriteLine(string.Format("VideoCapture: User selected video mode: {0}", Settings.Default.SelectedVideoFormat));
 
-				// TODO: Set a preferred frameRate and image size stored in the configuration
+			    var formatToSet = new VideoFormatHelper.SupportedVideoFormat(Settings.Default.SelectedVideoFormat);
+                Trace.WriteLine(string.Format("VideoCapture: Attempting to set video mode: {0}", formatToSet.AsSerialized()));
 
-                dsCapture.SetupGraph(videoInputDevice, Settings.Default.AavOcrEnabled, new VideoFormatHelper.SupportedVideoFormat(Settings.Default.SelectedVideoFormat), ref frameRate, ref imageWidth, ref imageHeight);
+                dsCapture.SetupGraph(videoInputDevice, Settings.Default.AavOcrEnabled, formatToSet, ref frameRate, ref imageWidth, ref imageHeight);
+
+                var formatSet = new VideoFormatHelper.SupportedVideoFormat() { FrameRate = frameRate, Width = imageWidth, Height = imageHeight };
+
+                Trace.WriteLine(string.Format("VideoCapture: Actual video mode set: {0}", formatSet.ToString()));
+
+			    if (Math.Abs(formatToSet.FrameRate - frameRate) > 0.01 || formatToSet.Width != imageWidth || formatToSet.Height != imageHeight)
+			    {
+			        OccuRecContext.Current.FailedToSetRequestedMode = true;
+			    }
+
+			    OccuRecContext.Current.VideoModeSet = formatSet.AsSerialized();
+                if (formatSet.IsPal())
+			        OccuRecContext.Current.StandardVideoModeSet = "PAL";
+                else if (formatSet.IsNtsc())
+                    OccuRecContext.Current.StandardVideoModeSet = "NTSC";
 
 				dsCapture.Start();
 

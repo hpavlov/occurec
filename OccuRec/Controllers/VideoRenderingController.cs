@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using OccuRec.Context;
 using OccuRec.Drivers;
 using OccuRec.FrameAnalysis;
 using OccuRec.Helpers;

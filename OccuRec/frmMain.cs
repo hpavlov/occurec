@@ -232,6 +232,32 @@ namespace OccuRec
 
 					OccuRecContext.Current.IsConnected = true;
 
+                    if (OccuRecContext.Current.FailedToSetRequestedMode)
+                    {
+                        var formatToSet = new VideoFormatHelper.SupportedVideoFormat(Settings.Default.SelectedVideoFormat);
+                        var formatSet = new VideoFormatHelper.SupportedVideoFormat(OccuRecContext.Current.VideoModeSet);
+                        var errorExplanation = "this mode";
+                        if (formatToSet.IsNtscFrameRate() && formatSet.IsPalFrameRate())
+                            errorExplanation = "NTSC";
+                        else if (formatToSet.IsPalFrameRate() && formatSet.IsNtscFrameRate())
+                            errorExplanation = "PAL";
+
+                        MessageBox.Show(
+                            this,
+                            string.Format("There was an error trying to use a video mode: {0}\r\n\r\nInstead the grabber set the video mode to: {1}\r\n\r\nThis error most likely indicates that your frame grabber or your camera doesn't support {2}.", formatToSet.ToString(), formatSet.ToString(), errorExplanation),
+                            "Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                    }
+
+                    if (!string.IsNullOrEmpty(OccuRecContext.Current.StandardVideoModeSet))
+                    {
+                        tssStandardVideoMode.Text = OccuRecContext.Current.StandardVideoModeSet;
+                        tssStandardVideoMode.Visible = true;
+                    }
+                    else
+                        tssStandardVideoMode.Visible = false;
+
 					if (Settings.Default.RecordStatusSectionOnly)
 						MessageBox.Show(
 							this,
@@ -279,6 +305,7 @@ namespace OccuRec
 			UpdateCameraState(false);
 		    tssIntegrationRate.Visible = false;
 			tsbtnDisplayMode.Visible = false;
+            tssStandardVideoMode.Visible = false;
 
 		    m_StateManager.CameraDisconnected();
 

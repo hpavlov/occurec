@@ -53,13 +53,23 @@ namespace OccuRec.Helpers
 
 			public bool IsPal()
 			{
-				return Width == 720 && Height == 576 && Math.Abs(FrameRate - 25.00) < 0.01;
+                return Width == 720 && Height == 576 && IsPalFrameRate();
 			}
 
 			public bool IsNtsc()
 			{
-				return Width == 720 && Height == 480 && Math.Abs(FrameRate - 29.97) < 0.01;
+                return Width == 720 && Height == 480 && IsNtscFrameRate();
 			}
+
+            public bool IsPalFrameRate()
+            {
+                return Math.Abs(FrameRate - 25.00) < 0.01;
+            }
+
+            public bool IsNtscFrameRate()
+            {
+                return Math.Abs(FrameRate - 29.97) < 0.01;
+            }
 
             public bool Matches(SupportedVideoFormat compareTo)
             {
@@ -77,12 +87,12 @@ namespace OccuRec.Helpers
 
             public override string ToString()
             {
-                return string.Format("{0} x {1} @{2} fps", Width, Height, FrameRate.ToString("0.00"));
+                return string.Format("{0} x {1} @{2} fps", Width, Height, FrameRate.ToString("0.00", CultureInfo.InvariantCulture));
             }
 
 			public string AsSerialized()
 			{
-				return string.Format("{0} x {1} @{2} fps ({3} bpp)", Width, Height, FrameRate.ToString("0.00"), BitCount);
+				return string.Format("{0} x {1} @{2} fps ({3} bpp)", Width, Height, FrameRate.ToString("0.00", CultureInfo.InvariantCulture), BitCount);
 			}
         }
 

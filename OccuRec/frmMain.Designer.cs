@@ -117,6 +117,7 @@
             this.pnlControlArea = new System.Windows.Forms.Panel();
             this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.tssStandardVideoMode = new System.Windows.Forms.ToolStripStatusLabel();
             this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
@@ -142,6 +143,7 @@
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ttsProgressBar,
             this.tssCameraState,
+            this.tssStandardVideoMode,
             this.tssFrameNo,
             this.tssIntegrationRate,
             this.tssDroppedFrames,
@@ -1119,6 +1121,19 @@
             this.openFileDialog.DefaultExt = "avi";
             this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
             // 
+            // tssStandardVideoMode
+            // 
+            this.tssStandardVideoMode.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.tssStandardVideoMode.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tssStandardVideoMode.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.tssStandardVideoMode.ForeColor = System.Drawing.Color.Green;
+            this.tssStandardVideoMode.Name = "tssStandardVideoMode";
+            this.tssStandardVideoMode.Size = new System.Drawing.Size(32, 19);
+            this.tssStandardVideoMode.Text = "PAL";
+            this.tssStandardVideoMode.Visible = false;
+            // 
             // ucVideoControl
             // 
             this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -1279,6 +1294,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox tbxTargetName;
         private System.Windows.Forms.ToolStripMenuItem miConnectQHYCCD;
+        protected internal System.Windows.Forms.ToolStripStatusLabel tssStandardVideoMode;
 	}
 }
 

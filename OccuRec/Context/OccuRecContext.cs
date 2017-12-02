@@ -16,10 +16,11 @@ namespace OccuRec.Context
 		public bool IsAAV { get; set; }
         public bool IsQHY { get; set; }
 		public bool IsConnected { get; set; }
+	    public bool FailedToSetRequestedMode { get; set; }
+	    public string StandardVideoModeSet { get; set; }
+	    public string VideoModeSet { get; set; }
 
-
-		
-		public DateTime? ShowAssumedVtiOsdPositionUntil { get; set; }
+	    public DateTime? ShowAssumedVtiOsdPositionUntil { get; set; }
 
 		public bool ShowAssumedVtiOsdPosition
 		{
