@@ -518,6 +518,9 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="Resources\spectra.png" />
+    <Content Include="ReleaseNotes.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="TODO List.txt" />
   </ItemGroup>
   <ItemGroup>

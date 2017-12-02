@@ -1561,5 +1561,17 @@ namespace OccuRec.Properties {
                 this["NTSCStandard"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ReleaseNotesDisplayedForVersion {
+            get {
+                return ((int)(this["ReleaseNotesDisplayedForVersion"]));
+            }
+            set {
+                this["ReleaseNotesDisplayedForVersion"] = value;
+            }
+        }
     }
 }

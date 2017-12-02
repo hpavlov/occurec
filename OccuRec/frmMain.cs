@@ -1682,6 +1682,15 @@ namespace OccuRec
 				if (Settings.Default.WarnOnFAT16Usage)
 					FileNameGenerator.CheckAndWarnForFileSystemLimitation();
 			}
+
+            int currVersion = UpdateManager.CurrentlyInstalledOccuRecVersion();
+            if (Settings.Default.ReleaseNotesDisplayedForVersion < currVersion)
+            {
+                DisplayReleaseNotes();
+
+                Settings.Default.ReleaseNotesDisplayedForVersion = currVersion;
+                Settings.Default.Save();
+            }
 		}
 
 		private void pictureBox_MouseMove(object sender, MouseEventArgs e)
@@ -2209,6 +2218,29 @@ namespace OccuRec
 
                 ConnectToDriver(driverInstance);
             }
+        }
+
+        private void miReleaseNotes_Click(object sender, EventArgs e)
+        {
+            DisplayReleaseNotes();
+        }
+
+        private void DisplayReleaseNotes()
+        {
+            string filePath = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory + @"\ReleaseNotes.txt");
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    Process.Start(filePath);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex.GetFullStackTrace());
+                }
+            }
+            else
+                MessageBox.Show("Could not find: " + filePath, "Tangra", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

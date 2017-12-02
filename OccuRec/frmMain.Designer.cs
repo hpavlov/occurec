@@ -119,6 +119,7 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.tssStandardVideoMode = new System.Windows.Forms.ToolStripStatusLabel();
             this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
+            this.miReleaseNotes = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -481,6 +482,7 @@
             this.miHelp.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.miHelpIndex,
             this.miYahooGroup,
+            this.miReleaseNotes,
             this.toolStripMenuItem1,
             this.miCheckForUpdates,
             this.toolStripMenuItem2,
@@ -1143,6 +1145,13 @@
             this.ucVideoControl.TabIndex = 27;
             this.ucVideoControl.Visible = false;
             // 
+            // miReleaseNotes
+            // 
+            this.miReleaseNotes.Name = "miReleaseNotes";
+            this.miReleaseNotes.Size = new System.Drawing.Size(193, 22);
+            this.miReleaseNotes.Text = "Latest &Release Notes";
+            this.miReleaseNotes.Click += new System.EventHandler(this.miReleaseNotes_Click);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1295,6 +1304,7 @@
         private System.Windows.Forms.TextBox tbxTargetName;
         private System.Windows.Forms.ToolStripMenuItem miConnectQHYCCD;
         protected internal System.Windows.Forms.ToolStripStatusLabel tssStandardVideoMode;
+        private System.Windows.Forms.ToolStripMenuItem miReleaseNotes;
 	}
 }
 

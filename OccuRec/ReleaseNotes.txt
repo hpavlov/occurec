@@ -1,0 +1,64 @@
+﻿OccRec Release Notes
+---------------------
+v3.1.2 (2017-12-02)
+- AAV: Changed a config setting for all setups that should result in fewer dropped frames after an integration rate has been locked.
+- AAV: Now an error message will be displayed if the selected video mode was not set successfully by the frame grabber.
+- AAV: Added a label in the status bar if the used mode is standard PAL (720 x 576 @25 fps) or NTSC (720 x 480 @29.97 fps).
+- Added Release Notes.
+
+v3.1.1 (2017-11-30)
+- AAV: Fixed a problem where if comma is used as a decimal separator when recording an AAV file, Tangra will show and error that MaxPixelValue needs to be set to -2147483648.
+- QHY: Added support for controlling a QHY174-GPS camera.
+
+v3.1.0 (2017-10-06)
+- AAV: Hotfixes after the relase of recording in AAVv2 format.
+
+v3.0.2 (2017-10-05)
+- AAV: Added support for recording in AAVv2 format.
+- AAV: Now automatically setting a TV format for PAL/NTSC modes for grabbers that support it. Default values PAL_B and NTSC_M can be modified from the settings.
+- Added 'beeping' on start/stop of recording.
+- OBS: Added the stars from the CalSpec database for telescope slewing.
+- Minor bug fixes and improvements.
+
+v2.9.0 (2015-07-24)
+- AAV: Now recording air temperature in AAV files (if ASCOM Focuser reports it)
+- AAV: Stability improvements.
+- Minor bug fixes and improvements.
+- SPECTRA: Added observing aid controls for grating spectroscopy. Overlaying an 'on-the-fly' spectra.
+- AAV: Now saving object coordinates (from Telescope control) and user entered target name and description in the AAV headers.
+
+v2.7.6 (2015-06-03)
+- AAV: Now saving the stacking rate in the AAV headers if stacking has been used.
+- AAV: Improvements to integration detection.
+- AAV: Improvements VTI position configuration.
+
+v2.7.1 (2015-02-11)
+- AAV: Now saving gamma and gain into AAV headers, for cameras that support it.
+- AAV: Now saving observer, telescope and target info in the AAV headers.
+- OBS: Implemented faster slewing using LX200 commands and other improvements to telescope control.
+- AAV: Improvements to target tracking.
+
+v2.6.1 (2015-01-01)
+- WAT: Improvements to the WAT-910BD TASCOS driver.
+- Added support for ASCOM Video drivers.
+- AAV: AAV files now use Lagarith16 compression.
+- Bug fixes and improvements.
+
+v2.4.220 (2014-04-23)
+- AAV: Enabled recording in AAV x1 stacked mode.
+- Added support for Display Modes.
+- AAV: Improvements in the VTI detection and configuration.
+
+v1.11.1 (2014-02-14)
+- WAT: Added support for controlling a WAT-910BD TASCOS system.
+
+v1.9.10 (2014-01-31)
+- AAV: Made it possible to plot a light curve of a target star 'on-the-fly'.
+
+v1.9.6 (2013-12-24)
+- OBS: Added support for ASCOM telescope and focuser controls.
+
+v1.9.3 (2013-09-12)
+- First public release of OccuRec.
+- AAV: Support for recording AAV files.
+
