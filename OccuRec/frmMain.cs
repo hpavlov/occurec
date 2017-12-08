@@ -1670,31 +1670,41 @@ namespace OccuRec
 
 		private void frmMain_Load(object sender, EventArgs e)
 		{
-			if (Settings.Default.WarnForFileSystemIssues && 
-				Directory.Exists(Settings.Default.OutputLocation))
+			if (Settings.Default.WarnForFileSystemIssues)
 			{
-				if (Settings.Default.WarnOnFreeDiskSpaceLeft)
-				{
-					ulong freeBytes;
-					NativeHelpers.GetDriveFreeBytes(Settings.Default.OutputLocation, out freeBytes);
+			    if (Directory.Exists(Settings.Default.OutputLocation))
+			    {
+                    if (Settings.Default.WarnOnFreeDiskSpaceLeft)
+                    {
+                        ulong freeBytes;
+                        NativeHelpers.GetDriveFreeBytes(Settings.Default.OutputLocation, out freeBytes);
 
-					string directoryRoot = Directory.GetDirectoryRoot(Settings.Default.OutputLocation);
+                        string directoryRoot = Directory.GetDirectoryRoot(Settings.Default.OutputLocation);
 
-					if (freeBytes < ((ulong)1024 * (ulong)1024 * (ulong)1024 * (ulong)Settings.Default.WarnMinDiskFreeSpaceGb))
-					{
-						MessageBox.Show(
-							string.Format("There is only {0:0.0} Gb left on drive {1}\r\n\r\nThere may not be enough disk space to record a video!",
-							1.0 * freeBytes / (1024 * 1024 * 1024),
-							directoryRoot),
-							"OccuRec",
-							MessageBoxButtons.OK,
-							MessageBoxIcon.Warning);
-					}					
-				}
+                        if (freeBytes < ((ulong)1024 * (ulong)1024 * (ulong)1024 * (ulong)Settings.Default.WarnMinDiskFreeSpaceGb))
+                        {
+                            MessageBox.Show(
+                                string.Format("There is only {0:0.0} Gb left on drive {1}\r\n\r\nThere may not be enough disk space to record a video!",
+                                1.0 * freeBytes / (1024 * 1024 * 1024),
+                                directoryRoot),
+                                "OccuRec",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+                        }
+                    }
 
-				if (Settings.Default.WarnOnFAT16Usage)
-					FileNameGenerator.CheckAndWarnForFileSystemLimitation();
-			}
+                    if (Settings.Default.WarnOnFAT16Usage)
+                        FileNameGenerator.CheckAndWarnForFileSystemLimitation();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        string.Format("Configured output video location '{0}' is incorrect or is not accessible!", Settings.Default.OutputLocation),
+                        "OccuRec",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
 
             PowerManagement.CheckPowerSettings(this);
 
