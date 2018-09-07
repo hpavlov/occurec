@@ -57,6 +57,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.cbxPALStandard = new System.Windows.Forms.ComboBox();
             this.cbxNTSCStandard = new System.Windows.Forms.ComboBox();
+            this.nudSaturationWarning = new System.Windows.Forms.NumericUpDown();
+            this.label5 = new System.Windows.Forms.Label();
             this.pnlPreserveOSDArea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
@@ -67,6 +69,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudSaturationWarning)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlPreserveOSDArea
@@ -129,7 +132,7 @@
             // cbxLiveOCR
             // 
             this.cbxLiveOCR.AutoSize = true;
-            this.cbxLiveOCR.Location = new System.Drawing.Point(12, 229);
+            this.cbxLiveOCR.Location = new System.Drawing.Point(316, 164);
             this.cbxLiveOCR.Name = "cbxLiveOCR";
             this.cbxLiveOCR.Size = new System.Drawing.Size(118, 17);
             this.cbxLiveOCR.TabIndex = 29;
@@ -296,7 +299,7 @@
             this.pnlLocationCorss.Controls.Add(this.nudCrossY);
             this.pnlLocationCorss.Controls.Add(this.nudCrossX);
             this.pnlLocationCorss.Enabled = false;
-            this.pnlLocationCorss.Location = new System.Drawing.Point(194, 258);
+            this.pnlLocationCorss.Location = new System.Drawing.Point(194, 228);
             this.pnlLocationCorss.Name = "pnlLocationCorss";
             this.pnlLocationCorss.Size = new System.Drawing.Size(232, 27);
             this.pnlLocationCorss.TabIndex = 44;
@@ -358,7 +361,7 @@
             // cbxLocationCross
             // 
             this.cbxLocationCross.AutoSize = true;
-            this.cbxLocationCross.Location = new System.Drawing.Point(12, 262);
+            this.cbxLocationCross.Location = new System.Drawing.Point(12, 232);
             this.cbxLocationCross.Name = "cbxLocationCross";
             this.cbxLocationCross.Size = new System.Drawing.Size(133, 17);
             this.cbxLocationCross.TabIndex = 43;
@@ -369,7 +372,7 @@
             // cbxBeepOnStartStopRecording
             // 
             this.cbxBeepOnStartStopRecording.AutoSize = true;
-            this.cbxBeepOnStartStopRecording.Location = new System.Drawing.Point(12, 295);
+            this.cbxBeepOnStartStopRecording.Location = new System.Drawing.Point(12, 265);
             this.cbxBeepOnStartStopRecording.Name = "cbxBeepOnStartStopRecording";
             this.cbxBeepOnStartStopRecording.Size = new System.Drawing.Size(176, 17);
             this.cbxBeepOnStartStopRecording.TabIndex = 45;
@@ -434,10 +437,39 @@
             this.cbxNTSCStandard.Size = new System.Drawing.Size(80, 21);
             this.cbxNTSCStandard.TabIndex = 50;
             // 
+            // nudSaturationWarning
+            // 
+            this.nudSaturationWarning.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudSaturationWarning.Location = new System.Drawing.Point(161, 295);
+            this.nudSaturationWarning.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.nudSaturationWarning.Name = "nudSaturationWarning";
+            this.nudSaturationWarning.Size = new System.Drawing.Size(50, 20);
+            this.nudSaturationWarning.TabIndex = 24;
+            this.nudSaturationWarning.Value = new decimal(new int[] {
+            240,
+            0,
+            0,
+            0});
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(9, 297);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(127, 13);
+            this.label5.TabIndex = 51;
+            this.label5.Text = "Saturation Warning Level";
+            // 
             // ucAdvanced
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.nudSaturationWarning);
             this.Controls.Add(this.cbxNTSCStandard);
             this.Controls.Add(this.cbxPALStandard);
             this.Controls.Add(this.label4);
@@ -472,6 +504,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudSaturationWarning)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -508,5 +541,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ComboBox cbxPALStandard;
         private System.Windows.Forms.ComboBox cbxNTSCStandard;
+        private System.Windows.Forms.NumericUpDown nudSaturationWarning;
+        private System.Windows.Forms.Label label5;
 	}
 }

@@ -272,6 +272,9 @@
     <Setting Name="NTPDebugConfigValue2" Type="System.Single" Scope="User">
       <Value Profile="(Default)">5</Value>
     </Setting>
+    <Setting Name="SaturationWarning" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">240</Value>
+    </Setting>    
     <Setting Name="NumberOfNTPRequestsPerUpdate" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">3</Value>
     </Setting>
@@ -306,6 +309,9 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="UseHueIntensityDisplayMode" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="UseSaturationCheckDisplayMode" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="DisplayIntensifyMode" Type="OccuRec.Controllers.DisplayIntensifyMode" Scope="User">

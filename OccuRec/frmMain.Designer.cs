@@ -20,6 +20,7 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.ttsProgressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.tssCameraState = new System.Windows.Forms.ToolStripStatusLabel();
+            this.tssStandardVideoMode = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssFrameNo = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssIntegrationRate = new System.Windows.Forms.ToolStripStatusLabel();
             this.tssDroppedFrames = new System.Windows.Forms.ToolStripStatusLabel();
@@ -54,6 +55,7 @@
             this.miHelp = new System.Windows.Forms.ToolStripMenuItem();
             this.miHelpIndex = new System.Windows.Forms.ToolStripMenuItem();
             this.miYahooGroup = new System.Windows.Forms.ToolStripMenuItem();
+            this.miReleaseNotes = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.miCheckForUpdates = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
@@ -117,9 +119,8 @@
             this.pnlControlArea = new System.Windows.Forms.Panel();
             this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.tssStandardVideoMode = new System.Windows.Forms.ToolStripStatusLabel();
             this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
-            this.miReleaseNotes = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSaturation = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -180,6 +181,19 @@
             this.tssCameraState.Name = "tssCameraState";
             this.tssCameraState.Size = new System.Drawing.Size(83, 19);
             this.tssCameraState.Text = "Disconnected";
+            // 
+            // tssStandardVideoMode
+            // 
+            this.tssStandardVideoMode.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.tssStandardVideoMode.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.tssStandardVideoMode.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.tssStandardVideoMode.ForeColor = System.Drawing.Color.Green;
+            this.tssStandardVideoMode.Name = "tssStandardVideoMode";
+            this.tssStandardVideoMode.Size = new System.Drawing.Size(32, 19);
+            this.tssStandardVideoMode.Text = "PAL";
+            this.tssStandardVideoMode.Visible = false;
             // 
             // tssFrameNo
             // 
@@ -290,6 +304,7 @@
             this.tsbtnDisplayMode.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiInverted,
             this.tsmiHueIntensity,
+            this.tsmiSaturation,
             this.toolStripSeparator7,
             this.tsmiHigh,
             this.tsmiLo,
@@ -304,7 +319,7 @@
             // 
             this.tsmiInverted.CheckOnClick = true;
             this.tsmiInverted.Name = "tsmiInverted";
-            this.tsmiInverted.Size = new System.Drawing.Size(148, 22);
+            this.tsmiInverted.Size = new System.Drawing.Size(164, 22);
             this.tsmiInverted.Text = "Inverted";
             this.tsmiInverted.Click += new System.EventHandler(this.tsmiInverted_Click);
             // 
@@ -312,26 +327,26 @@
             // 
             this.tsmiHueIntensity.CheckOnClick = true;
             this.tsmiHueIntensity.Name = "tsmiHueIntensity";
-            this.tsmiHueIntensity.Size = new System.Drawing.Size(148, 22);
+            this.tsmiHueIntensity.Size = new System.Drawing.Size(164, 22);
             this.tsmiHueIntensity.Text = "Hue Intensity";
             this.tsmiHueIntensity.Click += new System.EventHandler(this.tsmiHueIntensity_Click);
             // 
             // toolStripSeparator7
             // 
             this.toolStripSeparator7.Name = "toolStripSeparator7";
-            this.toolStripSeparator7.Size = new System.Drawing.Size(145, 6);
+            this.toolStripSeparator7.Size = new System.Drawing.Size(161, 6);
             // 
             // tsmiHigh
             // 
             this.tsmiHigh.Name = "tsmiHigh";
-            this.tsmiHigh.Size = new System.Drawing.Size(148, 22);
+            this.tsmiHigh.Size = new System.Drawing.Size(164, 22);
             this.tsmiHigh.Text = "Gamma: High";
             this.tsmiHigh.Click += new System.EventHandler(this.DisplayIntensifyModeClicked);
             // 
             // tsmiLo
             // 
             this.tsmiLo.Name = "tsmiLo";
-            this.tsmiLo.Size = new System.Drawing.Size(148, 22);
+            this.tsmiLo.Size = new System.Drawing.Size(164, 22);
             this.tsmiLo.Text = "Gamma: Lo";
             this.tsmiLo.Click += new System.EventHandler(this.DisplayIntensifyModeClicked);
             // 
@@ -340,7 +355,7 @@
             this.tsmiOff.Checked = true;
             this.tsmiOff.CheckState = System.Windows.Forms.CheckState.Checked;
             this.tsmiOff.Name = "tsmiOff";
-            this.tsmiOff.Size = new System.Drawing.Size(148, 22);
+            this.tsmiOff.Size = new System.Drawing.Size(164, 22);
             this.tsmiOff.Text = "Gamma: Off";
             this.tsmiOff.Click += new System.EventHandler(this.DisplayIntensifyModeClicked);
             // 
@@ -506,6 +521,13 @@
             this.miYahooGroup.Size = new System.Drawing.Size(193, 22);
             this.miYahooGroup.Text = "OccuRec Yahoo Group";
             this.miYahooGroup.Click += new System.EventHandler(this.miYahooGroup_Click);
+            // 
+            // miReleaseNotes
+            // 
+            this.miReleaseNotes.Name = "miReleaseNotes";
+            this.miReleaseNotes.Size = new System.Drawing.Size(193, 22);
+            this.miReleaseNotes.Text = "Latest &Release Notes";
+            this.miReleaseNotes.Click += new System.EventHandler(this.miReleaseNotes_Click);
             // 
             // toolStripMenuItem1
             // 
@@ -1123,19 +1145,6 @@
             this.openFileDialog.DefaultExt = "avi";
             this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
             // 
-            // tssStandardVideoMode
-            // 
-            this.tssStandardVideoMode.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.tssStandardVideoMode.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
-            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
-            this.tssStandardVideoMode.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
-            this.tssStandardVideoMode.ForeColor = System.Drawing.Color.Green;
-            this.tssStandardVideoMode.Name = "tssStandardVideoMode";
-            this.tssStandardVideoMode.Size = new System.Drawing.Size(32, 19);
-            this.tssStandardVideoMode.Text = "PAL";
-            this.tssStandardVideoMode.Visible = false;
-            // 
             // ucVideoControl
             // 
             this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -1145,12 +1154,13 @@
             this.ucVideoControl.TabIndex = 27;
             this.ucVideoControl.Visible = false;
             // 
-            // miReleaseNotes
+            // tsmiSaturationCheck
             // 
-            this.miReleaseNotes.Name = "miReleaseNotes";
-            this.miReleaseNotes.Size = new System.Drawing.Size(193, 22);
-            this.miReleaseNotes.Text = "Latest &Release Notes";
-            this.miReleaseNotes.Click += new System.EventHandler(this.miReleaseNotes_Click);
+            this.tsmiSaturation.CheckOnClick = true;
+            this.tsmiSaturation.Name = "tsmiSaturation";
+            this.tsmiSaturation.Size = new System.Drawing.Size(164, 22);
+            this.tsmiSaturation.Text = "Saturation Check";
+            this.tsmiSaturation.Click += new System.EventHandler(this.tsmiSaturationCheck_Click);
             // 
             // frmMain
             // 
@@ -1305,6 +1315,7 @@
         private System.Windows.Forms.ToolStripMenuItem miConnectQHYCCD;
         protected internal System.Windows.Forms.ToolStripStatusLabel tssStandardVideoMode;
         private System.Windows.Forms.ToolStripMenuItem miReleaseNotes;
+        protected internal System.Windows.Forms.ToolStripMenuItem tsmiSaturation;
 	}
 }
 

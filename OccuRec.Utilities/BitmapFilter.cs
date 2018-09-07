@@ -656,7 +656,7 @@ namespace OccuRec.Utilities
             bitmapSrc.UnlockBits(bmData);
         }
 
-	    public static void ApplyGamma(Bitmap bitmap, bool hiGamma, bool invertAfterGamma, bool hueIntensity)
+        public static void ApplyGamma(Bitmap bitmap, bool hiGamma, bool invertAfterGamma, bool hueIntensity, bool saturationCheck, int saturationWarningValue)
 		{
 			int width = bitmap.Width;
 			int height = bitmap.Height;
@@ -709,9 +709,17 @@ namespace OccuRec.Utilities
 				{
 					for (int x = 0; x < bmData.Width; ++x)
 					{
-						p[0] = hiGamma ? HI_GAMMA_TABLE[p[0]] : LO_GAMMA_TABLE[p[0]];
-						p[1] = hiGamma ? HI_GAMMA_TABLE[p[1]] : LO_GAMMA_TABLE[p[1]];
-						p[2] = hiGamma ? HI_GAMMA_TABLE[p[2]] : LO_GAMMA_TABLE[p[2]];
+					    if (saturationCheck &&
+					        (p[0] > saturationWarningValue || p[1] > saturationWarningValue || p[2] > saturationWarningValue))
+					    {
+                            p[0] = 0; p[1] = 0; p[2] = 160;
+					    }
+					    else
+					    {
+                            p[0] = hiGamma ? HI_GAMMA_TABLE[p[0]] : LO_GAMMA_TABLE[p[0]];
+                            p[1] = hiGamma ? HI_GAMMA_TABLE[p[1]] : LO_GAMMA_TABLE[p[1]];
+                            p[2] = hiGamma ? HI_GAMMA_TABLE[p[2]] : LO_GAMMA_TABLE[p[2]];
+                        }
 
 						if (invertAfterGamma)
 						{
@@ -745,7 +753,7 @@ namespace OccuRec.Utilities
 
 		}
 
-		public static void ProcessInvertAndHueIntensity(Bitmap bitmap, bool invert, bool hueIntensity)
+        public static void ProcessInvertSaturationAndHueIntensity(Bitmap bitmap, bool invert, bool hueIntensity, bool saturationCheck, int saturationWarningValue)
 		{
 			int width = bitmap.Width;
 			int height = bitmap.Height;
@@ -791,11 +799,19 @@ namespace OccuRec.Utilities
 				byte* p = (byte*)(void*)bmData.Scan0;
 
 				int nOffset = stride - bmData.Width * 3;
-
+			    
 				for (int y = 0; y < bmData.Height; ++y)
 				{
 					for (int x = 0; x < bmData.Width; ++x)
 					{
+					    if (saturationCheck)
+					    {
+                            if (p[0] > saturationWarningValue || p[1] > saturationWarningValue || p[2] > saturationWarningValue)
+					        {
+                                p[0] = 0; p[1] = 0; p[2] = 160;
+					        }
+					    }
+
 						if (invert)
 						{
 							p[0] = (byte)(Math.Min(255, 255 - p[0]));

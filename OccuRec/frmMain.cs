@@ -2162,6 +2162,12 @@ namespace OccuRec
 			m_VideoRenderingController.SetDisplayInvertMode(tsmiInverted.Checked);
 		}
 
+
+        private void tsmiSaturationCheck_Click(object sender, EventArgs e)
+        {
+            m_VideoRenderingController.SetDisplaySaturationMode(tsmiSaturation.Checked);
+        }
+
 		private void btnOneStack_Click(object sender, EventArgs e)
 		{
 			var frm = new frmOneStacking();

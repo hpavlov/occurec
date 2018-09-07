@@ -34,6 +34,7 @@ namespace OccuRec.Config.Panels
 			cbxUserPreserveOSDLines.Checked = Settings.Default.PreserveVTIUserSpecifiedValues;
 			nudPreserveVTITopRow.SetNUDValue(Settings.Default.PreserveVTIFirstRow);
 			nudPreserveVTIBottomRow.SetNUDValue(Settings.Default.PreserveVTILastRow);
+            nudSaturationWarning.SetNUDValue(Settings.Default.SaturationWarning);
 
 			cbxGraphDebugMode.Checked = Settings.Default.VideoGraphDebugMode;
 			cbxSaveVtiOsdReport.Checked = Settings.Default.VtiOsdSaveReport;
@@ -79,6 +80,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.RecordStatusSectionOnly = cbxStatusSectionOnly.Checked;
 			Settings.Default.NTPDebugConfigValue1 = (int)nudNTPDebugValue1.Value;
 			Settings.Default.NTPDebugConfigValue2 = (float)nudNTPDebugValue2.Value;
+            Settings.Default.SaturationWarning = (int)nudSaturationWarning.Value;
 			Settings.Default.EasyCAPOCR = cbxLiveOCR.Checked;
 			Settings.Default.PreserveVTIUserSpecifiedValues = cbxUserPreserveOSDLines.Checked;
 			Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;

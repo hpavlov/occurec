@@ -1107,6 +1107,18 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("240")]
+        public int SaturationWarning {
+            get {
+                return ((int)(this["SaturationWarning"]));
+            }
+            set {
+                this["SaturationWarning"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("3")]
         public int NumberOfNTPRequestsPerUpdate {
             get {
@@ -1246,6 +1258,18 @@ namespace OccuRec.Properties {
             }
             set {
                 this["UseHueIntensityDisplayMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseSaturationCheckDisplayMode {
+            get {
+                return ((bool)(this["UseSaturationCheckDisplayMode"]));
+            }
+            set {
+                this["UseSaturationCheckDisplayMode"] = value;
             }
         }
         

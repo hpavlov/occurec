@@ -52,6 +52,7 @@ namespace OccuRec.Controllers
 
 		private bool m_DisplayHueIntensityMode;
 		private bool m_DisplayInvertedMode;
+        private bool m_DisplaySaturationCheckMode;
 		private DisplayIntensifyMode m_DisplayIntensifyMode;
 
 		public VideoRenderingController(frmMain mainForm, CameraStateManager stateManager, FrameAnalysisManager analysisManager)
@@ -66,9 +67,11 @@ namespace OccuRec.Controllers
 			m_DisplayIntensifyMode = Settings.Default.DisplayIntensifyMode;
 			m_DisplayInvertedMode = Settings.Default.UseInvertedDisplayMode;
 			m_DisplayHueIntensityMode = Settings.Default.UseHueIntensityDisplayMode;
+            m_DisplaySaturationCheckMode = Settings.Default.UseSaturationCheckDisplayMode;
 
 			m_MainForm.tsmiHueIntensity.Checked = m_DisplayHueIntensityMode;
 			m_MainForm.tsmiInverted.Checked = m_DisplayInvertedMode;
+            m_MainForm.tsmiSaturation.Checked = m_DisplaySaturationCheckMode;
 			m_MainForm.tsmiOff.Checked = m_DisplayIntensifyMode == DisplayIntensifyMode.Off;
 			m_MainForm.tsmiLo.Checked = m_DisplayIntensifyMode == DisplayIntensifyMode.Lo;
 			m_MainForm.tsmiHigh.Checked = m_DisplayIntensifyMode == DisplayIntensifyMode.Hi;
@@ -161,7 +164,7 @@ namespace OccuRec.Controllers
 
 								analysisManager.ProcessFrame(frameWrapper, bmp);
 
-								if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off || m_DisplayInvertedMode || m_DisplayHueIntensityMode)
+                                if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off || m_DisplayInvertedMode || m_DisplayHueIntensityMode || m_DisplaySaturationCheckMode)
 								{
                                     using (var memStr = new MemoryStream())
                                     {
@@ -171,9 +174,9 @@ namespace OccuRec.Controllers
                                     }
 									// For display purposes only we apply display gamma and/or invert when requested by the user
 									if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off)
-										BitmapFilter.ApplyGamma(bmp, m_DisplayIntensifyMode == DisplayIntensifyMode.Hi, m_DisplayInvertedMode, m_DisplayHueIntensityMode);
-									else if (m_DisplayInvertedMode || m_DisplayHueIntensityMode)
-										BitmapFilter.ProcessInvertAndHueIntensity(bmp, m_DisplayInvertedMode, m_DisplayHueIntensityMode);
+                                        BitmapFilter.ApplyGamma(bmp, m_DisplayIntensifyMode == DisplayIntensifyMode.Hi, m_DisplayInvertedMode, m_DisplayHueIntensityMode, m_DisplaySaturationCheckMode, Settings.Default.SaturationWarning);
+                                    else if (m_DisplayInvertedMode || m_DisplayHueIntensityMode || m_DisplaySaturationCheckMode)
+                                        BitmapFilter.ProcessInvertSaturationAndHueIntensity(bmp, m_DisplayInvertedMode, m_DisplayHueIntensityMode, m_DisplaySaturationCheckMode, Settings.Default.SaturationWarning);
 								}
 
                                 try
@@ -260,6 +263,14 @@ namespace OccuRec.Controllers
 			Settings.Default.UseHueIntensityDisplayMode = hueSelected;
 			Settings.Default.Save();
 		}
+
+        public void SetDisplaySaturationMode(bool saturationSelected)
+		{
+            m_DisplaySaturationCheckMode = saturationSelected;
+
+            Settings.Default.UseSaturationCheckDisplayMode = saturationSelected;
+			Settings.Default.Save();
+		}        
 
         public void Dispose()
         {
