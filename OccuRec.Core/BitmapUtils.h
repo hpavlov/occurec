@@ -10,7 +10,8 @@
 
 #include <windows.h>
 
-HRESULT GetBitmapPixels(long width, long height, long bpp, long* pixels, BYTE* bitmapPixels);
+HRESULT GetBitmapPixels(long width, long height, long bpp, long flipMode, long* pixels, BYTE* bitmapPixels);
+HRESULT GetBitmapPixels2(long width, long height, long bpp, long flipMode, long* pixels, BYTE* bitmapPixels, long gamma, bool invert, bool hueIntensity, bool saturationCheck, long saturationWarningValue);
 HRESULT GetColourBitmapPixels(long width, long height, long bpp, long* pixels, BYTE* bitmapPixels);
 HRESULT GetRGGBBayerBitmapPixels(long width, long height, long bpp, long* pixels, BYTE* bitmapPixels);
 HRESULT GetMonochromePixelsFromBitmap(long width, long height, long bpp, long flipMode, HBITMAP* bitmap, long* pixels, int mode);

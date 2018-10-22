@@ -8,7 +8,10 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using OccuRec.Controllers;
 using OccuRec.Drivers;
+using OccuRec.Properties;
+using OccuRec.Utilities;
 
 namespace OccuRec.Helpers
 {
@@ -19,6 +22,7 @@ namespace OccuRec.Helpers
 	    int GetPixel(int x, int y, int plain);
         IntPtr GetDisplayHBitmap();
         Bitmap GetDisplayBitmap();
+        Bitmap GetDisplayBitmap(DisplayIntensifyMode gamma, bool invert, bool hueIntensity, bool saturationCheck, int saturationWarningValue);
         object GetImageArray(Bitmap bmp, SensorType sensorType, LumaConversionMode conversionMode, bool flipHorizontally, bool flipVertically);
     }
 
@@ -120,6 +124,11 @@ namespace OccuRec.Helpers
 			}
 
             return null;
+        }
+
+        public Bitmap GetDisplayBitmap(DisplayIntensifyMode gamma, bool invert, bool hueIntensity, bool saturationCheck, int saturationWarningValue)
+        {
+            return NativeHelpers.PrepareBitmapForDisplay_ApplyGammaInvertSaturationAndHueIntensity(intPixelArray, imageWidth, imageHeight, gamma, invert, hueIntensity, saturationCheck, saturationWarningValue);
         }
 
         public int GetPixel(int x, int y)

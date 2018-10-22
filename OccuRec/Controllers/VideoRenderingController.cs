@@ -142,42 +142,50 @@ namespace OccuRec.Controllers
                             {
                                 lastDisplayedVideoFrameNumber = frameWrapper.UniqueFrameId;
 
-                                Bitmap bmp = frame.PreviewBitmap;
+                                Bitmap bmp;
 
-                                if (bmp == null)
+                                var pixels = frame.ImageArray as int[,];
+                                if (pixels != null && videoObject.SensorType == SensorType.Monochrome)
                                 {
                                     cameraImage.SetImageArray(
-										frame.ImageArray,
-                                        imageWidth,
-                                        imageHeight,
-                                        videoObject.SensorType);
+                                       pixels,
+                                       imageWidth,
+                                       imageHeight,
+                                       videoObject.SensorType);
 
-                                    bmp = cameraImage.GetDisplayBitmap();
+                                    if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off || m_DisplayInvertedMode || m_DisplayHueIntensityMode || m_DisplaySaturationCheckMode)
+                                    {
+                                        bmp = cameraImage.GetDisplayBitmap(m_DisplayIntensifyMode, m_DisplayInvertedMode, m_DisplayHueIntensityMode, m_DisplaySaturationCheckMode, Settings.Default.SaturationWarning);    
+                                    }
+                                    else
+                                    {
+                                        bmp = cameraImage.GetDisplayBitmap();    
+                                    }
                                 }
-								
-                                if (frame.ImageArray == null)
+                                else
                                 {
-								    frameWrapper.ImageArray = cameraImage.GetImageArray(bmp, SensorType.Monochrome, LumaConversionMode.R, Settings.Default.HorizontalFlip, Settings.Default.VerticalFlip);
+                                    bmp = frame.PreviewBitmap;
+
+                                    if (bmp == null)
+                                    {
+                                        cameraImage.SetImageArray(
+                                            frame.ImageArray,
+                                            imageWidth,
+                                            imageHeight,
+                                            videoObject.SensorType);
+
+                                        bmp = cameraImage.GetDisplayBitmap();
+                                    }
+
+                                    if (frame.ImageArray == null)
+                                    {
+                                        frameWrapper.ImageArray = cameraImage.GetImageArray(bmp, SensorType.Monochrome, LumaConversionMode.R, Settings.Default.HorizontalFlip, Settings.Default.VerticalFlip);
+                                    }
                                 }
 
                                 stateManager.ProcessFrame(frameWrapper);
 
 								analysisManager.ProcessFrame(frameWrapper, bmp);
-
-                                if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off || m_DisplayInvertedMode || m_DisplayHueIntensityMode || m_DisplaySaturationCheckMode)
-								{
-                                    using (var memStr = new MemoryStream())
-                                    {
-                                        bmp.Save(memStr, ImageFormat.Bmp);
-                                        memStr.Seek(0, SeekOrigin.Begin);
-                                        bmp = new Bitmap(memStr);
-                                    }
-									// For display purposes only we apply display gamma and/or invert when requested by the user
-									if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off)
-                                        BitmapFilter.ApplyGamma(bmp, m_DisplayIntensifyMode == DisplayIntensifyMode.Hi, m_DisplayInvertedMode, m_DisplayHueIntensityMode, m_DisplaySaturationCheckMode, Settings.Default.SaturationWarning);
-                                    else if (m_DisplayInvertedMode || m_DisplayHueIntensityMode || m_DisplaySaturationCheckMode)
-                                        BitmapFilter.ProcessInvertSaturationAndHueIntensity(bmp, m_DisplayInvertedMode, m_DisplayHueIntensityMode, m_DisplaySaturationCheckMode, Settings.Default.SaturationWarning);
-								}
 
                                 try
                                 {

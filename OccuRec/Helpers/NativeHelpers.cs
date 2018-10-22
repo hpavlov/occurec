@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using OccuRec.Controllers;
 using OccuRec.OCR;
 using OccuRec.Properties;
 using OccuRec.Tracking;
@@ -274,6 +275,21 @@ namespace OccuRec.Helpers
 			[In, MarshalAs(UnmanagedType.LPArray)] int[,] pixels,
 			[In, Out] byte[] bitmapBytes);
 
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        //HRESULT GetBitmapPixels2(long width, long height, long bpp, long flipMode, long* pixels, BYTE* bitmapPixels, int gamma, bool invert, bool hueIntensity, bool saturationCheck, int saturationWarningValue)
+        private static extern int GetBitmapPixels2(
+            int width,
+            int height,
+            int bpp,
+            int flipMode,
+            [In, MarshalAs(UnmanagedType.LPArray)] int[,] pixels,
+            [In, Out] byte[] bitmapBytes,
+            int gamma, 
+            bool invert, 
+            bool hueIntensity, 
+            bool saturationCheck, 
+            int saturationWarningValue);
+
 		[DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 		//HRESULT GetColourBitmapPixels(long width, long height, long bpp, long flipMode, long* pixels, BYTE* bitmapPixels)
 		private static extern int GetColourBitmapPixels(
@@ -529,6 +545,22 @@ namespace OccuRec.Helpers
 
 			return bitmapBytes;			
 		}
+
+        public static Bitmap PrepareBitmapForDisplay_ApplyGammaInvertSaturationAndHueIntensity(int[,] pixels, int width, int height, DisplayIntensifyMode gamma, bool invert, bool hueIntensity, bool saturationCheck, int saturationWarningValue)
+        {
+            Bitmap displayBitmap = null;
+
+            byte[] rawBitmapBytes = new byte[(width * height * 3) + 40 + 14 + 1];
+
+            GetBitmapPixels2(width, height, (int)8, 0, pixels, rawBitmapBytes, (int)gamma, invert, hueIntensity, saturationCheck, saturationWarningValue);
+
+            using (MemoryStream memStr = new MemoryStream(rawBitmapBytes))
+            {
+                displayBitmap = (Bitmap)Image.FromStream(memStr);
+            }
+
+            return displayBitmap;
+        }
 
 	    private static Bitmap PrepareBitmapForDisplay(object imageArray, int width, int height, bool useVariantPixels)
 		{

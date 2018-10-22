@@ -8,6 +8,7 @@ EXPORTS
     ; Explicit exports can go here
 
 	GetBitmapPixels
+	GetBitmapPixels2
 	GetColourBitmapPixels
 	GetRGGBBayerBitmapPixels
 	GetMonochromePixelsFromBitmap
