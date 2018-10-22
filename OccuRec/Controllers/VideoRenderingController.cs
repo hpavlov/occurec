@@ -76,6 +76,8 @@ namespace OccuRec.Controllers
 			m_MainForm.tsmiLo.Checked = m_DisplayIntensifyMode == DisplayIntensifyMode.Lo;
 			m_MainForm.tsmiHigh.Checked = m_DisplayIntensifyMode == DisplayIntensifyMode.Hi;
 
+		    UpdateDisplayModeStatusLabel();
+
             cameraImage = new CameraImage();
 
             ThreadPool.QueueUserWorkItem(new WaitCallback(DisplayVideoFrames));
@@ -248,12 +250,24 @@ namespace OccuRec.Controllers
             m_MainForm.PaintVideoFrame(frame, bmp);
         }
 
+        private void UpdateDisplayModeStatusLabel()
+        {
+            string label = "Display Mode";
+            if (m_DisplayIntensifyMode != DisplayIntensifyMode.Off)
+            {
+                label += m_DisplayIntensifyMode == DisplayIntensifyMode.Hi ? " - Hi" : " - Lo";
+            }
+            m_MainForm.tsbtnDisplayMode.Text = label;
+        }
+
 		public void SetDisplayIntensifyMode(DisplayIntensifyMode newMode)
 		{
 			m_DisplayIntensifyMode = newMode;
 
 			Settings.Default.DisplayIntensifyMode = newMode;
 			Settings.Default.Save();
+
+		    UpdateDisplayModeStatusLabel();
 		}
 
 		public void SetDisplayInvertMode(bool inverted)

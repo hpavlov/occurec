@@ -33,6 +33,7 @@
             this.tsbtnDisplayMode = new System.Windows.Forms.ToolStripSplitButton();
             this.tsmiInverted = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiHueIntensity = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiSaturation = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
             this.tsmiHigh = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiLo = new System.Windows.Forms.ToolStripMenuItem();
@@ -120,7 +121,6 @@
             this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
-            this.tsmiSaturation = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -330,6 +330,14 @@
             this.tsmiHueIntensity.Size = new System.Drawing.Size(164, 22);
             this.tsmiHueIntensity.Text = "Hue Intensity";
             this.tsmiHueIntensity.Click += new System.EventHandler(this.tsmiHueIntensity_Click);
+            // 
+            // tsmiSaturation
+            // 
+            this.tsmiSaturation.CheckOnClick = true;
+            this.tsmiSaturation.Name = "tsmiSaturation";
+            this.tsmiSaturation.Size = new System.Drawing.Size(164, 22);
+            this.tsmiSaturation.Text = "Saturation Check";
+            this.tsmiSaturation.Click += new System.EventHandler(this.tsmiSaturationCheck_Click);
             // 
             // toolStripSeparator7
             // 
@@ -1153,14 +1161,6 @@
             this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
             this.ucVideoControl.TabIndex = 27;
             this.ucVideoControl.Visible = false;
-            // 
-            // tsmiSaturationCheck
-            // 
-            this.tsmiSaturation.CheckOnClick = true;
-            this.tsmiSaturation.Name = "tsmiSaturation";
-            this.tsmiSaturation.Size = new System.Drawing.Size(164, 22);
-            this.tsmiSaturation.Text = "Saturation Check";
-            this.tsmiSaturation.Click += new System.EventHandler(this.tsmiSaturationCheck_Click);
             // 
             // frmMain
             // 

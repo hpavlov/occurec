@@ -2148,7 +2148,7 @@ namespace OccuRec
 												   ? DisplayIntensifyMode.Off
 												   : (tsmiHigh.Checked ? DisplayIntensifyMode.Hi : DisplayIntensifyMode.Lo);
 
-				m_VideoRenderingController.SetDisplayIntensifyMode(newMode);				
+			    m_VideoRenderingController.SetDisplayIntensifyMode(newMode);
 			}
 		}
 
