@@ -800,7 +800,11 @@ namespace OccuRec
 						tssFreeDiskSpace.Visible = false;
 
 					tssRecordingFile.Visible = true;
-					btnStopRecording.Enabled = true;
+				    if (!btnStopRecording.Enabled)
+				    {
+                        btnStopRecording.Enabled = true;
+                        lbSchedule.Focus();
+				    }
 					btnRecord.Enabled = false;
 				}
                 else if (

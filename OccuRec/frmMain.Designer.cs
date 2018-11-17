@@ -774,7 +774,7 @@
             this.lbSchedule.Name = "lbSchedule";
             this.lbSchedule.ScrollAlwaysVisible = true;
             this.lbSchedule.Size = new System.Drawing.Size(167, 95);
-            this.lbSchedule.TabIndex = 0;
+            this.lbSchedule.TabIndex = 5;
             // 
             // btnImageSettings
             // 
@@ -793,7 +793,7 @@
             this.lblVideoFormat.Location = new System.Drawing.Point(106, 545);
             this.lblVideoFormat.Name = "lblVideoFormat";
             this.lblVideoFormat.Size = new System.Drawing.Size(77, 14);
-            this.lblVideoFormat.TabIndex = 7;
+            this.lblVideoFormat.TabIndex = 5;
             this.lblVideoFormat.Text = "N/A";
             // 
             // btnStopRecording
@@ -803,7 +803,7 @@
             this.btnStopRecording.Location = new System.Drawing.Point(101, 517);
             this.btnStopRecording.Name = "btnStopRecording";
             this.btnStopRecording.Size = new System.Drawing.Size(76, 23);
-            this.btnStopRecording.TabIndex = 5;
+            this.btnStopRecording.TabIndex = 6;
             this.btnStopRecording.Text = "STOP";
             this.btnStopRecording.UseVisualStyleBackColor = true;
             this.btnStopRecording.Click += new System.EventHandler(this.btnStopRecording_Click);
