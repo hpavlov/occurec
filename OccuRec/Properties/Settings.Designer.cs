@@ -484,6 +484,18 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool WarnIfRunningOnBattery {
+            get {
+                return ((bool)(this["WarnIfRunningOnBattery"]));
+            }
+            set {
+                this["WarnIfRunningOnBattery"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool ForceIntegrationRatesRestrictions {
             get {
                 return ((bool)(this["ForceIntegrationRatesRestrictions"]));

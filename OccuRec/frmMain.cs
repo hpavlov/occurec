@@ -1687,6 +1687,8 @@ namespace OccuRec
 					FileNameGenerator.CheckAndWarnForFileSystemLimitation();
 			}
 
+            PowerManagement.CheckPowerSettings(this);
+
             int currVersion = UpdateManager.CurrentlyInstalledOccuRecVersion();
             if (Settings.Default.ReleaseNotesDisplayedForVersion < currVersion)
             {
