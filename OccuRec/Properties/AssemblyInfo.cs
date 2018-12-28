@@ -17,7 +17,7 @@ using OccuRec.Helpers;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("OccuRec")]
-[assembly: AssemblyCopyright("Copyright © Hristo Pavlov 2013-2017")]
+[assembly: AssemblyCopyright("Copyright © Hristo Pavlov 2013-2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -39,7 +39,7 @@ using OccuRec.Helpers;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.2.0.0")]
-[assembly: AssemblyFileVersion("3.2.0")]
-[assembly: ReleaseDate("2017-12-02")]
+[assembly: AssemblyVersion("3.2.0.1")]
+[assembly: AssemblyFileVersion("3.2.1")]
+[assembly: ReleaseDate("2017-12-28")]
 [assembly: BetaReleaseAttribute()]

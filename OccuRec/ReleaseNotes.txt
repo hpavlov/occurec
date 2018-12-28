@@ -1,5 +1,10 @@
 ﻿OccRec Release Notes
 ---------------------
+v3.2.1 (2017-12-28)
+- Made the Hue, Inverted and Gamma display modes work again.
+- Added a 'Saturation Check' display mode.
+- Minor improvements, including warnings if hibernate/sleep is enabled.
+
 v3.2.0 (2017-12-02)
 - AAV: Changed a config setting for all setups that should result in fewer dropped frames after an integration rate has been locked.
 - AAV: Now an error message will be displayed if the selected video mode was not set successfully by the frame grabber.
