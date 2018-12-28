@@ -1,4 +1,4 @@
-﻿OccRec Release Notes
+﻿OccuRec Release Notes
 ---------------------
 v3.2.1 (2017-12-28)
 - Made the Hue, Inverted and Gamma display modes work again.
