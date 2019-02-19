@@ -33,11 +33,29 @@ namespace OccuRec.Drivers.QHYVideo
             {
                 pixelsVariant = new object[height, width];
                 pixels = null;
+
+                for (int y = 0; y < height; ++y)
+                {
+                    for (int x = 0; x < width; ++x)
+                    {
+                        byte pixelVal = bpp == 16 ? pixelBytes[2 * (y * width + x) + 1] : pixelBytes[y * width + x];
+                        pixelsVariant[y, x] = pixelVal;
+                    }
+                }
             }
             else
             {
                 pixels = new int[height, width];
                 pixelsVariant = null;
+
+                for (int y = 0; y < height; ++y)
+                {
+                    for (int x = 0; x < width; ++x)
+                    {
+                        byte pixelVal = bpp == 16 ? pixelBytes[2 * (y * width + x) + 1] : pixelBytes[y * width + x];
+                        pixels[y, x] = pixelVal;
+                    }
+                }
             }
 
             m_PreviewBitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
