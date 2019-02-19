@@ -837,4 +837,244 @@
 			</CharDefinition>
 		</CharDefinitions>
 	</Configuration>
+  <Configuration Name="StarTech SVID2USB2 + IOTA-VTI (NON TV-Safe, PAL)"  Mode="Standard">
+    <Alignment>
+      <Width>720</Width>
+      <Height>576</Height>
+      <FrameTopOdd>544</FrameTopOdd>
+      <FrameTopEven>545</FrameTopEven>
+      <CharWidth>24</CharWidth>
+      <CharHeight>14</CharHeight>
+      <CharPositions>
+        <Left Id="0" Info="Fix">8</Left>
+        <Left Id="1" Info="SatCount">32</Left>
+        <Left Id="2" Info="Almanac">55</Left>
+        <Left Id="3" Info="HH">80</Left>
+        <Left Id="4" Info="HH">104</Left>
+        <Left Id="5" Info="MM">152</Left>
+        <Left Id="6" Info="MM">176</Left>
+        <Left Id="7" Info="SS">224</Left>
+        <Left Id="8" Info="SS">248</Left>
+        <Left Id="9" Info="F1">296</Left>
+        <Left Id="10" Info="F1">320</Left>
+        <Left Id="11" Info="F1">344</Left>
+        <Left Id="12" Info="F1">368</Left>
+        <Left Id="13" Info="F2">416</Left>
+        <Left Id="14" Info="F2">440</Left>
+        <Left Id="15" Info="F2">464</Left>
+        <Left Id="16" Info="F2">488</Left>
+        <Left Id="17" Info="Counter">536</Left>
+        <Left Id="18" Info="Counter">560</Left>
+        <Left Id="19" Info="Counter">584</Left>
+        <Left Id="20" Info="Counter">608</Left>
+        <Left Id="21" Info="Counter">632</Left>
+        <Left Id="22" Info="Counter">656</Left>
+        <Left Id="23" Info="Counter">680</Left>
+        <Left Id="24" Info="Counter">704</Left>
+      </CharPositions>
+    </Alignment>
+    <Zones>
+      <!-- Pixels X,Y coordinates are zero based-->
+      <OcrZone>
+        <ZoneId>0</ZoneId>
+        <ZoneName>Yellow</ZoneName>
+        <Colour>255,242,0</Colour>
+        <Pixels>
+          <Pixel X="5" Y="12" />
+          <Pixel X="6" Y="12" />
+          <Pixel X="5" Y="13" />
+          <Pixel X="6" Y="13" />
+        </Pixels>
+      </OcrZone>
+      <OcrZone>
+        <ZoneId>1</ZoneId>
+        <ZoneName>Orange</ZoneName>
+        <Colour>255,127,39</Colour>
+        <Pixels>
+          <Pixel X="9" Y="6" />
+          <Pixel X="10" Y="6" />
+          <Pixel X="9" Y="7" />
+          <Pixel X="10" Y="7" />
+        </Pixels>
+      </OcrZone>
+      <OcrZone>
+        <ZoneId>2</ZoneId>
+        <ZoneName>Green</ZoneName>
+        <Colour>34,177,76</Colour>
+        <Pixels>
+          <Pixel X="0" Y="6" />
+          <Pixel X="1" Y="6" />
+          <Pixel X="2" Y="6" />
+          <Pixel X="0" Y="7" />
+          <Pixel X="1" Y="7" />
+          <Pixel X="2" Y="7" />
+        </Pixels>
+      </OcrZone>
+      <OcrZone>
+        <ZoneId>3</ZoneId>
+        <ZoneName>Blue</ZoneName>
+        <Colour>0,162,232</Colour>
+        <Pixels>
+          <Pixel X="18" Y="6" />
+          <Pixel X="19" Y="6" />
+          <Pixel X="20" Y="6" />
+          <Pixel X="18" Y="7" />
+          <Pixel X="19" Y="7" />
+          <Pixel X="20" Y="7" />
+        </Pixels>
+      </OcrZone>
+      <OcrZone>
+        <ZoneId>4</ZoneId>
+        <ZoneName>Red</ZoneName>
+        <Colour>237,28,36</Colour>
+        <Pixels>
+          <Pixel X="5" Y="6" />
+          <Pixel X="6" Y="6" />
+          <Pixel X="5" Y="7" />
+          <Pixel X="6" Y="7" />
+        </Pixels>
+      </OcrZone>
+      <OcrZone>
+        <ZoneId>5</ZoneId>
+        <ZoneName>Purple</ZoneName>
+        <Colour>163,73,164</Colour>
+        <Pixels>
+          <Pixel X="9" Y="8" />
+          <Pixel X="10" Y="8" />
+          <Pixel X="9" Y="9" />
+          <Pixel X="10" Y="9" />
+        </Pixels>
+      </OcrZone>
+    </Zones>
+    <CharDefinitions>
+      <CharDefinition>
+        <Character>2</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="NotOff" />
+          <Zone Id="1" Value="NotOn" />
+          <Zone Id="2" Value="Off" />
+          <Zone Id="3" Value="Off" />
+          <Zone Id="5" Value="NotOff" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>3</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="On" />
+          <Zone Id="1" Value="On" />
+          <Zone Id="4" Value="Off" />
+          <Zone Id="5" Value="Off" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>7</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="Off" />
+          <Zone Id="1" Value="On" />
+          <Zone Id="5" Value="On" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>9</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="On" />
+          <Zone Id="1" Value="On" />
+          <Zone Id="2" Value="NotOn" />
+          <Zone Id="3" Value="NotOff" />
+          <Zone Id="4" Value="On" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>6</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="On" />
+          <Zone Id="1" Value="On" />
+          <Zone Id="2" Value="NotOff" />
+          <Zone Id="3" Value="NotOn" />
+          <Zone Id="4" Value="NotOff" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>8</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="NotOff" />
+          <Zone Id="1" Value="NotOff" />
+          <Zone Id="2" Value="NotOn" />
+          <Zone Id="3" Value="NotOn" />
+          <Zone Id="4" Value="NotOff" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>4</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="Off" />
+          <Zone Id="2" Value="NotOff" />
+          <Zone Id="3" Value="Off" />
+          <Zone Id="5" Value="On" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>5</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="On" />
+          <Zone Id="1" Value="Off" />
+          <Zone Id="2" Value="Off" />
+          <Zone Id="3" Value="NotOff" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>1</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="On" />
+          <Zone Id="4" Value="Off" />
+          <Zone Id="5" Value="On" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>0</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="On" />
+          <Zone Id="2" Value="NotOff" />
+          <Zone Id="3" Value="NotOff" />
+          <Zone Id="4" Value="Off" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>W</Character>
+        <FixedPosition>2</FixedPosition>
+        <ZoneSignatures>
+          <Zone Id="1" Value="On" />
+          <Zone Id="5" Value="On" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>P</Character>
+        <FixedPosition>0</FixedPosition>
+        <ZoneSignatures>
+          <Zone Id="0" Value="Off" />
+          <Zone Id="1" Value="On" />
+          <Zone Id="2" Value="NotOff" />
+          <Zone Id="3" Value="Off" />
+          <Zone Id="4" Value="NotOff" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>G</Character>
+        <FixedPosition>0</FixedPosition>
+        <ZoneSignatures>
+          <Zone Id="0" Value="NotOff" />
+          <Zone Id="2" Value="NotOff" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
+        <Character>N</Character>
+        <FixedPosition>0</FixedPosition>
+        <ZoneSignatures>
+          <Zone Id="0" Value="Off" />
+          <Zone Id="2" Value="NotOff" />
+          <Zone Id="3" Value="NotOff" />
+        </ZoneSignatures>
+      </CharDefinition>
+    </CharDefinitions>
+  </Configuration>
 </OcrSettings>

@@ -1609,5 +1609,17 @@ namespace OccuRec.Properties {
                 this["ReleaseNotesDisplayedForVersion"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool StarTechSVID2OCR {
+            get {
+                return ((bool)(this["StarTechSVID2OCR"]));
+            }
+            set {
+                this["StarTechSVID2OCR"] = value;
+            }
+        }
     }
 }

@@ -118,7 +118,7 @@
     </Setting>
     <Setting Name="WarnIfRunningOnBattery" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
-    </Setting>    
+    </Setting>
     <Setting Name="ForceIntegrationRatesRestrictions" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -277,7 +277,7 @@
     </Setting>
     <Setting Name="SaturationWarning" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">240</Value>
-    </Setting>    
+    </Setting>
     <Setting Name="NumberOfNTPRequestsPerUpdate" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">3</Value>
     </Setting>
@@ -400,6 +400,9 @@
     </Setting>
     <Setting Name="ReleaseNotesDisplayedForVersion" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="StarTechSVID2OCR" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

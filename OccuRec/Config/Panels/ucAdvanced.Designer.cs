@@ -32,7 +32,6 @@
             this.nudPreserveVTIBottomRow = new System.Windows.Forms.NumericUpDown();
             this.nudPreserveVTITopRow = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
-            this.cbxLiveOCR = new System.Windows.Forms.CheckBox();
             this.nudNTPDebugValue2 = new System.Windows.Forms.NumericUpDown();
             this.nudNTPDebugValue1 = new System.Windows.Forms.NumericUpDown();
             this.cbDebugIntegration = new System.Windows.Forms.CheckBox();
@@ -59,6 +58,8 @@
             this.cbxNTSCStandard = new System.Windows.Forms.ComboBox();
             this.nudSaturationWarning = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
+            this.cbxOCR = new System.Windows.Forms.CheckBox();
+            this.cbxOCRType = new System.Windows.Forms.ComboBox();
             this.pnlPreserveOSDArea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
@@ -128,16 +129,6 @@
             this.label3.Size = new System.Drawing.Size(16, 13);
             this.label3.TabIndex = 27;
             this.label3.Text = "to";
-            // 
-            // cbxLiveOCR
-            // 
-            this.cbxLiveOCR.AutoSize = true;
-            this.cbxLiveOCR.Location = new System.Drawing.Point(316, 164);
-            this.cbxLiveOCR.Name = "cbxLiveOCR";
-            this.cbxLiveOCR.Size = new System.Drawing.Size(118, 17);
-            this.cbxLiveOCR.TabIndex = 29;
-            this.cbxLiveOCR.Text = "PAL VTI-OSD OCR";
-            this.cbxLiveOCR.UseVisualStyleBackColor = true;
             // 
             // nudNTPDebugValue2
             // 
@@ -464,10 +455,36 @@
             this.label5.TabIndex = 51;
             this.label5.Text = "Saturation Warning Level";
             // 
+            // checkBox1
+            // 
+            this.cbxOCR.AutoSize = true;
+            this.cbxOCR.Location = new System.Drawing.Point(280, 164);
+            this.cbxOCR.Name = "cbxOCR";
+            this.cbxOCR.Size = new System.Drawing.Size(49, 17);
+            this.cbxOCR.TabIndex = 52;
+            this.cbxOCR.Text = "OCR";
+            this.cbxOCR.UseVisualStyleBackColor = true;
+            this.cbxOCR.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // cbxOCRType
+            // 
+            this.cbxOCRType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxOCRType.FormattingEnabled = true;
+            this.cbxOCRType.Items.AddRange(new object[] {
+            "StarTechSVID2",
+            "EasyCAP"});
+            this.cbxOCRType.Location = new System.Drawing.Point(335, 160);
+            this.cbxOCRType.Name = "cbxOCRType";
+            this.cbxOCRType.Size = new System.Drawing.Size(94, 21);
+            this.cbxOCRType.TabIndex = 53;
+            this.cbxOCRType.Visible = false;
+            // 
             // ucAdvanced
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cbxOCRType);
+            this.Controls.Add(this.cbxOCR);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.nudSaturationWarning);
             this.Controls.Add(this.cbxNTSCStandard);
@@ -488,7 +505,6 @@
             this.Controls.Add(this.pnlNTPDebug);
             this.Controls.Add(this.cbxUserPreserveOSDLines);
             this.Controls.Add(this.pnlPreserveOSDArea);
-            this.Controls.Add(this.cbxLiveOCR);
             this.Controls.Add(this.cbDebugIntegration);
             this.Controls.Add(this.cbxStatusSectionOnly);
             this.Name = "ucAdvanced";
@@ -515,8 +531,7 @@
 		private System.Windows.Forms.NumericUpDown nudNTPDebugValue2;
 		private System.Windows.Forms.NumericUpDown nudNTPDebugValue1;
 		private System.Windows.Forms.CheckBox cbDebugIntegration;
-		private System.Windows.Forms.CheckBox cbxStatusSectionOnly;
-		private System.Windows.Forms.CheckBox cbxLiveOCR;
+        private System.Windows.Forms.CheckBox cbxStatusSectionOnly;
 		private System.Windows.Forms.Panel pnlPreserveOSDArea;
 		private System.Windows.Forms.NumericUpDown nudPreserveVTIBottomRow;
 		private System.Windows.Forms.NumericUpDown nudPreserveVTITopRow;
@@ -543,5 +558,7 @@
         private System.Windows.Forms.ComboBox cbxNTSCStandard;
         private System.Windows.Forms.NumericUpDown nudSaturationWarning;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.CheckBox cbxOCR;
+        private System.Windows.Forms.ComboBox cbxOCRType;
 	}
 }

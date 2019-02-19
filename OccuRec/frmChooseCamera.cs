@@ -176,6 +176,22 @@ namespace OccuRec
 					Settings.Default.AavOcrEnabled = true;
 				}
 			}
+            else if (Settings.Default.StarTechSVID2OCR)
+            {
+                var selectedFormat = (VideoFormatHelper.SupportedVideoFormat)cbxVideoFormats.SelectedItem;
+                if (!OcrConfigEntry.StarTechSVID2.IsCompatible(selectedFormat))
+                {
+                    MessageBox.Show(
+                        string.Format("'{0}' is not compatible with the current video mode '{1}'.", OcrConfigEntry.StarTechSVID2.ToString(), selectedFormat.ToString()),
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    Settings.Default.SelectedOcrConfiguration = OcrConfigEntry.StarTechSVID2.Name;
+                    Settings.Default.PreserveVTIEnabled = true;
+                    Settings.Default.AavOcrEnabled = true;
+                }
+            }
 			else
 			{
 				Settings.Default.PreserveVTIEnabled = true;

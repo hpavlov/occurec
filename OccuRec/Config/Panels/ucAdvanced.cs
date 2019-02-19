@@ -30,7 +30,10 @@ namespace OccuRec.Config.Panels
 			cbxStatusSectionOnly.Checked = Settings.Default.RecordStatusSectionOnly;
 			nudNTPDebugValue1.SetNUDValue(Settings.Default.NTPDebugConfigValue1);
 			nudNTPDebugValue2.SetNUDValue(Settings.Default.NTPDebugConfigValue2);
-			cbxLiveOCR.Checked = Settings.Default.EasyCAPOCR;
+            cbxOCR.Checked = Settings.Default.EasyCAPOCR || Settings.Default.StarTechSVID2OCR;
+            if (Settings.Default.EasyCAPOCR) cbxOCRType.SelectedIndex = 1;
+            else if (Settings.Default.StarTechSVID2OCR) cbxOCRType.SelectedIndex = 0;
+            else cbxOCRType.SelectedIndex = -1;
 			cbxUserPreserveOSDLines.Checked = Settings.Default.PreserveVTIUserSpecifiedValues;
 			nudPreserveVTITopRow.SetNUDValue(Settings.Default.PreserveVTIFirstRow);
 			nudPreserveVTIBottomRow.SetNUDValue(Settings.Default.PreserveVTILastRow);
@@ -81,7 +84,8 @@ namespace OccuRec.Config.Panels
 			Settings.Default.NTPDebugConfigValue1 = (int)nudNTPDebugValue1.Value;
 			Settings.Default.NTPDebugConfigValue2 = (float)nudNTPDebugValue2.Value;
             Settings.Default.SaturationWarning = (int)nudSaturationWarning.Value;
-			Settings.Default.EasyCAPOCR = cbxLiveOCR.Checked;
+			Settings.Default.EasyCAPOCR = cbxOCR.Checked && cbxOCRType.SelectedIndex == 1;
+            Settings.Default.StarTechSVID2OCR = cbxOCR.Checked && cbxOCRType.SelectedIndex == 0;
 			Settings.Default.PreserveVTIUserSpecifiedValues = cbxUserPreserveOSDLines.Checked;
 			Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
 			Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;
@@ -204,6 +208,11 @@ namespace OccuRec.Config.Panels
         private void cbxLocationCross_CheckedChanged(object sender, EventArgs e)
         {
             pnlLocationCorss.Enabled = true;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            cbxOCRType.Visible = cbxOCR.Checked;
         }
 
 		//private void LoadVTIConfig(int width, int height)

@@ -47,5 +47,6 @@ namespace OccuRec.Config
 		}
 
 		internal static OcrConfigEntry EasyCAP = OcrConfigEntry.OcrVtiOsdEntry("Compatible EasyCap + IOTA-VTI (NON TV-Safe, PAL)");
+        internal static OcrConfigEntry StarTechSVID2 = OcrConfigEntry.OcrVtiOsdEntry("StarTech SVID2USB2 + IOTA-VTI (NON TV-Safe, PAL)");
 	}
 }
