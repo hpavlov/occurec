@@ -522,9 +522,10 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 	return S_OK;
 }
 
-HRESULT SetupOcrMinOnMaxOffLevels(long minOnLevel, long maxOffLevel)
+HRESULT SetupOcrMinOnMaxOffLevels(long minOnLevel, long maxOffLevel, bool zoneStats)
 {
 	OcrCharDefinition::SetupOcrZoneOnOffLevels(minOnLevel, maxOffLevel);
+	CharRecognizer::CollectZoneStats(zoneStats);
 
 	return S_OK;
 }

@@ -25,6 +25,9 @@ long OCR_ZONE_PIXEL_COUNTS[MAX_ZONE_COUNT];
 long OCR_MIN_ON_LEVEL;
 long OCR_MAX_OFF_LEVEL;
 
+bool COLLECT_ZONE_STATS = false;
+
+
 void OcrCharDefinition::SetupOcrZoneOnOffLevels(long minOnLevel, long maxOffLevel)
 {
 	OCR_MIN_ON_LEVEL = minOnLevel;
@@ -63,6 +66,11 @@ Zone::Zone(long zonePixelsCount)
 	{
 		ZonePixels[i] = 0;
 	}
+}
+
+void CharRecognizer::CollectZoneStats(bool collectZoneStats)
+{
+	COLLECT_ZONE_STATS = collectZoneStats;
 }
 
 CharRecognizer::CharRecognizer(long charPosition)

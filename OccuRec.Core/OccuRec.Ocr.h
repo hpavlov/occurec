@@ -112,6 +112,7 @@ class CharRecognizer
 		Zone* Zones[MAX_ZONE_COUNT];
 
 		CharRecognizer(long charPosition);
+		static void CollectZoneStats(bool collectZoneStats);
 
 		void NewFrame();
 		char Ocr(long medianValue);

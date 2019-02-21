@@ -492,7 +492,9 @@
     <EmbeddedResource Include="Scheduling\frmAddScheduleEntry.resx">
       <DependentUpon>frmAddScheduleEntry.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <EmbeddedResource Include="Helpers\CalSpec\CalSpec.db" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

@@ -62,6 +62,8 @@
             this.cbxOCRType = new System.Windows.Forms.ComboBox();
             this.nudOCRMinON = new System.Windows.Forms.NumericUpDown();
             this.nudOCRMaxOFF = new System.Windows.Forms.NumericUpDown();
+            this.pnlOCR = new System.Windows.Forms.Panel();
+            this.cbxZoneStats = new System.Windows.Forms.CheckBox();
             this.pnlPreserveOSDArea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
@@ -75,6 +77,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudSaturationWarning)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMinON)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMaxOFF)).BeginInit();
+            this.pnlOCR.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlPreserveOSDArea
@@ -475,18 +478,17 @@
             this.cbxOCRType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbxOCRType.FormattingEnabled = true;
             this.cbxOCRType.Items.AddRange(new object[] {
-            "StarTechSVID2",
+            "StarTech SVID2USB2",
             "EasyCAP"});
-            this.cbxOCRType.Location = new System.Drawing.Point(83, 161);
+            this.cbxOCRType.Location = new System.Drawing.Point(7, 6);
             this.cbxOCRType.Name = "cbxOCRType";
-            this.cbxOCRType.Size = new System.Drawing.Size(196, 21);
+            this.cbxOCRType.Size = new System.Drawing.Size(161, 21);
             this.cbxOCRType.TabIndex = 53;
-            this.cbxOCRType.Visible = false;
             // 
             // nudOCRMinON
             // 
             this.nudOCRMinON.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.nudOCRMinON.Location = new System.Drawing.Point(341, 163);
+            this.nudOCRMinON.Location = new System.Drawing.Point(228, 8);
             this.nudOCRMinON.Maximum = new decimal(new int[] {
             256,
             0,
@@ -504,7 +506,7 @@
             // nudOCRMaxOFF
             // 
             this.nudOCRMaxOFF.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.nudOCRMaxOFF.Location = new System.Drawing.Point(286, 162);
+            this.nudOCRMaxOFF.Location = new System.Drawing.Point(173, 7);
             this.nudOCRMaxOFF.Maximum = new decimal(new int[] {
             256,
             0,
@@ -519,13 +521,32 @@
             0,
             0});
             // 
+            // pnlOCR
+            // 
+            this.pnlOCR.Controls.Add(this.cbxZoneStats);
+            this.pnlOCR.Controls.Add(this.cbxOCRType);
+            this.pnlOCR.Controls.Add(this.nudOCRMinON);
+            this.pnlOCR.Controls.Add(this.nudOCRMaxOFF);
+            this.pnlOCR.Location = new System.Drawing.Point(80, 155);
+            this.pnlOCR.Name = "pnlOCR";
+            this.pnlOCR.Size = new System.Drawing.Size(376, 31);
+            this.pnlOCR.TabIndex = 56;
+            // 
+            // cbxZoneStats
+            // 
+            this.cbxZoneStats.AutoSize = true;
+            this.cbxZoneStats.Location = new System.Drawing.Point(283, 10);
+            this.cbxZoneStats.Name = "cbxZoneStats";
+            this.cbxZoneStats.Size = new System.Drawing.Size(78, 17);
+            this.cbxZoneStats.TabIndex = 57;
+            this.cbxZoneStats.Text = "Zone Stats";
+            this.cbxZoneStats.UseVisualStyleBackColor = true;
+            // 
             // ucAdvanced
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.nudOCRMaxOFF);
-            this.Controls.Add(this.nudOCRMinON);
-            this.Controls.Add(this.cbxOCRType);
+            this.Controls.Add(this.pnlOCR);
             this.Controls.Add(this.cbxOCR);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.nudSaturationWarning);
@@ -550,7 +571,7 @@
             this.Controls.Add(this.cbDebugIntegration);
             this.Controls.Add(this.cbxStatusSectionOnly);
             this.Name = "ucAdvanced";
-            this.Size = new System.Drawing.Size(470, 371);
+            this.Size = new System.Drawing.Size(925, 371);
             this.pnlPreserveOSDArea.ResumeLayout(false);
             this.pnlPreserveOSDArea.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).EndInit();
@@ -565,6 +586,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudSaturationWarning)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMinON)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMaxOFF)).EndInit();
+            this.pnlOCR.ResumeLayout(false);
+            this.pnlOCR.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -606,5 +629,7 @@
         private System.Windows.Forms.ComboBox cbxOCRType;
         private System.Windows.Forms.NumericUpDown nudOCRMinON;
         private System.Windows.Forms.NumericUpDown nudOCRMaxOFF;
+        private System.Windows.Forms.Panel pnlOCR;
+        private System.Windows.Forms.CheckBox cbxZoneStats;
 	}
 }

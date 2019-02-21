@@ -36,6 +36,7 @@ namespace OccuRec.Config.Panels
             else cbxOCRType.SelectedIndex = -1;
             nudOCRMinON.SetNUDValue(Settings.Default.OCRMinONLevel);
             nudOCRMaxOFF.SetNUDValue(Settings.Default.OCRMaxOFFLevel);
+            cbxZoneStats.Checked = Settings.Default.CollectZoneStats;
 			cbxUserPreserveOSDLines.Checked = Settings.Default.PreserveVTIUserSpecifiedValues;
 			nudPreserveVTITopRow.SetNUDValue(Settings.Default.PreserveVTIFirstRow);
 			nudPreserveVTIBottomRow.SetNUDValue(Settings.Default.PreserveVTILastRow);
@@ -90,6 +91,7 @@ namespace OccuRec.Config.Panels
             Settings.Default.StarTechSVID2OCR = cbxOCR.Checked && cbxOCRType.SelectedIndex == 0;
             Settings.Default.OCRMinONLevel = (int)nudOCRMinON.Value;
             Settings.Default.OCRMaxOFFLevel = (int)nudOCRMaxOFF.Value;
+            Settings.Default.CollectZoneStats = cbxZoneStats.Checked;
 			Settings.Default.PreserveVTIUserSpecifiedValues = cbxUserPreserveOSDLines.Checked;
 			Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
 			Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;
@@ -216,9 +218,7 @@ namespace OccuRec.Config.Panels
 
         private void cbxOCR_CheckedChanged(object sender, EventArgs e)
         {
-            cbxOCRType.Visible = cbxOCR.Checked;
-            nudOCRMinON.Visible = cbxOCR.Checked;
-            nudOCRMaxOFF.Visible = cbxOCR.Checked;
+            pnlOCR.Visible = cbxOCR.Checked;
         }
 
 		//private void LoadVTIConfig(int width, int height)

@@ -1651,5 +1651,20 @@ namespace OccuRec.Properties {
                 this["OCRMaxOFFLevel"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CollectZoneStats
+        {
+            get
+            {
+                return ((bool)(this["CollectZoneStats"]));
+            }
+            set
+            {
+                this["CollectZoneStats"] = value;
+            }
+        }        
     }
 }
