@@ -47,6 +47,8 @@ namespace OccuRec.Helpers
 
 	    private int m_NumCheckedSpectraFrames;
 
+        private SizeF m_TimestampSize = SizeF.Empty;
+
         static OverlayManager()
         {
             for (int i = 0; i < 256; i++)
@@ -257,7 +259,15 @@ namespace OccuRec.Helpers
             {
                 if (!string.IsNullOrEmpty(frame.ExposureStartTime))
                 {
-                    g.DrawString(frame.ExposureStartTime, s_VtiOsdFont, Brushes.Lime, imageWidth - 100, 10);
+                    if (m_TimestampSize == SizeF.Empty)
+                    {
+                        m_TimestampSize = g.MeasureString(frame.ExposureStartTime, s_VtiOsdFont);
+                    }
+
+                    if (m_TimestampSize != SizeF.Empty)
+                    {
+                        g.DrawString(frame.ExposureStartTime, s_VtiOsdFont, Brushes.Lime, imageWidth - m_TimestampSize.Width - 10, 10);
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(frame.ImageInfo))
