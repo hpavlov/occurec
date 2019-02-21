@@ -26,6 +26,9 @@ long OCR_MIN_ON_LEVEL;
 long OCR_MAX_OFF_LEVEL;
 
 bool COLLECT_ZONE_STATS = false;
+long ZONE_STAT_FRAMES = 0;
+long ZONE_STATS[255];
+long ZONE_PRINT_FREQ = 15000; // 5 Min of 25fps
 
 
 void OcrCharDefinition::SetupOcrZoneOnOffLevels(long minOnLevel, long maxOffLevel)
@@ -66,11 +69,6 @@ Zone::Zone(long zonePixelsCount)
 	{
 		ZonePixels[i] = 0;
 	}
-}
-
-void CharRecognizer::CollectZoneStats(bool collectZoneStats)
-{
-	COLLECT_ZONE_STATS = collectZoneStats;
 }
 
 CharRecognizer::CharRecognizer(long charPosition)
@@ -347,6 +345,13 @@ OcrFrameProcessor::~OcrFrameProcessor()
 	EvenFieldChars.clear();
 }
 
+void OcrFrameProcessor::ConfigureZoneStatsCollection(bool collectZoneStats)
+{
+	COLLECT_ZONE_STATS = collectZoneStats;
+	::ZeroMemory(ZONE_STATS, 255);
+	ZONE_STAT_FRAMES = 0;
+}
+
 void OcrFrameProcessor::NewFrame()
 {
 	m_MedianComputationValues.clear();
@@ -419,6 +424,18 @@ void OcrFrameProcessor::ProcessZonePixel(long packedInfo, long pixX, long pixY, 
 	}
 }
 
+void OcrFrameProcessor::CollectZoneStats(CharRecognizer& charRecognizer)
+{
+	for (int i = 0; i < MAX_ZONE_COUNT; i++)
+	{
+		if (NULL != charRecognizer.Zones[i])
+		{
+			unsigned char zoneVal = charRecognizer.Zones[i]->ZoneMean;
+			ZONE_STATS[zoneVal]++;
+		}
+	}
+}
+
 void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 {
 	if (m_MedianComputationValues.size() > 0)
@@ -433,6 +450,11 @@ void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 		{
 			char chr = itCharProc->second->Ocr(medianValue);
 			m_OcredCharsOdd[position] = chr;
+
+			if (COLLECT_ZONE_STATS)
+			{
+				CollectZoneStats(*itCharProc->second);
+			}
 
 			itCharProc++;
 			position++;
@@ -466,6 +488,21 @@ void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 		//std::wstring wcTo( 256, L'#' );
 		//mbstowcs( &wcTo[0], tsTo, 128 );
 		//DebugViewPrint(L"%s to %s)", &wcFrom[0], &wcTo[0]);
+	}
+
+	if (COLLECT_ZONE_STATS)
+	{
+		ZONE_STAT_FRAMES++;
+
+		if ((ZONE_STAT_FRAMES % ZONE_PRINT_FREQ) == 0)
+		{
+			DebugViewPrint(L"OCR ZONE STATS AT %d FRAME\r\n", ZONE_STAT_FRAMES / 2);
+			for (int i = 0; i < 255; i++)
+			{
+				DebugViewPrint(L"COUNT[%d]: %ld\r\n", i, ZONE_STATS[i]);
+			}
+			::ZeroMemory(ZONE_STATS, 255);
+		}
 	}
 }
 

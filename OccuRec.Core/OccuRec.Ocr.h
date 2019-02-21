@@ -112,7 +112,6 @@ class CharRecognizer
 		Zone* Zones[MAX_ZONE_COUNT];
 
 		CharRecognizer(long charPosition);
-		static void CollectZoneStats(bool collectZoneStats);
 
 		void NewFrame();
 		char Ocr(long medianValue);
@@ -146,6 +145,7 @@ class OcrFrameProcessor
 
 		OcrErrorCode ExtractFieldInfo(char ocredChars[25], __int64 currentUtcDayAsTicks, OcredFieldOsd& fieldInfo);
 		void SafeCopyCharsReplaceZeroWithSpace(char* destBuffer, char* source, int len);
+		void CollectZoneStats(CharRecognizer& charRecognizer);
 
 	public:
 		bool Success();
@@ -172,6 +172,8 @@ class OcrFrameProcessor
 		unsigned char GetOcredAlmanacUpdateState();
 		char GetOcredGpsFixType();
 		unsigned char GetOcredGpsFixState();
+
+		static void ConfigureZoneStatsCollection(bool collectZoneStats);
 };
 
 class OcrManager
