@@ -1621,5 +1621,35 @@ namespace OccuRec.Properties {
                 this["StarTechSVID2OCR"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public int OCRMinONLevel
+        {
+            get
+            {
+                return ((int)(this["OCRMinONLevel"]));
+            }
+            set
+            {
+                this["OCRMinONLevel"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int OCRMaxOFFLevel
+        {
+            get
+            {
+                return ((int)(this["OCRMaxOFFLevel"]));
+            }
+            set
+            {
+                this["OCRMaxOFFLevel"] = value;
+            }
+        }
     }
 }

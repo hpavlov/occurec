@@ -22,6 +22,14 @@ long OCR_NUMBER_OF_CHAR_POSITIONS;
 long OCR_NUMBER_OF_ZONES;
 long OCR_ZONE_MODE;
 long OCR_ZONE_PIXEL_COUNTS[MAX_ZONE_COUNT];
+long OCR_MIN_ON_LEVEL;
+long OCR_MAX_OFF_LEVEL;
+
+void OcrCharDefinition::SetupOcrZoneOnOffLevels(long minOnLevel, long maxOffLevel)
+{
+	OCR_MIN_ON_LEVEL = minOnLevel;
+	OCR_MAX_OFF_LEVEL = maxOffLevel;
+}
 
 OcrCharDefinition::OcrCharDefinition(char character, long fixedPosition)
 {
@@ -159,8 +167,8 @@ char CharRecognizer::Ocr(long frameMedian)
 
 char CharRecognizer::OcrSplitZones()
 {
-	long MIN_ON_VALUE = 200;
-	long MAX_OFF_VALUE = 100;
+	long MIN_ON_VALUE = OCR_MIN_ON_LEVEL;
+	long MAX_OFF_VALUE = OCR_MAX_OFF_LEVEL;
 
 	vector<OcrCharDefinition*>::iterator itCharDef = OCR_CHAR_DEFS.begin();
 	while(itCharDef != OCR_CHAR_DEFS.end())
@@ -231,8 +239,8 @@ char CharRecognizer::OcrSplitZones()
 
 char CharRecognizer::OcrStandardZones(long frameMedian)
 {
-	long MIN_ON_VALUE = 220;
-	long MAX_OFF_VALUE = frameMedian + (MIN_ON_VALUE - frameMedian) / 4;
+	long MIN_ON_VALUE = OCR_MIN_ON_LEVEL;
+	long MAX_OFF_VALUE_FOR_MEDIAN = frameMedian + (MIN_ON_VALUE - frameMedian) / 4;
 
 	vector<OcrCharDefinition*>::iterator itCharDef = OCR_CHAR_DEFS.begin();
 	while(itCharDef != OCR_CHAR_DEFS.end())
@@ -263,13 +271,13 @@ char CharRecognizer::OcrStandardZones(long frameMedian)
 					break;
 				}
 
-				if (zoneBEhaviour == ZoneBehaviour::Off && zoneValue >= MAX_OFF_VALUE)
+				if (zoneBEhaviour == ZoneBehaviour::Off && zoneValue >= MAX_OFF_VALUE_FOR_MEDIAN)
 				{
 					isMatch = false;
 					break;
 				}
 
-				if (zoneBEhaviour == ZoneBehaviour::Gray && (zoneValue < MAX_OFF_VALUE || zoneValue > MIN_ON_VALUE))
+				if (zoneBEhaviour == ZoneBehaviour::Gray && (zoneValue < MAX_OFF_VALUE_FOR_MEDIAN || zoneValue > MIN_ON_VALUE))
 				{
 					isMatch = false;
 					break;
@@ -281,7 +289,7 @@ char CharRecognizer::OcrStandardZones(long frameMedian)
 					break;
 				}
 
-				if ((*itZoneConfig)->ZoneBehaviour == ZoneBehaviour::NotOff && zoneValue < MAX_OFF_VALUE)
+				if ((*itZoneConfig)->ZoneBehaviour == ZoneBehaviour::NotOff && zoneValue < MAX_OFF_VALUE_FOR_MEDIAN)
 				{
 					isMatch = false;
 					break;

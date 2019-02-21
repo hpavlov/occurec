@@ -81,6 +81,7 @@ class OcrCharDefinition
 		~OcrCharDefinition();
 
 		void AddZoneEntry(long zoneId, long zoneBehaviour, long numPixelsInZone);
+		static void SetupOcrZoneOnOffLevels(long minOnLevel, long maxOffLevel);
 };
 
 // Holds the pixel values for a single zone of a single character position

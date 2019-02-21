@@ -98,7 +98,9 @@ namespace OccuRec.OCR
 
             charRecognizer = new OcrCharRecognizer(
 				ocrConfig.Zones,
-				ocrConfig.CharDefinitions);
+				ocrConfig.CharDefinitions,
+                Settings.Default.OCRMinONLevel,
+                Settings.Default.OCRMaxOFFLevel);
 
             cameraImage = new CameraImage();
             testContext = new StateContext();

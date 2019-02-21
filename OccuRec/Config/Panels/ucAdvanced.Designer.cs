@@ -60,6 +60,8 @@
             this.label5 = new System.Windows.Forms.Label();
             this.cbxOCR = new System.Windows.Forms.CheckBox();
             this.cbxOCRType = new System.Windows.Forms.ComboBox();
+            this.nudOCRMinON = new System.Windows.Forms.NumericUpDown();
+            this.nudOCRMaxOFF = new System.Windows.Forms.NumericUpDown();
             this.pnlPreserveOSDArea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
@@ -71,6 +73,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSaturationWarning)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudOCRMinON)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudOCRMaxOFF)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlPreserveOSDArea
@@ -170,7 +174,7 @@
             // cbDebugIntegration
             // 
             this.cbDebugIntegration.AutoSize = true;
-            this.cbDebugIntegration.Location = new System.Drawing.Point(12, 164);
+            this.cbDebugIntegration.Location = new System.Drawing.Point(252, 67);
             this.cbDebugIntegration.Name = "cbDebugIntegration";
             this.cbDebugIntegration.Size = new System.Drawing.Size(161, 17);
             this.cbDebugIntegration.TabIndex = 24;
@@ -455,16 +459,16 @@
             this.label5.TabIndex = 51;
             this.label5.Text = "Saturation Warning Level";
             // 
-            // checkBox1
+            // cbxOCR
             // 
             this.cbxOCR.AutoSize = true;
-            this.cbxOCR.Location = new System.Drawing.Point(280, 164);
+            this.cbxOCR.Location = new System.Drawing.Point(12, 164);
             this.cbxOCR.Name = "cbxOCR";
             this.cbxOCR.Size = new System.Drawing.Size(49, 17);
             this.cbxOCR.TabIndex = 52;
             this.cbxOCR.Text = "OCR";
             this.cbxOCR.UseVisualStyleBackColor = true;
-            this.cbxOCR.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.cbxOCR.CheckedChanged += new System.EventHandler(this.cbxOCR_CheckedChanged);
             // 
             // cbxOCRType
             // 
@@ -473,16 +477,54 @@
             this.cbxOCRType.Items.AddRange(new object[] {
             "StarTechSVID2",
             "EasyCAP"});
-            this.cbxOCRType.Location = new System.Drawing.Point(335, 160);
+            this.cbxOCRType.Location = new System.Drawing.Point(83, 161);
             this.cbxOCRType.Name = "cbxOCRType";
-            this.cbxOCRType.Size = new System.Drawing.Size(94, 21);
+            this.cbxOCRType.Size = new System.Drawing.Size(196, 21);
             this.cbxOCRType.TabIndex = 53;
             this.cbxOCRType.Visible = false;
+            // 
+            // nudOCRMinON
+            // 
+            this.nudOCRMinON.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudOCRMinON.Location = new System.Drawing.Point(341, 163);
+            this.nudOCRMinON.Maximum = new decimal(new int[] {
+            256,
+            0,
+            0,
+            0});
+            this.nudOCRMinON.Name = "nudOCRMinON";
+            this.nudOCRMinON.Size = new System.Drawing.Size(49, 20);
+            this.nudOCRMinON.TabIndex = 54;
+            this.nudOCRMinON.Value = new decimal(new int[] {
+            200,
+            0,
+            0,
+            0});
+            // 
+            // nudOCRMaxOFF
+            // 
+            this.nudOCRMaxOFF.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudOCRMaxOFF.Location = new System.Drawing.Point(286, 162);
+            this.nudOCRMaxOFF.Maximum = new decimal(new int[] {
+            256,
+            0,
+            0,
+            0});
+            this.nudOCRMaxOFF.Name = "nudOCRMaxOFF";
+            this.nudOCRMaxOFF.Size = new System.Drawing.Size(49, 20);
+            this.nudOCRMaxOFF.TabIndex = 55;
+            this.nudOCRMaxOFF.Value = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
             // 
             // ucAdvanced
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.nudOCRMaxOFF);
+            this.Controls.Add(this.nudOCRMinON);
             this.Controls.Add(this.cbxOCRType);
             this.Controls.Add(this.cbxOCR);
             this.Controls.Add(this.label5);
@@ -521,6 +563,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudSaturationWarning)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudOCRMinON)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudOCRMaxOFF)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -560,5 +604,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.CheckBox cbxOCR;
         private System.Windows.Forms.ComboBox cbxOCRType;
+        private System.Windows.Forms.NumericUpDown nudOCRMinON;
+        private System.Windows.Forms.NumericUpDown nudOCRMaxOFF;
 	}
 }

@@ -50,6 +50,7 @@ EXPORTS
 	SetupOcrAlignment
 	SetupOcrZoneMatrix
 	SetupOcrChar
+	SetupOcrMinOnMaxOffLevels
 	SetupOcrCharDefinitionZone
 	DisableOcrProcessing
 

@@ -17,10 +17,12 @@ namespace OccuRec.OCR
         private List<OcrZone> zones = new List<OcrZone>();
         private List<CharDefinition> charDefinitions = new List<CharDefinition>();
 
-        public OcrCharRecognizer(List<OcrZone> zones, List<CharDefinition> charDefinitions)
+        public OcrCharRecognizer(List<OcrZone> zones, List<CharDefinition> charDefinitions, int minOnValue, int maxOffValue)
         {
             this.zones.AddRange(zones);
             this.charDefinitions.AddRange(charDefinitions);
+            MIN_ON_VALUE = minOnValue;
+            MAX_OFF_VALUE = maxOffValue;
         }
 
 		public char RecognizeCharSplitZones(double[] computedZonesTop, double[] computedZonesBottom, int charPosition)
