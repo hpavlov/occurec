@@ -147,7 +147,7 @@ namespace OccuRec.Controllers
                                 Bitmap bmp;
 
                                 var pixels = frame.ImageArray as int[,];
-                                if (pixels != null && videoObject.SensorType == SensorType.Monochrome)
+                                if (pixels != null && videoObject.Connected && videoObject.SensorType == SensorType.Monochrome)
                                 {
                                     cameraImage.SetImageArray(
                                        pixels,

@@ -154,7 +154,7 @@ namespace OccuRec.Helpers
 
 		public bool Connected
 		{
-			get { return video.Connected; }
+            get { return video != null && video.Connected; }
 			set { video.Connected = true; }
 		}
 
