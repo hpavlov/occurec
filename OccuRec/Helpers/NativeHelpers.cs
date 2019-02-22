@@ -735,7 +735,7 @@ namespace OccuRec.Helpers
             if (Settings.Default.UseAavVersion2)
             {
                 if (compression == AavCompression.QuickLZ) compression = AavCompression.Lagarith16;
-                if (imageLayout != AavImageLayout.UncompressedRaw) imageLayout  = AavImageLayout.CompressedRaw;
+                if (imageLayout != AavImageLayout.UncompressedRaw) imageLayout = AavImageLayout.CompressedRaw;
             }
 
             SetupAav(

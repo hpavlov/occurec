@@ -51,6 +51,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.CalibrationIntegrationRate = (int)nudCalibrIntegrRate.Value;
 			Settings.Default.ForceIntegrationRatesRestrictions = cbForceIntegrationRateRestrictions.Checked;
 
+            Settings.Default.UseAavVersion2 = cbxAavVersion.SelectedIndex == 0;
 			Settings.Default.UsesBufferedFrameProcessing = cbxFrameProcessingMode.SelectedIndex == 0;
 			Settings.Default.Use16BitAAV = rbIntegrationBin.Checked;
 

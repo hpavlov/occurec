@@ -83,6 +83,15 @@ long long SystemTimeToAavTicks(SYSTEMTIME systemTime)
 	return WindowsTicksToAavTicks(uli.QuadPart + EPOCH_1601_JAN_1_TICKS);
 }
 
+long long FileTimeToAavTicks(FILETIME fileTime)
+{
+	ULARGE_INTEGER uli;
+	uli.LowPart = fileTime.dwLowDateTime;
+	uli.HighPart = fileTime.dwHighDateTime;
+
+	return WindowsTicksToAavTicks(uli.QuadPart + EPOCH_1601_JAN_1_TICKS);
+}
+
 long long DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs)
 {
 	if (dayTicks > 0)

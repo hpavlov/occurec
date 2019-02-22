@@ -164,6 +164,7 @@ unsigned int STATUS_TAG_END_FRAME_ID;
 unsigned int STATUS_TAG_START_TIMESTAMP;
 unsigned int STATUS_TAG_END_TIMESTAMP;
 unsigned int STATUS_TAG_SYSTEM_TIME;
+unsigned int STATUS_TAG_SYSTEM_TIME_FILE_TIME;
 unsigned int STATUS_TAG_NTP_START_TIMESTAMP;
 unsigned int STATUS_TAG_NTP_END_TIMESTAMP;
 unsigned int STATUS_TAG_SECONDARY_START_TIMESTAMP;
@@ -365,7 +366,8 @@ HRESULT SetupAav(long aavVersion, long useImageLayout, long compressionAlgorithm
 	INTEGRATION_DETECTION_TUNING = integrationDetectionTuning == 1;
 	USE_NTP_TIMESTAMP = recordNtpTimestamp == 1;
 	USE_SECONDARY_TIMESTAMP = recordSecondaryTimestamp == 1;
-	RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS = useImageLayout == 5;
+	// Status Channel Only recording is only supported in AAV ver 1 (for smaller overall file size)
+	RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS = aavVersion == 1 && useImageLayout == 5;
 
 	if (NULL != integrationChecker)
 	{
@@ -1892,7 +1894,18 @@ void RecordCurrentFrame_AAV1(IntegratedFrame* nextFrame)
 
 		if (nextFrame->Temperature > -99 && nextFrame->Temperature < 99)
 			AavFrameAddStatusTagReal(STATUS_TAG_TEMPERATURE, nextFrame->Temperature);
+	}
+	else
+	{
+		AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime));
 
+		// TODO: Check GetSystemTimePreciseAsFileTime is supported
+		FILETIME sysTime2;
+		GetSystemTimePreciseAsFileTime(&sysTime2);
+		ULARGE_INTEGER uli;
+		uli.LowPart = sysTime2.dwLowDateTime;
+		uli.HighPart = sysTime2.dwHighDateTime;
+		AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME_FILE_TIME, uli.QuadPart);
 	}
 
 	if (OCR_IS_SETUP)
@@ -2019,34 +2032,27 @@ void RecordCurrentFrame_AAV2(IntegratedFrame* nextFrame)
 	SYSTEMTIME sysTime;
 	GetSystemTime(&sysTime);
 
-	if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
-	{
-		Check(AdvVer2::AdvVer2_FrameAddStatusTag16(STATUS_TAG_NUMBER_INTEGRATED_FRAMES, nextFrame->NumberOfIntegratedFrames));
-		Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_START_FRAME_ID, nextFrame->StartFrameId));
-		Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_END_FRAME_ID, nextFrame->EndFrameId));
-		Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime)));
+	Check(AdvVer2::AdvVer2_FrameAddStatusTag16(STATUS_TAG_NUMBER_INTEGRATED_FRAMES, nextFrame->NumberOfIntegratedFrames));
+	Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_START_FRAME_ID, nextFrame->StartFrameId));
+	Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_END_FRAME_ID, nextFrame->EndFrameId));
+	Check(AdvVer2::AdvVer2_FrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime)));
 
-		if (nextFrame->Gamma > 0)
-			Check(AdvVer2::AdvVer2_FrameAddStatusTagReal(STATUS_TAG_GAMMA, nextFrame->Gamma));
+	if (nextFrame->Gamma > 0)
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagReal(STATUS_TAG_GAMMA, nextFrame->Gamma));
 
-		if (nextFrame->Gain > 0)
-			Check(AdvVer2::AdvVer2_FrameAddStatusTagReal(STATUS_TAG_GAIN, nextFrame->Gain));
+	if (nextFrame->Gain > 0)
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagReal(STATUS_TAG_GAIN, nextFrame->Gain));
 
-		if (nextFrame->Exposure)
-			Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_EXPOSURE, &nextFrame->Exposure[0]));
+	if (nextFrame->Exposure)
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_EXPOSURE, &nextFrame->Exposure[0]));
 
-		if (nextFrame->Temperature > -99 && nextFrame->Temperature < 99)
-			Check(AdvVer2::AdvVer2_FrameAddStatusTagReal(STATUS_TAG_TEMPERATURE, nextFrame->Temperature));
-
-	}
+	if (nextFrame->Temperature > -99 && nextFrame->Temperature < 99)
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagReal(STATUS_TAG_TEMPERATURE, nextFrame->Temperature));
 
 	if (OCR_IS_SETUP)
 	{
-		if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
-		{
-			Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]));
-			Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_END_TIMESTAMP, &nextFrame->EndTimeStampStr[0]));
-		}
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_END_TIMESTAMP, &nextFrame->EndTimeStampStr[0]));
 
 		Check(AdvVer2::AdvVer2_FrameAddStatusTagUInt8(STATUS_TAG_GPS_TRACKED_SATELLITES, nextFrame->GpsTrackedSatellites));
 		Check(AdvVer2::AdvVer2_FrameAddStatusTagUInt8(STATUS_TAG_GPS_ALMANAC, nextFrame->GpsAlamancStatus));
@@ -2267,6 +2273,7 @@ HRESULT StartRecordingInternal_AAV1(LPCTSTR szFileName)
 	if (RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
 	{
 		AavDefineImageLayout(5, AAV_16 ? 16 : 8, "STATUS-CHANNEL-ONLY", "UNCOMPRESSED", 0, NULL);
+		AavAddFileTag("STATUS-CHANNEL-ONLY", "1");
 	}
 	
 	if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
@@ -2281,6 +2288,18 @@ HRESULT StartRecordingInternal_AAV1(LPCTSTR szFileName)
 		STATUS_TAG_GAMMA = AavDefineStatusSectionTag("Gamma", AavTagType::Real);
 		STATUS_TAG_EXPOSURE = AavDefineStatusSectionTag("CameraExposure", AavTagType::AnsiString255);
 		STATUS_TAG_TEMPERATURE = AavDefineStatusSectionTag("Temperature", AavTagType::Real);
+	}
+	else
+	{
+		STATUS_TAG_SYSTEM_TIME = AavDefineStatusSectionTag("SystemTime", AavTagType::ULong64);
+		STATUS_TAG_SYSTEM_TIME_FILE_TIME = AavDefineStatusSectionTag("SystemTimeFileTime", AavTagType::ULong64);
+		AavAddFileTag("PROVIDER-SystemTime", "GetSystemTime");
+		AavAddFileTag("PROVIDER-SystemTimeFileTime", "GetSystemTimePreciseAsFileTime");
+
+		// TODO: Add Memory, CPU and IO load metrics
+		// Consider only adding them as an error message if they reach some threshold
+
+		// TODO: Add File Tags for OS, CPU, CPU Features, etc
 	}
 
 	STATUS_TAG_GPS_TRACKED_SATELLITES = AavDefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8);
@@ -2452,27 +2471,19 @@ HRESULT StartRecordingInternal_AAV2(LPCTSTR szFileName)
 	}
 	Check(AdvVer2::AdvVer2_DefineImageLayout(1, "FULL-IMAGE-RAW", "UNCOMPRESSED", AAV_16 ? 16 : 8));
 	Check(AdvVer2::AdvVer2_DefineImageLayout(4, "FULL-IMAGE-RAW", USE_COMPRESSION_ALGORITHM == 1 ? "LAGARITH16" : "QUICKLZ", AAV_16 ? 16 : 8));
-
-	if (RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
-	{
-		Check(AdvVer2::AdvVer2_DefineImageLayout(5, "STATUS-CHANNEL-ONLY", "UNCOMPRESSED", AAV_16 ? 16 : 8));
-	}
 	
 	Check(AdvVer2::AdvVer2_DefineStatusSection(0));
 
-	if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
-	{
-		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("SystemTime", AavTagType::ULong64, &STATUS_TAG_SYSTEM_TIME));
-		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("IntegratedFrames", AavTagType::UInt16, &STATUS_TAG_NUMBER_INTEGRATED_FRAMES));
-		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("StartFrame", AavTagType::ULong64, &STATUS_TAG_START_FRAME_ID));
-		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("EndFrame", AavTagType::ULong64, &STATUS_TAG_END_FRAME_ID));
-		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("StartFrameTimestamp", AavTagType::AnsiString255, &STATUS_TAG_START_TIMESTAMP));
-		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("EndFrameTimestamp", AavTagType::AnsiString255, &STATUS_TAG_END_TIMESTAMP));
-		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Gain", AavTagType::Real, &STATUS_TAG_GAIN));
-		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Gamma", AavTagType::Real, &STATUS_TAG_GAMMA));
-		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("CameraExposure", AavTagType::AnsiString255, &STATUS_TAG_EXPOSURE));
-		Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Temperature", AavTagType::Real, &STATUS_TAG_TEMPERATURE));
-	}
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("SystemTime", AavTagType::ULong64, &STATUS_TAG_SYSTEM_TIME));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("IntegratedFrames", AavTagType::UInt16, &STATUS_TAG_NUMBER_INTEGRATED_FRAMES));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("StartFrame", AavTagType::ULong64, &STATUS_TAG_START_FRAME_ID));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("EndFrame", AavTagType::ULong64, &STATUS_TAG_END_FRAME_ID));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("StartFrameTimestamp", AavTagType::AnsiString255, &STATUS_TAG_START_TIMESTAMP));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("EndFrameTimestamp", AavTagType::AnsiString255, &STATUS_TAG_END_TIMESTAMP));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Gain", AavTagType::Real, &STATUS_TAG_GAIN));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Gamma", AavTagType::Real, &STATUS_TAG_GAMMA));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("CameraExposure", AavTagType::AnsiString255, &STATUS_TAG_EXPOSURE));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Temperature", AavTagType::Real, &STATUS_TAG_TEMPERATURE));
 
 	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8, &STATUS_TAG_GPS_TRACKED_SATELLITES));
 	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("GPSAlmanacStatus", AavTagType::UInt8, &STATUS_TAG_GPS_ALMANAC));
