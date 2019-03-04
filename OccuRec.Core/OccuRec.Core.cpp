@@ -48,7 +48,7 @@ bool USE_NTP_TIMESTAMP = false;
 bool USE_SECONDARY_TIMESTAMP = false;
 bool RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS = false;
 long NTP_DEBUG_REC_FREQ = 1;
-float NTP_DEBUG_MAX_IGNORED_SHIFT = 10;
+float NTP_DEBUG_MAX_IGNORED_SHIFT_MS = 10;
 
 
 bool AAV_VER2 = false;
@@ -161,8 +161,8 @@ int calibrationFramesLeftToRecord = 0;
 unsigned int STATUS_TAG_NUMBER_INTEGRATED_FRAMES;
 unsigned int STATUS_TAG_START_FRAME_ID;
 unsigned int STATUS_TAG_END_FRAME_ID;
-unsigned int STATUS_TAG_START_TIMESTAMP;
-unsigned int STATUS_TAG_END_TIMESTAMP;
+unsigned int STATUS_TAG_OCR_START_TIMESTAMP;
+unsigned int STATUS_TAG_OCR_END_TIMESTAMP;
 unsigned int STATUS_TAG_SYSTEM_TIME;
 unsigned int STATUS_TAG_SYSTEM_TIME_FILE_TIME;
 unsigned int STATUS_TAG_NTP_START_TIMESTAMP;
@@ -408,7 +408,7 @@ HRESULT SetupAav(long aavVersion, long useImageLayout, long compressionAlgorithm
 HRESULT SetupNtpDebugParams(long debugValue1, float debugValue2)
 {
 	NTP_DEBUG_REC_FREQ = debugValue1;
-	NTP_DEBUG_MAX_IGNORED_SHIFT = debugValue2;
+	NTP_DEBUG_MAX_IGNORED_SHIFT_MS = debugValue2;
 
 	return S_OK;
 }
@@ -1327,41 +1327,50 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 		latestImageStatus.UniqueFrameNo++;
 
-		bool recordNtpDebugFrame = false;
+		bool recordStatusChannelOnlyDebugFrame = false;
 
 		if (RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
 		{
-			if (NTP_DEBUG_REC_FREQ == 1)
+			if (hasOcrErors)
 			{
-				recordNtpDebugFrame = true;
+				// In status channel recording mode we record frames if there is an OCR Error
+				recordStatusChannelOnlyDebugFrame = true;
 			}
-			else if (numRecordedFrames < 25 * 60)
+			else if (NTP_DEBUG_REC_FREQ > 0)
 			{
-				// If we haven't recorded 1 min of frames yet (25 * 60) then keep recording
-				double deltaTicksMS = abs(idxFirstFrameTimestamp - firstFrameNtpTimestamp) / 100000.0;
-				aggregatedNtpDebug += deltaTicksMS;
+				// Otherwise if NTP_DEBUG is enabled we may still record frames ...
+				if (NTP_DEBUG_REC_FREQ == 1)
+				{
+					recordStatusChannelOnlyDebugFrame = true;
+				}
+				else if (numRecordedFrames < 25 * 60)
+				{
+					// If we haven't recorded 1 min of frames yet (25 * 60) then keep recording
+					double deltaTicksMS = abs(idxFirstFrameTimestamp - firstFrameNtpTimestamp) / 100000.0;
+					aggregatedNtpDebug += deltaTicksMS;
 
-				recordNtpDebugFrame = true;
-			}
-			else
-			{
-				if (averageNtpDebugOffsetMS == 0)
-					// If we have recorded 1 min of frames but haven't determined the average NTP shift then do this now
-					averageNtpDebugOffsetMS = aggregatedNtpDebug / numRecordedFrames;
+					recordStatusChannelOnlyDebugFrame = true;
+				}
+				else
+				{
+					if (averageNtpDebugOffsetMS == 0)
+						// If we have recorded 1 min of frames but haven't determined the average NTP shift then do this now
+						averageNtpDebugOffsetMS = aggregatedNtpDebug / numRecordedFrames;
 				
-				double deltaTicksMS = abs(idxFirstFrameTimestamp - firstFrameNtpTimestamp) / 100000.0;
+					double deltaTicksMS = abs(idxFirstFrameTimestamp - firstFrameNtpTimestamp) / 100000.0;
 
-				if (latestImageStatus.UniqueFrameNo % NTP_DEBUG_REC_FREQ == 0)
-					// If we have recorded 1 min of frames and this is the NTP_DEBUG_REC_FREQ-th unique frame then record it
-					recordNtpDebugFrame = true;
+					if (latestImageStatus.UniqueFrameNo % NTP_DEBUG_REC_FREQ == 0)
+						// If we have recorded 1 min of frames and this is the NTP_DEBUG_REC_FREQ-th unique frame then record it
+						recordStatusChannelOnlyDebugFrame = true;
 
-				if (abs(averageNtpDebugOffsetMS - deltaTicksMS) > NTP_DEBUG_MAX_IGNORED_SHIFT)
-					// If we have recorded 1 min of frames and the diff between average and current NTP offset is more than NTP_DEBUG_MAX_IGNORED_SHIFT then record the frame
-					recordNtpDebugFrame = true;
-			}			
+					if (abs(averageNtpDebugOffsetMS - deltaTicksMS) > NTP_DEBUG_MAX_IGNORED_SHIFT_MS)
+						// If we have recorded 1 min of frames and the diff between average and current NTP offset is more than NTP_DEBUG_MAX_IGNORED_SHIFT_MS then record the frame
+						recordStatusChannelOnlyDebugFrame = true;
+				}
+			}
 		}
 
-		if (recording && integratedFrameCouldBeRecorded && (!OCR_FAILED_TEST_RECORDING || hasOcrErors) && (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS || recordNtpDebugFrame))
+		if (recording && integratedFrameCouldBeRecorded && (!OCR_FAILED_TEST_RECORDING || hasOcrErors) && (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS || recordStatusChannelOnlyDebugFrame))
 		{
 			// Record every buffered frame in standard mode or only record frames with OCR errors when running OCR testing
 			if (NULL != frame)
@@ -1396,6 +1405,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 
 
 				frame->IsAavVer2CalibrationFrame = false;
+				frame->IsStatusSectionOnlyDebugFrame = recordStatusChannelOnlyDebugFrame;
 				numItems = AddFrameToRecordingBuffer(frame);
 
 				numRecordedFrames++;
@@ -1875,6 +1885,7 @@ void RecordCurrentFrame_AAV1(IntegratedFrame* nextFrame)
 
 	SYSTEMTIME sysTime;
 	GetSystemTime(&sysTime);
+	unsigned char layoutId = USE_IMAGE_LAYOUT;
 
 	if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
 	{
@@ -1906,14 +1917,20 @@ void RecordCurrentFrame_AAV1(IntegratedFrame* nextFrame)
 		uli.LowPart = sysTime2.dwLowDateTime;
 		uli.HighPart = sysTime2.dwHighDateTime;
 		AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME_FILE_TIME, uli.QuadPart);
+
+		if (nextFrame->IsStatusSectionOnlyDebugFrame)
+		{
+			// If this is a debug frame (e.g. NTP Debug or OCR Error), then record it in raw compressed form
+			layoutId = 4;
+		}
 	}
 
 	if (OCR_IS_SETUP)
 	{
-		if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+		if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS || nextFrame->IsStatusSectionOnlyDebugFrame /* Record OCR-ed strings in status channel only mode, if this is a debug frame */)
 		{
-			AavFrameAddStatusTag(STATUS_TAG_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]);
-			AavFrameAddStatusTag(STATUS_TAG_END_TIMESTAMP, &nextFrame->EndTimeStampStr[0]);
+			AavFrameAddStatusTag(STATUS_TAG_OCR_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]);
+			AavFrameAddStatusTag(STATUS_TAG_OCR_END_TIMESTAMP, &nextFrame->EndTimeStampStr[0]);
 		}
 
 		AavFrameAddStatusTagUInt8(STATUS_TAG_GPS_TRACKED_SATELLITES, nextFrame->GpsTrackedSatellites);
@@ -1942,9 +1959,9 @@ void RecordCurrentFrame_AAV1(IntegratedFrame* nextFrame)
 	}
 
 	if (AAV_16)
-		AavFrameAddImage16(USE_IMAGE_LAYOUT, nextFrame->Pixels16);
+		AavFrameAddImage16(layoutId, nextFrame->Pixels16);
 	else
-		AavFrameAddImage(USE_IMAGE_LAYOUT, nextFrame->Pixels);
+		AavFrameAddImage(layoutId, nextFrame->Pixels);
 
 	AavEndFrame();
 }
@@ -2051,8 +2068,8 @@ void RecordCurrentFrame_AAV2(IntegratedFrame* nextFrame)
 
 	if (OCR_IS_SETUP)
 	{
-		Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]));
-		Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_END_TIMESTAMP, &nextFrame->EndTimeStampStr[0]));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_OCR_START_TIMESTAMP, &nextFrame->StartTimeStampStr[0]));
+		Check(AdvVer2::AdvVer2_FrameAddStatusTagUTF8String(STATUS_TAG_OCR_END_TIMESTAMP, &nextFrame->EndTimeStampStr[0]));
 
 		Check(AdvVer2::AdvVer2_FrameAddStatusTagUInt8(STATUS_TAG_GPS_TRACKED_SATELLITES, nextFrame->GpsTrackedSatellites));
 		Check(AdvVer2::AdvVer2_FrameAddStatusTagUInt8(STATUS_TAG_GPS_ALMANAC, nextFrame->GpsAlamancStatus));
@@ -2276,14 +2293,15 @@ HRESULT StartRecordingInternal_AAV1(LPCTSTR szFileName)
 		AavAddFileTag("STATUS-CHANNEL-ONLY", "1");
 	}
 	
+	STATUS_TAG_OCR_START_TIMESTAMP = AavDefineStatusSectionTag("StartFrameTimestamp", AavTagType::AnsiString255);
+	STATUS_TAG_OCR_END_TIMESTAMP = AavDefineStatusSectionTag("EndFrameTimestamp", AavTagType::AnsiString255);
+
 	if (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
 	{
 		STATUS_TAG_SYSTEM_TIME= AavDefineStatusSectionTag("SystemTime", AavTagType::ULong64);
 		STATUS_TAG_NUMBER_INTEGRATED_FRAMES = AavDefineStatusSectionTag("IntegratedFrames", AavTagType::UInt16);
 		STATUS_TAG_START_FRAME_ID = AavDefineStatusSectionTag("StartFrame", AavTagType::ULong64);
 		STATUS_TAG_END_FRAME_ID = AavDefineStatusSectionTag("EndFrame", AavTagType::ULong64);
-		STATUS_TAG_START_TIMESTAMP = AavDefineStatusSectionTag("StartFrameTimestamp", AavTagType::AnsiString255);
-		STATUS_TAG_END_TIMESTAMP = AavDefineStatusSectionTag("EndFrameTimestamp", AavTagType::AnsiString255);
 		STATUS_TAG_GAIN = AavDefineStatusSectionTag("Gain", AavTagType::Real);
 		STATUS_TAG_GAMMA = AavDefineStatusSectionTag("Gamma", AavTagType::Real);
 		STATUS_TAG_EXPOSURE = AavDefineStatusSectionTag("CameraExposure", AavTagType::AnsiString255);
@@ -2478,8 +2496,8 @@ HRESULT StartRecordingInternal_AAV2(LPCTSTR szFileName)
 	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("IntegratedFrames", AavTagType::UInt16, &STATUS_TAG_NUMBER_INTEGRATED_FRAMES));
 	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("StartFrame", AavTagType::ULong64, &STATUS_TAG_START_FRAME_ID));
 	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("EndFrame", AavTagType::ULong64, &STATUS_TAG_END_FRAME_ID));
-	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("StartFrameTimestamp", AavTagType::AnsiString255, &STATUS_TAG_START_TIMESTAMP));
-	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("EndFrameTimestamp", AavTagType::AnsiString255, &STATUS_TAG_END_TIMESTAMP));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("StartFrameTimestamp", AavTagType::AnsiString255, &STATUS_TAG_OCR_START_TIMESTAMP));
+	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("EndFrameTimestamp", AavTagType::AnsiString255, &STATUS_TAG_OCR_END_TIMESTAMP));
 	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Gain", AavTagType::Real, &STATUS_TAG_GAIN));
 	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("Gamma", AavTagType::Real, &STATUS_TAG_GAMMA));
 	Check(AdvVer2::AdvVer2_DefineStatusSectionTag("CameraExposure", AavTagType::AnsiString255, &STATUS_TAG_EXPOSURE));

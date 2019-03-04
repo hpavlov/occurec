@@ -1072,6 +1072,18 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NTPDebugEnabled {
+            get {
+                return ((bool)(this["NTPDebugEnabled"]));
+            }
+            set {
+                this["NTPDebugEnabled"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool FocalReducerUsed {
             get {
                 return ((bool)(this["FocalReducerUsed"]));

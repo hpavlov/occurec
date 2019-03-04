@@ -64,6 +64,7 @@
             this.nudOCRMaxOFF = new System.Windows.Forms.NumericUpDown();
             this.pnlOCR = new System.Windows.Forms.Panel();
             this.cbxZoneStats = new System.Windows.Forms.CheckBox();
+            this.cbxNTPDebug = new System.Windows.Forms.CheckBox();
             this.pnlPreserveOSDArea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
@@ -141,7 +142,7 @@
             // 
             this.nudNTPDebugValue2.DecimalPlaces = 1;
             this.nudNTPDebugValue2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.nudNTPDebugValue2.Location = new System.Drawing.Point(58, 3);
+            this.nudNTPDebugValue2.Location = new System.Drawing.Point(170, 3);
             this.nudNTPDebugValue2.Maximum = new decimal(new int[] {
             50,
             0,
@@ -159,7 +160,7 @@
             // nudNTPDebugValue1
             // 
             this.nudNTPDebugValue1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.nudNTPDebugValue1.Location = new System.Drawing.Point(9, 3);
+            this.nudNTPDebugValue1.Location = new System.Drawing.Point(121, 3);
             this.nudNTPDebugValue1.Minimum = new decimal(new int[] {
             1,
             0,
@@ -189,9 +190,9 @@
             this.cbxStatusSectionOnly.AutoSize = true;
             this.cbxStatusSectionOnly.Location = new System.Drawing.Point(12, 196);
             this.cbxStatusSectionOnly.Name = "cbxStatusSectionOnly";
-            this.cbxStatusSectionOnly.Size = new System.Drawing.Size(179, 17);
+            this.cbxStatusSectionOnly.Size = new System.Drawing.Size(119, 17);
             this.cbxStatusSectionOnly.TabIndex = 26;
-            this.cbxStatusSectionOnly.Text = "Status Section Only NTP Debug";
+            this.cbxStatusSectionOnly.Text = "Status Section Only";
             this.cbxStatusSectionOnly.UseVisualStyleBackColor = true;
             this.cbxStatusSectionOnly.CheckedChanged += new System.EventHandler(this.cbxStatusSectionOnly_CheckedChanged);
             // 
@@ -208,12 +209,13 @@
             // 
             // pnlNTPDebug
             // 
+            this.pnlNTPDebug.Controls.Add(this.cbxNTPDebug);
             this.pnlNTPDebug.Controls.Add(this.nudNTPDebugValue2);
             this.pnlNTPDebug.Controls.Add(this.nudNTPDebugValue1);
             this.pnlNTPDebug.Enabled = false;
-            this.pnlNTPDebug.Location = new System.Drawing.Point(194, 192);
+            this.pnlNTPDebug.Location = new System.Drawing.Point(137, 192);
             this.pnlNTPDebug.Name = "pnlNTPDebug";
-            this.pnlNTPDebug.Size = new System.Drawing.Size(141, 27);
+            this.pnlNTPDebug.Size = new System.Drawing.Size(220, 27);
             this.pnlNTPDebug.TabIndex = 34;
             // 
             // cbxGraphDebugMode
@@ -542,6 +544,16 @@
             this.cbxZoneStats.Text = "Zone Stats";
             this.cbxZoneStats.UseVisualStyleBackColor = true;
             // 
+            // cbxNTPDebug
+            // 
+            this.cbxNTPDebug.AutoSize = true;
+            this.cbxNTPDebug.Location = new System.Drawing.Point(32, 6);
+            this.cbxNTPDebug.Name = "cbxNTPDebug";
+            this.cbxNTPDebug.Size = new System.Drawing.Size(83, 17);
+            this.cbxNTPDebug.TabIndex = 58;
+            this.cbxNTPDebug.Text = "NTP Debug";
+            this.cbxNTPDebug.UseVisualStyleBackColor = true;
+            // 
             // ucAdvanced
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -579,6 +591,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).EndInit();
             this.pnlNTPDebug.ResumeLayout(false);
+            this.pnlNTPDebug.PerformLayout();
             this.pnlLocationCorss.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).EndInit();
@@ -631,5 +644,6 @@
         private System.Windows.Forms.NumericUpDown nudOCRMaxOFF;
         private System.Windows.Forms.Panel pnlOCR;
         private System.Windows.Forms.CheckBox cbxZoneStats;
+        private System.Windows.Forms.CheckBox cbxNTPDebug;
 	}
 }

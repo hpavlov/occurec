@@ -749,7 +749,7 @@ namespace OccuRec.Helpers
 				Settings.Default.NTPTimeStampsInAAVEnabled ? 1 : 0,
 				Settings.Default.RecordSecondaryTimeStampInAavFile ? 1 : 0);
 
-			SetupNtpDebugParams(Settings.Default.NTPDebugConfigValue1, Settings.Default.NTPDebugConfigValue2);
+            SetupNtpDebugParams(Settings.Default.NTPDebugEnabled ? Settings.Default.NTPDebugConfigValue1 : 0, Settings.Default.NTPDebugConfigValue2);
         }
 
 		public static string SetupTimestampPreservation(bool enabled, int areaTopOdd, int areaHeight)

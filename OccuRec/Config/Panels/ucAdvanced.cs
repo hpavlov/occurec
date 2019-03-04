@@ -28,6 +28,7 @@ namespace OccuRec.Config.Panels
 		{
 			cbDebugIntegration.Checked = Settings.Default.IntegrationDetectionTuning;
 			cbxStatusSectionOnly.Checked = Settings.Default.RecordStatusSectionOnly;
+            cbxNTPDebug.Checked = Settings.Default.NTPDebugEnabled;
 			nudNTPDebugValue1.SetNUDValue(Settings.Default.NTPDebugConfigValue1);
 			nudNTPDebugValue2.SetNUDValue(Settings.Default.NTPDebugConfigValue2);
             cbxOCR.Checked = Settings.Default.EasyCAPOCR || Settings.Default.StarTechSVID2OCR;
@@ -84,6 +85,7 @@ namespace OccuRec.Config.Panels
 		{
 			Settings.Default.IntegrationDetectionTuning = cbDebugIntegration.Checked;
 			Settings.Default.RecordStatusSectionOnly = cbxStatusSectionOnly.Checked;
+		    Settings.Default.NTPDebugEnabled = cbxNTPDebug.Checked;
 			Settings.Default.NTPDebugConfigValue1 = (int)nudNTPDebugValue1.Value;
 			Settings.Default.NTPDebugConfigValue2 = (float)nudNTPDebugValue2.Value;
             Settings.Default.SaturationWarning = (int)nudSaturationWarning.Value;
