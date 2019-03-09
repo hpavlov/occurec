@@ -1370,7 +1370,7 @@ long BufferNewIntegratedFrame(bool isNewIntegrationPeriod, __int64 currentUtcDay
 			}
 		}
 
-		if (recording && integratedFrameCouldBeRecorded && (!OCR_FAILED_TEST_RECORDING || hasOcrErors) && (!RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS || recordStatusChannelOnlyDebugFrame))
+		if (recording && integratedFrameCouldBeRecorded && (!OCR_FAILED_TEST_RECORDING || hasOcrErors))
 		{
 			// Record every buffered frame in standard mode or only record frames with OCR errors when running OCR testing
 			if (NULL != frame)
