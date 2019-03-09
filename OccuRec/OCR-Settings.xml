@@ -945,6 +945,32 @@
           <Pixel X="10" Y="9" />
         </Pixels>
       </OcrZone>
+      <OcrZone>
+        <ZoneId>6</ZoneId>
+        <ZoneName>DarkBlue</ZoneName>
+        <Colour>63,72,204</Colour>
+        <Pixels>
+          <Pixel X="17" Y="4" />
+          <Pixel X="18" Y="4" />
+          <Pixel X="19" Y="4" />
+          <Pixel X="17" Y="5" />
+          <Pixel X="18" Y="5" />
+          <Pixel X="19" Y="5" />
+        </Pixels>
+      </OcrZone>
+      <OcrZone>
+        <ZoneId>7</ZoneId>
+        <ZoneName>Pink</ZoneName>
+        <Colour>255,174,201</Colour>
+        <Pixels>
+          <Pixel X="1" Y="8" />
+          <Pixel X="2" Y="8" />
+          <Pixel X="3" Y="8" />
+          <Pixel X="1" Y="9" />
+          <Pixel X="2" Y="9" />
+          <Pixel X="3" Y="9" />
+        </Pixels>
+      </OcrZone>
     </Zones>
     <CharDefinitions>
       <CharDefinition>
@@ -964,6 +990,8 @@
           <Zone Id="1" Value="On" />
           <Zone Id="4" Value="Off" />
           <Zone Id="5" Value="Off" />
+          <Zone Id="6" Value="On" />
+          <Zone Id="7" Value="Off" />
         </ZoneSignatures>
       </CharDefinition>
       <CharDefinition>
@@ -975,6 +1003,18 @@
         </ZoneSignatures>
       </CharDefinition>
       <CharDefinition>
+        <Character>8</Character>
+        <ZoneSignatures>
+          <Zone Id="0" Value="NotOff" />
+          <Zone Id="1" Value="NotOff" />
+          <Zone Id="2" Value="NotOn" />
+          <Zone Id="3" Value="NotOn" />
+          <Zone Id="4" Value="NotOff" />
+          <Zone Id="6" Value="On" />
+          <Zone Id="7" Value="On" />
+        </ZoneSignatures>
+      </CharDefinition>
+      <CharDefinition>
         <Character>9</Character>
         <ZoneSignatures>
           <Zone Id="0" Value="On" />
@@ -982,6 +1022,8 @@
           <Zone Id="2" Value="NotOn" />
           <Zone Id="3" Value="NotOff" />
           <Zone Id="4" Value="On" />
+          <Zone Id="6" Value="On" />
+          <Zone Id="7" Value="Off" />
         </ZoneSignatures>
       </CharDefinition>
       <CharDefinition>
@@ -992,16 +1034,8 @@
           <Zone Id="2" Value="NotOff" />
           <Zone Id="3" Value="NotOn" />
           <Zone Id="4" Value="NotOff" />
-        </ZoneSignatures>
-      </CharDefinition>
-      <CharDefinition>
-        <Character>8</Character>
-        <ZoneSignatures>
-          <Zone Id="0" Value="NotOff" />
-          <Zone Id="1" Value="NotOff" />
-          <Zone Id="2" Value="NotOn" />
-          <Zone Id="3" Value="NotOn" />
-          <Zone Id="4" Value="NotOff" />
+          <Zone Id="6" Value="Off" />
+          <Zone Id="7" Value="On" />
         </ZoneSignatures>
       </CharDefinition>
       <CharDefinition>
