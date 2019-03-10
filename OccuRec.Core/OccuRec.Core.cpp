@@ -26,6 +26,7 @@
 #include "simplified_tracking.h"
 #include "OccuRec.Math.h"
 #include "adv_lib.h"
+#include "cpuid.h"
 
 using namespace OccuOcr;
 
@@ -2316,8 +2317,16 @@ HRESULT StartRecordingInternal_AAV1(LPCTSTR szFileName)
 
 		// TODO: Add Memory, CPU and IO load metrics
 		// Consider only adding them as an error message if they reach some threshold
-
-		// TODO: Add File Tags for OS, CPU, CPU Features, etc
+		// TODO: Add File Tags for OS, timer resolution, etc
+		const DWORD buffSize = 65535;
+		static char buffer[buffSize];
+		if (GetEnvironmentVariableA("PROCESSOR_IDENTIFIER", buffer, buffSize))
+		{
+			AavAddFileTag("CPU-IDENTIFIER", buffer);
+		}
+		AavAddFileTag("CPU-RDTSC", isRDTSCSupported() == 1 ? "Yes" : "No");
+		AavAddFileTag("CPU-RDTSCP", isRDTSCPSupported() == 1 ? "Yes" : "No");
+		AavAddFileTag("CPU-Invariant-TSC", isInvariantTSCAvailable() == 1 ? "Yes" : "No");
 	}
 
 	STATUS_TAG_GPS_TRACKED_SATELLITES = AavDefineStatusSectionTag("GPSTrackedSatellites", AavTagType::UInt8);

@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Compressor.h" />
+    <ClInclude Include="cpuid.h" />
     <ClInclude Include="include\adv_lib.h" />
     <ClInclude Include="LargeChunkDenoiser.h" />
     <ClInclude Include="OccuRec.Core.h" />
@@ -188,6 +189,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Compressor.cpp" />
+    <ClCompile Include="cpuid.cpp" />
     <ClCompile Include="LargeChunkDenoiser.cpp" />
     <ClCompile Include="OccuRec.Core.cpp" />
     <ClCompile Include="OccuRec.IntegrationChecker.cpp" />

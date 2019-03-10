@@ -116,6 +116,9 @@
     <ClInclude Include="include\adv_lib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cpuid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -200,6 +203,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Compressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cpuid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
