@@ -102,6 +102,12 @@ namespace OccuRec
             NativeHelpers.SetSystemInformation(Environment.OSVersion.VersionString, NativeHelpers.GetTimerResolution().ToString());
 
 		    InitPerfCounterMonitoring();
+
+            // To collect (and save) own logs, at the time of the start up the status section recodring must be turned on
+		    if (!Settings.Default.RecordStatusSectionOnly)
+		    {
+		        OccuRecSelfTraceListener.Instance.Stop();
+		    }
 		}
 
 		/// <summary>
@@ -312,9 +318,15 @@ namespace OccuRec
 			if (videoObject != null)
 			{
 			    if (videoObject.State == VideoCameraState.videoCameraRecording)
+			    {
 			        videoObject.StopRecording();
+			        if (Settings.Default.RecordStatusSectionOnly)
+			        {
+			            OccuRecSelfTraceListener.Instance.SaveLog(Path.ChangeExtension(recordingfileName, "log"));
+			        }
+			    }
 
-				videoObject.Disconnect();
+			    videoObject.Disconnect();
 				videoObject = null;
 			}
 
@@ -970,6 +982,11 @@ namespace OccuRec
                 restartRecTimer.Enabled = false;
 
 				videoObject.StopRecording();
+
+			    if (Settings.Default.RecordStatusSectionOnly)
+			    {
+                    OccuRecSelfTraceListener.Instance.SaveLog(Path.ChangeExtension(recordingfileName, "log"));    
+			    }
 
 				// If the next scheduled operation was to stop the recoring, but the recording was stopped manually
 				// then remove the scheduled stopping too.
@@ -2322,6 +2339,7 @@ namespace OccuRec
         private void restartRecTimer_Tick(object sender, EventArgs e)
         {
             videoObject.StopRecording();
+            OccuRecSelfTraceListener.Instance.SaveLog(Path.ChangeExtension(recordingfileName, "log"));
 
             string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
             recordingfileName = videoObject.StartRecording(fileName);

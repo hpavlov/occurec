@@ -224,6 +224,7 @@
     <Compile Include="Helpers\AssemblyHelpers.cs" />
     <Compile Include="Helpers\CalSpec\CalSpecDatabase.cs" />
     <Compile Include="Helpers\LastSlewPositions.cs" />
+    <Compile Include="Helpers\OccuRecSelfTraceListener.cs" />
     <Compile Include="Helpers\PowerManagement.cs" />
     <Compile Include="Helpers\QHYPInvoke.cs" />
     <Compile Include="Helpers\RotationMapper.cs" />

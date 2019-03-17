@@ -20,6 +20,8 @@ namespace OccuRec
         [STAThread]
         static void Main()
         {
+            OccuRecSelfTraceListener.Instance.Initialize();
+
 			System.Reflection.Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
 			Version appVersion = a.GetName().Version;
 			string appVersionString = appVersion.ToString();
