@@ -128,3 +128,4 @@ HRESULT TestNewIntegrationPeriod(__int64 frameNo, float diffSignature, bool* isN
 HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency, float targetAperture, float guidingAperture, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture);
 HRESULT DisableTracking();
 HRESULT GetAav2LibraryVersion(char* version);
+HRESULT SetSystemPerformanceValues(unsigned char cpuUsagePerc, unsigned char diskUsagePerc, int freeMemoryMb);

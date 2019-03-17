@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Timers;
 using System.Windows.Forms;
 using System.Xml;
 using OccuRec.ASCOM.Wrapper;
@@ -97,6 +98,8 @@ namespace OccuRec
 			VideoConnectionChanged(ASCOMConnectionState.Disconnected);
 
 		    UpdateASCOMConnectivityState();
+
+		    InitPerfCounterMonitoring();
 		}
 
 		/// <summary>
@@ -116,6 +119,8 @@ namespace OccuRec
 			m_ObservatoryController.Dispose();
             ASCOMClient.Instance.Dispose();
 		    QHYCameraManager.Instance.Dispose();
+
+		    StopPerfCounterMonitoring();
 		}
 
         public void OnError(int errorCode, string errorMessage)
@@ -2273,5 +2278,35 @@ namespace OccuRec
             else
                 MessageBox.Show("Could not find: " + filePath, "Tangra", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-    }
+
+        private System.Timers.Timer m_PerfCntTimer;
+
+        static PerformanceCounter s_PerfCntDisk = new PerformanceCounter("PhysicalDisk", "% Disk Time", "_Total");
+        static PerformanceCounter s_PerfCntCpu = new PerformanceCounter("Processor Information", "% Processor Time", "_Total");
+        static PerformanceCounter s_PerfCntMemory = new PerformanceCounter("Memory", "Available MBytes", null);
+
+        private void InitPerfCounterMonitoring()
+        {
+            m_PerfCntTimer = new System.Timers.Timer(1000);
+
+            m_PerfCntTimer.Elapsed += OnTimedEvent;
+            m_PerfCntTimer.AutoReset = true;
+            m_PerfCntTimer.Enabled = true;
+        }
+
+        private void StopPerfCounterMonitoring()
+        {
+            m_PerfCntTimer.Stop();
+            m_PerfCntTimer.Dispose();
+        }
+
+        private static void OnTimedEvent(Object source, ElapsedEventArgs e)
+        {
+            var diskUsage = (byte)Math.Round(s_PerfCntDisk.NextValue());
+            var cpuUsage = (byte)Math.Round(s_PerfCntCpu.NextValue());
+            var freeMemoryMB = (int)s_PerfCntMemory.NextValue();
+
+            NativeHelpers.SetSystemPerformanceValues(cpuUsage, diskUsage, freeMemoryMB);
+        }
+	}
 }

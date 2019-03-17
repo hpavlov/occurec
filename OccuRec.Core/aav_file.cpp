@@ -279,6 +279,11 @@ void AavFile::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagV
 	StatusSection->AddFrameStatusTagUInt16(tagIndex, tagValue);
 }
 
+void AavFile::AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue)
+{
+	StatusSection->AddFrameStatusTagUInt32(tagIndex, tagValue);
+}
+
 void AavFile::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
 {
 	StatusSection->AddFrameStatusTagReal(tagIndex, tagValue);

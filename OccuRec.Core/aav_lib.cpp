@@ -158,7 +158,12 @@ void AavFrameAddStatusTag64(unsigned int tagIndex, long long tagValue)
 
 void AavFrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue)
 {
-	g_AavFile->AddFrameStatusTagUInt16(tagIndex, tagValue);	
+	g_AavFile->AddFrameStatusTagUInt16(tagIndex, tagValue);
+}
+
+void AavFrameAddStatusTag32(unsigned int tagIndex, unsigned int tagValue)
+{
+	g_AavFile->AddFrameStatusTagUInt32(tagIndex, tagValue);
 }
 
 void AavFrameAddStatusTagReal(unsigned int tagIndex, float tagValue)

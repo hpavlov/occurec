@@ -66,6 +66,7 @@ void AavStatusSection::BeginFrame()
 	m_FrameStatusTags.clear();
 	m_FrameStatusTagsUInt8.clear();
 	m_FrameStatusTagsUInt16.clear();
+	m_FrameStatusTagsUInt32.clear();
 	m_FrameStatusTagsUInt64.clear();
 	m_FrameStatusTagsReal.clear();
 	
@@ -98,6 +99,11 @@ void AavStatusSection::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned ch
 void AavStatusSection::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
 {
 	m_FrameStatusTagsUInt16.insert(make_pair(tagIndex, tagValue));
+}
+
+void AavStatusSection::AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue)
+{
+	m_FrameStatusTagsUInt32.insert(make_pair(tagIndex, tagValue));
 }
 
 void AavStatusSection::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
@@ -158,6 +164,8 @@ unsigned char* AavStatusSection::GetDataBytes(unsigned int *bytesCount)
 	numTagEntries+=m_FrameStatusTagsUInt8.size();
 	arrayLength+=m_FrameStatusTagsUInt16.size() * (2 /*sizeof(unsigned short)*/ + 1 /* TagId*/ );
 	numTagEntries+=m_FrameStatusTagsUInt16.size();
+	arrayLength+=m_FrameStatusTagsUInt32.size() * (4 /*sizeof(unsigned int)*/ + 1 /* TagId*/ );
+	numTagEntries+=m_FrameStatusTagsUInt32.size();
 	arrayLength+=m_FrameStatusTagsUInt64.size() * (8 /*sizeof(long long)*/ + 1 /* TagId*/ );
 	numTagEntries+=m_FrameStatusTagsUInt64.size();
 	arrayLength+=m_FrameStatusTagsReal.size() * (4 /*sizeof(float)*/ + 1 /* TagId*/ );
@@ -207,7 +215,24 @@ unsigned char* AavStatusSection::GetDataBytes(unsigned int *bytesCount)
 			
 			currUInt16++;
 		}
-		
+
+		map<unsigned int, unsigned int>::iterator currUInt32 = m_FrameStatusTagsUInt32.begin();
+		while (currUInt32 != m_FrameStatusTagsUInt32.end()) 
+		{
+			unsigned char tagId = (unsigned char)(currUInt32->first & 0xFF);
+			statusData[dataPos] = tagId;
+
+			unsigned int tagValue = (unsigned int)(currUInt32->second);
+			statusData[dataPos + 1] = (unsigned char)(tagValue & 0xFF);
+			statusData[dataPos + 2] = (unsigned char)((tagValue >> 8) & 0xFF);
+			statusData[dataPos + 3] = (unsigned char)((tagValue >> 16) & 0xFF);
+			statusData[dataPos + 4] = (unsigned char)((tagValue >> 24) & 0xFF);
+
+			dataPos+=5;
+			
+			currUInt32++;
+		}
+
 		map<unsigned int, unsigned char>::iterator currUInt8 = m_FrameStatusTagsUInt8.begin();
 		while (currUInt8 != m_FrameStatusTagsUInt8.end()) 
 		{

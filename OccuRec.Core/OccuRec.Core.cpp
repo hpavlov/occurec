@@ -105,6 +105,11 @@ long INTEGRATION_CALIBRATION_PASSES;
 
 float CALIBRATION_SIGNATURES[MAX_CALIBRATION_SIGNATURES_SIZE];
 
+unsigned char CPU_UTILISATION;
+unsigned char DISKS_UTILISATION;
+int FREE_MEMORY_MB;
+bool NEW_SYSTEM_PERF_VALUES = false;
+
 unsigned char* prtPreviousDiffArea = NULL;
 __int64 numberOfDiffSignaturesCalculated; 
 long numberOfIntegratedFrames;
@@ -180,6 +185,9 @@ unsigned int STATUS_TAG_GAIN;
 unsigned int STATUS_TAG_TEMPERATURE;
 unsigned int STATUS_TAG_EXPOSURE;
 unsigned int STATUS_TAG_FRAME_TYPE;
+unsigned int STATUS_TAG_CPU_UTILISATION;
+unsigned int STATUS_TAG_DISKS_UTILISATION;
+unsigned int STATUS_TAG_FREE_MEMORY;
 
 OccuRec::IntegrationChecker* integrationChecker;
 
@@ -1924,6 +1932,14 @@ void RecordCurrentFrame_AAV1(IntegratedFrame* nextFrame)
 			// If this is a debug frame (e.g. NTP Debug or OCR Error), then record it in raw compressed form
 			layoutId = 4;
 		}
+
+		if (NEW_SYSTEM_PERF_VALUES)
+		{
+			AavFrameAddStatusTagUInt8(STATUS_TAG_CPU_UTILISATION, CPU_UTILISATION);
+			AavFrameAddStatusTagUInt8(STATUS_TAG_DISKS_UTILISATION, DISKS_UTILISATION);
+			AavFrameAddStatusTag32(STATUS_TAG_FREE_MEMORY, FREE_MEMORY_MB);
+			NEW_SYSTEM_PERF_VALUES = false;
+		}
 	}
 
 	if (OCR_IS_SETUP)
@@ -2315,7 +2331,10 @@ HRESULT StartRecordingInternal_AAV1(LPCTSTR szFileName)
 		AavAddFileTag("PROVIDER-SystemTime", "GetSystemTime");
 		AavAddFileTag("PROVIDER-SystemTimeFileTime", "GetSystemTimePreciseAsFileTime");
 
-		// TODO: Add Memory, CPU and IO load metrics
+		STATUS_TAG_CPU_UTILISATION = AavDefineStatusSectionTag("CpuUtilisation", AavTagType::UInt8);
+		STATUS_TAG_DISKS_UTILISATION = AavDefineStatusSectionTag("DisksUtilisation", AavTagType::UInt8);
+		STATUS_TAG_FREE_MEMORY = AavDefineStatusSectionTag("FreeMemoryMb", AavTagType::UInt32);
+
 		// Consider only adding them as an error message if they reach some threshold
 		// TODO: Add File Tags for OS, timer resolution, etc
 		const DWORD buffSize = 65535;
@@ -2694,4 +2713,18 @@ HRESULT GetAav2LibraryVersion(char* version)
 {
 	AdvVer2::GetLibraryVersion(version);
 	return S_OK;
+}
+
+HRESULT SetSystemPerformanceValues(unsigned char cpuUsagePerc, unsigned char diskUsagePerc, int freeMemoryMb)
+{
+	if (!NEW_SYSTEM_PERF_VALUES)
+	{
+		CPU_UTILISATION = cpuUsagePerc;
+		DISKS_UTILISATION = diskUsagePerc;
+		FREE_MEMORY_MB = freeMemoryMb;
+		NEW_SYSTEM_PERF_VALUES = true;
+		return S_OK;
+	}
+
+	return S_FALSE;
 }

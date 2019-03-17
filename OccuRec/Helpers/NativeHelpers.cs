@@ -451,6 +451,9 @@ namespace OccuRec.Helpers
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 	    private static extern int GetAav2LibraryVersion([In, Out] byte[] version);
 
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int SetSystemPerformanceValues(byte cpuUsagePerc, byte diskUsage, int freeMemoryMb);
+
 	    public static string GetAav2LibraryVersion()
 	    {
 	        var byteArr = new byte[64];
