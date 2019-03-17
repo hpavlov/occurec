@@ -337,6 +337,7 @@ OcrFrameProcessor::OcrFrameProcessor()
 
 	ErrorCodeEvenField = OcrErrorCode::Unknown;
 	ErrorCodeOddField = OcrErrorCode::Unknown;
+	m_UtcDayAsTicksForHour23 = 0;
 }
 
 OcrFrameProcessor::~OcrFrameProcessor()
@@ -576,19 +577,24 @@ OcrErrorCode OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 cu
 		success = false;
 	}
 
-	// NOTE: This will be problematic at date change. 
-	// TODO: Need to some something more to ensure we are capturing and processing correctly the case of date change
 	// 0.1ms = 1000 ticks
 	//   1ms = 10000 ticks
 	//  1sec = 10000000 ticks
 	//  1min = 600000000 ticks
 	// 1hour = 36000000000 ticks
+	//24hours = 864000000000 ticks
 	fieldInfo.FieldTimeStamp = 
 		currentUtcDayAsTicks +
 		(long long)(36000000000) * (long long) hh + 
 		  (long long)(600000000) * (long long) mm + 
 		   (long long)(10000000) * (long long) ss +
 		       (long long)(1000) * (long long) (ms1 != 0 ? ms1 : ms2);
+
+	if (hh == 0 && m_UtcDayAsTicksForHour23 == currentUtcDayAsTicks)
+	{
+		// Date change has occured however we are still given then UtcDayTicks for the previous day. Add 24 hours to the OCR-ed time.
+		fieldInfo.FieldTimeStamp += (long long)864000000000;
+	}
 
 	char fieldNoStr[9];
 	::ZeroMemory(fieldNoStr, 9);
@@ -634,7 +640,15 @@ OcrErrorCode OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 cu
 	fieldInfo.FieldNumber = atoi(fieldNoStr);
 
 	if (success)
+	{
+		if (hh == 23 && m_UtcDayAsTicksForHour23 != currentUtcDayAsTicks)
+		{
+			// If this is the 23-rd hour of the day and OCR was successful then remember the UtcDayAsTicks to check later on for a date change
+			m_UtcDayAsTicksForHour23 = currentUtcDayAsTicks;
+		}
+
 		return OcrErrorCode::Success;
+	}
 	else
 		return (OcrErrorCode)errorCode;
 }
