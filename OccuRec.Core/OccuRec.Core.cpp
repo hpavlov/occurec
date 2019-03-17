@@ -70,6 +70,8 @@ long OCR_CHAR_FIELD_HEIGHT;
 long* OCR_ZONE_MATRIX = NULL; 
 
 bool OCR_FAILED_TEST_RECORDING = false;
+char OS_VERSION[256];
+char OS_TIMER_RESOLUTION[256];
 
 long MEDIAN_CALC_INDEX_FROM;
 long MEDIAN_CALC_INDEX_TO;
@@ -2227,6 +2229,7 @@ HRESULT StartRecordingInternal_AAV1(LPCTSTR szFileName)
 	AavAddFileTag("RECORDER", occuRecVersion);
 	AavAddFileTag("FSTF-TYPE", "AAV");
 	AavAddFileTag("AAV-VERSION", "1");
+	AavAddFileTag("OS-VERSION", OS_VERSION);
 	
 	AavAddFileTag("GRABBER", grabberName);
 	AavAddFileTag("VIDEO-MODE", videoMode);
@@ -2335,8 +2338,8 @@ HRESULT StartRecordingInternal_AAV1(LPCTSTR szFileName)
 		STATUS_TAG_DISKS_UTILISATION = AavDefineStatusSectionTag("DisksUtilisation", AavTagType::UInt8);
 		STATUS_TAG_FREE_MEMORY = AavDefineStatusSectionTag("FreeMemoryMb", AavTagType::UInt32);
 
-		// Consider only adding them as an error message if they reach some threshold
-		// TODO: Add File Tags for OS, timer resolution, etc
+		AavAddFileTag("OS-TIMER-RESOLUTION", OS_TIMER_RESOLUTION);
+
 		const DWORD buffSize = 65535;
 		static char buffer[buffSize];
 		if (GetEnvironmentVariableA("PROCESSOR_IDENTIFIER", buffer, buffSize))
@@ -2428,6 +2431,7 @@ HRESULT StartRecordingInternal_AAV2(LPCTSTR szFileName)
 	Check(AdvVer2::AdvVer2_AddFileTag("FSTF-TYPE", "ADV"));
 	Check(AdvVer2::AdvVer2_AddFileTag("ADV-VERSION", "2"));
 	Check(AdvVer2::AdvVer2_AddFileTag("AAV-VERSION", "2"));
+	Check(AdvVer2::AdvVer2_AddFileTag("OS-VERSION", OS_VERSION));
 
 	char versionInfo[64];
 	AdvVer2::GetLibraryVersion(&versionInfo[0]);
@@ -2678,6 +2682,14 @@ HRESULT StartOcrTesting(LPCTSTR szFileName)
 		return StartRecordingInternal_AAV2(szFileName);
 	else
 		return StartRecordingInternal_AAV1(szFileName);
+}
+
+HRESULT SetSystemInformation(LPCTSTR osVersion, LPCTSTR timerResolution)
+{
+	strcpy_s(OS_VERSION, (const char*)osVersion);
+	strcpy_s(OS_TIMER_RESOLUTION, (const char*)timerResolution);
+
+	return S_OK;
 }
 
 HRESULT DisableOcrProcessing()

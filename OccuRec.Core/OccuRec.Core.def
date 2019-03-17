@@ -35,6 +35,7 @@ EXPORTS
 	StartOcrTesting
 	GetAav2LibraryVersion
 	SetSystemPerformanceValues
+	SetSystemInformation
 
 	LockIntegration
 	SetManualIntegrationHint

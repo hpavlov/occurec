@@ -452,6 +452,9 @@ namespace OccuRec.Helpers
 	    private static extern int GetAav2LibraryVersion([In, Out] byte[] version);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
+        public static extern int SetSystemInformation(string osVersion, string timerResolution);
+
+        [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
         public static extern int SetSystemPerformanceValues(byte cpuUsagePerc, byte diskUsage, int freeMemoryMb);
 
 	    public static string GetAav2LibraryVersion()
@@ -470,6 +473,21 @@ namespace OccuRec.Helpers
 		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out ulong lpFreeBytesAvailable, out ulong lpTotalNumberOfBytes, out ulong lpTotalNumberOfFreeBytes);
+
+        [DllImport("ntdll.dll", SetLastError = true)]
+        private static extern int NtQueryTimerResolution(out int minimumResolution, out int maximumResolution, out int currentResolution);
+
+	    public static int GetTimerResolution()
+	    {
+            int minimumResolution;
+            int maximumResolution;
+            int currentResolution;
+            if (NtQueryTimerResolution(out minimumResolution, out maximumResolution, out currentResolution) == 0)
+            {
+                return currentResolution;
+            }
+	        return 0;
+	    }
 
 		public static bool GetDriveFreeBytes(string folderName, out ulong freespace)
 		{

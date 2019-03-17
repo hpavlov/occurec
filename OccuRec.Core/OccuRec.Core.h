@@ -129,3 +129,4 @@ HRESULT EnableTracking(long targetObjectId, long guidingObjectId, long frequency
 HRESULT DisableTracking();
 HRESULT GetAav2LibraryVersion(char* version);
 HRESULT SetSystemPerformanceValues(unsigned char cpuUsagePerc, unsigned char diskUsagePerc, int freeMemoryMb);
+HRESULT SetSystemInformation(LPCTSTR osVersion, LPCTSTR timerResolution);

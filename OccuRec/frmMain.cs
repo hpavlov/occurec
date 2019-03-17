@@ -99,6 +99,8 @@ namespace OccuRec
 
 		    UpdateASCOMConnectivityState();
 
+            NativeHelpers.SetSystemInformation(Environment.OSVersion.VersionString, NativeHelpers.GetTimerResolution().ToString());
+
 		    InitPerfCounterMonitoring();
 		}
 
