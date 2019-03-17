@@ -1131,6 +1131,18 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1440")]
+        public int StatusSectionOnlyRestartRecordingIntervalMins {
+            get {
+                return ((int)(this["StatusSectionOnlyRestartRecordingIntervalMins"]));
+            }
+            set {
+                this["StatusSectionOnlyRestartRecordingIntervalMins"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("240")]
         public int SaturationWarning {
             get {

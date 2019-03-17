@@ -31,6 +31,7 @@ namespace OccuRec.Config.Panels
             cbxNTPDebug.Checked = Settings.Default.NTPDebugEnabled;
 			nudNTPDebugValue1.SetNUDValue(Settings.Default.NTPDebugConfigValue1);
 			nudNTPDebugValue2.SetNUDValue(Settings.Default.NTPDebugConfigValue2);
+            nudRestartRecordingMin.SetNUDValue(Settings.Default.StatusSectionOnlyRestartRecordingIntervalMins);
             cbxOCR.Checked = Settings.Default.EasyCAPOCR || Settings.Default.StarTechSVID2OCR;
             if (Settings.Default.EasyCAPOCR) cbxOCRType.SelectedIndex = 1;
             else if (Settings.Default.StarTechSVID2OCR) cbxOCRType.SelectedIndex = 0;
@@ -88,6 +89,7 @@ namespace OccuRec.Config.Panels
 		    Settings.Default.NTPDebugEnabled = cbxNTPDebug.Checked;
 			Settings.Default.NTPDebugConfigValue1 = (int)nudNTPDebugValue1.Value;
 			Settings.Default.NTPDebugConfigValue2 = (float)nudNTPDebugValue2.Value;
+            Settings.Default.StatusSectionOnlyRestartRecordingIntervalMins = (int)nudRestartRecordingMin.Value;
             Settings.Default.SaturationWarning = (int)nudSaturationWarning.Value;
 			Settings.Default.EasyCAPOCR = cbxOCR.Checked && cbxOCRType.SelectedIndex == 1;
             Settings.Default.StarTechSVID2OCR = cbxOCR.Checked && cbxOCRType.SelectedIndex == 0;

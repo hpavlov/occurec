@@ -278,6 +278,9 @@
     <Setting Name="NTPDebugConfigValue2" Type="System.Single" Scope="User">
       <Value Profile="(Default)">5</Value>
     </Setting>
+    <Setting Name="StatusSectionOnlyRestartRecordingIntervalMins" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1440</Value>
+    </Setting>
     <Setting Name="SaturationWarning" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">240</Value>
     </Setting>
@@ -412,6 +415,9 @@
     </Setting>
     <Setting Name="OCRMaxOFFLevel" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">100</Value>
+    </Setting>
+    <Setting Name="CollectZoneStats" Type="System.String" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

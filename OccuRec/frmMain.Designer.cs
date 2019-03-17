@@ -121,6 +121,7 @@
             this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
+            this.restartRecTimer = new System.Windows.Forms.Timer(this.components);
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -1162,6 +1163,10 @@
             this.ucVideoControl.TabIndex = 27;
             this.ucVideoControl.Visible = false;
             // 
+            // restartRecTimer
+            // 
+            this.restartRecTimer.Tick += new System.EventHandler(this.restartRecTimer_Tick);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1316,6 +1321,7 @@
         protected internal System.Windows.Forms.ToolStripStatusLabel tssStandardVideoMode;
         private System.Windows.Forms.ToolStripMenuItem miReleaseNotes;
         protected internal System.Windows.Forms.ToolStripMenuItem tsmiSaturation;
+        private System.Windows.Forms.Timer restartRecTimer;
 	}
 }
 

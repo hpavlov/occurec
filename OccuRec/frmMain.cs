@@ -952,6 +952,12 @@ namespace OccuRec
 				UpdateState(null);
 
 				framesBeforeUpdatingCameraVideoFormat = 4;
+
+			    if (Settings.Default.RecordStatusSectionOnly)
+			    {
+			        restartRecTimer.Interval = Settings.Default.StatusSectionOnlyRestartRecordingIntervalMins * 60 * 1000;
+			        restartRecTimer.Enabled = true;
+			    }
 			}
 		}
 
@@ -960,6 +966,8 @@ namespace OccuRec
 			if (videoObject != null)
 			{
 			    bool wasLocked = m_StateManager.IsIntegrationLocked;
+
+                restartRecTimer.Enabled = false;
 
 				videoObject.StopRecording();
 
@@ -1119,7 +1127,7 @@ namespace OccuRec
 
                             NativeHelpers.CurrentTargetInfo = tbxTargetName.Text;
 
-							string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);                           
+							string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
 							recordingfileName = videoObject.StartRecording(fileName);
 							UpdateState(null);
 						}
@@ -2309,6 +2317,14 @@ namespace OccuRec
             var freeMemoryMB = (int)s_PerfCntMemory.NextValue();
 
             NativeHelpers.SetSystemPerformanceValues(cpuUsage, diskUsage, freeMemoryMB);
+        }
+
+        private void restartRecTimer_Tick(object sender, EventArgs e)
+        {
+            videoObject.StopRecording();
+
+            string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
+            recordingfileName = videoObject.StartRecording(fileName);
         }
 	}
 }

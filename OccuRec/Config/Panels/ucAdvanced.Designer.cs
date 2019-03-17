@@ -38,6 +38,7 @@
             this.cbxStatusSectionOnly = new System.Windows.Forms.CheckBox();
             this.cbxUserPreserveOSDLines = new System.Windows.Forms.CheckBox();
             this.pnlNTPDebug = new System.Windows.Forms.Panel();
+            this.cbxNTPDebug = new System.Windows.Forms.CheckBox();
             this.cbxGraphDebugMode = new System.Windows.Forms.CheckBox();
             this.cbxImageLayoutMode = new System.Windows.Forms.ComboBox();
             this.cbxCustomAdvImageLayout = new System.Windows.Forms.CheckBox();
@@ -64,7 +65,7 @@
             this.nudOCRMaxOFF = new System.Windows.Forms.NumericUpDown();
             this.pnlOCR = new System.Windows.Forms.Panel();
             this.cbxZoneStats = new System.Windows.Forms.CheckBox();
-            this.cbxNTPDebug = new System.Windows.Forms.CheckBox();
+            this.nudRestartRecordingMin = new System.Windows.Forms.NumericUpDown();
             this.pnlPreserveOSDArea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
@@ -79,6 +80,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMinON)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMaxOFF)).BeginInit();
             this.pnlOCR.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudRestartRecordingMin)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlPreserveOSDArea
@@ -209,14 +211,25 @@
             // 
             // pnlNTPDebug
             // 
+            this.pnlNTPDebug.Controls.Add(this.nudRestartRecordingMin);
             this.pnlNTPDebug.Controls.Add(this.cbxNTPDebug);
             this.pnlNTPDebug.Controls.Add(this.nudNTPDebugValue2);
             this.pnlNTPDebug.Controls.Add(this.nudNTPDebugValue1);
             this.pnlNTPDebug.Enabled = false;
             this.pnlNTPDebug.Location = new System.Drawing.Point(137, 192);
             this.pnlNTPDebug.Name = "pnlNTPDebug";
-            this.pnlNTPDebug.Size = new System.Drawing.Size(220, 27);
+            this.pnlNTPDebug.Size = new System.Drawing.Size(289, 27);
             this.pnlNTPDebug.TabIndex = 34;
+            // 
+            // cbxNTPDebug
+            // 
+            this.cbxNTPDebug.AutoSize = true;
+            this.cbxNTPDebug.Location = new System.Drawing.Point(32, 6);
+            this.cbxNTPDebug.Name = "cbxNTPDebug";
+            this.cbxNTPDebug.Size = new System.Drawing.Size(83, 17);
+            this.cbxNTPDebug.TabIndex = 58;
+            this.cbxNTPDebug.Text = "NTP Debug";
+            this.cbxNTPDebug.UseVisualStyleBackColor = true;
             // 
             // cbxGraphDebugMode
             // 
@@ -544,15 +557,23 @@
             this.cbxZoneStats.Text = "Zone Stats";
             this.cbxZoneStats.UseVisualStyleBackColor = true;
             // 
-            // cbxNTPDebug
+            // nudRestartRecordingMin
             // 
-            this.cbxNTPDebug.AutoSize = true;
-            this.cbxNTPDebug.Location = new System.Drawing.Point(32, 6);
-            this.cbxNTPDebug.Name = "cbxNTPDebug";
-            this.cbxNTPDebug.Size = new System.Drawing.Size(83, 17);
-            this.cbxNTPDebug.TabIndex = 58;
-            this.cbxNTPDebug.Text = "NTP Debug";
-            this.cbxNTPDebug.UseVisualStyleBackColor = true;
+            this.nudRestartRecordingMin.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudRestartRecordingMin.Location = new System.Drawing.Point(237, 3);
+            this.nudRestartRecordingMin.Maximum = new decimal(new int[] {
+            9999,
+            0,
+            0,
+            0});
+            this.nudRestartRecordingMin.Name = "nudRestartRecordingMin";
+            this.nudRestartRecordingMin.Size = new System.Drawing.Size(49, 20);
+            this.nudRestartRecordingMin.TabIndex = 57;
+            this.nudRestartRecordingMin.Value = new decimal(new int[] {
+            1440,
+            0,
+            0,
+            0});
             // 
             // ucAdvanced
             // 
@@ -601,6 +622,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMaxOFF)).EndInit();
             this.pnlOCR.ResumeLayout(false);
             this.pnlOCR.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudRestartRecordingMin)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -645,5 +667,6 @@
         private System.Windows.Forms.Panel pnlOCR;
         private System.Windows.Forms.CheckBox cbxZoneStats;
         private System.Windows.Forms.CheckBox cbxNTPDebug;
+        private System.Windows.Forms.NumericUpDown nudRestartRecordingMin;
 	}
 }
