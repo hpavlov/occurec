@@ -326,7 +326,7 @@
     <Setting Name="DisplayIntensifyMode" Type="OccuRec.Controllers.DisplayIntensifyMode" Scope="User">
       <Value Profile="(Default)">Off</Value>
     </Setting>
-    <Setting Name="AavCompression" Type="System.String" Scope="User">
+    <Setting Name="AavCompression" Type="OccuRec.Helpers.AavCompression" Scope="User">
       <Value Profile="(Default)">QuickLZ</Value>
     </Setting>
     <Setting Name="MPLv2LicenseAgreementAccepted" Type="System.Boolean" Scope="User">
@@ -346,9 +346,6 @@
     </Setting>
     <Setting Name="AavTelescopeInfo" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="ForceNewFrameOnLockedRate" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="VTIMustConfirmManually" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -395,14 +392,8 @@
     <Setting Name="UseAavVersion2" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="ForceNewFrameOnLockedIntRate" Type="System.String" Scope="User">
+    <Setting Name="ForceNewFrameOnLockedIntRate" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="PALStandard" Type="DirectShowLib.AnalogVideoStandard" Scope="User">
-      <Value Profile="(Default)">16</Value>
-    </Setting>
-    <Setting Name="NTSCStandard" Type="DirectShowLib.AnalogVideoStandard" Scope="User">
-      <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="ReleaseNotesDisplayedForVersion" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
@@ -416,8 +407,17 @@
     <Setting Name="OCRMaxOFFLevel" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">100</Value>
     </Setting>
-    <Setting Name="CollectZoneStats" Type="System.String" Scope="User">
+    <Setting Name="CollectZoneStats" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="PALStandard" Type="DirectShowLib.AnalogVideoStandard" Scope="User">
+      <Value Profile="(Default)">PAL_B</Value>
+    </Setting>
+    <Setting Name="NTSCStandard" Type="DirectShowLib.AnalogVideoStandard" Scope="User">
+      <Value Profile="(Default)">NTSC_M</Value>
+    </Setting>
+    <Setting Name="UpdateSystemTimeFromNTP" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

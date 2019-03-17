@@ -453,6 +453,11 @@ namespace OccuRec.Helpers
 
         public static void SetTime(DateTime newUtcTime)
         {
+            if (!Settings.Default.UpdateSystemTimeFromNTP)
+            {
+                return;
+            }
+
             // Call the native GetSystemTime method 
             // with the defined structure.
             SYSTEMTIME systime = new SYSTEMTIME();

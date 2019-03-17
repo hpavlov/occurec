@@ -33,6 +33,7 @@ namespace OccuRec.Config.Panels
 			cbxWarnFAT16.Checked = Settings.Default.WarnOnFAT16Usage;
 			nudWarnGBFreeLeft.SetNUDValue(Settings.Default.WarnMinDiskFreeSpaceGb);
             cbxRunningOnBatteryCheck.Checked = Settings.Default.WarnIfRunningOnBattery;
+		    cbxUpdateSystemTimeFromNTP.Checked = Settings.Default.UpdateSystemTimeFromNTP;
 		}
 
 		public override void SaveSettings()
@@ -44,6 +45,7 @@ namespace OccuRec.Config.Panels
 			Settings.Default.WarnOnFAT16Usage = cbxWarnFAT16.Checked;
 			Settings.Default.WarnMinDiskFreeSpaceGb = (float) nudWarnGBFreeLeft.Value;
             Settings.Default.WarnIfRunningOnBattery = cbxRunningOnBatteryCheck.Checked;
+            Settings.Default.UpdateSystemTimeFromNTP = cbxUpdateSystemTimeFromNTP.Checked;
 		}
 
 		public override bool ValidateSettings()

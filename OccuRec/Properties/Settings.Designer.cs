@@ -8,8 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-using OccuRec.Helpers;
-
 namespace OccuRec.Properties {
     
     
@@ -1080,7 +1078,7 @@ namespace OccuRec.Properties {
                 this["NTPDebugEnabled"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
@@ -1324,10 +1322,9 @@ namespace OccuRec.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("QuickLZ")]
-        public AavCompression AavCompression
-        {
+        public global::OccuRec.Helpers.AavCompression AavCompression {
             get {
-                return ((AavCompression)(this["AavCompression"]));
+                return ((global::OccuRec.Helpers.AavCompression)(this["AavCompression"]));
             }
             set {
                 this["AavCompression"] = value;
@@ -1403,18 +1400,6 @@ namespace OccuRec.Properties {
             }
             set {
                 this["AavTelescopeInfo"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool ForceNewFrameOnLockedIntRate {
-            get {
-                return ((bool)(this["ForceNewFrameOnLockedIntRate"]));
-            }
-            set {
-                this["ForceNewFrameOnLockedIntRate"] = value;
             }
         }
         
@@ -1600,25 +1585,13 @@ namespace OccuRec.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("16")]
-        public DirectShowLib.AnalogVideoStandard PALStandard {
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ForceNewFrameOnLockedIntRate {
             get {
-                return ((DirectShowLib.AnalogVideoStandard)(this["PALStandard"]));
+                return ((bool)(this["ForceNewFrameOnLockedIntRate"]));
             }
             set {
-                this["PALStandard"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public DirectShowLib.AnalogVideoStandard NTSCStandard {
-            get {
-                return ((DirectShowLib.AnalogVideoStandard)(this["NTSCStandard"]));
-            }
-            set {
-                this["NTSCStandard"] = value;
+                this["ForceNewFrameOnLockedIntRate"] = value;
             }
         }
         
@@ -1645,50 +1618,77 @@ namespace OccuRec.Properties {
                 this["StarTechSVID2OCR"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("200")]
-        public int OCRMinONLevel
-        {
-            get
-            {
+        public int OCRMinONLevel {
+            get {
                 return ((int)(this["OCRMinONLevel"]));
             }
-            set
-            {
+            set {
                 this["OCRMinONLevel"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("100")]
-        public int OCRMaxOFFLevel
-        {
-            get
-            {
+        public int OCRMaxOFFLevel {
+            get {
                 return ((int)(this["OCRMaxOFFLevel"]));
             }
-            set
-            {
+            set {
                 this["OCRMaxOFFLevel"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool CollectZoneStats
-        {
-            get
-            {
+        public bool CollectZoneStats {
+            get {
                 return ((bool)(this["CollectZoneStats"]));
             }
-            set
-            {
+            set {
                 this["CollectZoneStats"] = value;
             }
-        }        
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("PAL_B")]
+        public global::DirectShowLib.AnalogVideoStandard PALStandard {
+            get {
+                return ((global::DirectShowLib.AnalogVideoStandard)(this["PALStandard"]));
+            }
+            set {
+                this["PALStandard"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("NTSC_M")]
+        public global::DirectShowLib.AnalogVideoStandard NTSCStandard {
+            get {
+                return ((global::DirectShowLib.AnalogVideoStandard)(this["NTSCStandard"]));
+            }
+            set {
+                this["NTSCStandard"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UpdateSystemTimeFromNTP {
+            get {
+                return ((bool)(this["UpdateSystemTimeFromNTP"]));
+            }
+            set {
+                this["UpdateSystemTimeFromNTP"] = value;
+            }
+        }
     }
 }

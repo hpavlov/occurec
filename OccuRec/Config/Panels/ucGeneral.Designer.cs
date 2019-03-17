@@ -40,6 +40,7 @@
             this.cbxWarnFreeSpace = new System.Windows.Forms.CheckBox();
             this.nudWarnGBFreeLeft = new System.Windows.Forms.NumericUpDown();
             this.cbxRunningOnBatteryCheck = new System.Windows.Forms.CheckBox();
+            this.cbxUpdateSystemTimeFromNTP = new System.Windows.Forms.CheckBox();
             this.gbxFSWarnings.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudWarnGBFreeLeft)).BeginInit();
             this.SuspendLayout();
@@ -157,15 +158,26 @@
             this.cbxRunningOnBatteryCheck.CheckAlign = System.Drawing.ContentAlignment.BottomLeft;
             this.cbxRunningOnBatteryCheck.Location = new System.Drawing.Point(3, 152);
             this.cbxRunningOnBatteryCheck.Name = "cbxRunningOnBatteryCheck";
-            this.cbxRunningOnBatteryCheck.Size = new System.Drawing.Size(187, 17);
+            this.cbxRunningOnBatteryCheck.Size = new System.Drawing.Size(189, 17);
             this.cbxRunningOnBatteryCheck.TabIndex = 28;
-            this.cbxRunningOnBatteryCheck.Text = "Enable running on battery warning";
+            this.cbxRunningOnBatteryCheck.Text = "Show warning if running on battery";
             this.cbxRunningOnBatteryCheck.UseVisualStyleBackColor = true;
+            // 
+            // cbxUpdateSystemTimeFromNTP
+            // 
+            this.cbxUpdateSystemTimeFromNTP.AutoSize = true;
+            this.cbxUpdateSystemTimeFromNTP.Location = new System.Drawing.Point(3, 201);
+            this.cbxUpdateSystemTimeFromNTP.Name = "cbxUpdateSystemTimeFromNTP";
+            this.cbxUpdateSystemTimeFromNTP.Size = new System.Drawing.Size(166, 17);
+            this.cbxUpdateSystemTimeFromNTP.TabIndex = 29;
+            this.cbxUpdateSystemTimeFromNTP.Text = "Update system time from NTP";
+            this.cbxUpdateSystemTimeFromNTP.UseVisualStyleBackColor = true;
             // 
             // ucGeneral
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cbxUpdateSystemTimeFromNTP);
             this.Controls.Add(this.cbxRunningOnBatteryCheck);
             this.Controls.Add(this.cbxWarnForFileSystemIssues);
             this.Controls.Add(this.gbxFSWarnings);
@@ -197,5 +209,6 @@
 		private System.Windows.Forms.CheckBox cbxWarnFreeSpace;
 		private System.Windows.Forms.NumericUpDown nudWarnGBFreeLeft;
         private System.Windows.Forms.CheckBox cbxRunningOnBatteryCheck;
+        private System.Windows.Forms.CheckBox cbxUpdateSystemTimeFromNTP;
 	}
 }
