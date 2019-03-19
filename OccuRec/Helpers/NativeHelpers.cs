@@ -477,6 +477,9 @@ namespace OccuRec.Helpers
         [DllImport("ntdll.dll", SetLastError = true)]
         private static extern int NtQueryTimerResolution(out int minimumResolution, out int maximumResolution, out int currentResolution);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern void GetSystemTimePreciseAsFileTime(out FILETIME lpSystemTimeAsFileTime);
+
 	    public static int GetTimerResolution()
 	    {
             int minimumResolution;
@@ -690,9 +693,12 @@ namespace OccuRec.Helpers
 
         public static FrameProcessingStatus ProcessVideoFrame2(int[,] pixels)
         {
+            DateTime systemTimeUtc = GetMostPreciseSystemTimeAvailableUtc();
+
+            // Get the NTP time from the internal NTP syncronised high precision clock
 			double ntpBasedTimeError;
 			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).AddMilliseconds(-1 * Settings.Default.NTPTimingHardwareCorrection).Ticks;
-	        long currentSecondaryTimeAsTicks = DateTime.UtcNow.Ticks;
+            long currentSecondaryTimeAsTicks = systemTimeUtc.Ticks;
 
             var frameInfo = new FrameProcessingStatus();
 	        frameInfo.TrkdTargetResiduals = new double[290];
@@ -707,12 +713,42 @@ namespace OccuRec.Helpers
             return frameInfo;
         }
 
+	    private static bool? isWindows8orLater = null;
+	    private static bool IsWindows8orLater
+	    {
+	        get
+	        {
+	            if (!isWindows8orLater.HasValue)
+	            {
+	                isWindows8orLater =
+	                    System.Environment.OSVersion.Version.Major > 6 || // Windows 10 or later
+	                    System.Environment.OSVersion.Version.Major == 6 && System.Environment.OSVersion.Version.Minor >= 3; // or Windows 8.1
+	            }
+
+	            return isWindows8orLater.Value;
+	        }
+	    }
+	    private static DateTime GetMostPreciseSystemTimeAvailableUtc()
+	    {
+	        if (IsWindows8orLater)
+	        {
+                // Get the most precise system time from Windows 8.1 or later using GetSystemTimePreciseAsFileTime
+                FILETIME fileTime;
+                GetSystemTimePreciseAsFileTime(out fileTime);
+                return DateTime.FromFileTimeUtc((fileTime.dwHighDateTime << 32) & fileTime.dwLowDateTime);
+	        }
+            else
+                return DateTime.UtcNow;
+	    }
+
         public static FrameProcessingStatus ProcessVideoFrame(IntPtr bitmapData)
         {
+            DateTime systemTimeUtc = GetMostPreciseSystemTimeAvailableUtc();
+
 			// Get the NTP time from the internal NTP syncronised high precision clock
 			double ntpBasedTimeError;
 			long currentNtpTimeAsTicks = NTPTimeKeeper.UtcNow(out ntpBasedTimeError).AddMilliseconds(-1 * Settings.Default.NTPTimingHardwareCorrection).Ticks;
-			long currentSecondaryTimeAsTicks = DateTime.UtcNow.Ticks;
+            long currentSecondaryTimeAsTicks = systemTimeUtc.Ticks;
 
             var frameInfo = new FrameProcessingStatus();
 			frameInfo.TrkdTargetResiduals = new double[290];

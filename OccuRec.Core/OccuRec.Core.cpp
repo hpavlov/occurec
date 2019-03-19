@@ -1919,15 +1919,24 @@ void RecordCurrentFrame_AAV1(IntegratedFrame* nextFrame)
 	}
 	else
 	{
-		AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime));
+		// NOTE: To guarantee that the system timestamp is obtained as early as possible it is taken in the C# code
+		// before calling ProcessVideoFrame/ProcessVideoFrame2. This timestamp is recorded as the SYSTEM_TIME_FILE_TIME
+		// Then the less precise SYSTEM_TIME is taken here at the time of writing the frame. This will allow calculating the 
+		// delay between passing the frame for recording and actually recording the frame
 
-		// TODO: Check GetSystemTimePreciseAsFileTime is supported
-		FILETIME sysTime2;
-		GetSystemTimePreciseAsFileTime(&sysTime2);
-		ULARGE_INTEGER uli;
-		uli.LowPart = sysTime2.dwLowDateTime;
-		uli.HighPart = sysTime2.dwHighDateTime;
-		AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME_FILE_TIME, uli.QuadPart);
+		AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME, SystemTimeToAavTicks(sysTime));
+		AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME_FILE_TIME, nextFrame->SecondaryEndTimestamp);
+
+		// NOTE: This code gets the SystemTimePreciseAsFileTime from C++ land. However there will be an unknown 
+		// buffering delay added until we get to here. So insted of recording this time we record  the SystemTimePreciseAsFileTime
+		// obtained by C# code at the time of passing the frame for processing
+		//// TODO: Check GetSystemTimePreciseAsFileTime is supported
+		//FILETIME sysTime2;
+		//GetSystemTimePreciseAsFileTime(&sysTime2);
+		//ULARGE_INTEGER uli;
+		//uli.LowPart = sysTime2.dwLowDateTime;
+		//uli.HighPart = sysTime2.dwHighDateTime;
+		//AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME_FILE_TIME, uli.QuadPart);
 
 		if (nextFrame->IsStatusSectionOnlyDebugFrame)
 		{
