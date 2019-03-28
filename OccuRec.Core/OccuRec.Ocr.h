@@ -137,6 +137,7 @@ class OcrFrameProcessor
 		map<char, CharRecognizer*> EvenFieldChars;
 		bool m_IsOddFieldDataFirst;
 		__int64 m_UtcDayAsTicksForHour23;
+		bool m_UtcDayAsTicksForHour23Set;
 
 		char m_OcredCharsOdd[25];
 		char m_OcredCharsEven[25];

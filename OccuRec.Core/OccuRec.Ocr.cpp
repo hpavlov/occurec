@@ -338,6 +338,7 @@ OcrFrameProcessor::OcrFrameProcessor()
 	ErrorCodeEvenField = OcrErrorCode::Unknown;
 	ErrorCodeOddField = OcrErrorCode::Unknown;
 	m_UtcDayAsTicksForHour23 = 0;
+	m_UtcDayAsTicksForHour23Set = false;
 }
 
 OcrFrameProcessor::~OcrFrameProcessor()
@@ -641,10 +642,16 @@ OcrErrorCode OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 cu
 
 	if (success)
 	{
-		if (hh == 23 && m_UtcDayAsTicksForHour23 != currentUtcDayAsTicks)
+		if (hh == 23 && !m_UtcDayAsTicksForHour23Set && m_UtcDayAsTicksForHour23 != currentUtcDayAsTicks)
 		{
 			// If this is the 23-rd hour of the day and OCR was successful then remember the UtcDayAsTicks to check later on for a date change
 			m_UtcDayAsTicksForHour23 = currentUtcDayAsTicks;
+			// Also make sure we don't update this again until after the 00 hour
+			m_UtcDayAsTicksForHour23Set = true;
+		}
+		else if (hh == 00 && m_UtcDayAsTicksForHour23Set)
+		{
+			m_UtcDayAsTicksForHour23Set = false;
 		}
 
 		return OcrErrorCode::Success;

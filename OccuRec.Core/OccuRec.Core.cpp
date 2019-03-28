@@ -99,6 +99,8 @@ int inconsistentIntegrations = 0;
 #define GAMMA_PROBES_COUNT 10
 #define MAX_CALIBRATION_SIGNATURES_SIZE 256 * GAMMA_PROBES_COUNT * INTEGRATION_CALIBRATION_CYCLES
 
+#define MAX_RECORDED_REBUG_FRAMES 512
+
 float GAMMA_PROBES[GAMMA_PROBES_COUNT];
 
 bool INTEGRATION_CALIBRATION;
@@ -149,6 +151,7 @@ unsigned char* currTrackedFramePixels = NULL;
 HANDLE hRecordingThread = NULL;
 bool recording = false;
 long long numRecordedFrames = 0;
+long recordedDebugFrames = 0;
 double averageNtpDebugOffsetMS = 0;
 double aggregatedNtpDebug = 0;
 char cameraModel[128];
@@ -1938,10 +1941,11 @@ void RecordCurrentFrame_AAV1(IntegratedFrame* nextFrame)
 		//uli.HighPart = sysTime2.dwHighDateTime;
 		//AavFrameAddStatusTag64(STATUS_TAG_SYSTEM_TIME_FILE_TIME, uli.QuadPart);
 
-		if (nextFrame->IsStatusSectionOnlyDebugFrame)
+		if (nextFrame->IsStatusSectionOnlyDebugFrame && recordedDebugFrames < MAX_RECORDED_REBUG_FRAMES)
 		{
 			// If this is a debug frame (e.g. NTP Debug or OCR Error), then record it in raw compressed form
 			layoutId = 4;
+			recordedDebugFrames++;
 		}
 
 		if (NEW_SYSTEM_PERF_VALUES)
@@ -2420,6 +2424,7 @@ HRESULT StartRecordingInternal_AAV1(LPCTSTR szFileName)
 	numRecordedFrames = 0;
 	averageNtpDebugOffsetMS = 0;
 	aggregatedNtpDebug = 0;
+	recordedDebugFrames = 0;
 
 	AAV16_MAX_BINNED_FRAMES = 0;
 
