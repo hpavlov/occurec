@@ -1247,6 +1247,8 @@ namespace OccuRec
 					bool timeUpdated;
 					NTPClient.GetNetworkTimeFromMultipleServers(m_LastKnownGoodNTPServers, out latencyInMilliseconds, out aliveServers, out timeUpdated);
 				}
+                catch(LinearRegressionException)
+                { }
 				catch (Exception ex)
 				{
 					Trace.WriteLine(ex.GetFullStackTrace());

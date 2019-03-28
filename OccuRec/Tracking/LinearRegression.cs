@@ -9,6 +9,13 @@ using System.Text;
 
 namespace OccuRec.Tracking
 {
+    public class LinearRegressionException : Exception
+    {
+        public LinearRegressionException(string message)
+            : base(message)
+        { }
+    }
+
 	public class LinearRegression
 	{
 		private List<double> m_XValues = new List<double>();
@@ -39,7 +46,7 @@ namespace OccuRec.Tracking
 		public void Solve()
 		{
 			if (m_XValues.Count < 3)
-				throw new InvalidOperationException("Cannot get a linear fit from less than 3 points.");
+                throw new LinearRegressionException("Cannot get a linear fit from less than 3 points.");
 
 			SafeMatrix A = new SafeMatrix(m_XValues.Count, 2);
 			SafeMatrix X = new SafeMatrix(m_XValues.Count, 1);
