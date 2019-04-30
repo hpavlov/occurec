@@ -431,7 +431,7 @@ namespace OccuRec.Helpers
 	    private static extern int SetupOcrZoneMatrix([In, MarshalAs(UnmanagedType.LPArray)] int[,] matrix);
 
         [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
-        private static extern int SetupOcrMinOnMaxOffLevels(int minOnLevel, int maxOffLevel, bool zoneStats);
+        private static extern int SetupOcrMinOnMaxOffLevels(int minOnLevel, int maxOffLevel, int ocrFlags);
 
 	    [DllImport(OCCUREC_CORE_DLL_NAME, CallingConvention = CallingConvention.Cdecl)]
 	    private static extern int SetupOcrChar(char character, int fixedPosition);
@@ -877,7 +877,11 @@ namespace OccuRec.Helpers
 				ocrConfig.Zones,
 				ocrConfig.Alignment.CharPositions);
 
-            SetupOcrMinOnMaxOffLevels(Settings.Default.OCRMinONLevel, Settings.Default.OCRMaxOFFLevel, Settings.Default.CollectZoneStats);
+		    int ocrFlags = 0;
+		    if (Settings.Default.CollectZoneStats) ocrFlags += 0x01;
+            if (Settings.Default.DisableFieldNoCheck) ocrFlags += 0x02;
+
+            SetupOcrMinOnMaxOffLevels(Settings.Default.OCRMinONLevel, Settings.Default.OCRMaxOFFLevel, ocrFlags);
 
 			foreach (CharDefinition charDef in ocrConfig.CharDefinitions)
             {

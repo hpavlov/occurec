@@ -38,7 +38,11 @@ namespace OccuRec.Config.Panels
             else cbxOCRType.SelectedIndex = -1;
             nudOCRMinON.SetNUDValue(Settings.Default.OCRMinONLevel);
             nudOCRMaxOFF.SetNUDValue(Settings.Default.OCRMaxOFFLevel);
-            cbxZoneStats.Checked = Settings.Default.CollectZoneStats;
+		    int flag = 0;
+            flag += Settings.Default.CollectZoneStats ? 0x01 : 0x00;
+            flag += Settings.Default.DisableFieldNoCheck ? 0x02 : 0x00;
+            cbxOcrFlags.SelectedIndex = flag;
+
 			cbxUserPreserveOSDLines.Checked = Settings.Default.PreserveVTIUserSpecifiedValues;
 			nudPreserveVTITopRow.SetNUDValue(Settings.Default.PreserveVTIFirstRow);
 			nudPreserveVTIBottomRow.SetNUDValue(Settings.Default.PreserveVTILastRow);
@@ -95,7 +99,10 @@ namespace OccuRec.Config.Panels
             Settings.Default.StarTechSVID2OCR = cbxOCR.Checked && cbxOCRType.SelectedIndex == 0;
             Settings.Default.OCRMinONLevel = (int)nudOCRMinON.Value;
             Settings.Default.OCRMaxOFFLevel = (int)nudOCRMaxOFF.Value;
-            Settings.Default.CollectZoneStats = cbxZoneStats.Checked;
+		    int flag = cbxOcrFlags.SelectedIndex;
+            Settings.Default.CollectZoneStats = (flag & 0x01) == 0x01;
+            Settings.Default.DisableFieldNoCheck = (flag & 0x02) == 0x02;
+
 			Settings.Default.PreserveVTIUserSpecifiedValues = cbxUserPreserveOSDLines.Checked;
 			Settings.Default.PreserveVTIFirstRow = (int)nudPreserveVTITopRow.Value;
 			Settings.Default.PreserveVTILastRow = (int)nudPreserveVTIBottomRow.Value;

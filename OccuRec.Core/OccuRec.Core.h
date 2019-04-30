@@ -104,7 +104,7 @@ HRESULT SetupIntegrationDetection(float minDiffRatio, float minSignDiff, float d
 HRESULT SetupIntegrationPreservationArea(bool preserveVti, int areaTopOdd, int areaTopEven, int areaHeight);
 HRESULT SetupOcrAlignment(long width, long height, long frameTopOdd, long frameTopEven, long charWidth, long charHeight, long numberOfCharPositions, long numberOfZones, long zoneMode, long* pixelsInZones);
 HRESULT SetupOcrZoneMatrix(long* matrix);
-HRESULT SetupOcrMinOnMaxOffLevels(long minOnLevel, long maxOffLevel, bool zoneStats);
+HRESULT SetupOcrMinOnMaxOffLevels(long minOnLevel, long maxOffLevel, long ocrFlags);
 HRESULT SetupOcrChar(char character, long fixedPosition);
 HRESULT SetupOcrCharDefinitionZone(char character, long zoneId, long zoneValue);
 HRESULT DisableOcrProcessing();

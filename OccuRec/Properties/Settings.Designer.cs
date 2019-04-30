@@ -1690,5 +1690,17 @@ namespace OccuRec.Properties {
                 this["UpdateSystemTimeFromNTP"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DisableFieldNoCheck {
+            get {
+                return ((bool)(this["DisableFieldNoCheck"]));
+            }
+            set {
+                this["DisableFieldNoCheck"] = value;
+            }
+        }
     }
 }

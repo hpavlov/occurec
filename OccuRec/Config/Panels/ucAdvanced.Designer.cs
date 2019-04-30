@@ -38,6 +38,7 @@
             this.cbxStatusSectionOnly = new System.Windows.Forms.CheckBox();
             this.cbxUserPreserveOSDLines = new System.Windows.Forms.CheckBox();
             this.pnlNTPDebug = new System.Windows.Forms.Panel();
+            this.nudRestartRecordingMin = new System.Windows.Forms.NumericUpDown();
             this.cbxNTPDebug = new System.Windows.Forms.CheckBox();
             this.cbxGraphDebugMode = new System.Windows.Forms.CheckBox();
             this.cbxImageLayoutMode = new System.Windows.Forms.ComboBox();
@@ -64,14 +65,14 @@
             this.nudOCRMinON = new System.Windows.Forms.NumericUpDown();
             this.nudOCRMaxOFF = new System.Windows.Forms.NumericUpDown();
             this.pnlOCR = new System.Windows.Forms.Panel();
-            this.cbxZoneStats = new System.Windows.Forms.CheckBox();
-            this.nudRestartRecordingMin = new System.Windows.Forms.NumericUpDown();
+            this.cbxOcrFlags = new System.Windows.Forms.ComboBox();
             this.pnlPreserveOSDArea.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTIBottomRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudPreserveVTITopRow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).BeginInit();
             this.pnlNTPDebug.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudRestartRecordingMin)).BeginInit();
             this.pnlLocationCorss.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).BeginInit();
@@ -80,7 +81,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMinON)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMaxOFF)).BeginInit();
             this.pnlOCR.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudRestartRecordingMin)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlPreserveOSDArea
@@ -220,6 +220,24 @@
             this.pnlNTPDebug.Name = "pnlNTPDebug";
             this.pnlNTPDebug.Size = new System.Drawing.Size(289, 27);
             this.pnlNTPDebug.TabIndex = 34;
+            // 
+            // nudRestartRecordingMin
+            // 
+            this.nudRestartRecordingMin.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.nudRestartRecordingMin.Location = new System.Drawing.Point(237, 3);
+            this.nudRestartRecordingMin.Maximum = new decimal(new int[] {
+            9999,
+            0,
+            0,
+            0});
+            this.nudRestartRecordingMin.Name = "nudRestartRecordingMin";
+            this.nudRestartRecordingMin.Size = new System.Drawing.Size(49, 20);
+            this.nudRestartRecordingMin.TabIndex = 57;
+            this.nudRestartRecordingMin.Value = new decimal(new int[] {
+            1440,
+            0,
+            0,
+            0});
             // 
             // cbxNTPDebug
             // 
@@ -538,7 +556,7 @@
             // 
             // pnlOCR
             // 
-            this.pnlOCR.Controls.Add(this.cbxZoneStats);
+            this.pnlOCR.Controls.Add(this.cbxOcrFlags);
             this.pnlOCR.Controls.Add(this.cbxOCRType);
             this.pnlOCR.Controls.Add(this.nudOCRMinON);
             this.pnlOCR.Controls.Add(this.nudOCRMaxOFF);
@@ -547,33 +565,19 @@
             this.pnlOCR.Size = new System.Drawing.Size(376, 31);
             this.pnlOCR.TabIndex = 56;
             // 
-            // cbxZoneStats
+            // cbxOcrFlags
             // 
-            this.cbxZoneStats.AutoSize = true;
-            this.cbxZoneStats.Location = new System.Drawing.Point(283, 10);
-            this.cbxZoneStats.Name = "cbxZoneStats";
-            this.cbxZoneStats.Size = new System.Drawing.Size(78, 17);
-            this.cbxZoneStats.TabIndex = 57;
-            this.cbxZoneStats.Text = "Zone Stats";
-            this.cbxZoneStats.UseVisualStyleBackColor = true;
-            // 
-            // nudRestartRecordingMin
-            // 
-            this.nudRestartRecordingMin.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.nudRestartRecordingMin.Location = new System.Drawing.Point(237, 3);
-            this.nudRestartRecordingMin.Maximum = new decimal(new int[] {
-            9999,
-            0,
-            0,
-            0});
-            this.nudRestartRecordingMin.Name = "nudRestartRecordingMin";
-            this.nudRestartRecordingMin.Size = new System.Drawing.Size(49, 20);
-            this.nudRestartRecordingMin.TabIndex = 57;
-            this.nudRestartRecordingMin.Value = new decimal(new int[] {
-            1440,
-            0,
-            0,
-            0});
+            this.cbxOcrFlags.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxOcrFlags.FormattingEnabled = true;
+            this.cbxOcrFlags.Items.AddRange(new object[] {
+            "0 - None",
+            "1 - Z",
+            "2 - F",
+            "3 - ZF"});
+            this.cbxOcrFlags.Location = new System.Drawing.Point(283, 7);
+            this.cbxOcrFlags.Name = "cbxOcrFlags";
+            this.cbxOcrFlags.Size = new System.Drawing.Size(85, 21);
+            this.cbxOcrFlags.TabIndex = 57;
             // 
             // ucAdvanced
             // 
@@ -613,6 +617,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudNTPDebugValue1)).EndInit();
             this.pnlNTPDebug.ResumeLayout(false);
             this.pnlNTPDebug.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudRestartRecordingMin)).EndInit();
             this.pnlLocationCorss.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.nudCorssTransparency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudCrossY)).EndInit();
@@ -621,8 +626,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMinON)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudOCRMaxOFF)).EndInit();
             this.pnlOCR.ResumeLayout(false);
-            this.pnlOCR.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudRestartRecordingMin)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -665,8 +668,8 @@
         private System.Windows.Forms.NumericUpDown nudOCRMinON;
         private System.Windows.Forms.NumericUpDown nudOCRMaxOFF;
         private System.Windows.Forms.Panel pnlOCR;
-        private System.Windows.Forms.CheckBox cbxZoneStats;
         private System.Windows.Forms.CheckBox cbxNTPDebug;
         private System.Windows.Forms.NumericUpDown nudRestartRecordingMin;
+        private System.Windows.Forms.ComboBox cbxOcrFlags;
 	}
 }

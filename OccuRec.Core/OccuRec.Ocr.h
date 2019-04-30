@@ -176,6 +176,7 @@ class OcrFrameProcessor
 		unsigned char GetOcredGpsFixState();
 
 		static void ConfigureZoneStatsCollection(bool collectZoneStats);
+		static void ConfigureDisableFieldNoCheck(bool disableFieldNoCheck);
 };
 
 class OcrManager

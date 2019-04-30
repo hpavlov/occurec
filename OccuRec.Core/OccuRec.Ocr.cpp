@@ -24,6 +24,7 @@ long OCR_ZONE_MODE;
 long OCR_ZONE_PIXEL_COUNTS[MAX_ZONE_COUNT];
 long OCR_MIN_ON_LEVEL;
 long OCR_MAX_OFF_LEVEL;
+bool DISABLE_FIELD_NO_CHECK = false;
 
 bool COLLECT_ZONE_STATS = false;
 long ZONE_STAT_FRAMES = 0;
@@ -354,6 +355,11 @@ void OcrFrameProcessor::ConfigureZoneStatsCollection(bool collectZoneStats)
 	ZONE_STAT_FRAMES = 0;
 }
 
+void OcrFrameProcessor::ConfigureDisableFieldNoCheck(bool disableFieldNoCheck)
+{
+	DISABLE_FIELD_NO_CHECK = disableFieldNoCheck;
+}
+
 void OcrFrameProcessor::NewFrame()
 {
 	m_MedianComputationValues.clear();
@@ -478,8 +484,14 @@ void OcrFrameProcessor::Ocr(__int64 currentUtcDayAsTicks)
 		ErrorCodeOddField = ExtractFieldInfo(m_OcredCharsOdd, currentUtcDayAsTicks, OddFieldOcredOsd);
 		ErrorCodeEvenField = ExtractFieldInfo(m_OcredCharsEven, currentUtcDayAsTicks, EvenFieldOcredOsd);
 
-		m_IsOddFieldDataFirst = 
-			OddFieldOcredOsd.FieldNumber < EvenFieldOcredOsd.FieldNumber;
+		if (OddFieldOcredOsd.FieldNumber != EvenFieldOcredOsd.FieldNumber &&
+			OddFieldOcredOsd.FieldNumber != 0 &&
+			EvenFieldOcredOsd.FieldNumber != 0)
+		{
+			// NOTE: Also, this doesn't really need to be set every time (considering field order cannot swap after we have started to receive video frames) 
+			m_IsOddFieldDataFirst = 
+				OddFieldOcredOsd.FieldNumber < EvenFieldOcredOsd.FieldNumber;
+		}
 
 		//char tsFrom[128];
 		//char tsTo[128];
@@ -593,8 +605,13 @@ OcrErrorCode OcrFrameProcessor::ExtractFieldInfo(char ocredChars[25], __int64 cu
 
 	if (hh == 0 && m_UtcDayAsTicksForHour23 == currentUtcDayAsTicks)
 	{
-		// Date change has occured however we are still given then UtcDayTicks for the previous day. Add 24 hours to the OCR-ed time.
+		// Date change has occured however we are still given the UtcDayTicks for the previous day. Add 24 hours to the OCR-ed time.
 		fieldInfo.FieldTimeStamp += (long long)864000000000;
+	}
+	else if (hh == 23 && m_UtcDayAsTicksForHour23 != currentUtcDayAsTicks)
+	{
+		// Actual sate change has not occured yet, however the system time already indicates it is the next day. As we have added the day incorrectly we need to remove 24 hours.
+		fieldInfo.FieldTimeStamp -= (long long)864000000000;
 	}
 
 	char fieldNoStr[9];
@@ -808,7 +825,7 @@ void OcrManager::VerifyOcredFrameIntegrity(OcrFrameProcessor* ocredFrame)
 		return;
 
 	// Field numbers must be consequtive
-	if (ocredFrame->GetOcredStartFrameNumber() + 1 != ocredFrame->GetOcredEndFrameNumber())
+	if (!DISABLE_FIELD_NO_CHECK && ocredFrame->GetOcredStartFrameNumber() + 1 != ocredFrame->GetOcredEndFrameNumber())
 	{
 		ocredFrame->ErrorCodeEvenField = (OcrErrorCode)((long)ocredFrame->ErrorCodeEvenField + OcrErrorCode::FieldNumbersNotSequential);
 		ocredFrame->ErrorCodeOddField = (OcrErrorCode)((long)ocredFrame->ErrorCodeOddField + OcrErrorCode::FieldNumbersNotSequential);

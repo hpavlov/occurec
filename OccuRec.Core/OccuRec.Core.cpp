@@ -538,10 +538,11 @@ HRESULT SetupOcrZoneMatrix(long* matrix)
 	return S_OK;
 }
 
-HRESULT SetupOcrMinOnMaxOffLevels(long minOnLevel, long maxOffLevel, bool zoneStats)
+HRESULT SetupOcrMinOnMaxOffLevels(long minOnLevel, long maxOffLevel, long ocrFlags)
 {
 	OcrCharDefinition::SetupOcrZoneOnOffLevels(minOnLevel, maxOffLevel);
-	OcrFrameProcessor::ConfigureZoneStatsCollection(zoneStats);
+	OcrFrameProcessor::ConfigureZoneStatsCollection((ocrFlags & 0x01) == 0x01);
+	OcrFrameProcessor::ConfigureDisableFieldNoCheck((ocrFlags & 0x02) == 0x02);
 
 	return S_OK;
 }
