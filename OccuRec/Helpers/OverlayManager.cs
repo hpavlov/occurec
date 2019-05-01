@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -15,6 +16,8 @@ using OccuRec.FrameAnalysis;
 using OccuRec.Properties;
 using OccuRec.StateManagement;
 using OccuRec.Tracking;
+using OccuRec.Utilities.Exceptions;
+using ASCOMStandard = ASCOM;
 
 namespace OccuRec.Helpers
 {
@@ -35,6 +38,8 @@ namespace OccuRec.Helpers
         private int imageWidth;
         private int imageHeight;
 	    private int framesWithoutTimestams;
+
+        private bool exposureTimeSupported = true;
 
 	    private OverlayState overlayState;
 	    private FrameAnalysisManager analysisManager;
@@ -257,16 +262,26 @@ namespace OccuRec.Helpers
 
             if (frame != null)
             {
-                if (!string.IsNullOrEmpty(frame.ExposureStartTime))
+                if (exposureTimeSupported)
                 {
-                    if (m_TimestampSize == SizeF.Empty)
+                    try
                     {
-                        m_TimestampSize = g.MeasureString(frame.ExposureStartTime, s_VtiOsdFont);
-                    }
+                        if (!string.IsNullOrEmpty(frame.ExposureStartTime))
+                        {
+                            if (m_TimestampSize == SizeF.Empty)
+                            {
+                                m_TimestampSize = g.MeasureString(frame.ExposureStartTime, s_VtiOsdFont);
+                            }
 
-                    if (m_TimestampSize != SizeF.Empty)
+                            if (m_TimestampSize != SizeF.Empty)
+                            {
+                                g.DrawString(frame.ExposureStartTime, s_VtiOsdFont, Brushes.Lime, imageWidth - m_TimestampSize.Width - 10, 10);
+                            }
+                        }
+                    }
+                    catch (ASCOMStandard.PropertyNotImplementedException)
                     {
-                        g.DrawString(frame.ExposureStartTime, s_VtiOsdFont, Brushes.Lime, imageWidth - m_TimestampSize.Width - 10, 10);
+                        exposureTimeSupported = false;
                     }
                 }
 

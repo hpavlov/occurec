@@ -97,8 +97,6 @@ namespace OccuRec.ASCOM.Server
 
         protected virtual void Dispose(bool disposing)
         {
-            Trace.WriteLine("OccuRec: ASCOMServer::VideoFrame::Dispose()");
-
             m_VideoFrame = null;
 
             RemotingServices.Disconnect(this);
