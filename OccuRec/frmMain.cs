@@ -952,28 +952,33 @@ namespace OccuRec
 			}
 		}
 
-		private void btnRecord_Click(object sender, EventArgs e)
-		{
-			if (videoObject != null)
-			{
+        private void StartRecording()
+        {
+            if (videoObject != null)
+            {
                 NativeHelpers.CurrentTargetInfo = tbxTargetName.Text;
 
-				string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
-				recordingfileName = videoObject.StartRecording(fileName);
+                string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
+                recordingfileName = videoObject.StartRecording(fileName);
 
-				UpdateState(null);
+                UpdateState(null);
 
-				framesBeforeUpdatingCameraVideoFormat = 4;
+                framesBeforeUpdatingCameraVideoFormat = 4;
 
-			    if (Settings.Default.RecordStatusSectionOnly)
-			    {
-			        restartRecTimer.Interval = Settings.Default.StatusSectionOnlyRestartRecordingIntervalMins * 60 * 1000;
-			        restartRecTimer.Enabled = true;
-			    }
-			}
-		}
+                if (Settings.Default.RecordStatusSectionOnly)
+                {
+                    restartRecTimer.Interval = Settings.Default.StatusSectionOnlyRestartRecordingIntervalMins * 60 * 1000;
+                    restartRecTimer.Enabled = true;
+                }
+            }
+        }
 
-		private void btnStopRecording_Click(object sender, EventArgs e)
+        private void btnRecord_Click(object sender, EventArgs e)
+        {
+            StartRecording();
+        }
+
+		private void StopRecording()
 		{
 			if (videoObject != null)
 			{
@@ -1008,7 +1013,12 @@ namespace OccuRec
 			}
 		}
 
-		private void ResizeVideoFrameTo(int imageWidth, int imageHeight)
+        private void btnStopRecording_Click(object sender, EventArgs e)
+        {
+            StopRecording();
+        }
+
+        private void ResizeVideoFrameTo(int imageWidth, int imageHeight)
 		{
 			Width = Math.Max(800, (imageWidth - picVideoFrame.Width) + this.Width);
 			Height = Math.Max(600, (imageHeight - picVideoFrame.Height) + this.Height);
@@ -1142,19 +1152,14 @@ namespace OccuRec
 								m_StateManager.LockIntegration();
 							}
 
-                            NativeHelpers.CurrentTargetInfo = tbxTargetName.Text;
-
-							string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
-							recordingfileName = videoObject.StartRecording(fileName);
-							UpdateState(null);
+                            StartRecording();
 						}
 						break;
 
 					case ScheduledAction.StopRecording:
 						if (videoObject != null && videoObject.State == VideoCameraState.videoCameraRecording)
 						{
-							videoObject.StopRecording();
-							UpdateState(null);
+                            StopRecording();
 						}
 						break;
 

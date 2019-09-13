@@ -1382,12 +1382,15 @@ namespace OccuRec.ASCOM
 
 			try
 			{
-			    float newGain = float.Parse(REGEX_FLOATING_POINT_VALUE.Match(state.Gain).Groups["Num"].Value.Trim());
-                if (Math.Abs(newGain - NativeHelpers.CurrentCameraGain) > 0.01)
-                {
-                    NativeHelpers.CurrentCameraGain = newGain;
-                    Trace.Write(string.Format("NativeHelpers.CurrentCameraGain = {0}", NativeHelpers.CurrentCameraGain));
-                }
+			    if (!string.IsNullOrWhiteSpace(state.Gain))
+			    {
+                    float newGain = float.Parse(REGEX_FLOATING_POINT_VALUE.Match(state.Gain).Groups["Num"].Value.Trim());
+                    if (Math.Abs(newGain - NativeHelpers.CurrentCameraGain) > 0.01)
+                    {
+                        NativeHelpers.CurrentCameraGain = newGain;
+                        Trace.Write(string.Format("NativeHelpers.CurrentCameraGain = {0}", NativeHelpers.CurrentCameraGain));
+                    }
+			    }
 			}
 			catch (Exception ex)
 			{
@@ -1399,6 +1402,7 @@ namespace OccuRec.ASCOM
 			    float newGamma = 0;
 
 			    if (state.Gamma == "OFF") newGamma = 1.000f;
+                else if (string.IsNullOrWhiteSpace(state.Gamma)) newGamma = float.NaN;
                 else if (state.Gamma.StartsWith("LO")) newGamma = 0.45f;
                 else if (state.Gamma.StartsWith("HI")) newGamma = 0.35f;
                 else
