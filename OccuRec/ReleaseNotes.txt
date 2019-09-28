@@ -1,7 +1,10 @@
 ﻿OccuRec Release Notes
 ---------------------
+v3.3.1 (2019-09-28)
+- Removed an unintentionally added dependency causing a crash if ASCOM was not installed event when no ASCOM related features of OccuRec were used.
+
 v3.3.0 (2019-09-13)
-- Fixed problems with inetgration locking after scheduled and manual recording.
+- Fixed problems with integration locking after scheduled and manual recording.
 - Fixed a problem that could happen when connecting to a WAT-910BD camera.
 - Improvements around the AAV status-channel-only recording for testing computer clock accuracy.
 
@@ -21,7 +24,7 @@ v3.1.1 (2017-11-30)
 - QHY: Added support for controlling a QHY174-GPS camera.
 
 v3.1.0 (2017-10-06)
-- AAV: Hotfixes after the relase of recording in AAVv2 format.
+- AAV: Hot fixes after the release of recording in AAVv2 format.
 
 v3.0.2 (2017-10-05)
 - AAV: Added support for recording in AAVv2 format.
@@ -71,4 +74,3 @@ v1.9.6 (2013-12-24)
 v1.9.3 (2013-09-12)
 - First public release of OccuRec.
 - AAV: Support for recording AAV files.
-

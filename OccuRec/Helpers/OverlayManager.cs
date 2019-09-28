@@ -17,7 +17,6 @@ using OccuRec.Properties;
 using OccuRec.StateManagement;
 using OccuRec.Tracking;
 using OccuRec.Utilities.Exceptions;
-using ASCOMStandard = ASCOM;
 
 namespace OccuRec.Helpers
 {
@@ -279,7 +278,7 @@ namespace OccuRec.Helpers
                             }
                         }
                     }
-                    catch (ASCOMStandard.PropertyNotImplementedException)
+                    catch (Exception)
                     {
                         exposureTimeSupported = false;
                     }
