@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include <windows.h>
+#include <conio.h>
 
 int getSysOpType()
 {
@@ -76,29 +77,30 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		SetConsoleTextAttribute(hConsole, 15);
 
-		cout << "\r\n\r\nPress Enter to continue ...";
-		cin.get();
+		cout << "\r\n\r\nPress any key to continue ...";
+		_getch();
 
-		SetConsoleTextAttribute(hConsole, 14);
 		cout << "\r\n\r\nIn order to get accurate Windows timestamps on your system, make sure that:\r\n\r\n";
 		cout << "\r\n   * If you use internet NTP synchronisation, then only use Meinberg NTP. If you are using a different way of synchronising to an external timing source then you need to prove that this is accurate.\r\n";
 		cout << "\r\n   * Make sure that you are using fast internet connection such as ADSL2+\r\n";
 		cout << "\r\n   * Check with the software vendor that your recording software uses the GetSystemTimePreciseAsFileTime() function to obtain Windows time for timestamping.\r\n";
 		cout << "\r\n   * You still need to measure the acquisition delay of your system using hardware device like SEXTA or by obseving at least 10 lunar occultations.\r\n";
 		cout << "\r\n   * Once you have measured your acquisition delay don't change any component (opitcal, mechanical or software). If you need to make a change then you need to measure the acquisition delay again.\r\n";
-		cout << "\r\nIf you require additional help or clarifications, contact me at hristo_dpavlov@yahoo.com\r\n";
+
+		SetConsoleTextAttribute(hConsole, 14);
+		cout << "\r\nFor more information see http://www.hristopavlov.net/OccuTimeCheck/\r\n";
 	}
 	else
 	{
 		SetConsoleTextAttribute(hConsole, 12);
 		cout << "\r\nYour system cannot be used for accurate Windows Time timestamping!";
 		SetConsoleTextAttribute(hConsole, 14);
-		cout << "\r\n\r\nIf you require additional help or clarifications, contact me at hristo_dpavlov@yahoo.com\r\n";
+		cout << "\r\n\r\nFor more information see http://www.hristopavlov.net/OccuTimeCheck/\r\n";
 	}
 	
 	SetConsoleTextAttribute(hConsole, 15);
-	cout << "\r\n\r\nPress Enter to exit";
-	cin.get();
+	cout << "\r\n\r\nPress any key to exit";
+	_getch();
 
 	return 0;
 }
