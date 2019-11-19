@@ -35,7 +35,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ASCOMVideoForCCD", "ASCOMVi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QHYCCDVideo", "QHYCCDVideo\QHYCCDVideo.csproj", "{D518BE21-B55D-4A6E-A8A2-D3A24CC18C0C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TimeCheck", "TimeCheck\TimeCheck.vcxproj", "{EF632F79-C05F-4E2F-BD85-ACEC36789501}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OccuTimeCheck", "TimeCheck\TimeCheck.vcxproj", "{EF632F79-C05F-4E2F-BD85-ACEC36789501}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1148,7 +1148,6 @@ Global
 		{EF632F79-C05F-4E2F-BD85-ACEC36789501}.Production|x86.Build.0 = Release|Win32
 		{EF632F79-C05F-4E2F-BD85-ACEC36789501}.Release|Any CPU.ActiveCfg = Release|Win32
 		{EF632F79-C05F-4E2F-BD85-ACEC36789501}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{EF632F79-C05F-4E2F-BD85-ACEC36789501}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{EF632F79-C05F-4E2F-BD85-ACEC36789501}.Release|Win32.ActiveCfg = Release|Win32
 		{EF632F79-C05F-4E2F-BD85-ACEC36789501}.Release|Win32.Build.0 = Release|Win32
 		{EF632F79-C05F-4E2F-BD85-ACEC36789501}.Release|x64.ActiveCfg = Release|Win32

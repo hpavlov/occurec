@@ -176,6 +176,7 @@ unsigned int STATUS_TAG_OCR_START_TIMESTAMP;
 unsigned int STATUS_TAG_OCR_END_TIMESTAMP;
 unsigned int STATUS_TAG_SYSTEM_TIME;
 unsigned int STATUS_TAG_SYSTEM_TIME_FILE_TIME;
+unsigned int STATUS_TAG_OCR_TIME;
 unsigned int STATUS_TAG_NTP_START_TIMESTAMP;
 unsigned int STATUS_TAG_NTP_END_TIMESTAMP;
 unsigned int STATUS_TAG_SECONDARY_START_TIMESTAMP;
@@ -1972,6 +1973,11 @@ void RecordCurrentFrame_AAV1(IntegratedFrame* nextFrame)
 
 		if (OCR_FAILED_TEST_RECORDING)
 			AavFrameAddStatusTag(STATUS_TAG_OCR_TESTING_ERROR_MESSAGE, &nextFrame->OcrErrorMessageStr[0]);
+
+		if (RECORD_ONLY_STATUS_CHANNEL_WITH_OCRED_TIMESTAMPS)
+		{
+			AavFrameAddStatusTag64(STATUS_TAG_OCR_TIME, nextFrame->StartTimeStamp);
+		}
 	}
 
 	if (USE_NTP_TIMESTAMP)
@@ -2347,6 +2353,7 @@ HRESULT StartRecordingInternal_AAV1(LPCTSTR szFileName)
 		STATUS_TAG_SYSTEM_TIME_FILE_TIME = AavDefineStatusSectionTag("SystemTimeFileTime", AavTagType::ULong64);
 		AavAddFileTag("PROVIDER-SystemTime", "GetSystemTime");
 		AavAddFileTag("PROVIDER-SystemTimeFileTime", "GetSystemTimePreciseAsFileTime");
+		STATUS_TAG_OCR_TIME = AavDefineStatusSectionTag("OcrTime", AavTagType::ULong64);
 
 		STATUS_TAG_CPU_UTILISATION = AavDefineStatusSectionTag("CpuUtilisation", AavTagType::UInt8);
 		STATUS_TAG_DISKS_UTILISATION = AavDefineStatusSectionTag("DisksUtilisation", AavTagType::UInt8);
