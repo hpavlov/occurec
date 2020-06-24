@@ -769,7 +769,11 @@ HRESULT GetCurrentImageStatus(ImageStatus* imageStatus)
 	imageStatus->TrkdTargetIsLocated = latestImageStatus.TrkdTargetIsLocated;
 	imageStatus->TrkdTargetHasSaturatedPixels = latestImageStatus.TrkdTargetHasSaturatedPixels;
 	imageStatus->TrkdGuidingHasSaturatedPixels = latestImageStatus.TrkdGuidingHasSaturatedPixels;
-
+	imageStatus->TrkdTargetBgOneSigmaVar = latestImageStatus.TrkdTargetBgOneSigmaVar;
+	imageStatus->TrkdGuidingBgOneSigmaVar = latestImageStatus.TrkdGuidingBgOneSigmaVar;
+	imageStatus->TrkdTargetSnr = latestImageStatus.TrkdTargetSnr;
+	imageStatus->TrkdGuidingSnr = latestImageStatus.TrkdGuidingSnr;
+	
 	if (latestImageStatus.TrkdGuidingIsLocated)
 	{
 		memcpy(imageStatus->TrkdGuidingResiduals, latestImageStatus.TrkdGuidingResiduals, 289 * sizeof(double));
@@ -1455,6 +1459,8 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 		float totalReading;
 		float totalPixels;
 		bool hasSaturatedPixels;
+		double bgOneSigmaVar;
+		double snr;
 
 		if (TRACKED_TARGET_ID > -1)
 		{
@@ -1466,12 +1472,14 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 			latestImageStatus.TrkdTargetIsTracked = 1;
 
 			if (NULL != pixelsChar)
-				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
+				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels, &bgOneSigmaVar, &snr);
 			else
-				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
+				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_TARGET_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels, &bgOneSigmaVar, &snr);
 			
 			latestImageStatus.TrkdTargetMeasurement = totalReading;
-			latestImageStatus.TrkdTargetHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;			
+			latestImageStatus.TrkdTargetHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;
+			latestImageStatus.TrkdTargetBgOneSigmaVar = bgOneSigmaVar;
+			latestImageStatus.TrkdTargetSnr = snr;
 		}
 		
 		if (TRACKED_GUIDING_ID > -1)
@@ -1484,12 +1492,14 @@ void HandleTracking(unsigned char* pixelsChar, long* pixels)
 			latestImageStatus.TrkdGuidingIsTracked = 1;
 
 			if (NULL != pixelsChar)
-				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
+				totalReading = MeasureObjectUsingAperturePhotometry_int8(pixelsChar, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels, &bgOneSigmaVar, &snr);
 			else
-				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels);
+				totalReading = MeasureObjectUsingAperturePhotometry((unsigned long*)pixels, TRACKED_GUIDING_APERTURE, IMAGE_WIDTH, IMAGE_HEIGHT, trackingInfo.CenterXDouble, trackingInfo.CenterYDouble, SATURATION_8BIT, TRACKING_BG_INNER_RADIUS, TRACKING_BG_MIN_NUM_PIXELS, &totalPixels, &hasSaturatedPixels, &bgOneSigmaVar, &snr);
 			
 			latestImageStatus.TrkdGuidingMeasurement = totalReading;
 			latestImageStatus.TrkdGuidingHasSaturatedPixels = hasSaturatedPixels ? 1 : 0;
+			latestImageStatus.TrkdGuidingBgOneSigmaVar = bgOneSigmaVar;
+			latestImageStatus.TrkdGuidingSnr = snr;
 		}
 		
 		trackedThisIntegrationPeriod = INTEGRATION_LOCKED;

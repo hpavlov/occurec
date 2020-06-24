@@ -139,6 +139,10 @@ namespace OccuRec.Helpers
 		public int TrkdGuidingIsTracked;
 		public float TrkdGuidingMeasurement;
 		public int TrkdGuidingHasSaturatedPixels;
+        public float TrkdTargetBgOneSigmaVar;
+        public float TrkdGuidingBgOneSigmaVar;
+        public float TrkdTargetSnr;
+        public float TrkdGuidingSnr;
 
 		public NativePsfFitInfo TrkdTargetPsfInfo = new NativePsfFitInfo();
 
@@ -186,6 +190,10 @@ namespace OccuRec.Helpers
 		public int TrkdGuidingIsTracked;
 		public float TrkdGuidingMeasurement;
 		public int TrkdGuidingHasSaturatedPixels;
+        public float TrkdTargetBgOneSigmaVar;
+        public float TrkdGuidingBgOneSigmaVar;
+        public float TrkdTargetSnr;
+        public float TrkdGuidingSnr;
 		
 		public NativePsfFitInfo TrkdTargetPsfInfo;
 		public NativePsfFitInfo TrkdGuidingPsfInfo;
@@ -220,6 +228,10 @@ namespace OccuRec.Helpers
 			rv.TrkdGuidingHasSaturatedPixels = cloneFrom.TrkdGuidingHasSaturatedPixels;
 			rv.TrkdTargetResiduals = cloneFrom.TrkdTargetResiduals;
 			rv.TrkdGuidingResiduals = cloneFrom.TrkdGuidingResiduals;
+            rv.TrkdTargetBgOneSigmaVar = cloneFrom.TrkdTargetBgOneSigmaVar;
+            rv.TrkdGuidingBgOneSigmaVar = cloneFrom.TrkdTargetBgOneSigmaVar;
+            rv.TrkdTargetSnr = cloneFrom.TrkdTargetSnr;
+            rv.TrkdGuidingSnr = cloneFrom.TrkdGuidingSnr;
 
             return rv;
         }
@@ -258,6 +270,10 @@ namespace OccuRec.Helpers
 			TrkdGuidingResiduals = imgStatus.TrkdGuidingResiduals;
 			TrkdTargetPsfInfo = imgStatus.TrkdTargetPsfInfo;
 			TrkdGuidingPsfInfo = imgStatus.TrkdGuidingPsfInfo;
+            TrkdTargetBgOneSigmaVar = imgStatus.TrkdTargetBgOneSigmaVar;
+            TrkdGuidingBgOneSigmaVar = imgStatus.TrkdGuidingBgOneSigmaVar;
+            TrkdTargetSnr = imgStatus.TrkdTargetSnr;
+            TrkdGuidingSnr = imgStatus.TrkdGuidingSnr;
 		}
     };
 

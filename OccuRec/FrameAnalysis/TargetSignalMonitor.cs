@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using OccuRec.ASCOM;
 using OccuRec.Helpers;
@@ -40,6 +41,12 @@ namespace OccuRec.FrameAnalysis
 		private List<DateTime> m_PositionTimeStamps = new List<DateTime>();
 		private List<Point> m_Positions = new List<Point>();
 		private Point m_FixedGuidingPosition = Point.Empty;
+        private double m_GuidingStarSnr = double.NaN;
+        private double m_TargetStarSnr = double.NaN;
+        private List<double> m_GuidingStarSnrData = new List<double>();
+        private List<double> m_TargetStarSnrData = new List<double>();
+
+        private static Font s_SNRFont = new Font(FontFamily.GenericMonospace, 10, FontStyle.Regular);
 
 		internal TargetSignalMonitor(IObservatoryController observatoryController, ObservatoryManager autoFocusingManager)
 		{
@@ -54,6 +61,48 @@ namespace OccuRec.FrameAnalysis
 
 		public void ProcessFrame(VideoFrameWrapper frame)
 		{
+		    if (TrackingContext.Current.GuidingStar != null &&
+		        TrackingContext.Current.GuidingStar.IsLocated &&
+		        TrackingContext.Current.GuidingStar.PsfFit != null &&
+		        TrackingContext.Current.GuidingStar.PsfFit.IsSolved &&
+                TrackingContext.Current.GuidingStar.OneSigmaBgVar > 0)
+		    {
+		        //var signal = TrackingContext.Current.GuidingStar.PsfFit.IMax - TrackingContext.Current.GuidingStar.PsfFit.I0;
+                //m_GuidingStarSnr = signal / TrackingContext.Current.GuidingStar.OneSigmaBgVar;
+                m_GuidingStarSnr = TrackingContext.Current.GuidingStar.SNR;
+
+                while (m_GuidingStarSnrData.Count > 100)
+				{
+                    m_GuidingStarSnrData.RemoveAt(0);
+				}
+                m_GuidingStarSnrData.Add(m_GuidingStarSnr);
+		    }
+		    else
+		    {
+                m_GuidingStarSnr = double.NaN;
+		    }
+
+            if (TrackingContext.Current.TargetStar != null &&
+                TrackingContext.Current.TargetStar.IsLocated &&
+                TrackingContext.Current.TargetStar.PsfFit != null &&
+                TrackingContext.Current.TargetStar.PsfFit.IsSolved &&
+                TrackingContext.Current.TargetStar.OneSigmaBgVar > 0)
+            {
+                //var signal = TrackingContext.Current.TargetStar.PsfFit.IMax - TrackingContext.Current.TargetStar.PsfFit.I0;
+                //m_TargetStarSnr = signal / TrackingContext.Current.TargetStar.OneSigmaBgVar;
+                m_TargetStarSnr = TrackingContext.Current.TargetStar.SNR;
+
+                while (m_TargetStarSnrData.Count > 100)
+                {
+                    m_TargetStarSnrData.RemoveAt(0);
+                }
+                m_TargetStarSnrData.Add(m_TargetStarSnr);
+            }
+            else
+            {
+                m_TargetStarSnr = double.NaN;
+            }
+
 			if (TrackingContext.Current.TargetStar != null && 
 				TrackingContext.Current.GuidingStar != null)
 			{
@@ -177,6 +226,32 @@ namespace OccuRec.FrameAnalysis
 
                 g.DrawImage(m_PsfBitmap, imageWidth - 5 - m_PsfBitmapRect.Width, 54 + 5 + 5 + 5 +  m_PsfBitmapRect.Height);
             }
+
+            if (!double.IsNaN(m_GuidingStarSnr))
+            {
+                string averageVal = "";
+                if (m_GuidingStarSnrData.Count > 2)
+                {
+                    var avrg = m_GuidingStarSnrData.Average();
+                    var var = Math.Sqrt(m_GuidingStarSnrData.Sum(x => (avrg - x) * (avrg - x))/ (m_GuidingStarSnrData.Count - 1));
+                    averageVal = string.Format(" ({0:0.0} +/- {1:0.0})", avrg, var);
+                }
+
+                g.DrawString(string.Format("SNR: {0:0.0} {1}", m_GuidingStarSnr, averageVal), s_SNRFont, Brushes.Lime, 10, 10);
+            }
+
+            if (!double.IsNaN(m_TargetStarSnr))
+		    {
+                string averageVal = "";
+                if (m_TargetStarSnrData.Count > 2)
+                {
+                    var avrg = m_TargetStarSnrData.Average();
+                    var var = Math.Sqrt(m_TargetStarSnrData.Sum(x => (avrg - x) * (avrg - x)) / (m_TargetStarSnrData.Count - 1));
+                    averageVal = string.Format(" ({0:0.0} +/- {1:0.0})", avrg, var);
+                }
+
+                g.DrawString(string.Format("SNR: {0:0.0} {1}", m_TargetStarSnr, averageVal), s_SNRFont, TrackingContext.Current.TargetStarConfig.IsFixedAperture ? Brushes.Orange : Brushes.Turquoise, 10, 25);
+		    }
 		}
 
 		public void ChangeAutoPulseGuiding(bool autoPulseGuiding)

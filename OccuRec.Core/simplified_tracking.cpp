@@ -567,7 +567,7 @@ HRESULT TrackerNextFrame_int8(long frameId, unsigned char* pixels)
 float MeasureObjectUsingAperturePhotometry(
 	unsigned long* data, float aperture, 
 	long nWidth, long nHeight, float x0, float y0, unsigned long saturationValue, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture,
-	float* totalPixels, bool* hasSaturatedPixels)
+	float* totalPixels, bool* hasSaturatedPixels, double* bgOneSigmaVar, double* snr)
 {
     float totalReading = 0;
     *totalPixels = 0;
@@ -626,7 +626,23 @@ float MeasureObjectUsingAperturePhotometry(
 	std::nth_element(allBackgroundReadings.begin(), allBackgroundReadings.begin()+n, allBackgroundReadings.end());
 	long medianBackground = allBackgroundReadings[n];
 
-	return totalReading - (medianBackground *  *totalPixels);
+	double sumsq = 0.0;
+	*bgOneSigmaVar = -1;
+	if (allBackgroundReadings.size() > 0)
+	{
+		for (std::vector<unsigned long>::iterator it = allBackgroundReadings.begin() ; it != allBackgroundReadings.end(); ++it)
+		{
+			double diff = (double)*it - (double)medianBackground;
+			sumsq +=  diff * diff;
+		}
+		*bgOneSigmaVar = sqrt(sumsq / (allBackgroundReadings.size() - 1));
+	}
+
+	float reading = totalReading - (medianBackground *  *totalPixels);
+
+	*snr = reading / (*bgOneSigmaVar *  *totalPixels);
+
+	return reading;
 }
 
 float squareRoot(float x)
@@ -644,7 +660,7 @@ float squareRoot(float x)
 float MeasureObjectUsingAperturePhotometry_int8(
 	unsigned char* data, float aperture, 
 	long nWidth, long nHeight, float x0, float y0, unsigned char saturationValue, float innerRadiusOfBackgroundApertureInSignalApertures, long numberOfPixelsInBackgroundAperture,
-	float* totalPixels, bool* hasSaturatedPixels)
+	float* totalPixels, bool* hasSaturatedPixels, double* bgOneSigmaVar, double* snr)
 {
     float totalReading = 0;
     *totalPixels = 0;
@@ -706,7 +722,23 @@ float MeasureObjectUsingAperturePhotometry_int8(
 	std::nth_element(allBackgroundReadings.begin(), allBackgroundReadings.begin()+n, allBackgroundReadings.end());
 	unsigned char medianBackground = allBackgroundReadings[n];
 
-	return totalReading - (medianBackground *  *totalPixels);
+	double sumsq = 0.0;
+	*bgOneSigmaVar = -1;
+	if (allBackgroundReadings.size() > 0)
+	{
+		for (std::vector<unsigned char>::iterator it = allBackgroundReadings.begin() ; it != allBackgroundReadings.end(); ++it)
+		{
+			double diff = (double)*it - (double)medianBackground;
+			sumsq +=  diff * diff;
+		}
+		*bgOneSigmaVar = sqrt(sumsq / (allBackgroundReadings.size() - 1));
+	}
+
+	float reading = totalReading - (medianBackground *  *totalPixels);
+
+	*snr = reading / (*bgOneSigmaVar *  *totalPixels);
+
+	return reading;
 }
 
 

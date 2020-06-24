@@ -33,6 +33,8 @@ namespace OccuRec.Tracking
         public bool IsLocated;
 		public bool HasSaturatedPixels;
 		public float Measurement;
+        public float OneSigmaBgVar;
+        public float SNR;
 
 		public NativeTrackedObjectPsfFit PsfFit;
 
@@ -184,6 +186,8 @@ namespace OccuRec.Tracking
 				TargetStar.IsLocated = status.TrkdTargetIsLocated > 0;
 				TargetStar.HasSaturatedPixels = status.TrkdTargetHasSaturatedPixels > 0;
 				TargetStar.Measurement = status.TrkdTargetMeasurement;
+                TargetStar.OneSigmaBgVar = status.TrkdTargetBgOneSigmaVar;
+                TargetStar.SNR = status.TrkdTargetSnr;
 				TargetStar.PsfFit.LoadFromNativePsfFitInfo(status.TrkdTargetPsfInfo, status.TrkdTargetResiduals);
 
 				updatedMade = true;
@@ -197,6 +201,8 @@ namespace OccuRec.Tracking
 				GuidingStar.IsLocated = status.TrkdGuidingIsLocated > 0;
 				GuidingStar.HasSaturatedPixels = status.TrkdGuidingHasSaturatedPixels > 0;
 				GuidingStar.Measurement = status.TrkdGuidingMeasurement;
+                GuidingStar.OneSigmaBgVar = status.TrkdGuidingBgOneSigmaVar;
+                GuidingStar.SNR = status.TrkdGuidingSnr;
 				GuidingStar.PsfFit.LoadFromNativePsfFitInfo(status.TrkdGuidingPsfInfo, status.TrkdGuidingResiduals);
 
 				updatedMade = true;
@@ -218,6 +224,8 @@ namespace OccuRec.Tracking
 				TargetStar.IsLocated = status.TrkdTargetIsLocated > 0;
 				TargetStar.HasSaturatedPixels = status.TrkdTargetHasSaturatedPixels > 0;
 				TargetStar.Measurement = status.TrkdTargetMeasurement;
+			    TargetStar.OneSigmaBgVar = status.TrkdTargetBgOneSigmaVar;
+                TargetStar.SNR = status.TrkdTargetSnr;
 				TargetStar.PsfFit.LoadFromNativePsfFitInfo(status.TrkdTargetPsfInfo, status.TrkdTargetResiduals);
 
 				updatedMade = true;
@@ -231,6 +239,8 @@ namespace OccuRec.Tracking
 				GuidingStar.IsLocated = status.TrkdGuidingIsLocated > 0;
 				GuidingStar.HasSaturatedPixels = status.TrkdGuidingHasSaturatedPixels > 0;
 				GuidingStar.Measurement = status.TrkdGuidingMeasurement;
+			    GuidingStar.OneSigmaBgVar = status.TrkdGuidingBgOneSigmaVar;
+                GuidingStar.SNR = status.TrkdGuidingSnr;
 				GuidingStar.PsfFit.LoadFromNativePsfFitInfo(status.TrkdGuidingPsfInfo, status.TrkdGuidingResiduals);
 
 				updatedMade = true;

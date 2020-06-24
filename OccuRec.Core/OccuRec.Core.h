@@ -49,6 +49,10 @@ struct ImageStatus
 	long TrkdGuidingIsTracked;
 	float TrkdGuidingMeasurement;
 	long TrkdGuidingHasSaturatedPixels;
+    float TrkdTargetBgOneSigmaVar;
+    float TrkdGuidingBgOneSigmaVar;
+	float TrkdTargetSnr;
+    float TrkdGuidingSnr;
 	NativePsfFitInfo TrkdTargetPsfInfo;
 	NativePsfFitInfo TrkdGuidingPsfInfo;
 	double TrkdTargetResiduals[290];
