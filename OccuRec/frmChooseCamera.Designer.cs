@@ -115,10 +115,15 @@
 			this.cbxCameraModel.Items.AddRange(new object[] {
             "G-Star",
             "WAT-120N",
+            "WAT-120N+",
             "WAT-910HX",
             "WAT-910BD",
+            "WAT-902H",
+            "WAT-902H Ultimate",
             "Mintron 12V1C-EX",
             "Samsung SCB-2000",
+            "Stella Cam EX",
+            "PC164-EX",
             "PC165-DNR"});
 			this.cbxCameraModel.Location = new System.Drawing.Point(6, 138);
 			this.cbxCameraModel.Name = "cbxCameraModel";
