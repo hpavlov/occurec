@@ -117,11 +117,12 @@
             this.tsbCamControl = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.tslTelFocStatus = new System.Windows.Forms.ToolStripLabel();
+            this.tsbAddBadPixelMarkers = new System.Windows.Forms.ToolStripButton();
             this.pnlControlArea = new System.Windows.Forms.Panel();
             this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.restartRecTimer = new System.Windows.Forms.Timer(this.components);
+            this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -375,7 +376,7 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.tssRecordingFile.Name = "tssRecordingFile";
-            this.tssRecordingFile.Size = new System.Drawing.Size(76, 19);
+            this.tssRecordingFile.Size = new System.Drawing.Size(79, 19);
             this.tssRecordingFile.Text = "File (xxx Mb)";
             this.tssRecordingFile.Visible = false;
             // 
@@ -387,7 +388,7 @@
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
             this.tssFreeDiskSpace.ForeColor = System.Drawing.Color.Yellow;
             this.tssFreeDiskSpace.Name = "tssFreeDiskSpace";
-            this.tssFreeDiskSpace.Size = new System.Drawing.Size(70, 19);
+            this.tssFreeDiskSpace.Size = new System.Drawing.Size(73, 19);
             this.tssFreeDiskSpace.Text = "xxx Mb free";
             this.tssFreeDiskSpace.Visible = false;
             // 
@@ -997,6 +998,7 @@
             this.tbsAddTarget,
             this.tbsInsertSpectra,
             this.tbsClearTargets,
+            this.tsbAddBadPixelMarkers,
             this.tssToolBorder,
             this.tsbTelControl,
             this.toolStripSeparator5,
@@ -1087,7 +1089,7 @@
             this.tsbTelControl.Image = ((System.Drawing.Image)(resources.GetObject("tsbTelControl.Image")));
             this.tsbTelControl.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbTelControl.Name = "tsbTelControl";
-            this.tsbTelControl.Size = new System.Drawing.Size(106, 22);
+            this.tsbTelControl.Size = new System.Drawing.Size(105, 22);
             this.tsbTelControl.Text = "Control Telescope";
             this.tsbTelControl.Click += new System.EventHandler(this.tsbTelControl_Click);
             // 
@@ -1133,6 +1135,15 @@
             this.tslTelFocStatus.Name = "tslTelFocStatus";
             this.tslTelFocStatus.Size = new System.Drawing.Size(0, 22);
             // 
+            // tsbAddBadPixelMarkers
+            // 
+            this.tsbAddBadPixelMarkers.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbAddBadPixelMarkers.Image = ((System.Drawing.Image)(resources.GetObject("tsbAddBadPixelMarkers.Image")));
+            this.tsbAddBadPixelMarkers.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbAddBadPixelMarkers.Name = "tsbAddBadPixelMarkers";
+            this.tsbAddBadPixelMarkers.Size = new System.Drawing.Size(23, 22);
+            this.tsbAddBadPixelMarkers.ToolTipText = "Overlay bad pixel markers";
+            // 
             // pnlControlArea
             // 
             this.pnlControlArea.Controls.Add(this.pnlClient);
@@ -1154,6 +1165,10 @@
             this.openFileDialog.DefaultExt = "avi";
             this.openFileDialog.Filter = "Support Video Files (*.avi)|*.avi";
             // 
+            // restartRecTimer
+            // 
+            this.restartRecTimer.Tick += new System.EventHandler(this.restartRecTimer_Tick);
+            // 
             // ucVideoControl
             // 
             this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -1162,10 +1177,6 @@
             this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
             this.ucVideoControl.TabIndex = 27;
             this.ucVideoControl.Visible = false;
-            // 
-            // restartRecTimer
-            // 
-            this.restartRecTimer.Tick += new System.EventHandler(this.restartRecTimer_Tick);
             // 
             // frmMain
             // 
@@ -1322,6 +1333,7 @@
         private System.Windows.Forms.ToolStripMenuItem miReleaseNotes;
         protected internal System.Windows.Forms.ToolStripMenuItem tsmiSaturation;
         private System.Windows.Forms.Timer restartRecTimer;
-	}
+        private System.Windows.Forms.ToolStripButton tsbAddBadPixelMarkers;
+    }
 }
 

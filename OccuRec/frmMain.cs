@@ -78,6 +78,10 @@ namespace OccuRec
 			m_ObservatoryController.VideoStateUpdated += VideoStateUpdated;
 			m_ObservatoryController.VideoError += VideoError;
 
+            // **** only works when program first started - figure out how to do when the enable state is changed
+            tsbAddBadPixelMarkers.Visible = false;
+            
+
 			m_AnalysisManager = new FrameAnalysisManager(m_ObservatoryController);
             m_VideoRenderingController = new VideoRenderingController(this, m_StateManager, m_AnalysisManager);
             m_VideoFrameInteractionController = new VideoFrameInteractionController(this, m_VideoRenderingController);
@@ -711,10 +715,10 @@ namespace OccuRec
                 // It is possible this method to be called during Disposing and we don't need to do anything in that case
 		        return;
 
-			// TODO: Many of things below only change their state when something changes. Rather than always resetting their state with each rendered frame, we should really 
-			//       use events to update the state!
+            // TODO: Many of things below only change their state when something changes. Rather than always resetting their state with each rendered frame, we should really 
+            //       use events to update the state!
 
-			if (ChangedToDisconnectedState())
+            if (ChangedToDisconnectedState())
 			{
 				tssCameraState.Text = "Disconnected";
 				tssFrameNo.Text = string.Empty;
@@ -732,6 +736,7 @@ namespace OccuRec
 				tsbAddGuidingStar.Visible = false;
                 tbsInsertSpectra.Visible = false;
 				tbsClearTargets.Visible = false;
+                tsbAddBadPixelMarkers.Visible = false;
 				tssToolBorder.Visible = false;
 
 				//tsbCamControl.Enabled = false;
@@ -748,8 +753,9 @@ namespace OccuRec
 				tbsClearTargets.Enabled = false;
 				tsbAddGuidingStar.Enabled = true;
                 tbsInsertSpectra.Enabled = true;
-				
-				TrackingContext.Current.Reset();
+                tsbAddBadPixelMarkers.Visible = Settings.Default.EnableBadPixelsControl;
+
+                TrackingContext.Current.Reset();
 				TrackingContext.Current.ReConfigureNativeTracking(videoObject.Width, videoObject.Height);
 
                 //tsbCamControl.Enabled = CameraSupportsSoftwareControl();
@@ -1709,7 +1715,8 @@ namespace OccuRec
 
 		private void frmMain_Load(object sender, EventArgs e)
 		{
-			if (Settings.Default.WarnForFileSystemIssues)
+
+            if (Settings.Default.WarnForFileSystemIssues)
 			{
 			    if (Directory.Exists(Settings.Default.OutputLocation))
 			    {
@@ -2130,7 +2137,18 @@ namespace OccuRec
 			    tbsInsertSpectra.Visible = false;
 				m_VideoFrameInteractionController.RemoveTrackedObjects();
 		    }
-	    }
+
+            if (Settings.Default.EnableBadPixelsControl)
+            {
+                if (videoObject != null)
+                    tsbAddBadPixelMarkers.Visible = true;
+            }
+            else
+            {
+                tsbAddBadPixelMarkers.Visible = false;
+            }
+
+        }
 
 		private void frmMain_Shown(object sender, EventArgs e)
 		{

@@ -116,6 +116,12 @@
     <Compile Include="CameraDrivers\WAT910BD\WAT910BDDriver.cs" />
     <Compile Include="CameraDrivers\WAT910BD\WAT910BDStateMachine.cs" />
     <Compile Include="Config\OcrConfigEntry.cs" />
+    <Compile Include="Config\Panels\ucBadPixels.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Config\Panels\ucBadPixels.Designer.cs">
+      <DependentUpon>ucBadPixels.cs</DependentUpon>
+    </Compile>
     <Compile Include="Config\Panels\ucSpectroscopy.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -400,6 +406,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CameraDrivers\WAT910BD\frmWAT910BDConnectionSettings.resx">
       <DependentUpon>frmWAT910BDConnectionSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\Panels\ucBadPixels.resx">
+      <DependentUpon>ucBadPixels.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Config\Panels\ucSpectroscopy.resx">
       <DependentUpon>ucSpectroscopy.cs</DependentUpon>

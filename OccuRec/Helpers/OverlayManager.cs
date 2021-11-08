@@ -47,6 +47,8 @@ namespace OccuRec.Helpers
         private static Pen m_LocationCrossPen = new Pen(Color.FromArgb(90, 255, 0, 0));
         private static Pen[] m_GreyPens = new Pen[256];
 
+        private static Pen m_LocationBadPixelPen = new Pen(Color.FromArgb(90, 255, 0, 0));
+
         private object syncRoot = new object();
 
 	    private int m_NumCheckedSpectraFrames;
@@ -257,6 +259,20 @@ namespace OccuRec.Helpers
                 g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX + 6, Settings.Default.LocationCrossY, imageWidth, Settings.Default.LocationCrossY);
                 g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX, Settings.Default.LocationCrossY + 6, Settings.Default.LocationCrossX, imageHeight);
                 g.DrawEllipse(m_LocationCrossPen, Settings.Default.LocationCrossX - 6, Settings.Default.LocationCrossY - 6, 12, 12);
+            }
+
+            if (Settings.Default.DisplayBadPixelsMarkers)
+            {
+                // ToDo loop over each bad pixel in the list
+                int x0 = 100;
+                int y0 = 50;
+                int dx = (int)Settings.Default.BadPixelsMarkerSize;
+                int dy = (int)Settings.Default.BadPixelsMarkerSize;
+
+                // ToDo write code to draw the other shapes (cross or circle)
+                // draw a plus
+                g.DrawLine(m_LocationBadPixelPen, x0 - dx, y0, x0 + dx, y0);
+                g.DrawLine(m_LocationBadPixelPen, x0, y0 - dy, x0, y0 + dy);
             }
 
             if (frame != null)
