@@ -252,11 +252,17 @@ namespace OccuRec.Helpers
                         m_LocationCrossPen.Dispose();
                     m_LocationCrossPen = new Pen(Color.FromArgb(Settings.Default.LocationCrossTransparency, 255, 0, 0));
                 }
-                g.DrawLine(m_LocationCrossPen, 0, Settings.Default.LocationCrossY, Settings.Default.LocationCrossX - 6, Settings.Default.LocationCrossY);
-                g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX, 0, Settings.Default.LocationCrossX, Settings.Default.LocationCrossY - 6);
-                g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX + 6, Settings.Default.LocationCrossY, imageWidth, Settings.Default.LocationCrossY);
-                g.DrawLine(m_LocationCrossPen, Settings.Default.LocationCrossX, Settings.Default.LocationCrossY + 6, Settings.Default.LocationCrossX, imageHeight);
-                g.DrawEllipse(m_LocationCrossPen, Settings.Default.LocationCrossX - 6, Settings.Default.LocationCrossY - 6, 12, 12);
+
+                Pen contrastingColourPen = m_LocationCrossPen;
+                // lookup the display mode and change the pen colour from red to blue if in 'Hue Intensity'and not 'Inverted' as this combination has a predominantly red background.
+                if (Settings.Default.UseHueIntensityDisplayMode && !Settings.Default.UseInvertedDisplayMode)
+                    contrastingColourPen = new Pen(Color.FromArgb(Settings.Default.LocationCrossTransparency, 0, 0, 255));
+
+                g.DrawLine(contrastingColourPen, 0, Settings.Default.LocationCrossY, Settings.Default.LocationCrossX - 6, Settings.Default.LocationCrossY);
+                g.DrawLine(contrastingColourPen, Settings.Default.LocationCrossX, 0, Settings.Default.LocationCrossX, Settings.Default.LocationCrossY - 6);
+                g.DrawLine(contrastingColourPen, Settings.Default.LocationCrossX + 6, Settings.Default.LocationCrossY, imageWidth, Settings.Default.LocationCrossY);
+                g.DrawLine(contrastingColourPen, Settings.Default.LocationCrossX, Settings.Default.LocationCrossY + 6, Settings.Default.LocationCrossX, imageHeight);
+                g.DrawEllipse(contrastingColourPen, Settings.Default.LocationCrossX - 6, Settings.Default.LocationCrossY - 6, 12, 12);
             }
 
             if (frame != null)
