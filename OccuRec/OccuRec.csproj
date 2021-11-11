@@ -522,6 +522,8 @@
     <Content Include="img\aavrec-big.ico" />
     <None Include="img\brush.png" />
     <None Include="img\brush1.png" />
+    <Content Include="img\Overlay-Bad-Pixel-Markers-Start 16x16.png" />
+    <Content Include="img\Overlay-Bad-Pixel-Markers-Stop 16x16.png" />
     <Content Include="img\redcross.ico" />
     <None Include="img\spectra.png" />
     <Content Include="license.txt">

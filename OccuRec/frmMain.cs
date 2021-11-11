@@ -78,7 +78,6 @@ namespace OccuRec
 			m_ObservatoryController.VideoStateUpdated += VideoStateUpdated;
 			m_ObservatoryController.VideoError += VideoError;
 
-            // **** only works when program first started - figure out how to do when the enable state is changed
             tsbAddBadPixelMarkers.Visible = false;
             
 
@@ -2369,5 +2368,36 @@ namespace OccuRec
             string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
             recordingfileName = videoObject.StartRecording(fileName);
         }
-	}
+
+        private void tsbAddBadPixelMarkers_Click(object sender, EventArgs e)
+        {
+            // toggle the state
+            Settings.Default.DisplayBadPixelsMarkers = !Settings.Default.DisplayBadPixelsMarkers;
+
+            if (Settings.Default.DisplayBadPixelsMarkers)
+            {
+                // turn off so the bad pixels aren't displayed until the preparation has been finished
+                Settings.Default.DisplayBadPixelsMarkers = false;
+
+                // ToDo check the bad pixel file still exists (in case it was moved/deleted since it was selected in the settings form by the user)
+
+                // ToDo as each row of bad pixel coordinates is read, check they are within the image
+
+                // ToDo check there has been at least one successful bad pixel read from the file
+
+                tsbAddBadPixelMarkers.ToolTipText = "Stop overlaying the bad pixels locations on the video";
+                tsbAddBadPixelMarkers.Image = imageListToolbar.Images[3];
+
+                // turn back on now that the preparation has been finished
+                Settings.Default.DisplayBadPixelsMarkers = true;
+            }
+            else
+            {
+                // ToDo depose of the bad pixels list
+
+                tsbAddBadPixelMarkers.ToolTipText = "Overlay the bad pixels locations on the video";
+                tsbAddBadPixelMarkers.Image = imageListToolbar.Images[2];
+            }
+        }
+    }
 }

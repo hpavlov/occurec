@@ -100,6 +100,7 @@
             this.btnUpdateVtiOsd = new System.Windows.Forms.Button();
             this.btnConfirmUserVtiOsd = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
+            this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.timerScheduler = new System.Windows.Forms.Timer(this.components);
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbConnectDisconnect = new System.Windows.Forms.ToolStripButton();
@@ -109,6 +110,7 @@
             this.tbsAddTarget = new System.Windows.Forms.ToolStripButton();
             this.tbsInsertSpectra = new System.Windows.Forms.ToolStripButton();
             this.tbsClearTargets = new System.Windows.Forms.ToolStripLabel();
+            this.tsbAddBadPixelMarkers = new System.Windows.Forms.ToolStripButton();
             this.tssToolBorder = new System.Windows.Forms.ToolStripSeparator();
             this.tsbTelControl = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
@@ -117,12 +119,10 @@
             this.tsbCamControl = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.tslTelFocStatus = new System.Windows.Forms.ToolStripLabel();
-            this.tsbAddBadPixelMarkers = new System.Windows.Forms.ToolStripButton();
             this.pnlControlArea = new System.Windows.Forms.Panel();
             this.imageListToolbar = new System.Windows.Forms.ImageList(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.restartRecTimer = new System.Windows.Forms.Timer(this.components);
-            this.ucVideoControl = new OccuRec.Controls.ucCameraControl();
             this.statusStrip.SuspendLayout();
             this.msMain.SuspendLayout();
             this.pnlClient.SuspendLayout();
@@ -982,6 +982,15 @@
             this.label4.TabIndex = 15;
             this.label4.Text = "VTI-OSD Position";
             // 
+            // ucVideoControl
+            // 
+            this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.ucVideoControl.Location = new System.Drawing.Point(4, 182);
+            this.ucVideoControl.Name = "ucVideoControl";
+            this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
+            this.ucVideoControl.TabIndex = 27;
+            this.ucVideoControl.Visible = false;
+            // 
             // timerScheduler
             // 
             this.timerScheduler.Enabled = true;
@@ -1078,6 +1087,16 @@
             this.tbsClearTargets.ToolTipText = "Remove Tracked Objects";
             this.tbsClearTargets.Click += new System.EventHandler(this.tsbClearTargets_Click);
             // 
+            // tsbAddBadPixelMarkers
+            // 
+            this.tsbAddBadPixelMarkers.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tsbAddBadPixelMarkers.Image = ((System.Drawing.Image)(resources.GetObject("tsbAddBadPixelMarkers.Image")));
+            this.tsbAddBadPixelMarkers.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbAddBadPixelMarkers.Name = "tsbAddBadPixelMarkers";
+            this.tsbAddBadPixelMarkers.Size = new System.Drawing.Size(23, 22);
+            this.tsbAddBadPixelMarkers.ToolTipText = "Overlay the bad pixels locations on the video";
+            this.tsbAddBadPixelMarkers.Click += new System.EventHandler(this.tsbAddBadPixelMarkers_Click);
+            // 
             // tssToolBorder
             // 
             this.tssToolBorder.Name = "tssToolBorder";
@@ -1135,15 +1154,6 @@
             this.tslTelFocStatus.Name = "tslTelFocStatus";
             this.tslTelFocStatus.Size = new System.Drawing.Size(0, 22);
             // 
-            // tsbAddBadPixelMarkers
-            // 
-            this.tsbAddBadPixelMarkers.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tsbAddBadPixelMarkers.Image = ((System.Drawing.Image)(resources.GetObject("tsbAddBadPixelMarkers.Image")));
-            this.tsbAddBadPixelMarkers.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbAddBadPixelMarkers.Name = "tsbAddBadPixelMarkers";
-            this.tsbAddBadPixelMarkers.Size = new System.Drawing.Size(23, 22);
-            this.tsbAddBadPixelMarkers.ToolTipText = "Overlay bad pixel markers";
-            // 
             // pnlControlArea
             // 
             this.pnlControlArea.Controls.Add(this.pnlClient);
@@ -1159,6 +1169,8 @@
             this.imageListToolbar.TransparentColor = System.Drawing.Color.Transparent;
             this.imageListToolbar.Images.SetKeyName(0, "Camera-Transparent-32x32.png");
             this.imageListToolbar.Images.SetKeyName(1, "Camera-Transparent-32x32-Disc.png");
+            this.imageListToolbar.Images.SetKeyName(2, "Overlay-Bad-Pixel-Markers-Start 16x16.png");
+            this.imageListToolbar.Images.SetKeyName(3, "Overlay-Bad-Pixel-Markers-Stop 16x16.png");
             // 
             // openFileDialog
             // 
@@ -1168,15 +1180,6 @@
             // restartRecTimer
             // 
             this.restartRecTimer.Tick += new System.EventHandler(this.restartRecTimer_Tick);
-            // 
-            // ucVideoControl
-            // 
-            this.ucVideoControl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ucVideoControl.Location = new System.Drawing.Point(4, 182);
-            this.ucVideoControl.Name = "ucVideoControl";
-            this.ucVideoControl.Size = new System.Drawing.Size(190, 86);
-            this.ucVideoControl.TabIndex = 27;
-            this.ucVideoControl.Visible = false;
             // 
             // frmMain
             // 
