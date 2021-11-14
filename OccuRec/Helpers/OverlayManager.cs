@@ -268,17 +268,59 @@ namespace OccuRec.Helpers
                 if (Settings.Default.UseHueIntensityDisplayMode && !Settings.Default.UseInvertedDisplayMode)
                     contrastingColourPen = new Pen(Color.FromArgb(90, 0, 0, 255));
 
-                // ToDo loop over each bad pixel in the list
-                int x0 = 150;
-                int y0 = 150;
                 int dx = (int)Settings.Default.BadPixelsMarkerSize;
                 int dy = (int)Settings.Default.BadPixelsMarkerSize;
 
-                // ToDo write code to draw the other shapes (cross or circle)
+                // figure out if to display the markers or not in this frame for blinking markers
+                long frameCount;
+                long quotient, remainder;
 
-                // draw a plus
-                g.DrawLine(contrastingColourPen, x0 - dx, y0, x0 + dx, y0);
-                g.DrawLine(contrastingColourPen, x0, y0 - dy, x0, y0 + dy);
+                if (Settings.Default.BadPixelsMarkerBlinking)
+                {
+                    // once every 25 frames change state (blink)
+                    frameCount = frame.FrameNumber;
+                    quotient = Math.DivRem(frameCount, 25, out remainder);
+                    // odd or even?
+                    quotient = Math.DivRem(quotient, 2, out remainder);
+                }
+                else remainder = 1; // 'Blinking' not selected so always draw the markers
+
+                if (remainder == 1) // draw the markers
+                {
+                    if (Settings.Default.BadPixelsMarkerShapePlus)
+                    {
+                        foreach (Point badPixel in frmMain.s_BadPixels)
+                        {
+                            int x0 = badPixel.X;
+                            int y0 = badPixel.Y;
+                            g.DrawLine(contrastingColourPen, x0 - dx, y0, x0 + dx, y0);
+                            g.DrawLine(contrastingColourPen, x0, y0 - dy, x0, y0 + dy);
+                        }
+                        
+                    }
+                    else if (Settings.Default.BadPixelsMarkerShapeCross)
+                    {
+                        foreach (Point badPixel in frmMain.s_BadPixels)
+                        {
+                            int x0 = badPixel.X;
+                            int y0 = badPixel.Y;
+                            g.DrawLine(contrastingColourPen, x0 - dx, y0 - dy, x0 + dx, y0 + dy);
+                            g.DrawLine(contrastingColourPen, x0 + dy, y0 - dy, x0 - dy, y0 + dy);
+                        }
+                    }
+                    else if (Settings.Default.BadPixelsMarkerShapeCircle)
+                    {
+                        foreach (Point badPixel in frmMain.s_BadPixels)
+                        {
+                            int x0 = badPixel.X;
+                            int y0 = badPixel.Y;
+                            g.DrawEllipse(contrastingColourPen, x0 - dx, y0 - dy, 2 * dx, 2 * dy);
+                        }
+                    }
+                }
+
+
+
             }
 
             if (frame != null)
