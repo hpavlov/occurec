@@ -12,7 +12,7 @@ namespace OccuRec.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -1700,6 +1700,102 @@ namespace OccuRec.Properties {
             }
             set {
                 this["DisableFieldNoCheck"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string BadPixelsFileName {
+            get {
+                return ((string)(this["BadPixelsFileName"]));
+            }
+            set {
+                this["BadPixelsFileName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool EnableBadPixelsControl {
+            get {
+                return ((bool)(this["EnableBadPixelsControl"]));
+            }
+            set {
+                this["EnableBadPixelsControl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool BadPixelsMarkerShapePlus {
+            get {
+                return ((bool)(this["BadPixelsMarkerShapePlus"]));
+            }
+            set {
+                this["BadPixelsMarkerShapePlus"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool BadPixelsMarkerShapeCross {
+            get {
+                return ((bool)(this["BadPixelsMarkerShapeCross"]));
+            }
+            set {
+                this["BadPixelsMarkerShapeCross"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool BadPixelsMarkerShapeCircle {
+            get {
+                return ((bool)(this["BadPixelsMarkerShapeCircle"]));
+            }
+            set {
+                this["BadPixelsMarkerShapeCircle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8")]
+        public decimal BadPixelsMarkerSize {
+            get {
+                return ((decimal)(this["BadPixelsMarkerSize"]));
+            }
+            set {
+                this["BadPixelsMarkerSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool BadPixelsMarkerBlinking {
+            get {
+                return ((bool)(this["BadPixelsMarkerBlinking"]));
+            }
+            set {
+                this["BadPixelsMarkerBlinking"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DisplayBadPixelsMarkers {
+            get {
+                return ((bool)(this["DisplayBadPixelsMarkers"]));
+            }
+            set {
+                this["DisplayBadPixelsMarkers"] = value;
             }
         }
     }

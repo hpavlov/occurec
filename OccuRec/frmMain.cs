@@ -56,10 +56,12 @@ namespace OccuRec
 	    private OverlayManager m_OverlayManager = null;
 	    private List<string> initializationErrorMessages = new List<string>();
 
+        public static List<Point> s_BadPixels = new List<Point>();
+
         private VideoFrameInteractionController m_VideoFrameInteractionController;
         private VideoRenderingController m_VideoRenderingController;
-
-		public frmMain()
+        
+        public frmMain()
 		{
 			InitializeComponent();
 
@@ -77,6 +79,8 @@ namespace OccuRec
             m_ObservatoryController.FocuserPositionUpdated += FocuserPositionUpdated;
 			m_ObservatoryController.VideoStateUpdated += VideoStateUpdated;
 			m_ObservatoryController.VideoError += VideoError;
+
+            tsbAddBadPixelMarkers.Visible = false;
 
 			m_AnalysisManager = new FrameAnalysisManager(m_ObservatoryController);
             m_VideoRenderingController = new VideoRenderingController(this, m_StateManager, m_AnalysisManager);
@@ -711,10 +715,10 @@ namespace OccuRec
                 // It is possible this method to be called during Disposing and we don't need to do anything in that case
 		        return;
 
-			// TODO: Many of things below only change their state when something changes. Rather than always resetting their state with each rendered frame, we should really 
-			//       use events to update the state!
+            // TODO: Many of things below only change their state when something changes. Rather than always resetting their state with each rendered frame, we should really 
+            //       use events to update the state!
 
-			if (ChangedToDisconnectedState())
+            if (ChangedToDisconnectedState())
 			{
 				tssCameraState.Text = "Disconnected";
 				tssFrameNo.Text = string.Empty;
@@ -732,6 +736,7 @@ namespace OccuRec
 				tsbAddGuidingStar.Visible = false;
                 tbsInsertSpectra.Visible = false;
 				tbsClearTargets.Visible = false;
+                tsbAddBadPixelMarkers.Visible = false;
 				tssToolBorder.Visible = false;
 
 				//tsbCamControl.Enabled = false;
@@ -748,8 +753,10 @@ namespace OccuRec
 				tbsClearTargets.Enabled = false;
 				tsbAddGuidingStar.Enabled = true;
                 tbsInsertSpectra.Enabled = true;
-				
-				TrackingContext.Current.Reset();
+                tsbAddBadPixelMarkers.Enabled = Settings.Default.EnableBadPixelsControl;
+                tsbAddBadPixelMarkers.Visible = Settings.Default.EnableBadPixelsControl;
+
+                TrackingContext.Current.Reset();
 				TrackingContext.Current.ReConfigureNativeTracking(videoObject.Width, videoObject.Height);
 
                 //tsbCamControl.Enabled = CameraSupportsSoftwareControl();
@@ -1709,7 +1716,8 @@ namespace OccuRec
 
 		private void frmMain_Load(object sender, EventArgs e)
 		{
-			if (Settings.Default.WarnForFileSystemIssues)
+
+            if (Settings.Default.WarnForFileSystemIssues)
 			{
 			    if (Directory.Exists(Settings.Default.OutputLocation))
 			    {
@@ -2130,7 +2138,20 @@ namespace OccuRec
 			    tbsInsertSpectra.Visible = false;
 				m_VideoFrameInteractionController.RemoveTrackedObjects();
 		    }
-	    }
+
+            if (Settings.Default.EnableBadPixelsControl)
+            {
+                if (videoObject != null)
+                    tsbAddBadPixelMarkers.Enabled = true;
+                    tsbAddBadPixelMarkers.Visible = true;
+            }
+            else
+            {
+                tsbAddBadPixelMarkers.Enabled = false;
+                tsbAddBadPixelMarkers.Visible = false;
+            }
+
+        }
 
 		private void frmMain_Shown(object sender, EventArgs e)
 		{
@@ -2351,5 +2372,143 @@ namespace OccuRec
             string fileName = FileNameGenerator.GenerateFileName(OccuRecContext.Current.IsAAV);
             recordingfileName = videoObject.StartRecording(fileName);
         }
-	}
+
+        private void tsbAddBadPixelMarkers_Click(object sender, EventArgs e)
+        {
+            // toggle the state
+            Settings.Default.DisplayBadPixelsMarkers = !Settings.Default.DisplayBadPixelsMarkers;
+
+            if (Settings.Default.DisplayBadPixelsMarkers)
+            {
+                // turn off so the bad pixels aren't displayed until the preparation has been finished
+                Settings.Default.DisplayBadPixelsMarkers = false;
+
+                // check the bad pixel file still exists (in case it was moved/deleted since it was selected in the settings form by the user)
+                if (!File.Exists(Settings.Default.BadPixelsFileName))
+                {
+                    string caption = "Bad Pixels File Missing";
+                    string message = "The file containing the bad pixels specified in the OccuRec Settings>Observing Aids>Bad Pixels form no longer exists so OccuRec can't overlay any bad pixel markers.";
+                    MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK;
+                    MessageBoxIcon messageBoxIcon = MessageBoxIcon.Warning;
+                    MessageBox.Show(message, caption, messageBoxButtons, messageBoxIcon);
+                    tsbAddBadPixelMarkers.Enabled = false;
+                    tsbAddBadPixelMarkers.Visible = false;
+                    Settings.Default.EnableBadPixelsControl = false;
+                    return;
+                }
+
+                s_BadPixels.Clear();
+                try
+                {
+                    StreamReader streamReader = new StreamReader(Settings.Default.BadPixelsFileName);
+                    using (streamReader)
+                    {
+                        string line;
+                        while ((line = streamReader.ReadLine()) != null)
+                        {
+                            try
+                            {
+                                string[] coordinatesString = line.Split(',');
+                                int x = Convert.ToInt32(coordinatesString[0]);
+                                int y = Convert.ToInt32(coordinatesString[1]);
+
+                                s_BadPixels.Add(new Point(x, y));
+                            }
+                            catch (FormatException)
+                            {
+                                string caption = "Bad Pixels File: Format Exception";
+                                string message = String.Format("Failed to convert the line '{0}' to pixel coordinates as it was in the wrong format", line);
+                                MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK;
+                                MessageBoxIcon messageBoxIcon = MessageBoxIcon.Warning;
+                                MessageBox.Show(message, caption, messageBoxButtons, messageBoxIcon);
+                                tsbAddBadPixelMarkers.Enabled = false;
+                                tsbAddBadPixelMarkers.Visible = false;
+                                Settings.Default.EnableBadPixelsControl = false;
+                                return;
+                            }
+                            catch (IndexOutOfRangeException)
+                            {
+                                string caption = "Bad Pixels File: Missing Coordinate";
+                                string message = String.Format("Failed to convert the line '{0}' to pixel coordinates as it was in the wrong format", line);
+                                MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK;
+                                MessageBoxIcon messageBoxIcon = MessageBoxIcon.Warning;
+                                MessageBox.Show(message, caption, messageBoxButtons, messageBoxIcon);
+                                tsbAddBadPixelMarkers.Enabled = false;
+                                tsbAddBadPixelMarkers.Visible = false;
+                                Settings.Default.EnableBadPixelsControl = false;
+                                return;
+                            }
+                        }
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    string caption = "Bad Pixels File: Unauthorised Access";
+                    string message = "For some reason Windows won't allow OccuRec to access the Bad Pixels file.";
+                    MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK;
+                    MessageBoxIcon messageBoxIcon = MessageBoxIcon.Warning;
+                    MessageBox.Show(message, caption, messageBoxButtons, messageBoxIcon);
+                    tsbAddBadPixelMarkers.Enabled = false;
+                    tsbAddBadPixelMarkers.Visible = false;
+                    Settings.Default.EnableBadPixelsControl = false;
+                    return;
+                }
+                catch (IOException)
+                {
+                    string caption = "Bad Pixels File: IO error";
+                    string message = "Something went wrong with reading the Bad Pixels file.";
+                    MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK;
+                    MessageBoxIcon messageBoxIcon = MessageBoxIcon.Warning;
+                    MessageBox.Show(message, caption, messageBoxButtons, messageBoxIcon);
+                    tsbAddBadPixelMarkers.Enabled = false;
+                    tsbAddBadPixelMarkers.Visible = false;
+                    Settings.Default.EnableBadPixelsControl = false;
+                    return;
+                }
+
+                // check there has been at least one successful bad pixel read from the file
+                if (s_BadPixels.Count < 1)
+                {
+                    string caption = "Bad Pixels File is empty";
+                    string message = "The bad pixels file doesn't have the coordinates of any bad pixels in it.";
+                    MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK;
+                    MessageBoxIcon messageBoxIcon = MessageBoxIcon.Warning;
+                    MessageBox.Show(message, caption, messageBoxButtons, messageBoxIcon);
+                    tsbAddBadPixelMarkers.Enabled = false;
+                    tsbAddBadPixelMarkers.Visible = false;
+                    Settings.Default.EnableBadPixelsControl = false;
+                    return;
+                }
+
+                foreach (Point badPixel in s_BadPixels)
+                {
+                    if (badPixel.X < 0 || badPixel.Y < 0 || badPixel.X > imageWidth || badPixel.Y > imageHeight)
+                    {
+                        string caption = "Bad Pixels File: invalid coordinates";
+                        string message = String.Format("The bad pixels file has some coordinates ({0},{1}) outside the image.", badPixel.X, badPixel.Y);
+                        MessageBoxButtons messageBoxButtons = MessageBoxButtons.OK;
+                        MessageBoxIcon messageBoxIcon = MessageBoxIcon.Warning;
+                        MessageBox.Show(message, caption, messageBoxButtons, messageBoxIcon);
+                        tsbAddBadPixelMarkers.Enabled = false;
+                        tsbAddBadPixelMarkers.Visible = false;
+                        Settings.Default.EnableBadPixelsControl = false;
+                        return;
+                    }
+                }
+
+                tsbAddBadPixelMarkers.ToolTipText = "Stop overlaying the bad pixels locations on the video";
+                tsbAddBadPixelMarkers.Image = imageListToolbar.Images[3];
+
+                // turn back on now that the preparation has been finished
+                Settings.Default.DisplayBadPixelsMarkers = true;
+            }
+            else
+            {
+                s_BadPixels.Clear();
+
+                tsbAddBadPixelMarkers.ToolTipText = "Overlay the bad pixels locations on the video";
+                tsbAddBadPixelMarkers.Image = imageListToolbar.Images[2];
+            }
+        }
+    }
 }

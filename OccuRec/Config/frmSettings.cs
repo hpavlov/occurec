@@ -76,6 +76,7 @@ namespace OccuRec.Config
 			m_PropertyPages.Add(10, new ucFieldIdentification());
 			m_PropertyPages.Add(11, new ucAdvanced());
 			m_PropertyPages.Add(12, new ucSpectroscopy());
+            m_PropertyPages.Add(13, new ucBadPixels());
 
 #if !DEBUG
             tvSettings.Nodes.RemoveByKey("ndDebug");
