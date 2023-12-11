@@ -2460,7 +2460,7 @@ HRESULT StartRecordingInternal_AAV2(LPCTSTR szFileName)
 
 	Check(AdvVer2::AdvVer2_AddFileTag("RECORDER-SOFTWARE", "OccuRec"));
 	Check(AdvVer2::AdvVer2_AddFileTag("RECORDER-SOFTWARE-VERSION", occuRecVersion));
-	Check(AdvVer2::AdvVer2_AddFileTag("FSTF-TYPE", "ADV"));
+	Check(AdvVer2::AdvVer2_AddFileTag("FSTF-TYPE", "AAV"));
 	Check(AdvVer2::AdvVer2_AddFileTag("ADV-VERSION", "2"));
 	Check(AdvVer2::AdvVer2_AddFileTag("AAV-VERSION", "2"));
 	Check(AdvVer2::AdvVer2_AddFileTag("OS-VERSION", OS_VERSION));
